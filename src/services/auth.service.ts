@@ -3,6 +3,9 @@ import type { RegisterDTO, LoginDTO } from "../types/user"
 import type { AuthUser } from "../types/auth"
 import { TokenService } from "./token.service"
 
+// =========================
+// 📌 Register
+// =========================
 export const registerService = async (data: RegisterDTO) => {
   const res = await api.post(
     `${import.meta.env.VITE_AUTH_API}/register`,
@@ -12,7 +15,9 @@ export const registerService = async (data: RegisterDTO) => {
   return res.data
 }
 
-
+// =========================
+// 📌 Login
+// =========================
 export const loginService = async (data: LoginDTO) => {
   const res = await api.post<AuthUser>(
     `${import.meta.env.VITE_AUTH_API}/login`,
