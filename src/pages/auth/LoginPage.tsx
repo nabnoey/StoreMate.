@@ -1,10 +1,9 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginService } from "../../services/auth.service";
-import { UserContext } from "../../context/UserContext";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
 
+import { loginService } from "../../services/auth.service";
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
@@ -15,31 +14,34 @@ function LoginPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
-  const { logIn } = useContext(UserContext)!; 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  setForm(prev => ({
-    ...prev,
-    [name]: value
-  }));
-};
+  // Handle input change
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value,
+    }));
+  };
 
+  // Handle login submit
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      
       const authData = await loginService(form);
-    // console.log(authData);
 
-      logIn(authData.token);
-      console.log(authData);
+      // ถ้าอยากให้ Remember Me คุมการเก็บ token
+      if (rememberMe) {
+        localStorage.setItem("auth", JSON.stringify(authData));
+      } else {
+        sessionStorage.setItem("auth", JSON.stringify(authData));
+      }
 
-
+      // ✅ SweetAlert2: Login Success
       await Swal.fire({
         icon: "success",
         title: "Login Successful 🎉",
@@ -52,12 +54,14 @@ function LoginPage() {
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
 
+      // ❌ SweetAlert2: Login Error
       Swal.fire({
         icon: "error",
         title: "Login Failed",
         text:
           error.response?.data?.message ||
           "Invalid email or password. Please try again.",
+        confirmButtonText: "Try Again",
       });
     } finally {
       setLoading(false);
@@ -65,69 +69,137 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white justify-end mr-40 items-start pt-24 bg-base-100">
-      {/* Left image */}
-      <div className="hidden lg:block">
-        <img src={auth} alt="auth" className="w-128.25 h-auto -mt-37.5 mb-[-37.5px] mr-60" />
-          <p className="text-black text-[30px] -mt-40 -ml-52.5 font-medium text-center">
-        Login to use our website
+    <div
+      className="min-h-screen flex flex-col lg:flex-row 
+      bg-base-100 
+      justify-center lg:justify-end 
+      items-center lg:items-start
+      gap-8 lg:gap-20
+      px-4 lg:mr-40 
+      pt-8 lg:pt-24"
+    >
+      {/* Auth Section */}
+      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
+        <img
+          src={auth}
+          alt="Auth"
+          className="
+            w-[300px] sm:w-[400px] lg:w-[513px] 
+            h-auto
+            lg:mt-[-150px] 
+            lg:mb-[-37.5px]
+          "
+        />
+        <p
+          className="
+            text-black font-bold text-center
+            text-2xl sm:text-3xl lg:text-4xl
+            mt-4 lg:mt-[-160px]
+            ml-4 lg:ml-10
+          "
+        >
+          Login to use our website
         </p>
       </div>
 
-      {/* Login form */}
+      {/* Login Card */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-[420px] p-6 relative"
+        className="bg-white rounded-2xl shadow-2xl 
+        w-full max-w-[420px] 
+        p-6 relative"
       >
-        <img
-          src={logo}
-          alt="logo"
-          className="absolute top-4 right-4 w-40 h-40 -mt-7.5"
-        />
+        {/* Logo */}
+        <div className="absolute top-4 right-4">
+          <img
+            src={logo}
+            alt="logo"
+            className="w-20 sm:w-24 lg:w-40 h-auto"
+          />
+        </div>
 
-        <h2 className="text-2xl font-bold mb-6 text-black">LOGIN</h2>
-<div className="mt-10">
-        <label className="block mb-1 font-semibold text-black">
-          Email<span className="text-red-500">*</span>
+        <h2 className="text-2xl font-extrabold mb-6 text-black text-center lg:text-left">
+          LOGIN
+        </h2>
+
+        {/* Email */}
+        <label className="label p-0 mb-1">
+          <span className="font-semibold text-black">
+            Email<span className="text-red-500">*</span>
+          </span>
         </label>
         <input
           type="email"
           name="email"
+          placeholder="email"
           value={form.email}
           onChange={handleChange}
           required
-          className="input input-bordered w-full mb-4 bg-white text-black  border-gray-300"
+          className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
         />
 
-        <label className="block mb-1 font-semibold text-black">
-          Password<span className="text-red-500">*</span>
+        {/* Password */}
+        <label className="label p-0 mb-1">
+          <span className="font-semibold text-black">
+            Password<span className="text-red-500">*</span>
+          </span>
         </label>
         <input
           type="password"
           name="password"
+          placeholder="at least 8 digits"
           value={form.password}
           onChange={handleChange}
           required
-          className="input input-bordered w-full mb-6 bg-white text-black  border-gray-300"
+          className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
         />
+
+        {/* Remember me */}
+        <div className="flex items-center gap-3 mb-6">
+          <input
+            type="checkbox"
+            id="remember"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-green-400"
+          />
+          <label
+            htmlFor="remember"
+            className="text-gray-800 cursor-pointer select-none"
+          >
+            Remember me
+          </label>
         </div>
 
+        {/* Button */}
         <button
           type="submit"
           disabled={loading}
-          className="btn  w-full bg-green-400 text-black font-bold border-green-400"
+          className="btn w-full rounded-lg 
+          bg-green-400 text-black text-lg font-bold 
+          border-none disabled:opacity-50"
         >
-          
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        <div className="flex justify-between text-sm mt-4 text-black">
-          <span className="cursor-pointer hover:underline">
-            Forgot password?
-          </span>
-          <a href="/register" className="text-blue-500 hover:underline">
-            Sign up
-          </a>
+        {/* Footer */}
+        <div
+          className="text-black flex flex-col sm:flex-row 
+          justify-between items-center text-sm mt-4 gap-2"
+        >
+          <p className="hover:underline cursor-pointer">
+            Forgot Password
+          </p>
+
+          <div className="flex items-center">
+            <span>Not a member?</span>
+            <a
+              href="/register"
+              className="text-blue-500 hover:underline ml-2"
+            >
+              Sign up now.
+            </a>
+          </div>
         </div>
       </form>
     </div>
