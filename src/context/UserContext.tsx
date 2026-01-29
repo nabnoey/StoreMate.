@@ -1,18 +1,12 @@
 import { createContext } from "react";
-import type { User } from "../types/user"
 
-/** รูปแบบข้อมูล User (ปรับให้ตรง backend ได้) */
-// export interface User {
-//   id: number;
-//   name: string;
-//   email: string;
-//   role: "admin" | "user";
-// }
+
 
 /** สิ่งที่ Context นี้จะให้ component ใช้ */
 export interface UserContextType {
-  userInfo: User | null;
-  logIn: (user: User) => void;
+  // userInfo: User 
+  isAuthenticated: boolean;
+  logIn: (token: string) => void;
   logout: () => void;
 }
 

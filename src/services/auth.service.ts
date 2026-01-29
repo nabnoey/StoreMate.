@@ -26,7 +26,7 @@ export const loginService = async (data: LoginDTO) => {
 
   // ✅ เช็คว่าเก็บ cookie หรือยัง
   if (res.status === 200 && res.data?.token) {
-    TokenService.setUser(res.data)
+    TokenService.setToken(res.data)
   }
 
   return res.data
