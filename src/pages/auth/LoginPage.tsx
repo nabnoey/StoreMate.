@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-
+import { UserContext } from "../../context/UserContext";
 import { loginService } from "../../services/auth.service";
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
@@ -12,11 +12,13 @@ function LoginPage() {
     email: "",
     password: "",
   });
+  // console.log("LOGIN FORM:", form)
 
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
+    const { logIn } = useContext(UserContext)!; 
 
   // Handle input change
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +35,7 @@ function LoginPage() {
 
     try {
       const authData = await loginService(form);
+            logIn(authData.token);
 
       // ถ้าอยากให้ Remember Me คุมการเก็บ token
       if (rememberMe) {
@@ -71,7 +74,7 @@ function LoginPage() {
   return (
     <div
       className="min-h-screen flex flex-col lg:flex-row 
-      bg-base-100 
+      bg-white
       justify-center lg:justify-end 
       items-center lg:items-start
       gap-8 lg:gap-20
