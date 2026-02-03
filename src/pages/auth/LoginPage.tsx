@@ -82,42 +82,45 @@ function LoginPage() {
       pt-8 lg:pt-24"
     >
       {/* Auth Section */}
-      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
+      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20  ">
         <img
           src={auth}
           alt="Auth"
           className="
-            w-[300px] sm:w-[400px] lg:w-[513px] 
+            w-75 sm:w-100 lg:w-128.25
             h-auto
-            lg:mt-[-150px] 
+            lg:-mt-37.5
             lg:mb-[-37.5px]
           "
         />
+        <div className="flex flex-col items-center justify-center mb-10 -mt-23.5 lg:mb-0 lg:mr-20 ">
         <p
           className="
-            text-black font-bold text-center
+           text-black font-bold text-center
             text-2xl sm:text-3xl lg:text-4xl
-            mt-4 lg:mt-[-160px]
+            mt-4 lg:-mt-45
             ml-4 lg:ml-10
+          
           "
         >
           Login to use our website
         </p>
+        </div>
       </div>
 
       {/* Login Card */}
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl shadow-2xl 
-        w-full max-w-[420px] 
+        w-full max-w-105 
         p-6 relative"
       >
         {/* Logo */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 -mt-7.5">
           <img
             src={logo}
             alt="logo"
-            className="w-20 sm:w-24 lg:w-40 h-auto"
+            className="w-20 sm:w-24 lg:w-40 h-auto "
           />
         </div>
 

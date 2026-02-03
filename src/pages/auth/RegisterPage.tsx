@@ -76,48 +76,111 @@ const { isAuthenticated } = context;
     }
   }
 
-  return (
-    <div className="min-h-screen flex bg-white justify-end mr-40 items-start pt-24 bg-base-100">
-      {/* Image */}
-      <div className="flex flex-col items-center justify-center ">
-        <img src={Auth} alt="Auth" className="w-128.25 h-auto -mt-37.5 mb-[-37.5px] mr-60" />
-        <p className="text-black text-[30px] -mt-40 -ml-52.5 font-medium text-center">
+   return (
+    <div
+      className="
+       min-h-screen flex flex-col lg:flex-row 
+      bg-white
+      justify-center lg:justify-end 
+      items-center lg:items-start
+      gap-8 lg:gap-20
+      px-4 lg:mr-40 
+      pt-8 lg:pt-24
+      "
+    >
+
+      <div className="flex flex-col items-center justify-center  mb-10 lg:mb-0 lg:mr-20">
+        <img
+          src={Auth}
+          alt="Auth"
+          className="w-64 sm:w-80 lg:w-[520px] h-auto"
+        />
+
+        <p
+          className="
+            text-black font-bold text-center
+            text-2xl sm:text-3xl lg:text-4xl
+            mt-4 lg:-mt-45
+            ml-4 lg:ml-10
+          "
+        >
           Create your Store mate Account
         </p>
+        
       </div>
 
       {/* Register Card */}
-      <div className="bg-white rounded-2xl shadow-2xl w-105 p-6 relative">
-        <div className="absolute top-4 right-4">
-          <img src={logo} alt="logo" className="w-40 h-40 -mt-7.5" />
+      <form
+        className="
+         g-white rounded-2xl shadow-2xl 
+        w-full max-w-105 
+        p-6 relative
+        "
+      >
+        {/* Logo */}
+     <div className="absolute top-4 right-4 -mt-12">
+          <img
+            src={logo}
+            alt="logo"
+            className="w-20 sm:w-24 lg:w-40 h-auto "
+          />
         </div>
 
-        <h2 className="text-xl font-bold mb-6 text-black">REGISTRATION</h2>
-<div className="mt-12 ">
-        <input name="name" value={user.name} onChange={handleChange} placeholder="name"
-          className="input input-bordered w-full mb-4 bg-white text-black border-gray-300" />
+        <h2 className="text-xl font-bold mb-6 text-black">
+          REGISTRATION
+        </h2>
 
-        <input name="email" value={user.email} onChange={handleChange} placeholder="example@gmail.com"
-          className="input input-bordered w-full mb-4 bg-white text-black  border-gray-300" />
+        <input
+          name="name"
+          value={user.name}
+          onChange={handleChange}
+          placeholder="name"
+          className="input input-bordered w-full mb-4 bg-white text-black border-gray-300"
+        />
 
-        <input name="phone" value={user.phone} onChange={handleChange} placeholder="081-234-5678"
-          className="input input-bordered w-full mb-4 bg-white text-black  border-gray-300" />
+        <input
+          name="email"
+          value={user.email}
+          onChange={handleChange}
+          placeholder="example@gmail.com"
+          className="input input-bordered w-full mb-4 bg-white text-black border-gray-300"
+        />
 
-        <input type="password" name="password" value={user.password} onChange={handleChange}
+        <input
+          name="phone"
+          value={user.phone}
+          onChange={handleChange}
+          placeholder="081-234-5678"
+          className="input input-bordered w-full mb-4 bg-white text-black border-gray-300"
+        />
+
+        <input
+          type="password"
+          name="password"
+          value={user.password}
+          onChange={handleChange}
           placeholder="at least 8 digits"
-          className="input input-bordered w-full mb-4 bg-white text-black  border-gray-300" />
+          className="input input-bordered w-full mb-4 bg-white text-black border-gray-300"
+        />
 
-        <input type="password" name="confirmPassword" value={user.confirmPassword} onChange={handleChange}
+        <input
+          type="password"
+          name="confirmPassword"
+          value={user.confirmPassword}
+          onChange={handleChange}
           placeholder="Confirm Password"
-          className="input input-bordered w-full mb-6 bg-white text-black  border-gray-300" />
+          className="input input-bordered w-full mb-6 bg-white text-black border-gray-300"
+        />
 
-        <button onClick={handleSubmit} className="btn w-full bg-green-400 text-black border-none">
+        <button
+          onClick={handleSubmit}
+          className="btn w-full bg-green-400 text-black border-none font-bold"
+        >
           Register
         </button>
-        </div>
-      </div>
+      </form>
     </div>
-  )
+  );
 }
 
 export default RegisterPage
