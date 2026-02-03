@@ -89,11 +89,14 @@ const { isAuthenticated } = context;
       "
     >
 
-      <div className="flex flex-col items-center justify-center  mb-10 lg:mb-0 lg:mr-20">
+      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
         <img
           src={Auth}
           alt="Auth"
-          className="w-64 sm:w-80 lg:w-[520px] h-auto"
+          className="w-75 sm:w-100 lg:w-128.25
+            h-auto
+            lg:-mt-37.5
+            lg:mb-[-37.5px]"
         />
 
         <p
