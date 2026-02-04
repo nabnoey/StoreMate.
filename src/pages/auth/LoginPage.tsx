@@ -175,7 +175,7 @@ function LoginPage() {
         </div>
 
         {/* Button */}
-        <button
+        <button id="loginButton"
           type="submit"
           disabled={loading}
           className="btn w-full rounded-lg 
@@ -196,7 +196,7 @@ function LoginPage() {
 
           <div className="flex items-center">
             <span>Not a member?</span>
-            <a
+            <a id="signUp"
               href="/register"
               className="text-blue-500 hover:underline ml-2"
             >

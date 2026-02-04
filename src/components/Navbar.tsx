@@ -83,7 +83,7 @@ const handleLogout = () => {
             </ul>
           </div>
         ) : (
-          <FaRegUser
+          <FaRegUser id="loginIcon"
             size={24}
             className="cursor-pointer"
             onClick={() => navigate("/login")}
