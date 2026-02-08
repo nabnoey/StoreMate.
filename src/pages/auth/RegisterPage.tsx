@@ -1,9 +1,9 @@
-import { useState, useContext, useEffect } from "react"
+import { useState  } from "react"
 import Swal from "sweetalert2"
 import axios from "axios"
 import { registerService } from "../../services/auth.service"
 import { useNavigate } from "react-router-dom"
-import { UserContext } from "../../context/UserContext"
+
 import logo from "../../assets/logo.png"
 import Auth from "../../assets/Auth.png"
 
@@ -17,18 +17,9 @@ interface RegisterForm {
 
 function RegisterPage() {
   const navigate = useNavigate()
-  const context = useContext(UserContext);
 
-if (!context) {
-  throw new Error("UserContext must be used within UserContextProvider");
-}
 
-const { isAuthenticated } = context;
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/")
-    }
-  }, [isAuthenticated,navigate])
+
 
   const [user, setUser] = useState<RegisterForm>({
     name: "",
@@ -114,6 +105,10 @@ const { isAuthenticated } = context;
 
       {/* Register Card */}
       <form
+      onSubmit={(e)=> {
+        e.preventDefault()
+        handleSubmit()
+      }}
         className="
          g-white rounded-2xl shadow-2xl 
         w-full max-w-105 
@@ -176,7 +171,7 @@ const { isAuthenticated } = context;
         />
 
         <button
-          onClick={handleSubmit}
+          type="submit"
           className="btn w-full bg-green-400 text-black border-none font-bold"
         >
           Register

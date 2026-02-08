@@ -1,13 +1,17 @@
-import { useState,useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {useDispatch} from "react-redux";
+import {login} from "../../redux/auth/action";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-import { UserContext } from "../../context/UserContext";
 import { loginService } from "../../services/auth.service";
+import { useNavigate } from "react-router";
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
+
+
 function LoginPage() {
+  
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -16,9 +20,14 @@ function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const dispatch = useDispatch();
 
-  const navigate = useNavigate();
-    const { logIn } = useContext(UserContext)!; 
+const navigate = useNavigate();
+
+
+
+  
+
 
   // Handle input change
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +44,10 @@ function LoginPage() {
 
     try {
       const authData = await loginService(form);
-            logIn(authData.token);
+            dispatch(login({
+              token:authData.token,
+              isAuthenticated:true
+            }))
 
       // ถ้าอยากให้ Remember Me คุมการเก็บ token
       if (rememberMe) {
@@ -53,7 +65,6 @@ function LoginPage() {
         showConfirmButton: false,
       });
 
-      navigate("/");
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
 
@@ -200,8 +211,10 @@ function LoginPage() {
           <div className="flex items-center">
             <span>Not a member?</span>
             <a
-              href="/register"
+              
               className="text-blue-500 hover:underline ml-2"
+              onClick={()=>{navigate("/register")
+              }}
             >
               Sign up now.
             </a>
