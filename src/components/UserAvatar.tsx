@@ -2,6 +2,13 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 
+//ปัญหาจากPropsเพราะมันหาไม่เจอ
+type Props = {
+  title:string
+  onClick?: () => void; 
+}
+
+
 const UserAvatar: React.FC<Props> = ({ onClick }) => {
   // 1. ดึงจาก Redux
   const nameFromRedux = useSelector((state: RootState) => state.auth.name);
