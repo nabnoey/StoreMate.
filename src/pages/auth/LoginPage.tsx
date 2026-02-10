@@ -37,17 +37,9 @@ function LoginPage() {
       // 2. ดึง Token และจัดการเรื่อง Name
       const token = authData.token;
 
-      // 💡 จุดที่แก้ไข: เนื่องจาก API ส่งมาแค่ {type, token}
-      // เราจะดึงชื่อจาก Email ที่ผู้ใช้พิมพ์ในฟอร์มแทน
-      // เช่น "fara@gmail.com" จะถูกตัดเหลือแค่ "fara"
-      const userName = form.email.split('@')[0]; 
-
-      // 3. ✅ ส่งข้อมูลเข้า Redux (ส่ง token และ userName ที่เราสร้างขึ้น)
-      dispatch(login(token, userName));
-
       // 4. บันทึกข้อมูลลง Storage
       // เพิ่ม userName เข้าไปใน Object ที่จะเซฟด้วย เพื่อให้ Refresh แล้วชื่อไม่หาย
-      const dataToSave = { ...authData, name: userName };
+      const dataToSave = { ...authData};
       
       if (rememberMe) {
         localStorage.setItem("auth", JSON.stringify(dataToSave));
@@ -59,7 +51,7 @@ function LoginPage() {
       await Swal.fire({
         icon: "success",
         title: "Login Successful 🎉",
-        text: `Welcome, ${userName}!`,
+        text: `Welcome!`,
         timer: 1500,
         showConfirmButton: false,
       });

@@ -9,9 +9,10 @@ import UserAvatar from "./UserAvatar";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+const isAuthenticated = useSelector(
+  (state: RootState) => state.auth.isAuthenticated
+);
+
 
   return (
     <div className="navbar bg-base-100 shadow-sm h-[101px] w-full bg-gray-100">
@@ -43,6 +44,8 @@ const Navbar: React.FC = () => {
             <FaRegUser size={24} className="cursor-pointer" />
           </button>
         )}
+
+        {isAuthenticated && <UserAvatar />}
       </div>
     </div>
   );

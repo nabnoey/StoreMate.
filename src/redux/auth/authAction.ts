@@ -25,7 +25,6 @@ export const login = (token: string, name: string): LoginAction => ({
     },
 });
 
-dispatch(login(response.token, response.user.name));
 
 export const logout = ():LogoutAction => ({
     type:LOGOUT
