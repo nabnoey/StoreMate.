@@ -1,16 +1,12 @@
 import { LOGIN,LOGOUT } from "./actionTypes";
-import { useDispatch } from "react-redux";
-
-const dispatch = useDispatch<>();
 
 export type LoginAction = {
-    type: typeof LOGIN;
-    payload: {
-        token: string;
-        // name: string; // มั่นใจว่ามี field นี้
-        isAuthenticated: boolean;
-    };
-};
+    type: typeof LOGIN,
+    payload:{
+        token:string,
+        isAuthenticated:true
+    }
+}
 
 
 
@@ -19,17 +15,13 @@ export type LogoutAction = {
 }
 
 
-// แก้ไขตรงนี้: รับ name เพิ่มเข้ามา
-export const login = (token: string): LoginAction => ({
-    type: LOGIN,
-    payload: {
+export const login = (token:string): LoginAction => ({
+    type:LOGIN,
+    payload:{
         token,
-        // name,
-        isAuthenticated: true,
-    },
-});
-
-dispatch(login(token));
+        isAuthenticated:true
+    }
+})
 
 export const logout = ():LogoutAction => ({
     type:LOGOUT
