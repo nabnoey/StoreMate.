@@ -1,12 +1,12 @@
 import { LOGIN,LOGOUT } from "./actionTypes";
+
 export type LoginAction = {
-    type: typeof LOGIN;
-    payload: {
-        token: string;
-        name: string; // มั่นใจว่ามี field นี้
-        isAuthenticated: boolean;
-    };
-};
+    type: typeof LOGIN,
+    payload:{
+        token:string,
+        isAuthenticated:true
+    }
+}
 
 
 
@@ -15,19 +15,18 @@ export type LogoutAction = {
 }
 
 
-// แก้ไขตรงนี้: รับ name เพิ่มเข้ามา
-export const login = (token: string, name: string): LoginAction => ({
-    type: LOGIN,
-    payload: {
+export const login = (token:string): LoginAction => ({
+    type:LOGIN,
+    payload:{
         token,
-        name,
-        isAuthenticated: true,
-    },
-});
-
+        isAuthenticated:true
+    }
+})
 
 export const logout = ():LogoutAction => ({
     type:LOGOUT
 })
 
 export type AuthAction = LoginAction 
+
+
