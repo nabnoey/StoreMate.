@@ -111,7 +111,7 @@ const { isAuthenticated } = context;
           placeholder="Confirm Password"
           className="input input-bordered w-full mb-6 bg-white text-black  border-gray-300" />
 
-        <button id="summitRegister" onClick={handleSubmit} className="btn w-full bg-green-400 text-black border-none">
+        <button data-test="register-button" id="summitRegister" onClick={handleSubmit} className="btn w-full bg-green-400 text-black border-none">
           Register
         </button>
         </div>
