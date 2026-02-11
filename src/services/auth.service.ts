@@ -31,3 +31,8 @@ export const loginService = async (data: LoginDTO) => {
 
   return res.data
 }
+
+export const forgotPasswordService = async (email:string) => {
+const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/forgot-password`,{email})
+return res.data
+}

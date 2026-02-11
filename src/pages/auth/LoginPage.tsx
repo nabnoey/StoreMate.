@@ -146,7 +146,7 @@ function LoginPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-center text-sm mt-6 gap-2">
-          <p className="hover:underline cursor-pointer text-gray-600">Forgot Password?</p>
+          <p className="hover:underline cursor-pointer text-gray-600" onClick={() => navigate("/forgot-password")}>Forgot Password?</p>
           <div className="flex items-center">
             <span>Not a member?</span>
             <button
