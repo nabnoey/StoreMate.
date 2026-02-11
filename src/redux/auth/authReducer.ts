@@ -13,7 +13,7 @@ const authReducer = (
       return {
         ...state,
          token: (action as LoginAction).payload.token,
-         name: (action as LoginAction).payload.name,
+        //  name: (action as LoginAction).payload.name,
         isAuthenticated: true,
       };
 
