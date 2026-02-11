@@ -81,52 +81,37 @@ const navigate = useNavigate();
     }
   };
 
-  return (
+ return (
     <div
-      className="min-h-screen flex flex-col lg:flex-row 
-      bg-white
-      justify-center lg:justify-end 
-      items-center lg:items-start
-      gap-8 lg:gap-20
-      px-4 lg:mr-40 
-      pt-8 lg:pt-24"
+      id="login-page-container"
+      className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24"
     >
       {/* Auth Section */}
-       <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
+      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
         <img
+          id="auth-illustration"
           src={auth}
           alt="Auth"
-          className="
-            w-[300px] sm:w-[400px] lg:w-[513px] 
-            h-auto
-            lg:mt-[-150px] 
-            lg:mb-[-37.5px]
-          "
+          className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
         />
-        <p
-          className="
-            text-black font-bold text-center
-            text-2xl sm:text-3xl lg:text-3xl
-            mt-4 lg:mt-[-160px]
-            ml-4 lg:ml-5
-          "
-        >
+        <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
           Login to use our website
         </p>
       </div>
+
       {/* Login Card */}
       <form
+        id="login-form"
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-2xl 
-        w-full max-w-105 
-        p-6 relative"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
       >
         {/* Logo */}
         <div className="absolute top-4 right-4 -mt-7.5">
           <img
+            id="login-logo"
             src={logo}
             alt="logo"
-            className="w-20 sm:w-24 lg:w-40 h-auto "
+            className="w-20 sm:w-24 lg:w-40 h-auto"
           />
         </div>
 
@@ -135,12 +120,13 @@ const navigate = useNavigate();
         </h2>
 
         {/* Email */}
-        <label className="label p-0 mb-1">
+        <label htmlFor="email-input" className="label p-0 mb-1">
           <span className="font-semibold text-black">
             Email<span className="text-red-500">*</span>
           </span>
         </label>
         <input
+          id="email-input"
           type="email"
           name="email"
           placeholder="email"
@@ -148,15 +134,17 @@ const navigate = useNavigate();
           onChange={handleChange}
           required
           className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
+          data-testid="login-email"
         />
 
         {/* Password */}
-        <label className="label p-0 mb-1">
+        <label htmlFor="password-input" className="label p-0 mb-1">
           <span className="font-semibold text-black">
             Password<span className="text-red-500">*</span>
           </span>
         </label>
         <input
+          id="password-input"
           type="password"
           name="password"
           placeholder="at least 8 digits"
@@ -164,52 +152,51 @@ const navigate = useNavigate();
           onChange={handleChange}
           required
           className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
+          data-testid="login-password"
         />
 
         {/* Remember me */}
         <div className="flex items-center gap-3 mb-6">
           <input
+            id="remember-checkbox"
             type="checkbox"
-            id="remember"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
             className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-green-400"
+            data-testid="login-remember-me"
           />
           <label
-            htmlFor="remember"
+            htmlFor="remember-checkbox"
             className="text-gray-800 cursor-pointer select-none"
           >
             Remember me
           </label>
         </div>
 
-        {/* Button */}
+        {/* Submit Button */}
         <button
+          id="login-submit-button"
           type="submit"
           disabled={loading}
-          className="btn w-full rounded-lg 
-          bg-green-400 text-black text-lg font-bold 
-          border-none disabled:opacity-50"
+          className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50"
+          data-testid="login-button"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
         {/* Footer */}
-        <div
-          className="text-black flex flex-col sm:flex-row 
-          justify-between items-center text-sm mt-4 gap-2"
-        >
-          <p className="hover:underline cursor-pointer">
+        <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
+          <p id="link-forgot-password" className="hover:underline cursor-pointer">
             Forgot Password
           </p>
 
           <div className="flex items-center">
             <span>Not a member?</span>
             <a
-              
-              className="text-blue-500 hover:underline ml-2"
-              onClick={()=>{navigate("/register")
-              }}
+              id="link-register"
+              className="text-blue-500 hover:underline ml-2 cursor-pointer"
+              onClick={() => navigate("/register")}
+              data-testid="go-to-register"
             >
               Sign up now.
             </a>

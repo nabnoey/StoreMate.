@@ -28,17 +28,45 @@ const UserProfile: React.FC = () => {
   };
 
   return (
-    <div className="dropdown dropdown-end">
-      <label tabIndex={0} className="cursor-pointer">
-        {/* วงกลม Profile สีเทาจาง (Gray-50) ตามภาพตัวอย่าง */}
+    <div className="dropdown dropdown-end" id="user-profile-dropdown">
+      {/* 1. ปุ่มกดเปิด Dropdown */}
+      <label 
+        id="user-avatar-button"
+        tabIndex={0} 
+        className="cursor-pointer"
+        data-testid="user-avatar-trigger"
+      >
         <div className="w-11 h-11 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
           <FaRegUser size={20} />
         </div>
       </label>
-      <ul tabIndex={0} className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 mt-4 border border-gray-100 z-50 text-black">
-        <li><a onClick={() => navigate("/profile")}>My Profile</a></li>
+
+      {/* 2. รายการเมนูภายใน */}
+      <ul 
+        id="user-profile-menu"
+        tabIndex={0} 
+        className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 mt-4 border border-gray-100 z-50 text-black"
+      >
+        <li>
+          <a 
+            id="menu-my-profile" 
+            onClick={() => navigate("/profile")}
+            data-testid="link-profile"
+          >
+            My Profile
+          </a>
+        </li>
         <hr className="my-1 border-gray-100" />
-        <li><a onClick={handleLogout} className="text-red-500 font-bold">Logout</a></li>
+        <li>
+          <a 
+            id="menu-logout" 
+            onClick={handleLogout} 
+            className="text-red-500 font-bold"
+            data-testid="link-logout"
+          >
+            Logout
+          </a>
+        </li>
       </ul>
     </div>
   );
