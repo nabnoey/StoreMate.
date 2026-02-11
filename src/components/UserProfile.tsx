@@ -19,11 +19,20 @@ const UserProfile: React.FC = () => {
       confirmButtonColor: "#d33",
     });
 
+
     if (result.isConfirmed) {
       localStorage.removeItem("auth");
       sessionStorage.removeItem("auth");
       dispatch(logout());
-      navigate("/");
+
+      Swal.fire({
+         title: "ออกจากระบบสำเร็จ",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(()=>navigate("/"))
+
+      
     }
   };
 

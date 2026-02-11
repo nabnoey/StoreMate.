@@ -64,6 +64,8 @@ const navigate = useNavigate();
         showConfirmButton: false,
       });
 
+      navigate("/");
+
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
 
