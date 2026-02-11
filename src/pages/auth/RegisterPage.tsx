@@ -50,7 +50,7 @@ function RegisterPage() {
 
       Swal.fire({
         title: "Success",
-        text: res?.message ?? "สมัครสมาชิกสำเร็จ",
+        text: res?.message ?? "ลงทะเบียนสำเร็จ",
         icon: "success",
         confirmButtonText: "ไปหน้า Login",
       }).then((result) => {
