@@ -1,6 +1,7 @@
 import type { Product } from "../types/product"
 import { useDispatch } from "react-redux"
 import type { AppDispatch } from "../redux/store"
+import { addToCart } from "../redux/carts/CartReducer"
 import {removeQuantity} from "../redux/products/ProductReducer"
 
 type Props = {
@@ -11,6 +12,7 @@ function ProductCard ({product}:Props) {
   const dispatch = useDispatch<AppDispatch>()
 
   const handleAddToCart = () => {
+    dispatch(addToCart(product))
        dispatch(removeQuantity(product.id))
   }
 

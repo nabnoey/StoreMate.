@@ -10,10 +10,17 @@ import UserProfile from "./UserProfile";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+    const cartItems = useSelector((state: RootState) => state.carts);
+    const totalItems = cartItems.reduce(
+    (total: number, item: { quantity: number }) => total + item.quantity,
+    0
+  );
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
+
+  // const handlePa
 
 
   return (
@@ -53,7 +60,21 @@ const Navbar: React.FC = () => {
           <>
             <div className="hidden lg:flex gap-4 items-center mr-4 text-gray-600">
               <GoSearch id="desktop-search-icon" size={22} className="cursor-pointer hover:text-black" />
-              <FaCartShopping id="desktop-cart-icon" size={22} className="cursor-pointer hover:text-black" />
+             <div className="relative cursor-pointer">
+
+  <FaCartShopping
+    id="desktop-cart-icon"
+    size={22}
+    className="hover:text-black"
+  />
+
+  {totalItems > 0 && (
+    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+      {totalItems}
+    </span>
+  )}
+
+</div>
               <BiSolidBell id="desktop-bell-icon" size={22} className="cursor-pointer hover:text-black" />
             </div>
             {/* ภายใน UserProfile ควรไปใส่ id เพิ่มที่ปุ่ม Logout/Profile ด้วย */}
