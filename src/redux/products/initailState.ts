@@ -1,14 +1,6 @@
-export interface Product {
-  id: number;
-  name: string;
-  product_type_id: number;
-  price: number;
-  status_id: number;
-  description: string;
-  image: string;
-}
+import type { Product } from '../../types/product';
 
-export const mockProducts: Product[] = [
+export const initialState: Product[] =[
   {
     id: 1,
     name: "Macbook Pro M3",
@@ -16,7 +8,8 @@ export const mockProducts: Product[] = [
     price: 68900,
     status_id: 1,
     description: "โน้ตบุ๊คแรงสำหรับ dev และ designer",
-    image: "https://picsum.photos/400/300?random=1"
+    image: "https://picsum.photos/400/300?random=1",
+    quantity: 3
   },
   {
     id: 2,
@@ -25,7 +18,8 @@ export const mockProducts: Product[] = [
     price: 45900,
     status_id: 1,
     description: "สมาร์ทโฟนกล้องเทพ ชิปแรง",
-    image: "https://picsum.photos/400/300?random=2"
+    image: "https://picsum.photos/400/300?random=2",
+    quantity: 3
   },
   {
     id: 3,
@@ -34,7 +28,8 @@ export const mockProducts: Product[] = [
     price: 3500,
     status_id: 1,
     description: "คีย์บอร์ด mechanical สำหรับ programmer",
-    image: "https://picsum.photos/400/300?random=3"
+    image: "https://picsum.photos/400/300?random=3",
+    quantity: 3
   },
   {
     id: 4,
@@ -43,15 +38,7 @@ export const mockProducts: Product[] = [
     price: 1200,
     status_id: 1,
     description: "เมาส์เกมมิ่ง DPI สูง",
-    image: "https://picsum.photos/400/300?random=4"
+    image: "https://picsum.photos/400/300?random=4",
+    quantity: 3
   }
-  // {
-  //   id: 5,
-  //   name: "Monitor 27 inch 2K",
-  //   product_type_id: 4,
-  //   price: 8900,
-  //   status_id: 0,
-  //   description: "จอ 2K สีตรงสำหรับสายทำงาน",
-  //   image: "https://picsum.photos/400/300?random=5"
-  // }
-];
+]
