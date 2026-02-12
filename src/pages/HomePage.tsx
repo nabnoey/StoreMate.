@@ -1,7 +1,10 @@
 import ProductCard from "../components/ProductCard";
-import {mockProducts} from "../../data"
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store"
 
 function HomePage() {
+
+  const products = useSelector((state:RootState) => state.product)
   return (
     <div className="w-full mt-6 flex flex-col items-center">
 
@@ -20,13 +23,8 @@ function HomePage() {
      
       <div className="grid grid-cols-4  mt-10 w-full mx-auto justify-center">
 
-        {mockProducts.map((item) => (
-          <ProductCard
-            key={item.id}
-            name={item.name}
-            price={item.price}
-            description={item.description}
-            image={item.image}
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product}
           />
         ))}
       </div>
