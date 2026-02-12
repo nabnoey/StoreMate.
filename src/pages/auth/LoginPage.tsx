@@ -188,7 +188,7 @@ const navigate = useNavigate();
 
         {/* Footer */}
         <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
-          <p id="link-forgot-password" className="hover:underline cursor-pointer">
+          <p id="link-forgot-password" className="hover:underline cursor-pointer" onClick={() => navigate("/forgot-password")}>
             Forgot Password
           </p>
 
