@@ -1,12 +1,12 @@
 import { ADD_QUANTITY,REMOVE_QUANTITY } from "./actionTypes";
 
 //ชื่อ type ของ action ว่าaction จะต้องมีหน้าตาแบบไหน 
-import type { AddQuantity} from "./productAction";
+import type { QuantityAction} from "./ProductAction";
 
 //function
 export const addQuantity = (
     productId:number,
-): AddQuantity => ({
+): QuantityAction => ({
     type: ADD_QUANTITY,
     payload:{productId}
 })
