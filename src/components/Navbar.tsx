@@ -1,39 +1,132 @@
+import React, { useState } from "react";
 import { GoSearch } from "react-icons/go";
+import { BiSolidBell } from "react-icons/bi";
+import { FaCartShopping } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import UserProfile from "./UserProfile";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
 
   return (
-    <div className="navbar bg-base-100 shadow-sm h-[101px] w-full bg-gray-100">
-      {/* LEFT */}
+    <nav id="main-navbar" className="navbar bg-white shadow-sm h-[80px] lg:h-[101px] px-4 lg:px-10 relative">
+      {/* LEFT: Logo */}
       <div className="navbar-start">
-        <img src="/src/assets/logo.png" className="w-40 mt-7" />
+        <img 
+          id="navbar-logo"
+          src="/src/assets/logo.png" 
+          className="w-32 lg:w-40 cursor-pointer" 
+          onClick={() => navigate("/")} 
+          alt="Logo"
+        />
       </div>
 
-      {/* CENTER */}
-      <div className="navbar-center hidden lg:flex text-[#74768f] text-18">
-        <ul className="menu menu-horizontal gap-7 font-semibold">
-          <li><a>Product</a></li>
-          <li><a>Promotion</a></li>
-          <li><a>About us</a></li>
-          <li><a>Contact</a></li>
+      {/* CENTER: Desktop Menu */}
+      <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
+        <ul id="desktop-menu" className="menu menu-horizontal gap-7">
+          <li><a id="nav-product" className="hover:text-indigo-600 cursor-pointer">Product</a></li>
+          <li><a id="nav-promotion" className="hover:text-indigo-600 cursor-pointer">Promotion</a></li>
+          <li><a id="nav-about" className="hover:text-indigo-600 cursor-pointer">About us</a></li>
+          <li><a id="nav-contact" className="hover:text-indigo-600 cursor-pointer">Contact</a></li>
         </ul>
       </div>
 
-      {/* RIGHT */}
-      <div className="navbar-end flex gap-3 text-black font-light px-15 ">
-        <GoSearch size={24} className="stroke-[0.6]" />
-        <button className="bg-[#0A157A] text-white w-25 h-13  px-4 py-2 rounded-[10px]  " onClick={()=> navigate("/login")}>Sign In</button>
-        <button className="btn btn-outline text-[#0A157A]  w-25 h-13 rounded-[10px] " onClick={()=> navigate("/register")}>Sign Up</button>
+      {/* RIGHT: Search -> Profile -> Hamburger */}
+      <div className="navbar-end flex items-center gap-1 lg:gap-4">
+        
+        {/* Mobile Search */}
+        <div className="lg:hidden">
+          <button id="mobile-search-btn" className="btn btn-ghost btn-circle">
+            <GoSearch size={22} className="text-gray-700" />
+          </button>
+        </div>
 
-       
+        {isAuthenticated ? (
+          <>
+            <div className="hidden lg:flex gap-4 items-center mr-4 text-gray-600">
+              <GoSearch id="desktop-search-icon" size={22} className="cursor-pointer hover:text-black" />
+              <FaCartShopping id="desktop-cart-icon" size={22} className="cursor-pointer hover:text-black" />
+              <BiSolidBell id="desktop-bell-icon" size={22} className="cursor-pointer hover:text-black" />
+            </div>
+            {/* ภายใน UserProfile ควรไปใส่ id เพิ่มที่ปุ่ม Logout/Profile ด้วย */}
+            <UserProfile />
+          </>
+        ) : (
+          <div id="auth-buttons-desktop" className="hidden lg:flex items-center gap-3">
+            <GoSearch id="guest-search-icon" size={24} className="stroke-[0.6] cursor-pointer mr-2" />
+            <button 
+              id="btn-login-desktop"
+              className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]" 
+              onClick={() => navigate("/login")}
+            >
+              Sign In
+            </button>
+            <button 
+              id="btn-register-desktop"
+              className="btn btn-outline text-[#0A157A] w-24 h-11 rounded-[10px]" 
+              onClick={() => navigate("/register")}
+            >
+              Sign Up
+            </button>
+          </div>
+        )}
+
+        {/* Hamburger Button */}
+        <div className="flex-none lg:hidden">
+          <button 
+            id="hamburger-menu-btn"
+            onClick={() => setIsOpen(!isOpen)} 
+            className="btn btn-square btn-ghost"
+            aria-label="menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-6 w-6 stroke-current text-gray-700">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* MOBILE DRAWER */}
+      {isOpen && (
+        <div id="mobile-drawer" className="absolute top-full left-0 w-full bg-white shadow-xl z-50 lg:hidden border-t">
+          <div className="p-6 flex flex-col gap-6">
+            {!isAuthenticated && (
+              <div id="auth-buttons-mobile" className="flex items-center justify-end gap-6 mb-2">
+                <button 
+                  id="btn-login-mobile"
+                  className="text-gray-400 font-semibold text-lg" 
+                  onClick={() => { navigate("/login"); setIsOpen(false); }}
+                >
+                  Sign In
+                </button>
+                <button 
+                  id="btn-register-mobile"
+                  className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold" 
+                  onClick={() => { navigate("/register"); setIsOpen(false); }}
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+            <ul id="mobile-menu-list" className="flex flex-col gap-8 text-xl font-medium text-gray-400">
+              <li><a id="mobile-nav-product" onClick={() => setIsOpen(false)}>Product</a></li>
+              <li><a id="mobile-nav-promotion" onClick={() => setIsOpen(false)}>Promotion</a></li>
+              <li><a id="mobile-nav-about" onClick={() => setIsOpen(false)}>About us</a></li>
+              <li><a id="mobile-nav-contact" onClick={() => setIsOpen(false)}>Contact</a></li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };
 
 export default Navbar;
-            
