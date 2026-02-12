@@ -10,13 +10,17 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = TokenService.getAccessToken()
 
-  if (token) {
+
+// ช่วยให้ token ถูกยิงไปมั่ว 
+  if (
+    token &&
+    !config.url?.includes("login") &&
+    !config.url?.includes("register")
+  ) {
     config.headers.Authorization = `Bearer ${token}`
   }
 
   return config
 })
-
-
 export default api
 

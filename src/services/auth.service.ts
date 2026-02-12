@@ -26,8 +26,13 @@ export const loginService = async (data: LoginDTO) => {
 
   // ✅ เช็คว่าเก็บ cookie หรือยัง
   if (res.status === 200 && res.data?.token) {
-    TokenService.setToken(res.data)
+    TokenService.setToken(res.data.token)
   }
 
   return res.data
+}
+
+export const forgotPasswordService = async (email:string) => {
+const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/forgot-password`,{email})
+return res.data
 }

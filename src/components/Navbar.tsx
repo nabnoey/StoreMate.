@@ -1,96 +1,153 @@
-import { useContext } from "react";
+import React, { useState } from "react";
+import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
-import { FaRegUser, FaCartShopping } from "react-icons/fa6";
-import { FiSearch } from "react-icons/fi";
-import { UserContext } from "../context/UserContext";
+import { FaCartShopping } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { useSelector } from "react-redux"; 
+import type { RootState } from "../redux/store"; 
+import UserProfile from "./UserProfile";
 
 const Navbar: React.FC = () => {
-  const context = useContext(UserContext);
-
-  if (!context) {
-    throw new Error("UserContext must be used within UserContextProvider");
-  }
-
-  const { isAuthenticated, logout } = context;
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+    const cartItems = useSelector((state: RootState) => state.carts);
+    const totalItems = cartItems.reduce(
+    (total: number, item: { quantity: number }) => total + item.quantity,
+    0
+  );
 
-const handleLogout = () => {
-  Swal.fire({
-    title: "ออกจากระบบ?",
-    text: "คุณต้องการออกจากระบบใช่หรือไม่",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "ออกจากระบบ",
-    cancelButtonText: "ยกเลิก",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      logout();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
-      Swal.fire({
-        title: "ออกจากระบบสำเร็จ",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-      }).then(() => {
-        navigate("/");
-      });
-    }
-  });
-};
   return (
-    <div className="navbar bg-base-100 shadow-sm h-[101px] w-full bg-gray-100">
-      {/* LEFT */}
+    <nav id="main-navbar" className="navbar bg-white shadow-sm h-[80px] lg:h-[101px] px-4 lg:px-10 relative">
+      {/* LEFT: Logo */}
       <div className="navbar-start">
-        <img src="/src/assets/logo.png" className="w-40 mt-7" />
+        <img 
+          id="navbar-logo"
+          src="/src/assets/logo.png" 
+          className="w-32 lg:w-40 cursor-pointer" 
+          onClick={() => navigate("/")} 
+          alt="Logo"
+        />
       </div>
 
-      {/* CENTER */}
-      <div className="navbar-center hidden lg:flex text-black text-18">
-        <ul className="menu menu-horizontal gap-7 font-semibold">
-          <li><a>Product</a></li>
-          <li><a>Promotion</a></li>
-          <li><a>About us</a></li>
-             <li><a>Contact</a></li>
+      {/* CENTER: Desktop Menu */}
+      <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
+        <ul id="desktop-menu" className="menu menu-horizontal gap-7">
+          <li><a id="nav-product" className="hover:text-indigo-600 cursor-pointer">Product</a></li>
+          <li><a id="nav-promotion" className="hover:text-indigo-600 cursor-pointer">Promotion</a></li>
+          <li><a id="nav-about" className="hover:text-indigo-600 cursor-pointer">About us</a></li>
+          <li><a id="nav-contact" className="hover:text-indigo-600 cursor-pointer">Contact</a></li>
         </ul>
       </div>
 
-      {/* RIGHT */}
-      <div className="navbar-end flex gap-8 text-black px-15 ">
-        <FiSearch size={24} />
-        <FaCartShopping size={24} />
-        <BiSolidBell size={24} />
+      {/* RIGHT: Search -> Profile -> Hamburger */}
+      <div className="navbar-end flex items-center gap-1 lg:gap-4">
+        
+        {/* Mobile Search */}
+        <div className="lg:hidden">
+          <button id="mobile-search-btn" className="btn btn-ghost btn-circle">
+            <GoSearch size={22} className="text-gray-700" />
+          </button>
+        </div>
 
         {isAuthenticated ? (
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="cursor-pointer">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                <FaRegUser  size={24} />
-              </div>
-            </label>
+          <>
+            <div className="hidden lg:flex gap-4 items-center mr-4 text-gray-600">
+              <GoSearch id="desktop-search-icon" size={22} className="cursor-pointer hover:text-black" />
 
-            <ul className="menu dropdown-content bg-white w-40 p-2 shadow">
-              <li className="text-sm text-black">👋 ยินดีต้อนรับ</li>
-              <li>
-                <button
-                  className="text-red-500 font-bold"
-                  onClick={handleLogout}
+             <div className="relative cursor-pointer">
+
+  <FaCartShopping
+    id="desktop-cart-icon"
+    size={22}
+    className="hover:text-black"
+    onClick={()=>navigate("/cart")}
+  />
+
+  {totalItems > 0 && (
+    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+      {totalItems}
+    </span>
+  )}
+
+</div>
+
+              
+
+              <BiSolidBell id="desktop-bell-icon" size={22} className="cursor-pointer hover:text-black" />
+            </div>
+            <UserProfile />
+          </>
+        ) : (
+          <div id="auth-buttons-desktop" className="hidden lg:flex items-center gap-3">
+            <GoSearch id="guest-search-icon" size={24} className="stroke-[0.6] cursor-pointer mr-2" />
+            <button 
+              id="btn-login-desktop"
+              className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]" 
+              onClick={() => navigate("/login")}
+            >
+              Sign In
+            </button>
+            <button 
+              id="btn-register-desktop"
+              className="btn btn-outline text-[#0A157A] w-24 h-11 rounded-[10px]" 
+              onClick={() => navigate("/register")}
+            >
+              Sign Up
+            </button>
+          </div>
+        )}
+
+        {/* Hamburger Button */}
+        <div className="flex-none lg:hidden">
+          <button 
+            id="hamburger-menu-btn"
+            onClick={() => setIsOpen(!isOpen)} 
+            className="btn btn-square btn-ghost"
+            aria-label="menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-6 w-6 stroke-current text-gray-700">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE DRAWER */}
+      {isOpen && (
+        <div id="mobile-drawer" className="absolute top-full left-0 w-full bg-white shadow-xl z-50 lg:hidden border-t">
+          <div className="p-6 flex flex-col gap-6">
+            {!isAuthenticated && (
+              <div id="auth-buttons-mobile" className="flex items-center justify-end gap-6 mb-2">
+                <button 
+                  id="btn-login-mobile"
+                  className="text-gray-400 font-semibold text-lg" 
+                  onClick={() => { navigate("/login"); setIsOpen(false); }}
                 >
-                  Logout
+                  Sign In
                 </button>
-              </li>
+                <button 
+                  id="btn-register-mobile"
+                  className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold" 
+                  onClick={() => { navigate("/register"); setIsOpen(false); }}
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+            <ul id="mobile-menu-list" className="flex flex-col gap-8 text-xl font-medium text-gray-400">
+              <li><a id="mobile-nav-product" onClick={() => setIsOpen(false)}>Product</a></li>
+              <li><a id="mobile-nav-promotion" onClick={() => setIsOpen(false)}>Promotion</a></li>
+              <li><a id="mobile-nav-about" onClick={() => setIsOpen(false)}>About us</a></li>
+              <li><a id="mobile-nav-contact" onClick={() => setIsOpen(false)}>Contact</a></li>
             </ul>
           </div>
-        ) : (
-          <FaRegUser
-            size={24}
-            className="cursor-pointer"
-            onClick={() => navigate("/login")}
-          />
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </nav>
   );
 };
 
