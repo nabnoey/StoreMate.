@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import { useSelector } from 'react-redux'
 import ProductCard from '../components/ProductCard'
 import type { RootState } from '../redux/store'
 
 function HomePage() {
   const products = useSelector((state: RootState) => state.products)
+=======
+import ProductCard from "../components/ProductCard";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store"
+
+function HomePage() {
+
+  const products = useSelector((state:RootState) => state.product)
+>>>>>>> e2314796a60434d6805a1243d31135afef7c7ea3
   return (
     <div className="w-full mt-6 flex flex-col items-center">
 
@@ -20,9 +30,17 @@ function HomePage() {
     เครื่องดื่ม
   </h2>
      
+<<<<<<< HEAD
       <div className="flex flex-row flex-wrap gap-4">
         {products.map((product) => (
           <ProductCard key={product.id} product={product}/>
+=======
+      <div className="grid grid-cols-4  mt-10 w-full mx-auto justify-center">
+
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product}
+          />
+>>>>>>> e2314796a60434d6805a1243d31135afef7c7ea3
         ))}
     </div>
     </div>

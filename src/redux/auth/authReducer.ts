@@ -13,7 +13,6 @@ const authReducer = (
       return {
         ...state,
          token: (action as LoginAction).payload.token,
-        //  name: (action as LoginAction).payload.name,
         isAuthenticated: true,
       };
 
@@ -22,7 +21,6 @@ const authReducer = (
         ...state,
         token: "",
         isAuthenticated: false,
-        name: "",
       };
 
     default:
@@ -31,3 +29,4 @@ const authReducer = (
 };
 
 export default authReducer;
+

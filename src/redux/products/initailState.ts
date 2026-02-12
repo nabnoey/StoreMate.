@@ -1,44 +1,50 @@
-import type { Product } from '../../types/product';
 
-export const initialState: Product[] =[
+import type { Product } from "../../types/product";
+export const initialState: Product[] = [
   {
     id: 1,
-    name: "Macbook Pro M3",
-    product_type_id: 1,
-    price: 68900,
-    status_id: 1,
-    description: "โน้ตบุ๊คแรงสำหรับ dev และ designer",
-    image: "https://picsum.photos/400/300?random=1",
-    quantity: 3
+    title: "Cat Food Premium",
+    price: 150,
+    quantity: 2,
+   description:"bababababbababbaba",
+    image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
+    category: "Food"
   },
-  {
+    {
     id: 2,
-    name: "iPhone 15 Pro",
-    product_type_id: 2,
-    price: 45900,
-    status_id: 1,
-    description: "สมาร์ทโฟนกล้องเทพ ชิปแรง",
-    image: "https://picsum.photos/400/300?random=2",
-    quantity: 3
+    title: "Cat Food Premium",
+    price: 150,
+    quantity: 2,
+   description:"bababababbababbaba",
+    image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
+    category: "Food"
   },
-  {
+    {
     id: 3,
-    name: "Mechanical Keyboard",
-    product_type_id: 3,
-    price: 3500,
-    status_id: 1,
-    description: "คีย์บอร์ด mechanical สำหรับ programmer",
-    image: "https://picsum.photos/400/300?random=3",
-    quantity: 3
+    title: "Cat Food Premium",
+    price: 150,
+    quantity: 2,
+   description:"bababababbababbaba",
+    image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
+    category: "Food"
+  },
+    {
+    id: 4,
+    title: "Cat Food Premium",
+    price: 150,
+    quantity: 2,
+   description:"bababababbababbaba",
+    image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
+    category: "Food"
   },
   {
-    id: 4,
-    name: "Gaming Mouse",
-    product_type_id: 3,
-    price: 1200,
-    status_id: 1,
-    description: "เมาส์เกมมิ่ง DPI สูง",
-    image: "https://picsum.photos/400/300?random=4",
-    quantity: 3
+   id: 5,
+    title: "Cat Food Premium",
+    price: 150,
+    quantity: 2,
+   description:"bababababbababbaba",
+    image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
+    category: "Food"
+>>>>>>> e2314796a60434d6805a1243d31135afef7c7ea3
   }
 ]
