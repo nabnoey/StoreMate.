@@ -3,8 +3,8 @@ import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import { useSelector } from "react-redux"; 
+import type { RootState } from "../redux/store"; 
 import UserProfile from "./UserProfile";
 
 const Navbar: React.FC = () => {
@@ -14,7 +14,6 @@ const Navbar: React.FC = () => {
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
-
 
   return (
     <nav id="main-navbar" className="navbar bg-white shadow-sm h-[80px] lg:h-[101px] px-4 lg:px-10 relative">
@@ -53,10 +52,16 @@ const Navbar: React.FC = () => {
           <>
             <div className="hidden lg:flex gap-4 items-center mr-4 text-gray-600">
               <GoSearch id="desktop-search-icon" size={22} className="cursor-pointer hover:text-black" />
-              <FaCartShopping id="desktop-cart-icon" size={22} className="cursor-pointer hover:text-black" />
+              
+              <FaCartShopping 
+                id="desktop-cart-icon"
+                size={22}
+                onClick={() => navigate("/cart")} 
+                className="cursor-pointer hover:text-black" 
+              />
+              
               <BiSolidBell id="desktop-bell-icon" size={22} className="cursor-pointer hover:text-black" />
             </div>
-            {/* ภายใน UserProfile ควรไปใส่ id เพิ่มที่ปุ่ม Logout/Profile ด้วย */}
             <UserProfile />
           </>
         ) : (

@@ -1,7 +1,7 @@
 import type { Product } from "../types/product"
 import { useDispatch } from "react-redux"
 import type { AppDispatch } from "../redux/store"
-import {removeQuantity} from "../redux/products/ProductReducer"
+import {removeQuantity} from "../redux/products/productReducer"
 
 type Props = {
   product :Product
