@@ -1,6 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { initialState } from "./initailState";
+<<<<<<< HEAD
 import type { Product } from '../../types/product';;
+=======
+import type { Product } from "../../types/product";
+>>>>>>> 7851cbeec5e802e174fd38567252227133ccb7da
 
 const productsSlice = createSlice({
   name: "products",

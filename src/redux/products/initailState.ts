@@ -45,6 +45,6 @@ export const initialState: Product[] = [
    description:"bababababbababbaba",
     image: "https://i.pinimg.com/1200x/e6/91/2f/e6912f709474be6a30a0f70cd84bd423.jpg",
     category: "Food"
-
+  
   }
 ]
