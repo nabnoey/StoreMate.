@@ -3,7 +3,7 @@ import Swal from "sweetalert2"
 import axios from "axios"
 import { registerService } from "../../services/auth.service"
 import { useNavigate } from "react-router-dom"
-
+// import Loading from "../../components/Loading"
 import logo from "../../assets/logo.png"
 import Auth from "../../assets/Auth.png"
 
@@ -18,7 +18,7 @@ interface RegisterForm {
 function RegisterPage() {
   const navigate = useNavigate()
 
-
+  // const [loading,setLoading] = useState(false)
 
 
   const [user, setUser] = useState<RegisterForm>({
@@ -29,6 +29,7 @@ function RegisterPage() {
     confirmPassword: "",
   })
 
+   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setUser((prev) => ({ ...prev, [name]: value }))
@@ -44,6 +45,7 @@ function RegisterPage() {
       Swal.fire("Error", "Password ไม่ตรงกัน", "error")
       return
     }
+    //  setLoading(true)   // เพิ่มlottie react ตรงนี้
 
     try {
       const res = await registerService(user)
@@ -66,6 +68,10 @@ function RegisterPage() {
       Swal.fire("สมัครสมาชิกไม่สำเร็จ", message, "error")
     }
   }
+
+  //  if(loading){
+  //   return <Loading/>
+  // }
 
  return (
     <div
