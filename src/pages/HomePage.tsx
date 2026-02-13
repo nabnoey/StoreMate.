@@ -9,7 +9,7 @@ function HomePage() {
 
 
   return (
-    <div className="w-full mt-6 flex flex-col items-center">
+    <div className="w-full mt-6 flex flex-col ">
       {/* Carousel */}
       <div className="carousel w-2/3 h-full">
         <div className="carousel-item relative w-full">
@@ -21,15 +21,60 @@ function HomePage() {
         </div>
       </div>
 
-      <h2 className="text-3xl font-bold text-center text-black mb-10 mt-30">
-        เครื่องดื่ม
-      </h2>
+    <h2 className="text-[30px] mx-30 font-bold  text-left text-black mb-10 mt-30">
+  โปรโมชั่น
+   <p className="text-[14px] text-[#5C6B5F] font-light">น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม</p>
+</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10 w-full px-10 justify-center">
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-1 w-full  px-28 justify-center">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
+
+    <h2 className="text-[30px] mx-30 font-bold  text-left text-black mb-10 mt-30">
+  สบู่
+   <p className="text-[14px] text-[#5C6B5F] font-light">ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ</p>
+</h2>
+
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-1 w-full  px-28 justify-center">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
+
+    <h2 className="text-[30px] mx-30 font-bold  text-left text-black mb-10 mt-30">
+ เครื่องดื่ม
+   <p className="text-[14px] text-[#5C6B5F] font-light">ดูแลผิวผันให้สดใสจากธรรมชาติ</p>
+</h2>
+
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-1 w-full  px-28 justify-center">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
+    <h2 className="text-[30px] mx-30 font-bold  text-left text-black mb-10 mt-30">
+ แชมพูสมุนไพร
+   <p className="text-[14px] text-[#5C6B5F] font-light">ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ</p>
+</h2>
+
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-1 w-full  px-28 justify-center">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
     </div>
   );
 }

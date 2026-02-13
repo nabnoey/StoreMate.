@@ -1,7 +1,7 @@
 import { ADD_QUANTITY,REMOVE_QUANTITY } from "./actionTypes";
 
 //ชื่อ type ของ action ว่าaction จะต้องมีหน้าตาแบบไหน 
-import type { QuantityAction} from "./ProductAction";
+import type { QuantityAction} from "./productAction";
 
 //function
 export const addQuantity = (

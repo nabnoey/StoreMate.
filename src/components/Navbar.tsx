@@ -36,14 +36,14 @@ const Navbar: React.FC = () => {
       {/* CENTER: Desktop Menu */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
         <ul id="desktop-menu" className="menu menu-horizontal gap-7">
-          <li><a id="nav-product" className="hover:text-indigo-600 cursor-pointer">Product</a></li>
-          <li><a id="nav-promotion" className="hover:text-indigo-600 cursor-pointer">Promotion</a></li>
-          <li><a id="nav-about" className="hover:text-indigo-600 cursor-pointer">About us</a></li>
-          <li><a id="nav-contact" className="hover:text-indigo-600 cursor-pointer">Contact</a></li>
+          <li><a id="nav-product" className="hover:text-indigo-600 cursor-pointer">สินค้า</a></li>
+          <li><a id="nav-promotion" className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
+          <li><a id="nav-about" className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
+          <li><a id="nav-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
         </ul>
       </div>
 
-      {/* RIGHT: Search -> Profile -> Hamburger */}
+      {/* RIGHT: Search -> Profile -> Hamburger */}                 
       <div className="navbar-end flex items-center gap-1 lg:gap-4">
         
         {/* Mobile Search */}
@@ -89,14 +89,14 @@ const Navbar: React.FC = () => {
               className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]" 
               onClick={() => navigate("/login")}
             >
-              Sign In
+              เข้าสู่ระบบ
             </button>
             <button 
               id="btn-register-desktop"
-              className="btn btn-outline text-[#0A157A] w-24 h-11 rounded-[10px]" 
+              className="btn btn-outline text-[#0A157A] w-30 h-11 rounded-[11px]" 
               onClick={() => navigate("/register")}
             >
-              Sign Up
+              สมัครสมาชิก
             </button>
           </div>
         )}
@@ -127,22 +127,22 @@ const Navbar: React.FC = () => {
                   className="text-gray-400 font-semibold text-lg" 
                   onClick={() => { navigate("/login"); setIsOpen(false); }}
                 >
-                  Sign In
+                  เข้าสู่ระบบ
                 </button>
                 <button 
                   id="btn-register-mobile"
                   className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold" 
                   onClick={() => { navigate("/register"); setIsOpen(false); }}
                 >
-                  Sign Up
+                  สมัครสมาชิก
                 </button>
               </div>
             )}
             <ul id="mobile-menu-list" className="flex flex-col gap-8 text-xl font-medium text-gray-400">
-              <li><a id="mobile-nav-product" onClick={() => setIsOpen(false)}>Product</a></li>
-              <li><a id="mobile-nav-promotion" onClick={() => setIsOpen(false)}>Promotion</a></li>
-              <li><a id="mobile-nav-about" onClick={() => setIsOpen(false)}>About us</a></li>
-              <li><a id="mobile-nav-contact" onClick={() => setIsOpen(false)}>Contact</a></li>
+              <li><a id="mobile-nav-product" onClick={() => setIsOpen(false)}>สินค้า</a></li>
+              <li><a id="mobile-nav-promotion" onClick={() => setIsOpen(false)}>โปรโมชั่น</a></li>
+              <li><a id="mobile-nav-about" onClick={() => setIsOpen(false)}>เกี่ยวกับร้าน</a></li>
+              <li><a id="mobile-nav-contact" onClick={() => setIsOpen(false)}>ติดต่อ</a></li>
             </ul>
           </div>
         </div>
