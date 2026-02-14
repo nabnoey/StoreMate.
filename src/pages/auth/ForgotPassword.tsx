@@ -10,7 +10,6 @@ const ForgotPassword = () => {
     const [email,setEmail] = useState<string>("")
 
     //สร้าง funtion กดปุ่ม
-
     const handleSubmit = async (e:React.FormEvent) => {
         e.preventDefault();
 
