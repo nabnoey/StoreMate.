@@ -72,7 +72,7 @@ const UserProfile: React.FC = () => {
             onClick={handleLogout} 
             className="text-red-500 font-bold"
             data-testid="link-logout"
-          >
+          > 
             Logout
           </a>
         </li>
