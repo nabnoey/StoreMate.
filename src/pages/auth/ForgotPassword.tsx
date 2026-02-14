@@ -53,7 +53,7 @@ const ForgotPassword = () => {
       <div
         className="
         bg-white rounded-2xl shadow-2xl 
-        w-full max-w-105 
+        w-[571px] h-[310px] max-w-105 
         p-6 relative 
         
         
@@ -61,11 +61,11 @@ const ForgotPassword = () => {
       >
 
 
-        <h2 className="text-xl text-center font-bold mb-6 text-black">
-    RECOVERY PASSWORD
+        <h2 className="text-[36px]  font-semibold mb-6 text-black">
+   กู้คืนรหัสผ่าน
         </h2>
-<div className="mt-13 text-black font-bold gap-3 flex flex-col">
-    Email
+<div className="mt-7 text-black text-[16px] font-light gap-3 flex flex-col">
+    อีเมล
         <input
           name="email"
           value={email}
@@ -79,9 +79,9 @@ const ForgotPassword = () => {
 
         <button
           type="submit"
-          className="btn w-full bg-green-400 text-black border-none font-bold"
+          className="btn w-[368px] h-[52px] bg-[#16A249] text-white text-[20px] font-medium border-none font-bold"
         onClick={handleSubmit}>
-         Confirm
+         ยืนยัน
         </button>
         </div>
         </div>

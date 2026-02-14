@@ -14,7 +14,8 @@ export const initialState: Product[] = [
     quantity: 2,
    description:"ลดผมร่วง กระตุ้นการเกิดใหม่ ผมดกดำ เงางาม",
     image: promotion,
-    category: "Food"
+    category: "Food",
+    status:"available"
   },
     {
     id: 2,
@@ -23,7 +24,8 @@ export const initialState: Product[] = [
     quantity: 2,
    description:"บำรุงล้ำลึก ให้ผมนุ่มลื่น ไม่พันกัน",
     image: soap,
-    category: "Food"
+    category: "Food",
+    status:"out"
   },
     {
     id: 3,
@@ -32,7 +34,8 @@ export const initialState: Product[] = [
     quantity: 2,
    description:"แชมพู + ครีมนวด ราคาพิเศษ คุ้มกว่า",
     image: drink,
-    category: "Food"
+    category: "Food",
+    status:"available"
   },
     {
     id: 4,
@@ -41,6 +44,7 @@ export const initialState: Product[] = [
     quantity: 2,
    description:"เซรั่มบำรุงรากผมเข้มข้น ลดผมร่วง",
     image: soap1,
-    category: "Food"
+    category: "Food",
+    status:"available"
   }
 ]
