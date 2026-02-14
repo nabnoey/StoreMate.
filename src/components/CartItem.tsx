@@ -18,7 +18,7 @@ function CartItem({ item }: Props) {
   const dispatch = useDispatch<AppDispatch>();   
 
   const productInStock = useSelector((state: RootState) =>
-    state.products.find(p => p.id === item.id)
+    state.products.items.find(p => p.id === item.id)
   );
   
   // ใช้ Optional chaining และ Nullish coalescing เพื่อความปลอดภัย

@@ -1,11 +1,21 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { initialState } from "./initailState";
+import { initialState as initialStateProduct } from "./initailState";
 import type { Product } from '../../types/product';;
 
 
+type ProductState = {
+  items: Product[]
+  search: string
+}
+
+const initialState:ProductState = {
+  items:initialStateProduct,
+  search:""
+}
+
 const productsSlice = createSlice({
   name: "products",
-  initialState: initialState as Product[],
+  initialState,
   reducers: {
 
     // เพิ่มสินค้าใหม่
@@ -14,12 +24,12 @@ const productsSlice = createSlice({
         ...action.payload,
         id: Date.now() 
       };
-      state.unshift(newProduct);
+      state.items.unshift(newProduct);
     },
 
     // เพิ่มจำนวนสินค้าตอนกด +
     addQuantity: (state, action: PayloadAction<number>) => {
-      const product = state.find(p => p.id === action.payload);
+      const product = state.items.find(p => p.id === action.payload);
       if (product && product.quantity < 10) {
         product.quantity += 1;
       }
@@ -27,7 +37,7 @@ const productsSlice = createSlice({
 
     // ลดจำนวนสินค้า 
     removeQuantity: (state, action: PayloadAction<number>) => {
-      const product = state.find(p => p.id === action.payload);
+      const product = state.items.find(p => p.id === action.payload);
       if (product && product.quantity > 0) {
         product.quantity -= 1;
       }
@@ -38,11 +48,20 @@ const productsSlice = createSlice({
       state,
       action: PayloadAction<{ id: number; quantity: number }>
     ) => {
-      const product = state.find(p => p.id === action.payload.id);
+      const product = state.items.find(p => p.id === action.payload.id);
       if (product) {
         product.quantity += action.payload.quantity;
       }
-    }
+    },
+
+    //ค้นหาสินค้า
+
+    searchProduct:(
+      state,
+      action:PayloadAction<string>
+    ) => {
+      state.search = action.payload
+    } 
 
   },
 });
@@ -51,7 +70,8 @@ export const {
   addProduct,
   addQuantity,
   removeQuantity,
-  returnQuantity
+  returnQuantity,
+  searchProduct
 } = productsSlice.actions;
 
 export default productsSlice.reducer;

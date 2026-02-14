@@ -27,7 +27,7 @@ function ProductCard ({product}:Props) {
     <img
       src={product.image}
       alt="Shoes"
-      className="w-53.25 h-53.25 p-1"
+      className="w-53.25 h-53.25 sm:max-w-[220px] md:max-w-[250px]"
       />
   </figure>
   <div className="card-body">
