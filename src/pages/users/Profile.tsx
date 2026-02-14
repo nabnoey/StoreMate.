@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Edit3, X, Camera, ClipboardList, MapPin, KeyRound } from 'lucide-react';
+import { User, Edit3, X, ClipboardList } from 'lucide-react';
 import { updateProfile } from '../../redux/auth/action';
 import type { RootState } from '../../redux/store';
 

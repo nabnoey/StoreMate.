@@ -47,11 +47,11 @@ const Navbar: React.FC = () => {
 
       {/* MENU DESKTOP */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
-        <ul className="menu menu-horizontal gap-7">
-          <li><a className="hover:text-indigo-600 cursor-pointer">Product</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">Promotion</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">About us</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">Contact</a></li>
+        <ul className="menu menu-horizontal gap-7 text-[15px]">
+          <li><a className="hover:text-indigo-600 cursor-pointer">สินค้า</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
         </ul>
       </div>
 
@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
         <div className="relative">
           <GoSearch
             size={22}
-            className="cursor-pointer hover:text-black"
+            className="cursor-pointer hover:text-black text-black"
             onClick={() => setOpenSearch(!openSearch)}
           />
 
@@ -110,19 +110,19 @@ const Navbar: React.FC = () => {
               className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]"
               onClick={() => navigate("/login")}
             >
-              Sign In
+              เข้าสู่ระบบ
             </button>
 
             <button
-              className="btn btn-outline text-[#0A157A] w-24 h-11 rounded-[10px]"
+              className="btn btn-outline text-[#0A157A] w-30 h-11 rounded-[10px]"
               onClick={() => navigate("/register")}
             >
-              Sign Up
+              สมัครสมาชิก
             </button>
           </div>
         )}
 
-        {/* 🍔 HAMBURGER */}
+        {/*  HAMBURGER */}
         <div className="flex-none lg:hidden">
           <button
             className="btn btn-square btn-ghost"
