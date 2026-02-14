@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
 
   const [text, setText] = useState("");
   const [openSearch, setOpenSearch] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false); // 🍔 burger state
+  const [openMenu, setOpenMenu] = useState(false);
 
   const cartItems = useSelector((state: RootState) => state.carts);
   const totalItems = cartItems.reduce(
@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setText(value);
-    dispatch(searchProduct(value)); // ยิง redux
+    dispatch(searchProduct(value));
   };
 
   return (
@@ -39,26 +39,26 @@ const Navbar: React.FC = () => {
       <div className="navbar-start">
         <img
           src="/src/assets/logo.png"
-          className="w-32 lg:w-40 cursor-pointer"
+          className="w-32 lg:w-40 cursor-pointer mt-6"
           onClick={() => navigate("/")}
           alt="Logo"
         />
       </div>
 
-      {/* CENTER MENU DESKTOP */}
+      {/* MENU DESKTOP */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
         <ul className="menu menu-horizontal gap-7">
-          <li><a className="hover:text-indigo-600">Product</a></li>
-          <li><a className="hover:text-indigo-600">Promotion</a></li>
-          <li><a className="hover:text-indigo-600">About us</a></li>
-          <li><a className="hover:text-indigo-600">Contact</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">Product</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">Promotion</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">About us</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">Contact</a></li>
         </ul>
       </div>
 
       {/* RIGHT */}
       <div className="navbar-end flex items-center gap-4">
 
-        {/* 🔍 SEARCH */}
+        {/* SEARCH */}
         <div className="relative">
           <GoSearch
             size={22}
@@ -78,11 +78,12 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
+        {/* LOGIN แล้ว */}
         {isAuthenticated ? (
           <>
             <div className="flex gap-4 items-center mr-2 text-gray-600">
 
-              {/* 🛒 CART */}
+              {/* CART */}
               <div className="relative cursor-pointer">
                 <FaCartShopping
                   size={22}
@@ -97,7 +98,7 @@ const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* 🔔 */}
+              {/* BELL */}
               <BiSolidBell size={22} className="cursor-pointer hover:text-black" />
             </div>
 
@@ -111,6 +112,7 @@ const Navbar: React.FC = () => {
             >
               Sign In
             </button>
+
             <button
               className="btn btn-outline text-[#0A157A] w-24 h-11 rounded-[10px]"
               onClick={() => navigate("/register")}
@@ -135,35 +137,31 @@ const Navbar: React.FC = () => {
             </svg>
           </button>
         </div>
+
       </div>
 
-      {/* 📱 MOBILE MENU */}
+      {/* MOBILE MENU */}
       {openMenu && (
         <div className="absolute top-full left-0 w-full bg-white shadow-xl z-50 lg:hidden border-t">
-         
 
-     {!isAuthenticated && (
-      
-              <div id="auth-buttons-mobile" className="flex items-center justify-center gap-6 mb-2">
-                <button 
-                  id="btn-login-mobile"
-                  className="text-gray-400 font-semibold text-lg" 
-                  onClick={() => { navigate("/login"); setOpenMenu(false); }}
-                >
-                  เข้าสู่ระบบ
-                </button>
-                <button 
-                  id="btn-register-mobile"
-                  className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold" 
-                  onClick={() => { navigate("/register"); setOpenMenu(false); }}
-                >
-                  สมัครสมาชิก
-                </button>
-              </div>
-            )}
+          {!isAuthenticated && (
+            <div className="flex items-center justify-center gap-6 p-4">
+              <button
+                className="text-gray-500 font-semibold"
+                onClick={() => { navigate("/login"); setOpenMenu(false); }}
+              >
+                เข้าสู่ระบบ
+              </button>
+              <button
+                className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold"
+                onClick={() => { navigate("/register"); setOpenMenu(false); }}
+              >
+                สมัครสมาชิก
+              </button>
+            </div>
+          )}
 
-             <div className="p-6 flex flex-col gap-6 text-lg text-gray-700">
-
+          <div className="p-6 flex flex-col gap-6 text-lg text-gray-700">
             <a>Product</a>
             <a>Promotion</a>
             <a>About us</a>
