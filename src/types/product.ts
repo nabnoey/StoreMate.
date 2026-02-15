@@ -7,8 +7,5 @@ export type Product = {
     category:string
     price:number
     quantity:number
-<<<<<<< HEAD
-
-=======
->>>>>>> 7851cbeec5e802e174fd38567252227133ccb7da
+    status: "available" | "out"
 }
