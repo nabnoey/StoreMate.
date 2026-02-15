@@ -32,7 +32,7 @@ export const loginService = async (data: LoginDTO) => {
   return res.data
 }
 
-//มันใช้ query string เพราะว่าใน backend มันรับ email ผ่าน query string
+//มันใช้ query string เพราะว่าใน backend รับ email ผ่าน query string
 export const forgotPasswordService = async (email:string) => {
 const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/forgot-password?email=${email}`)
 return res.data
