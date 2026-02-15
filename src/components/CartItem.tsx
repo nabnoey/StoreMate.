@@ -9,6 +9,7 @@ import {
 import {
   removeQuantity
 } from "../redux/products/productReducer";
+import { GiTrashCan } from "react-icons/gi";
 
 type Props = {
   item: Product & { quantity: number }; 
@@ -63,9 +64,19 @@ function CartItem({ item }: Props) {
           >
             {item.title}
           </h3>
+           {/* STATUS */}
+  {stock > 0 ? (
+    <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs inline-block mt-1">
+      พร้อมจำหน่าย
+    </span>
+  ) : (
+    <span className="bg-red-100 text-red-500 px-3 py-1 rounded-full text-xs inline-block mt-1">
+      ไม่พร้อมจำหน่าย
+    </span>
+  )}
           <p 
             id={`cart-price-${item.id}`} 
-            className="text-sm text-gray-500"
+            className="text-sm text-gray-500 mr-auto "
           >
             ฿{item.price.toFixed(2)}
           </p>
@@ -99,15 +110,20 @@ function CartItem({ item }: Props) {
           >
             +
           </button> 
+
+         
         </div>
 
         {/* Total Price per Item */}
         <p 
           id={`cart-item-total-${item.id}`}
-          className="font-semibold w-24 text-right"
+          className="font-semibold w-24 "
         >
           ฿{(item.price * item.quantity).toFixed(2)}
         </p>
+        <div>
+         </div>
+
 
         {/* Remove Button */}
         <button 
@@ -118,7 +134,9 @@ function CartItem({ item }: Props) {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
+          
         </button>
+        <GiTrashCan size={22} className="" />
       </div>
     </div>
   );
