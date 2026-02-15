@@ -26,7 +26,7 @@ const authReducer = (
         isAuthenticated: false,
       };
 
-    case UPDATE_PROFILE:
+    case UPDATE_PROFILE:{
       // แปลง action เป็น UpdateProfileAction เพื่อดึง payload
       const updatePayload = (action as UpdateProfileAction).payload;
       
@@ -37,10 +37,13 @@ const authReducer = (
           ...updatePayload,  // 2. เอาข้อมูลใหม่ทับลงไป
         },
       };
+    }
+      
 
     default:
       return state;
   }
+
 };
 
 export default authReducer;
