@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import UserProfile from "./UserProfile";
 import { searchProduct } from "../redux/products/productReducer";
+import logo from "../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const Navbar: React.FC = () => {
       {/* LOGO */}
       <div className="navbar-start">
         <img
-          src="/src/assets/logo.png"
+          src={logo}
           className="w-32 lg:w-40 cursor-pointer mt-6"
           onClick={() => navigate("/")}
           alt="Logo"
