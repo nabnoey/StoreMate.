@@ -162,10 +162,10 @@ const Navbar: React.FC = () => {
           )}
 
           <div className="p-6 flex flex-col gap-6 text-lg text-gray-700">
-            <a>Product</a>
-            <a>Promotion</a>
-            <a>About us</a>
-            <a>Contact</a>
+            <a>สินค้า</a>
+            <a>โปรโมชั่น</a>
+            <a>เกี่ยวกับเรา</a>
+            <a>ติดต่อ</a>
           </div>
         </div>
       )}

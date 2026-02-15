@@ -3,13 +3,15 @@ import authReducer from "./auth/authReducer";
 
 import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
+import loadingReducer from "./loading/loadingReducer";
 
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
         carts: cartReducer,
-        products: productsReducer
+        products: productsReducer,
+        loading: loadingReducer
     },
 devTools: true
 

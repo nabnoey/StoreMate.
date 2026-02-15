@@ -1,206 +1,214 @@
 import { useState } from "react";
-import {useDispatch} from "react-redux";
-import {login} from "../../redux/auth/action";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/auth/action"; 
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-import { loginService } from "../../services/auth.service";
+import { loginService } from "../../services/auth.service"; 
 import { useNavigate } from "react-router";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Eye, EyeOff } from "lucide-react"; 
+
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
-
-
 function LoginPage() {
-  
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-  // console.log("LOGIN FORM:", form)
-
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const dispatch = useDispatch();
-
-const navigate = useNavigate();
-
-
-
+  // เพิ่ม state เปิดปิดรหัสผ่าน
+  const [showPassword, setShowPassword] = useState(false); 
   
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  // --- 1. Validation Schema (เงื่อนไขความปลอดภัยขั้นสูงตามที่ขอ) ---
+  // หมายเหตุ: ปกติหน้า Login อาจจะไม่ต้องเช็กละเอียดขนาดนี้ แต่ถ้าต้องการความเข้มงวดก็ใส่ได้ครับ
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .email("รูปแบบอีเมลไม่ถูกต้อง")
+      .required("กรุณากรอกอีเมล"),
+    password: Yup.string()
+      .required("กรุณากรอกรหัสผ่าน")
+      // เงื่อนไขเพิ่มเติมตามที่คุณระบุ
+      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
+      .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
+      .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
+      .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
+      .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
+      .matches(
+        /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}><\/\\|"'.,:;]+$/,
+        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น"
+      ),
+  });
 
-  // Handle input change
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.value,
-    }));
-  };
+  // --- 2. ตั้งค่า Formik ---
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const authData = await loginService(values);
+        
+        // ส่งเข้า Redux
+        dispatch(login({
+          token: authData.token,
+          isAuthenticated: true
+        }));
 
-  // Handle login submit
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+        // จัดการ Remember Me
+        if (rememberMe) {
+          localStorage.setItem("auth", JSON.stringify(authData));
+        } else {
+          sessionStorage.setItem("auth", JSON.stringify(authData));
+        }
 
-    try {
-      const authData = await loginService(form);
-            dispatch(login({
-              token:authData.token,
-              isAuthenticated:true
-            }))
+        await Swal.fire({
+          icon: "success",
+          title: "เข้าสู่ระบบสำเร็จ",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
-      // ถ้าอยากให้ Remember Me คุมการเก็บ token
-      if (rememberMe) {
-        localStorage.setItem("auth", JSON.stringify(authData));
-      } else {
-        sessionStorage.setItem("auth", JSON.stringify(authData));
+        navigate("/");
+      } catch (err) {
+        const error = err as AxiosError<{ message: string }>;
+        Swal.fire({
+          icon: "error",
+          title: "เข้าสู่ระบบไม่สำเร็จ",
+          text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          confirmButtonText: "ลองใหม่อีกครั้ง",
+        });
+      } finally {
+        setLoading(false);
       }
+    },
+  });
 
-      // ✅ SweetAlert2: Login Success
-      await Swal.fire({
-        icon: "success",
-        title: "เข้าสู่ระบบสำเร็จ",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      navigate("/");
-
-    } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-
-      // ❌ SweetAlert2: Login Error
-      Swal.fire({
-        icon: "error",
-        title: "เข้าสู่ระบบไม่สำเร็จ",
-        text:
-          error.response?.data?.message ||
-          "อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง",
-        confirmButtonText: "โปรดลองอีกครั้ง",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
- return (
-    <div
-      id="login-page-container"
-      className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24"
-    >
-      {/* Auth Section */}
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24">
+      {/* ส่วนรูปภาพประกอบ */}
       <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
         <img
-          id="auth-illustration"
           src={auth}
-          alt="Auth"
+          alt="Auth Illustration"
           className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
         />
         <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
-          Login to use our website
+          เข้าสู่ระบบเพื่อใช้เว็บไซต์
         </p>
       </div>
 
-      {/* Login Card */}
+      {/* Login Form Card */}
       <form
-        id="login-form"
-        onSubmit={handleSubmit}
+        onSubmit={formik.handleSubmit}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
       >
-        {/* Logo */}
         <div className="absolute top-4 right-4 -mt-7.5">
-          <img
-            id="login-logo"
-            src={logo}
-            alt="logo"
-            className="w-20 sm:w-24 lg:w-40 h-auto"
-          />
+          <img src={logo} alt="logo" className="w-20 sm:w-24 lg:w-40 h-auto" />
         </div>
 
         <h2 className="text-2xl font-extrabold mb-6 text-black text-center lg:text-left">
-          LOGIN
+          เข้าสู่ระบบ
         </h2>
 
-        {/* Email */}
-        <label htmlFor="email-input" className="label p-0 mb-1">
-          <span className="font-semibold text-black">
-            Email<span className="text-red-500">*</span>
-          </span>
-        </label>
-        <input
-          id="email-input"
-          type="email"
-          name="email"
-          placeholder="email"
-          value={form.email}
-          onChange={handleChange}
-          required
-          className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
-          data-testid="login-email"
-        />
+        {/* Email Input */}
+        <div className="mb-4">
+          <label htmlFor="email" className="label p-0 mb-1">
+            <span className="font-semibold text-black">
+              อีเมล
+            </span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="example@gmail.com"
+            className={`input input-bordered w-full bg-white border-gray-300 text-black ${
+              formik.touched.email && formik.errors.email ? "border-red-500" : ""
+            }`}
+            {...formik.getFieldProps("email")}
+          />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-red-500 text-xs mt-1">{formik.errors.email}</div>
+          )}
+        </div>
 
-        {/* Password */}
-        <label htmlFor="password-input" className="label p-0 mb-1">
-          <span className="font-semibold text-black">
-            Password<span className="text-red-500">*</span>
-          </span>
-        </label>
-        <input
-          id="password-input"
-          type="password"
-          name="password"
-          placeholder="at least 8 digits"
-          value={form.password}
-          onChange={handleChange}
-          required
-          className="input input-bordered w-full mb-4 bg-white border-gray-300 text-black"
-          data-testid="login-password"
-        />
+        {/* Password Input พร้อม Toggle View */}
+        <div className="mb-4">
+          <label htmlFor="password" className="label p-0 mb-1">
+            <span className="font-semibold text-black">
+              รหัสผ่าน
+            </span>
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="รหัสผ่าน"
+              className={`input input-bordered w-full bg-white border-gray-300 text-black pr-10 ${
+                formik.touched.password && formik.errors.password ? "border-red-500" : ""
+              }`}
+              {...formik.getFieldProps("password")}
+            />
+            {/* ปุ่มรูปตา */}
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          {/* Error Message */}
+          {formik.touched.password && formik.errors.password && (
+            <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
+              {formik.errors.password}
+            </div>
+          )}
+        </div>
 
-        {/* Remember me */}
+        {/* Remember Me */}
         <div className="flex items-center gap-3 mb-6">
           <input
-            id="remember-checkbox"
+            id="remember-me"
             type="checkbox"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
             className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-green-400"
-            data-testid="login-remember-me"
           />
-          <label
-            htmlFor="remember-checkbox"
-            className="text-gray-800 cursor-pointer select-none"
-          >
-            Remember me
+          <label htmlFor="remember-me" className="text-gray-800 cursor-pointer select-none">
+            จดจำฉัน
           </label>
         </div>
 
         {/* Submit Button */}
         <button
-          id="login-submit-button"
           type="submit"
           disabled={loading}
-          className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50"
-          data-testid="login-button"
+          className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </button>
 
-        {/* Footer */}
+        {/* Footer Links */}
         <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
-          <p id="link-forgot-password" className="hover:underline cursor-pointer" onClick={() => navigate("/forgot-password")}>
-            Forgot Password
+          <p
+            className="hover:underline cursor-pointer text-gray-600"
+            onClick={() => navigate("/forgot-password")}
+          >
+            ลืมรหัสผ่าน
           </p>
 
           <div className="flex items-center">
-            <span>Not a member?</span>
+            <span>ถ้ายังไม่มีบัญชี?</span>
             <a
-              id="link-register"
-              className="text-blue-500 hover:underline ml-2 cursor-pointer"
+              className="text-blue-500 hover:underline ml-2 cursor-pointer font-medium"
               onClick={() => navigate("/register")}
-              data-testid="go-to-register"
             >
-              Sign up now.
+              สมัครสมาชิก
             </a>
           </div>
         </div>
