@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login } from "../../redux/auth/action"; 
+import { login } from "../../redux/auth/action";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-import { loginService } from "../../services/auth.service"; 
+import { loginService } from "../../services/auth.service";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff } from "lucide-react";
 
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
@@ -15,21 +15,17 @@ import auth from "../../assets/Auth.png";
 function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  // เพิ่ม state เปิดปิดรหัสผ่าน
-  const [showPassword, setShowPassword] = useState(false); 
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // --- 1. Validation Schema (เงื่อนไขความปลอดภัยขั้นสูงตามที่ขอ) ---
-  // หมายเหตุ: ปกติหน้า Login อาจจะไม่ต้องเช็กละเอียดขนาดนี้ แต่ถ้าต้องการความเข้มงวดก็ใส่ได้ครับ
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("รูปแบบอีเมลไม่ถูกต้อง")
       .required("กรุณากรอกอีเมล"),
     password: Yup.string()
       .required("กรุณากรอกรหัสผ่าน")
-      // เงื่อนไขเพิ่มเติมตามที่คุณระบุ
       .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
       .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
       .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
@@ -41,7 +37,6 @@ function LoginPage() {
       ),
   });
 
-  // --- 2. ตั้งค่า Formik ---
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -50,22 +45,35 @@ function LoginPage() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
+      
+      // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
+      Swal.fire({
+        title: "กำลังเข้าสู่ระบบ...",
+        text: "กรุณารอสักครู่",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      // ------------------------------------
+
       try {
         const authData = await loginService(values);
-        
-        // ส่งเข้า Redux
-        dispatch(login({
-          token: authData.token,
-          isAuthenticated: true
-        }));
 
-        // จัดการ Remember Me
+        dispatch(
+          login({
+            token: authData.token,
+            isAuthenticated: true,
+          })
+        );
+
         if (rememberMe) {
           localStorage.setItem("auth", JSON.stringify(authData));
         } else {
           sessionStorage.setItem("auth", JSON.stringify(authData));
         }
 
+        // Swal Success จะทับ Loading ตัวเดิม
         await Swal.fire({
           icon: "success",
           title: "เข้าสู่ระบบสำเร็จ",
@@ -76,21 +84,22 @@ function LoginPage() {
         navigate("/");
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
+        
+        // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
-          title: "เข้าสู่ระบบไม่สำเร็จ",
+          title: "เข้าสู่ระบบไม่สำเร็จ", 
           text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     },
   });
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24">
-      {/* ส่วนรูปภาพประกอบ */}
       <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
         <img
           src={auth}
@@ -102,7 +111,6 @@ function LoginPage() {
         </p>
       </div>
 
-      {/* Login Form Card */}
       <form
         onSubmit={formik.handleSubmit}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
@@ -115,33 +123,31 @@ function LoginPage() {
           เข้าสู่ระบบ
         </h2>
 
-        {/* Email Input */}
         <div className="mb-4">
           <label htmlFor="email" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              อีเมล
-            </span>
+            <span className="font-semibold text-black">อีเมล</span>
           </label>
           <input
             id="email"
             type="email"
             placeholder="example@gmail.com"
             className={`input input-bordered w-full bg-white border-gray-300 text-black ${
-              formik.touched.email && formik.errors.email ? "border-red-500" : ""
+              formik.touched.email && formik.errors.email
+                ? "border-red-500"
+                : ""
             }`}
             {...formik.getFieldProps("email")}
           />
           {formik.touched.email && formik.errors.email && (
-            <div className="text-red-500 text-xs mt-1">{formik.errors.email}</div>
+            <div className="text-red-500 text-xs mt-1">
+              {formik.errors.email}
+            </div>
           )}
         </div>
 
-        {/* Password Input พร้อม Toggle View */}
         <div className="mb-4">
           <label htmlFor="password" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              รหัสผ่าน
-            </span>
+            <span className="font-semibold text-black">รหัสผ่าน</span>
           </label>
           <div className="relative">
             <input
@@ -149,20 +155,20 @@ function LoginPage() {
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่าน"
               className={`input input-bordered w-full bg-white border-gray-300 text-black pr-10 ${
-                formik.touched.password && formik.errors.password ? "border-red-500" : ""
+                formik.touched.password && formik.errors.password
+                  ? "border-red-500"
+                  : ""
               }`}
               {...formik.getFieldProps("password")}
             />
-            {/* ปุ่มรูปตา */}
             <button
               type="button"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
-          {/* Error Message */}
           {formik.touched.password && formik.errors.password && (
             <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
               {formik.errors.password}
@@ -170,7 +176,6 @@ function LoginPage() {
           )}
         </div>
 
-        {/* Remember Me */}
         <div className="flex items-center gap-3 mb-6">
           <input
             id="remember-me"
@@ -179,12 +184,14 @@ function LoginPage() {
             onChange={(e) => setRememberMe(e.target.checked)}
             className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-green-400"
           />
-          <label htmlFor="remember-me" className="text-gray-800 cursor-pointer select-none">
+          <label
+            htmlFor="remember-me"
+            className="text-gray-800 cursor-pointer select-none"
+          >
             จดจำฉัน
           </label>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
@@ -193,7 +200,6 @@ function LoginPage() {
           {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </button>
 
-        {/* Footer Links */}
         <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
           <p
             className="hover:underline cursor-pointer text-gray-600"

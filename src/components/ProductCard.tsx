@@ -2,61 +2,59 @@ import type { Product } from "../types/product"
 import { useDispatch } from "react-redux"
 import type { AppDispatch } from "../redux/store"
 import { addToCart } from "../redux/carts/CartReducer"
-import {removeQuantity} from "../redux/products/productReducer"
+import { removeQuantity } from "../redux/products/productReducer"
 import { MdAddShoppingCart } from "react-icons/md";
 
-
 type Props = {
-  product :Product
+  product: Product
 }
 
-function ProductCard ({product}:Props) {
+function ProductCard({ product }: Props) {
   const dispatch = useDispatch<AppDispatch>()
 
   const handleAddToCart = () => {
     dispatch(addToCart(product))
-       dispatch(removeQuantity(product.id))
+    dispatch(removeQuantity(product.id))
   }
 
   return (
-    
-    <div className="">
-        
-        <div className="card bg-white rounded-2xl gap-5 shadow-md -mt-5 p-2 text-black w-[280px] h-[432px]  shadow-xl">
-  <figure>
-    <img
-      src={product.image}
-      alt="Shoes"
-      className="w-53.25 h-53.25 sm:max-w-[220px] md:max-w-[250px]"
-      />
-  </figure>
-  <div className="card-body">
-    <h2 className="card-title">{product.title}</h2>
-     <p className="font-extralight text-[#5C6B5F]">{product.description}</p>
-  
-   
-   <div className="card-actions justify-between items-center mt-2">
-  
-  <p className="font-extrabold text-[17px] text-[#D4AF37]">
-    ฿{product.price}
-  </p>
+    // ลบ div wrapper ด้านนอกออกเพื่อให้การ์ดนำไปใช้ใน grid ได้ง่ายขึ้น
+    <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px]">
+      <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
+        <img
+          src={product.image}
+          alt={product.title}
+          // เพิ่ม transition และ hover:scale เพื่อทำเอฟเฟกต์เด้ง
+          className="w-full h-full object-cover rounded-xl transition-transform duration-500 hover:scale-110 cursor-pointer"
+        />
+      </figure>
+      <div className="card-body p-4 flex flex-col justify-between">
+        <div>
+          <h2 className="card-title text-base line-clamp-1" title={product.title}>
+            {product.title}
+          </h2>
+          <p className="font-extralight text-[#5C6B5F] text-sm line-clamp-2 mt-2">
+            {product.description}
+          </p>
+        </div>
 
-<button 
-  className="w-8 h-10 rounded-full bg-white text-black flex items-center justify-center border border-[#E5E7EB] shadow-sm hover:bg-gray-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-  onClick={handleAddToCart}
-  disabled={product.quantity<=0}
->
-  <MdAddShoppingCart className="text-xl"/>
-</button>
+        <div className="card-actions justify-between items-center mt-4">
+          <p className="font-extrabold text-lg text-[#D4AF37]">
+            ฿{product.price.toLocaleString()}
+          </p>
 
-
-</div>
-  </div>
-</div>
-</div>
+          <button
+            className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center border border-[#E5E7EB] shadow-sm hover:bg-gray-100 hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            onClick={handleAddToCart}
+            disabled={product.quantity <= 0}
+            title={product.quantity <= 0 ? "สินค้าหมด" : "เพิ่มลงตะกร้า"}
+          >
+            <MdAddShoppingCart className="text-xl" />
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
-
 export default ProductCard
-

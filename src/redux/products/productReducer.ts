@@ -13,6 +13,7 @@ const initialState:ProductState = {
   search:""
 }
 
+
 const productsSlice = createSlice({
   name: "products",
   initialState,
