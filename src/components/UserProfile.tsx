@@ -27,8 +27,8 @@ const UserProfile: React.FC = () => {
 
 
     if (result.isConfirmed) {
-     TokenService.removeToken();
-      dispatch(logout());
+    //  TokenService.removeToken();
+    //   dispatch(logout());
 
       Swal.fire({
          title: "ออกจากระบบสำเร็จ",
@@ -36,7 +36,8 @@ const UserProfile: React.FC = () => {
         timer: 1500,
         showConfirmButton: false,
       }).then(()=>{
-     
+      TokenService.removeToken();
+      dispatch(logout());
         navigate("/login");
       });
       
@@ -69,7 +70,7 @@ const UserProfile: React.FC = () => {
             onClick={() => navigate("/profile")}
             data-testid="link-profile"
           >
-            My Profile
+            โปรไฟล์ของฉัน
           </a>
         </li>
         <hr className="my-1 border-gray-100" />
@@ -80,7 +81,7 @@ const UserProfile: React.FC = () => {
             className="text-red-500 font-bold"
             data-testid="link-logout"
           > 
-            Logout
+            ออกจากระบบ
           </a>
         </li>
       </ul>

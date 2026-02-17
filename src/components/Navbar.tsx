@@ -34,7 +34,9 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="navbar bg-white shadow-sm h-20 lg:h-25.25 px-4 lg:px-10 relative">
+
+    <nav className="navbar bg-white shadow-sm h-[50px] lg:h-[101px] px-4 lg:px-10 relative">
+
 
       {/* LOGO */}
       <div className="navbar-start">
