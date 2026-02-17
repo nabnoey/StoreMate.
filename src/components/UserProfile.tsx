@@ -54,7 +54,7 @@ const UserProfile: React.FC = () => {
       <ul 
         id="user-profile-menu"
         tabIndex={0} 
-        className="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 mt-4 border border-gray-100 z-50 text-black"
+        className="dropdown-content menu p-2 shadow-xl bg-white rounded-box w-52 mt-4 border border-gray-100 z-50 text-black"
       >
         <li>
           <a 
@@ -72,7 +72,7 @@ const UserProfile: React.FC = () => {
             onClick={handleLogout} 
             className="text-red-500 font-bold"
             data-testid="link-logout"
-          >
+          > 
             Logout
           </a>
         </li>
