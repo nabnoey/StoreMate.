@@ -12,6 +12,9 @@ export type LoginAction = {
 };
 
 export type LogoutAction = {
+
+
+
   type: typeof LOGOUT;
 };
 

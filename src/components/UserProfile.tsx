@@ -2,6 +2,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa6";
 import { logout } from "../redux/auth/action";
+import { TokenService } from "../services/token.service";
 import Swal from "sweetalert2";
 
 const UserProfile: React.FC = () => {
@@ -9,6 +10,7 @@ const UserProfile: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+     
     const result = await Swal.fire({
       title: "ออกจากระบบ?",
       text: "คุณต้องการออกจากระบบใช่หรือไม่",
@@ -17,12 +19,15 @@ const UserProfile: React.FC = () => {
       confirmButtonText: "ออกจากระบบ",
       cancelButtonText: "ยกเลิก",
       confirmButtonColor: "#d33",
+
+      
     });
+    
+
 
 
     if (result.isConfirmed) {
-      localStorage.removeItem("auth");
-      sessionStorage.removeItem("auth");
+     TokenService.removeToken();
       dispatch(logout());
 
       Swal.fire({
@@ -30,8 +35,10 @@ const UserProfile: React.FC = () => {
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
-      }).then(()=>navigate("/"))
-
+      }).then(()=>{
+     
+        navigate("/login");
+      });
       
     }
   };

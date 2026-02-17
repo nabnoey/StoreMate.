@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { User, Edit3, X, ClipboardList } from 'lucide-react';
 import { updateProfile } from '../../redux/auth/action';
 import type { RootState } from '../../redux/store';
+import { useNavigate } from 'react-router';
 
 // --- Component Modal (หน้าต่างเด้ง) ---
 interface ModalProps {
@@ -14,8 +15,11 @@ interface ModalProps {
   elementId: string;
 }
 
+
 const EditModal = ({ isOpen, title, onClose, onSave, children, elementId }: ModalProps) => {
   if (!isOpen) return null;
+
+
   return (
     <div 
         id={`modal-overlay-${elementId}`} 
@@ -59,6 +63,7 @@ const EditModal = ({ isOpen, title, onClose, onSave, children, elementId }: Moda
 const Profile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
 
   const [activeModal, setActiveModal] = useState<'name' | 'email' | 'phone' | null>(null);
   
@@ -133,7 +138,7 @@ const Profile = () => {
                  <ul className="mt-2 space-y-3 pl-10 text-sm">
                    <li><a id="menu-profile" href="#" className="text-blue-500 font-medium block">โปรไฟล์</a></li>
                    <li><a id="menu-address" href="#" className="text-gray-500 hover:text-blue-500 transition-colors block">จัดการที่อยู่</a></li>
-                   <li><a id="menu-password" href="#" className="text-gray-500 hover:text-blue-500 transition-colors block">เปลี่ยนรหัสผ่าน</a></li>
+                   <li><a id="menu-password" href="#" className="text-gray-500 hover:text-blue-500 transition-colors block" onClick={()=>navigate("/change-password")}>เปลี่ยนรหัสผ่าน</a></li>
                  </ul>
                </div>
                

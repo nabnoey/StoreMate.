@@ -2,13 +2,16 @@
 import ProductCard from "../components/ProductCard";
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
+import { ProductService } from "../services/product.service";
+
 import banner from "../assets/banner.png";
 
 
 function HomePage() {
   // ดึงแค่ข้อมูลสินค้าพอ ไม่ต้องเช็ค isHome แล้ว
+
   const products = useSelector((state: RootState) => state.products.items || []);
- 
+ ProductService.getAllProducts()
 
   
   //ดึงคำค้นหา

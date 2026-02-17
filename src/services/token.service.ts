@@ -2,12 +2,12 @@ import { Cookies } from "react-cookie";
 
 const cookies = new Cookies();
 
-// 👉 ดึง token
+// ดึง token
 const getToken = (): string | undefined => {
   return cookies.get("token");
 };
 
-// 👉 เก็บ token
+//  เก็บ token
 const setToken = (token: string): void => {
   cookies.set("token", token, {
     path: "/",
@@ -15,7 +15,7 @@ const setToken = (token: string): void => {
   });
 };
 
-// 👉 ลบ token (logout)
+//  ลบ token (logout)
 const removeToken = (): void => {
   cookies.remove("token", { path: "/" });
 };

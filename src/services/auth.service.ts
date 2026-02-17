@@ -42,3 +42,8 @@ export const resetPasswordService = async (token:string,password:string, confirm
   const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/reset-password?token=${token}`,{token,password, confirmPassword})
   return res.data
 }
+
+export const changePasswordService = async (oldPassword:string, newPassword:string, confirmPassword:string) => {
+  const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/change-password`,{oldPassword, newPassword, confirmPassword})
+  return res.data
+}
