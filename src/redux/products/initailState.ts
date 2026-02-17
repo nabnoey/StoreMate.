@@ -29,7 +29,7 @@ export const initialState: Product[] = [
   },
     {
     id: 3,
-    title: "แพ็คู่ดูแลผม",
+    title: "แพ็คคู่ดูแลผม",
     price: 340,
     quantity: 2,
    description:"แชมพู + ครีมนวด ราคาพิเศษ คุ้มกว่า",

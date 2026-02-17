@@ -5,7 +5,7 @@ import { registerService } from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Eye, EyeOff } from "lucide-react"; // ไอคอนสำหรับเปิดปิดตา
+import { Eye, EyeOff } from "lucide-react";
 
 import logo from "../../assets/logo.png";
 import Auth from "../../assets/Auth.png";
@@ -13,15 +13,14 @@ import Auth from "../../assets/Auth.png";
 function RegisterPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
-  // State สำหรับเปิด-ปิดรหัสผ่านแยกกัน 2 ช่อง
+
+  // State สำหรับเปิด-ปิดรหัสผ่าน
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // --- 1. Validation Schema (เงื่อนไขความปลอดภัย) ---
+  // --- 1. Validation Schema ---
   const validationSchema = Yup.object({
-    name: Yup.string()
-      .required("กรุณากรอกชื่อ-นามสกุล"),
+    name: Yup.string().required("กรุณากรอกชื่อ-นามสกุล"),
     email: Yup.string()
       .email("รูปแบบอีเมลไม่ถูกต้อง")
       .required("กรุณากรอกอีเมล"),
@@ -41,7 +40,7 @@ function RegisterPage() {
       )
       .required("กรุณากรอกรหัสผ่าน"),
     confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "รหัสผ่านไม่ตรงกัน") // เช็คว่าตรงกับช่อง password
+      .oneOf([Yup.ref("password")], "รหัสผ่านไม่ตรงกัน")
       .required("กรุณายืนยันรหัสผ่าน"),
   });
 
@@ -57,35 +56,46 @@ function RegisterPage() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
+
+      // --- เพิ่มส่วนนี้: แสดง Loading Popup ---
+      Swal.fire({
+        title: "กำลังลงทะเบียน...",
+        text: "กรุณารอสักครู่",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      // ------------------------------------
+
       try {
-        // เรียก API
-        const res = await registerService({
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            password: values.password,
-            confirmPassword: values.confirmPassword
+        await registerService({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
         });
 
-        // สำเร็จ
+        // สำเร็จ -> Popup Success มาทับ Loading
         await Swal.fire({
-          title: "Success",
-          text: res?.message ?? "ลงทะเบียนสำเร็จ",
           icon: "success",
-          confirmButtonText: "ไปหน้า Login",
+          title: "ลงทะเบียนสำเร็จ",
+          timer: 1500,
+          showConfirmButton: false,
         });
-        
-        navigate("/login");
 
+        navigate("/login");
       } catch (error: unknown) {
-        // จัดการ Error
+        // Error -> Popup Error มาทับ Loading
         let message = "เกิดข้อผิดพลาด";
         if (axios.isAxiosError(error)) {
           message = error.response?.data?.message ?? "Server error";
         }
         Swal.fire("สมัครสมาชิกไม่สำเร็จ", message, "error");
       } finally {
-        setLoading(false);
+        // แก้ไขจาก true เป็น false เพื่อให้ปุ่มกลับมาทำงานได้ถ้า popup ปิด
+        setLoading(false); 
       }
     },
   });
@@ -113,7 +123,6 @@ function RegisterPage() {
         onSubmit={formik.handleSubmit}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
       >
-        {/* Logo */}
         <div className="absolute top-4 right-4 -mt-7.5">
           <img
             id="register-logo"
@@ -123,16 +132,12 @@ function RegisterPage() {
           />
         </div>
 
-        <h2 className="text-xl font-bold mb-6 text-black">
-          สมัครสมาชิก
-        </h2>
+        <h2 className="text-xl font-bold mb-6 text-black">สมัครสมาชิก</h2>
 
         {/* Name Input */}
         <div className="mb-4">
           <label htmlFor="reg-name" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              ชื่อ-นามสกุล
-            </span>
+            <span className="font-semibold text-black">ชื่อ-นามสกุล</span>
           </label>
           <input
             id="reg-name"
@@ -145,60 +150,64 @@ function RegisterPage() {
             data-testid="reg-input-name"
           />
           {formik.touched.name && formik.errors.name && (
-            <div className="text-red-500 text-xs mt-1">{formik.errors.name}</div>
+            <div className="text-red-500 text-xs mt-1">
+              {formik.errors.name}
+            </div>
           )}
         </div>
 
         {/* Email Input */}
         <div className="mb-4">
           <label htmlFor="reg-email" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              อีเมล
-            </span>
+            <span className="font-semibold text-black">อีเมล</span>
           </label>
           <input
             id="reg-email"
             type="email"
             placeholder="example@gmail.com"
             className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.email && formik.errors.email ? "border-red-500" : ""
+              formik.touched.email && formik.errors.email
+                ? "border-red-500"
+                : ""
             }`}
             {...formik.getFieldProps("email")}
             data-testid="reg-input-email"
           />
           {formik.touched.email && formik.errors.email && (
-            <div className="text-red-500 text-xs mt-1">{formik.errors.email}</div>
+            <div className="text-red-500 text-xs mt-1">
+              {formik.errors.email}
+            </div>
           )}
         </div>
 
         {/* Phone Input */}
         <div className="mb-4">
           <label htmlFor="reg-phone" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              เบอร์โทร
-            </span>
+            <span className="font-semibold text-black">เบอร์โทร</span>
           </label>
           <input
             id="reg-phone"
             type="text"
             placeholder="เบอร์โทร"
             className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.phone && formik.errors.phone ? "border-red-500" : ""
+              formik.touched.phone && formik.errors.phone
+                ? "border-red-500"
+                : ""
             }`}
             {...formik.getFieldProps("phone")}
             data-testid="reg-input-phone"
           />
           {formik.touched.phone && formik.errors.phone && (
-            <div className="text-red-500 text-xs mt-1">{formik.errors.phone}</div>
+            <div className="text-red-500 text-xs mt-1">
+              {formik.errors.phone}
+            </div>
           )}
         </div>
 
         {/* Password Input */}
         <div className="mb-4">
           <label htmlFor="reg-password" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              รหัสผ่าน
-            </span>
+            <span className="font-semibold text-black">รหัสผ่าน</span>
           </label>
           <div className="relative">
             <input
@@ -206,7 +215,9 @@ function RegisterPage() {
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
               className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
-                formik.touched.password && formik.errors.password ? "border-red-500" : ""
+                formik.touched.password && formik.errors.password
+                  ? "border-red-500"
+                  : ""
               }`}
               {...formik.getFieldProps("password")}
               data-testid="reg-input-password"
@@ -216,7 +227,8 @@ function RegisterPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {/* สลับ Icon ตามที่ต้องการ Show=Eye, Hide=EyeOff */}
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
           {formik.touched.password && formik.errors.password && (
@@ -229,9 +241,7 @@ function RegisterPage() {
         {/* Confirm Password Input */}
         <div className="mb-6">
           <label htmlFor="reg-confirm-password" className="label p-0 mb-1">
-            <span className="font-semibold text-black">
-              ยืนยันรหัสผ่าน
-            </span>
+            <span className="font-semibold text-black">ยืนยันรหัสผ่าน</span>
           </label>
           <div className="relative">
             <input
@@ -251,7 +261,8 @@ function RegisterPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {/* สลับ Icon ตามที่ต้องการ Show=Eye, Hide=EyeOff */}
+              {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
           {formik.touched.confirmPassword && formik.errors.confirmPassword && (
@@ -271,7 +282,6 @@ function RegisterPage() {
         >
           {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
         </button>
-        
       </form>
     </div>
   );

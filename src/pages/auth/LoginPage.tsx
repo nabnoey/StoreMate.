@@ -88,12 +88,12 @@ function LoginPage() {
         // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
-          title: "เข้าสู่ระบบไม่สำเร็จ",
+          title: "เข้าสู่ระบบไม่สำเร็จ", 
           text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
-        setLoading(false);
+        setLoading(false); 
       }
     },
   });
@@ -166,7 +166,7 @@ function LoginPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
           {formik.touched.password && formik.errors.password && (
