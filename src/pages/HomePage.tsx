@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";
 import { HiOutlineInbox } from "react-icons/hi";
-import banner from "../assets/banner.png";
+import banner from "../assets/banner2.png";
 
  const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
     <div className={`max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
@@ -38,7 +38,7 @@ function HomePage() {
   // ดึงแค่ข้อมูลสินค้าพอ ไม่ต้องเช็ค isHome แล้ว
 
   const products = useSelector((state: RootState) => state.products.items || []);
- ProductService.getAllProducts()
+ ProductService.getAllCategories().then(res => console.log(res));
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
 
@@ -52,7 +52,7 @@ const keyword = useSelector((state:RootState)=>state.products.search)
 
   //filter สินค้า
   const filteredProducts = products.filter((item)=>
-  item.title.toLowerCase().includes(keyword.toLowerCase()))
+  item.productName.toLowerCase().includes(keyword.toLowerCase()))
 
     // --- Utility Component: Container ---
   // const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (

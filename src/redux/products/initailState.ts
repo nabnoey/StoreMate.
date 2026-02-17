@@ -10,7 +10,7 @@ export const initialState: Product[] = [
 
   {
     id: 1,
-    title: "แชมพูสูตรฟื้นฟู",
+    productName: "แชมพูสูตรฟื้นฟู",
     price: 150,
     quantity: 2,
    description:"ลดผมร่วง กระตุ้นการเกิดใหม่ ผมดกดำ เงางาม",
@@ -20,7 +20,7 @@ export const initialState: Product[] = [
   },
     {
     id: 2,
-    title: "ครีมนวดผมสมุนไพร",
+    productName: "ครีมนวดผมสมุนไพร",
     price: 180,
     quantity: 2,
    description:"บำรุงล้ำลึก ให้ผมนุ่มลื่น ไม่พันกัน",
@@ -30,7 +30,7 @@ export const initialState: Product[] = [
   },
     {
     id: 3,
-    title: "แพ็คคู่ดูแลผม",
+    productName: "แพ็คคู่ดูแลผม",
     price: 340,
     quantity: 2,
    description:"แชมพู + ครีมนวด ราคาพิเศษ คุ้มกว่า",
@@ -40,7 +40,7 @@ export const initialState: Product[] = [
   },
     {
     id: 4,
-    title: "แฮร์โทนิค",
+    productName: "แฮร์โทนิค",
     price: 250,
     quantity: 2,
    description:"เซรั่มบำรุงรากผมเข้มข้น ลดผมร่วง",
