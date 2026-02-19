@@ -28,5 +28,5 @@ export const authInitialState: AuthState = {
     address: "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กทม. 10110",
     joinDate: "13/2/2026",
     image: null,
-  }
+  } 
 };

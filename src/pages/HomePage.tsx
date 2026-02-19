@@ -52,7 +52,7 @@ const keyword = useSelector((state:RootState)=>state.products.search)
 
   //filter สินค้า
   const filteredProducts = products.filter((item)=>
-  item.title.toLowerCase().includes(keyword.toLowerCase()))
+  item.name.toLowerCase().includes(keyword.toLowerCase()))
 
     // --- Utility Component: Container ---
   // const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (

@@ -26,6 +26,7 @@ const Dashboard = lazy(() => import("../pages/admin/Dashboard"));
 const StoreEdit = lazy(() => import("../pages/admin/StoreEdit"));
 const UserEdit = lazy(() => import("../pages/admin/UserEdit"));
 const Orders = lazy(() => import("../pages/admin/Orders"));
+const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
 
 
 
@@ -74,7 +75,13 @@ const router = createBrowserRouter([
         path:"/profile",
         element:<Profile/>
 
+    },
+ {
+        path:"/address-profile",
+        element:<AddressProfile/>
+
     }
+
 
 
         ]

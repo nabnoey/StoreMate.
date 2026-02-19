@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Edit3, X, ClipboardList } from 'lucide-react';
+import { User, X } from 'lucide-react'; 
 import { updateProfile } from '../../redux/auth/action';
 import type { RootState } from '../../redux/store';
-import { useNavigate } from 'react-router';
+import ProfileSidebar from '../../components/user/ProfileSidebar';
 
 // --- Component Modal (หน้าต่างเด้ง) ---
 interface ModalProps {
@@ -15,10 +15,8 @@ interface ModalProps {
   elementId: string;
 }
 
-
 const EditModal = ({ isOpen, title, onClose, onSave, children, elementId }: ModalProps) => {
   if (!isOpen) return null;
-
 
   return (
     <div 
@@ -30,7 +28,7 @@ const EditModal = ({ isOpen, title, onClose, onSave, children, elementId }: Moda
         className="bg-white rounded-lg shadow-xl w-[500px] p-6 animate-fade-in-up"
       >
         <div className="flex items-center justify-between mb-6">
-            <h3 id={`modal-title-${elementId}`} className="text-xl font-normal text-gray-800">{title}</h3>
+            <h3 id={`modal-title-${elementId}`} className="text-xl font-normal text-black">{title}</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={24}/></button>
         </div>
         
@@ -63,103 +61,38 @@ const EditModal = ({ isOpen, title, onClose, onSave, children, elementId }: Moda
 const Profile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
-  const navigate = useNavigate();
 
-  const [activeModal, setActiveModal] = useState<'name' | 'email' | 'phone' | null>(null);
-  
+  const [activeModal, setActiveModal] = useState<string | null>(null);
   const [tempData, setTempData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: ''
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    phone: user.phone,
   });
 
-  const openModal = (type: 'name' | 'email' | 'phone') => {
-    setTempData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phone: user.phone
-    });
-    setActiveModal(type);
+  const openModal = (field: string) => {
+    setActiveModal(field);
   };
 
   const handleSave = () => {
-    if (activeModal === 'name') {
-      dispatch(updateProfile({ firstName: tempData.firstName, lastName: tempData.lastName }));
-    } else if (activeModal === 'email') {
-      dispatch(updateProfile({ email: tempData.email }));
-    } else if (activeModal === 'phone') {
-      dispatch(updateProfile({ phone: tempData.phone }));
-    }
+    // อัพเดตข้อมูลใน Redux
+    dispatch(updateProfile(tempData));
     setActiveModal(null);
-  };
+  }
 
   return (
-<div className="min-h-screen bg-white font-sans text-gray-950 pt-12 pb-20">
-      
+    <div className="min-h-screen bg-white font-sans text-gray-950 pt-12 pb-20">
       <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-6">
         
-        {/* === LEFT SIDEBAR === */}
-        <aside className="w-full md:w-[250px] flex-shrink-0 space-y-4">
-          
-          {/* Card 1: User Info (กรอบบนซ้าย) */}
-          <div className="bg-white rounded-sm shadow-sm p-4 flex items-center gap-3 border-b md:border-none">
-             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300 overflow-hidden shrink-0">
-                {user.image ? (
-                    <img id="sidebar-img-profile" src={user.image} alt="User" className="w-full h-full object-cover"/> 
-                ) : (
-                    <User className="w-6 h-6 text-gray-400" />
-                )}
-             </div>
-             <div className="overflow-hidden">
-               <p id="sidebar-text-fullname" className="font-semibold text-gray-800 text-sm truncate mb-0.5">
-                 {user.firstName}
-               </p>
-               <button 
-                 id="sidebar-btn-edit-profile"
-                 className="text-gray-500 text-xs flex items-center gap-1 hover:text-blue-500"
-               >
-                 <Edit3 className="w-3 h-3" /> แก้ไขโปรไฟล์
-               </button>
-             </div>
-          </div>
-
-          {/* Card 2: Menu (กรอบล่างซ้าย) */}
-          <div className="bg-white rounded-sm shadow-sm hidden md:block"> 
-             <div className="py-2">
-               <div className="px-4 py-2">
-                 <h3 className="flex items-center gap-3 font-medium text-gray-800">
-                   <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                     <User className="w-3.5 h-3.5 text-blue-500" />
-                   </div>
-                   บัญชีของฉัน
-                 </h3>
-                 <ul className="mt-2 space-y-3 pl-10 text-sm">
-                   <li><a id="menu-profile" href="#" className="text-blue-500 font-medium block">โปรไฟล์</a></li>
-                   <li><a id="menu-address" href="#" className="text-gray-500 hover:text-blue-500 transition-colors block">จัดการที่อยู่</a></li>
-                   <li><a id="menu-password" href="#" className="text-gray-500 hover:text-blue-500 transition-colors block" onClick={()=>navigate("/change-password")}>เปลี่ยนรหัสผ่าน</a></li>
-                 </ul>
-               </div>
-               
-               <div className="px-4 py-2 mt-2">
-                 <h3 className="flex items-center gap-3 font-medium text-gray-500 hover:text-gray-800 cursor-pointer">
-                    <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
-                        <ClipboardList className="w-3.5 h-3.5 text-orange-600" />
-                    </div>
-                    การซื้อของฉัน
-                 </h3>
-               </div>
-             </div>
-          </div>
-        </aside>
+        {/* 1. เรียกใช้ Sidebar Component ตรงนี้แทน <aside> ของเดิม */}
+        <ProfileSidebar />
 
         {/* === RIGHT CONTENT (กรอบใหญ่ขวา) === */}
-        <main className="flex-1 bg-white rounded-sm shadow-sm p-8 relative min-h-[500px]">
+        <main className="flex-1 bg-white rounded-sm shadow-sm border border-gray-100 p-8 relative min-h-[500px]">
           
-          <div className="border-b border-gray-100 pb-4 mb-8">
-            <h1 className="text-lg font-medium text-gray-800">ข้อมูลของฉัน</h1>
-            <p className="text-sm text-gray-500 mt-1">จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้</p>
+         <div className="border-b border-gray-100 pb-4 mb-8">
+            <h1 className="text-lg font-medium text-black">ข้อมูลของฉัน</h1>
+            <p className="text-sm text-black mt-1">จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้</p>
           </div>
 
           <div className="flex flex-col-reverse md:flex-row gap-8">
@@ -169,7 +102,7 @@ const Profile = () => {
               
               {/* Row: Name */}
               <div className="flex items-center">
-                <label className="w-32 md:w-40 text-right text-gray-500 text-sm mr-6">ชื่อ - นามสกุล</label>
+                <label className="w-32 md:w-40 text-right text-black text-sm mr-6">ชื่อ - นามสกุล</label>
                 <div className="flex-1 text-gray-900 font-normal text-sm flex items-center">
                     <span id="text-display-fullname" className="mr-4">{user.firstName} {user.lastName}</span>
                     <button 
@@ -184,9 +117,8 @@ const Profile = () => {
 
               {/* Row: Email */}
               <div className="flex items-center">
-                <label className="w-32 md:w-40 text-right text-gray-500 text-sm mr-6">อีเมล</label>
+                <label className="w-32 md:w-40 text-right text-black text-sm mr-6">อีเมล</label>
                 <div className="flex-1 text-gray-900 font-normal text-sm flex items-center">
-                    {/* Masking Email for display similar to image */}
                     <span id="text-display-email" className="mr-4">
                         {user.email.replace(/(.{4})(.*)(@.*)/, "$1******$3")}
                     </span>
@@ -203,14 +135,9 @@ const Profile = () => {
 
                {/* Row: Phone */}
               <div className="flex items-center">
-                <label className="w-32 md:w-40 text-right text-gray-500 text-sm mr-6">หมายเลขโทรศัพท์</label>
+                <label className="w-32 md:w-40 text-right text-black text-sm mr-6">หมายเลขโทรศัพท์</label>
                 <div className="flex-1 text-gray-900 font-normal text-sm flex items-center">
                     <span id="text-display-phone" className="mr-4">
-                        {/* Regex อธิบาย:
-                           ^(.{2}) = เก็บ 2 ตัวแรกไว้ ($1)
-                           (.*)    = ตรงกลาง (จะถูกแทนที่ด้วยดอกจัน)
-                           (.{2})$ = เก็บ 2 ตัวสุดท้ายไว้ ($3)
-                        */}
                         {user.phone.replace(/^(.*)(.*)(.{2})$/, "********$3")}
                     </span>
                     <button 
@@ -225,7 +152,7 @@ const Profile = () => {
 
               {/* Row: Date */}
               <div className="flex items-center">
-                 <label className="w-32 md:w-40 text-right text-gray-500 text-sm mr-6">วันที่สมัคร</label>
+                 <label className="w-32 md:w-40 text-right text-black text-sm mr-6">วันที่สมัคร</label>
                  <div className="flex-1 text-gray-900 font-normal text-sm flex items-center">
                     <span id="text-display-joindate" className="mr-4">{user.joinDate}</span>
                  </div>
@@ -259,12 +186,12 @@ const Profile = () => {
                
                <button 
                 id="btn-upload-image"
-                className="border border-gray-200 bg-white px-5 py-2 text-sm text-gray-600 rounded-sm hover:bg-gray-50 transition-colors shadow-sm"
+                className="border border-gray-200 bg-white px-5 py-2 text-sm text-black rounded-sm hover:bg-gray-50 transition-colors shadow-sm"
                >
                  เลือกรูป
                </button>
 
-               <div className="text-xs text-gray-400 text-center space-y-1">
+               <div className="text-xs text-black text-center space-y-1">
                  <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                  <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
                </div>
@@ -353,4 +280,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
