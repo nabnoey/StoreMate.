@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  BarChart3,
   Package,
   ShoppingCart,
   Users,
@@ -45,14 +44,7 @@ function SidebarAdmin() {
     </a>
   </li>
 
-  <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/sales-report")}>
-      <BarChart3 size={18}/>
-      รายงานยอดขาย
-    </a>
-  </li>
-
-  <li>
+ <li>
     <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/stock")}>
       <Package size={18}/>
       จัดการสินค้าในคลัง

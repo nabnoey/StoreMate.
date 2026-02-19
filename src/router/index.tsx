@@ -23,7 +23,6 @@ const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
 const AdminLayout = lazy(() => import("../layouts/AdminLayout"));
 const Stock = lazy(() => import("../pages/admin/Stock"));
 const Dashboard = lazy(() => import("../pages/admin/Dashboard"));
-const SalesReport = lazy(() => import("../pages/admin/SalesReport"));
 const StoreEdit = lazy(() => import("../pages/admin/StoreEdit"));
 const UserEdit = lazy(() => import("../pages/admin/UserEdit"));
 const Orders = lazy(() => import("../pages/admin/Orders"));
@@ -97,12 +96,7 @@ const router = createBrowserRouter([
                 element:<Dashboard/>
 
             },
-            {
-                path:"sales-report",
-                element:<SalesReport/>
-
-            
-            },
+        
             {
                 path:"store-edit",
                 element:<StoreEdit/>
