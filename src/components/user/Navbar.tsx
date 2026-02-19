@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
 import { searchProduct } from "../../redux/products/productReducer";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
