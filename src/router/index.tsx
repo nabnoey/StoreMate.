@@ -19,6 +19,8 @@ const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
 const Profile = lazy(() => import("../pages/users/Profile"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+import AdminLayout from "../layouts/AdminLayout";
+import Dashboard from "../pages/admin/Dashboard";
 import ChangePassword from "../pages/auth/ChangePassword";
 
 
@@ -73,9 +75,19 @@ const router = createBrowserRouter([
         ]
 
         
-    }
+    },
 
-    
+    {
+        path:"/admin",
+        element:<AdminLayout/>,
+        children:[
+            {
+                path:"dashboard",
+                element:<Dashboard/>
+
+            }
+        ]
+    }
    
 
 ])

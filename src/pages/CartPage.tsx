@@ -2,7 +2,7 @@
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; 
 import type { RootState } from '../redux/store';
-import CartItem from '../components/CartItem';
+import CartItem from '../components/user/CartItem';
 import { FaCartShopping } from "react-icons/fa6";
 import type { Product } from '../types/product';
 

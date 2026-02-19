@@ -1,8 +1,8 @@
-import type { Product } from "../types/product"
+import type { Product } from "../../types/product"
 import { useDispatch } from "react-redux"
-import type { AppDispatch } from "../redux/store"
-import { addToCart } from "../redux/carts/CartReducer"
-import { removeQuantity } from "../redux/products/productReducer"
+import type { AppDispatch } from "../../redux/store"
+import { addToCart } from "../../redux/carts/CartReducer"
+import { removeQuantity } from "../../redux/products/productReducer"
 import { MdAddShoppingCart } from "react-icons/md";
 
 type Props = {

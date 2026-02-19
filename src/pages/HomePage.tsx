@@ -1,5 +1,5 @@
 
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/user/ProductCard";
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";

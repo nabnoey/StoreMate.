@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
-import type { Product } from '../types/product';
-import type { AppDispatch, RootState } from "../redux/store";
+import type { Product } from '../../types/product';
+import type { AppDispatch, RootState } from "../../redux/store";
 import {
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
-} from "../redux/carts/CartReducer";
+} from "../../redux/carts/CartReducer";
 import {
   removeQuantity
-} from "../redux/products/productReducer";
+} from "../../redux/products/productReducer";
 import { GiTrashCan } from "react-icons/gi";
 
 type Props = {
