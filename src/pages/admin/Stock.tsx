@@ -3,7 +3,7 @@ import AdminTableCard from '../../components/admin/AdminTableCard'
 // import { CiSearch } from "react-icons/ci";
 
 
-function Dashboard() {
+function Stock() {
   return (
     <div>
 
@@ -25,4 +25,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default Stock
