@@ -39,42 +39,42 @@ function SidebarAdmin() {
 
       <li>
     <a className="hover:bg-blue-100 
-     hover:text-blue-600 rounded-lg transition-all -mt-7.5">
+     hover:text-blue-600 rounded-lg transition-all -mt-7.5" onClick={()=>navigate("/admin/dashboard")}>
       <LayoutDashboard size={18}/>
       แดชบอร์ด
     </a>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all">
+    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/sales-report")}>
       <BarChart3 size={18}/>
       รายงานยอดขาย
     </a>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all">
+    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/stock")}>
       <Package size={18}/>
       จัดการสินค้าในคลัง
     </a>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all">
+    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/orders")}>
       <ShoppingCart size={18}/>
       จัดการคำสั่งซื้อ
     </a>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all">
+    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/user-edit")}>
       <Users size={18}/>
       จัดการผู้ใช้
     </a>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all">
+    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={()=>navigate("/admin/store-edit")}>
       <Settings size={18}/>
       ตั้งค่าร้านค้า
     </a>
