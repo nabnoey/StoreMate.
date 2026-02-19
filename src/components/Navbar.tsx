@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../redux/store";
 import UserProfile from "./UserProfile";
-import { searchProduct } from "../redux/products/productReducer";
+import {setSearch  } from "../redux/products/productReducer";
 import logo from "../assets/logo.png";
 
 const Navbar: React.FC = () => {
@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setText(value);
-    dispatch(searchProduct(value));
+    dispatch(setSearch(value));
   };
 
   return (

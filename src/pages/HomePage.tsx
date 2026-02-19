@@ -1,10 +1,13 @@
-
 import ProductCard from "../components/ProductCard";
 import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import type { AppDispatch, RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";
 import { HiOutlineInbox } from "react-icons/hi";
 import banner from "../assets/banner.png";
+import { fetchProducts, setSearchResult } from "../redux/products/productReducer";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+
 
  const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
     <div className={`max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
@@ -37,50 +40,49 @@ import banner from "../assets/banner.png";
 function HomePage() {
   // ดึงแค่ข้อมูลสินค้าพอ ไม่ต้องเช็ค isHome แล้ว
 
+
+
   const products = useSelector((state: RootState) => state.products.items || []);
- ProductService.getAllProducts()
+ ProductService.getAllCategories()
+ 
+
+ 
+ const dispatch = useDispatch<AppDispatch>();
+
+ const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
+
+ useEffect(()=> {
+  dispatch(fetchProducts())
+ },[dispatch])
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
 
 
-  // --- Logic: Filtering ---
-  // const promotionProducts = products.filter(p => p.category === "promotion").slice(0, 4);
-  // const soapProducts = products.filter(p => p.category === "soap").slice(0, 4);
-  // const drinkProducts = products.filter(p => p.category === "drink").slice(0, 4);
-  const hairProducts = products.filter(p => p.category === "hair").slice(0, 4);
+  const hairProducts = products.filter(p => p.categoryName.toLowerCase() === "hair").slice(0, 4);
 
 
+
+  
   //filter สินค้า
-  const filteredProducts = products.filter((item)=>
-  item.title.toLowerCase().includes(keyword.toLowerCase()))
+const searchResult = useSelector(
+ (state:RootState)=>state.products.searchResult || []
+)
 
-    // --- Utility Component: Container ---
-  // const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  //   <div className={`max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
-  //     {children}
-  //   </div>
-  // );
+useEffect(()=>{
 
-  // // --- Sub-Component: SectionHeader ---
-  // const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
-  //   <div className="flex justify-between items-center mb-8 mt-16">
-  //     <div>
-  //       <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight" data-testid={`${testId}-title`}>
-  //         {title}
-  //       </h2>
-  //       <p className="text-[14px] md:text-[16px] text-gray-500 mt-1 font-light opacity-80">
-  //         {subTitle}
-  //       </p>
-  //     </div>
-  //     <button
-  //       className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942] transition-all group shrink-0"
-  //       data-testid={`${testId}-see-all`}
-  //     >
-  //       <span className="text-[14px] md:text-[16px] font-semibold">ดูทั้งหมด</span>
-  //       <span className="text-xl leading-none transform group-hover:translate-x-1 transition-transform">›</span>
-  //     </button>
-  //   </div>
-  // );
+ if(!keyword) return
+
+ ProductService.searchProducts(keyword)
+ .then(res=>{
+  
+
+    // เช็คโครงสร้างก่อน
+    dispatch(setSearchResult(res.data || res || []))
+ })
+
+},[keyword,dispatch])
+
+
 
 
 
@@ -93,8 +95,8 @@ const keyword = useSelector((state:RootState)=>state.products.search)
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product)=>(
+          {searchResult.length > 0 ? (
+            searchResult.map((product)=>(
               <ProductCard key={product.id} product={product}/>
             ))
           ): (
@@ -163,16 +165,16 @@ const keyword = useSelector((state:RootState)=>state.products.search)
               subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
               testId="promo"
             />
-            {/* Tip: ถ้าอยากให้สินค้า "รูปภาพ" ตรงกับ "ตัวอักษร" เป๊ะๆ 
-                บางครั้งต้องใส่ -ml-2 หรือ -ml-4 เพื่อชดเชย Padding ในการ์ดสินค้า 
-                ลองปรับตัวเลขตรง -ml-[x] ดูครับ
-            */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 -ml-0 md:-ml-16">
+           
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 -ml-0 md:-ml-16">
 
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+  {groupedProduct.map((group) =>
+    group.products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  )}
+
+</div>
           </ContentWrapper>
         </section>
 
@@ -184,43 +186,11 @@ const keyword = useSelector((state:RootState)=>state.products.search)
               subTitle="ดูแลและบำรุงผิวพรรณด้วยคุณค่าจากธรรมชาติแท้ 100%"
               testId="soap"
             />
-            {/* แก้ไข: ใช้ soapProducts แทน products */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 -ml-0 md:-ml-16">
 
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </ContentWrapper>
-        </section>
+            
+          
 
-        {/* Drink Section */}
-        <section className="mb-20">
-          <ContentWrapper>
-            <SectionHeader
-              title="เครื่องดื่ม"
-              subTitle="ดูแลสุขภาพจากธรรมชาติ"
-              testId="drink"
-            />
-            {/* แก้ไข: ใช้ drinkProducts แทน products */}
-                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 -ml-0 md:-ml-16">
-
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </ContentWrapper>
-        </section>
-
-        {/* Shampoo Section */}
-      {/* Shampoo Section */}
-        <section className="mb-24">
-          <ContentWrapper>
-            <SectionHeader
-              title="แชมพูสมุนไพร"
-              subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
-              testId="hair"
-            />
+ 
             
             {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
             {hairProducts.length === 0 ? (

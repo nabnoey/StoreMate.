@@ -13,7 +13,7 @@ import { createBrowserRouter } from "react-router";
 import {lazy} from "react";
 const Home = lazy(() => import("../pages/HomePage"));
 const CartPage = lazy(() => import("../pages/CartPage"));
-const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
+const RegisterPage = lazy  (() => import("../pages/auth/RegisterPage"));
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
