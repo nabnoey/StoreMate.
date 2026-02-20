@@ -198,7 +198,7 @@ useEffect(()=>{
         </section>
 
   <section id="soap-section" className="mb-20 ">
-          {/* <ContentWrapper> */}
+          
             <SectionHeader
               title="แชมพูสมุนไพร"
               subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
