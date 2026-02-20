@@ -94,11 +94,11 @@ const productsSlice = createSlice({
 
   
 
-  extraReducers: (builder) => {
+extraReducers: (builder) => {
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
 
     const groupedArray = Object.keys(action.payload).map((key) => ({
-      categoryId: parseInt(key), // แปลง categoryId เป็นตัวเลข
+      categoryName: key,
       products: action.payload[key]
     }));
     
@@ -111,7 +111,6 @@ const productsSlice = createSlice({
   });
   
 }
-
 
 
 

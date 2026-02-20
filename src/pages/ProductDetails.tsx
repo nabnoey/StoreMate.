@@ -32,7 +32,7 @@ const ProductDetailPage: React.FC = () => {
   const productInStore = useSelector((state: RootState) => 
     state.products.items.find(p => p.id === Number(id))
   );
-  const currentStock = productInStore ? productInStore.quantity : (productDetail?.quantity || 0);
+  const currentStock = productInStore ? productInStore.stockQuantity : (productDetail?.quantity || 0);
 
   // Fetch Data
   useEffect(() => {
@@ -55,7 +55,7 @@ const ProductDetailPage: React.FC = () => {
                 
                 // --- FIX: เช็คว่าเป็น Array หรือไม่ ก่อน filter ---
                 if (Array.isArray(allProducts)) {
-                    setRelatedProducts(allProducts.filter((p: any) => p.id !== Number(id)).slice(0, 4));
+                    setRelatedProducts(allProducts.filter((p: unknown) => p.id !== Number(id)).slice(0, 4));
                 } else {
                     console.warn("API getAllProducts ไม่ได้คืนค่าเป็น Array:", allProducts);
                     setRelatedProducts([]); // ใส่ค่าว่างกัน App พัง
@@ -82,25 +82,28 @@ const ProductDetailPage: React.FC = () => {
   const handleDecrease = () => { if (buyQuantity > 1) setBuyQuantity(prev => prev - 1); };
 
   const handleAddToCart = () => {
-    if (!productDetail) return;
-    const productForCart: Product = {
-        id: productDetail.id,
-        productName: productDetail.productName,
-        description: productDetail.description || "",
-        image: productDetail.productImages?.[0]?.imageUrl || "",
-        category: "General",
-        price: productDetail.price || 0,
-        quantity: 1,
-        status: currentStock > 0 ? "available" : "out"
-    };
+  if (!productDetail) return;
 
-    for (let i = 0; i < buyQuantity; i++) {
-        dispatch(addToCart(productForCart));
-        dispatch(removeQuantity(productDetail.id));
-    }
-    setBuyQuantity(1);
-    alert(`เพิ่มลงตะกร้าเรียบร้อย!`);
+  const productForCart: Product = {
+    id: productDetail.id,
+    productName: productDetail.productName,
+    imageUrl: productDetail.productImages?.[0]?.imageUrl,
+    categoryId: 0, // เพราะ ProductDetail ไม่มี field นี้
+    
+    price: productDetail.price,
+    summary: "",   // Product บังคับให้มี
+    stockQuantity: buyQuantity,
+    status: currentStock > 0 ? "available" : "out"
   };
+
+  for (let i = 0; i < buyQuantity; i++) {
+    dispatch(addToCart(productForCart));
+    dispatch(removeQuantity(productDetail.id));
+  }
+
+  setBuyQuantity(1);
+  alert("เพิ่มลงตะกร้าเรียบร้อย!");
+};
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!productDetail) return <div className="min-h-screen flex items-center justify-center">Product not found</div>;

@@ -148,7 +148,7 @@ useEffect(()=>{
             />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
   {groupedProduct.map((group) =>
-    group.categoryId === 1 &&
+    group.categoryName === "Promotion" &&
     group.products.map((product) => (
       <ProductCard key={product.id} product={product} />
     ))
@@ -170,7 +170,7 @@ useEffect(()=>{
                
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
   {groupedProduct.map((group) =>
-    group.categoryId === 2 &&
+    group.categoryName === "Soap" &&
     group.products.map((product) => (
       <ProductCard key={product.id} product={product} />
     ))
@@ -190,7 +190,7 @@ useEffect(()=>{
                
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
   {groupedProduct.map((group) =>
-    group.categoryId === 3 &&
+    group.categoryName === "Drinks" &&
     group.products.map((product) => (
       <ProductCard key={product.id} product={product} />
     ))
@@ -210,7 +210,7 @@ useEffect(()=>{
                
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
   {groupedProduct.map((group) =>
-    group.categoryId === 4 &&
+    group.categoryName === "Shampoo" &&
     group.products.map((product) => (
       <ProductCard key={product.id} product={product} />
     ))

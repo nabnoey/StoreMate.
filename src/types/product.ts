@@ -3,6 +3,7 @@ id: number
   productName: string
   imageUrl: string | null
   categoryId: number
+  categoryName: string
   price: number
   summary: string
   status: string
@@ -11,6 +12,7 @@ id: number
 
 export interface CategoryGroup {
   categoryId: number;
+  categoryName: string;
   products: Product[];
 }
 
