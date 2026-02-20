@@ -123,7 +123,7 @@ const ProductDetailPage: React.FC = () => {
           <div>
             <div className="aspect-[4/5] w-full max-h-[500px] flex items-center justify-center mb-4 relative bg-gray-50 rounded-lg">
               <img 
-                src={activeImage || 'https://via.placeholder.com/500'} 
+                src={activeImage || 'https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D'} 
                 alt={productDetail.productName}
                 className="w-full h-full object-contain mix-blend-multiply"
               />
