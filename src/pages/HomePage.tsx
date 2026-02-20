@@ -36,13 +36,13 @@ function HomePage() {
 
  const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
 
+ ProductService.getAllCategories()
+
  useEffect(()=> {
   dispatch(fetchProducts())
  },[dispatch])
 
 
-  const products = useSelector((state: RootState) => state.products.items || []);
- ProductService.getAllCategories().then(res => console.log(res));
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
   
@@ -65,8 +65,7 @@ useEffect(()=>{
 
 },[keyword,dispatch])
 
-  const filteredProducts = products.filter((item)=>
-  item.productName.toLowerCase().includes(keyword.toLowerCase()))
+
 
 
     if(keyword){
