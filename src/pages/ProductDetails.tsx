@@ -55,7 +55,11 @@ const ProductDetailPage: React.FC = () => {
                 
                 // --- FIX: เช็คว่าเป็น Array หรือไม่ ก่อน filter ---
                 if (Array.isArray(allProducts)) {
-                    setRelatedProducts(allProducts.filter((p: unknown) => p.id !== Number(id)).slice(0, 4));
+                  setRelatedProducts(
+  allProducts
+    .filter((p: Product) => p.id !== Number(id))
+    .slice(0, 4)
+);
                 } else {
                     console.warn("API getAllProducts ไม่ได้คืนค่าเป็น Array:", allProducts);
                     setRelatedProducts([]); // ใส่ค่าว่างกัน App พัง

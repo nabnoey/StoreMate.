@@ -98,6 +98,7 @@ extraReducers: (builder) => {
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
 
     const groupedArray = Object.keys(action.payload).map((key) => ({
+       categoryId: action.payload[key].categoryId,
       categoryName: key,
       products: action.payload[key]
     }));
