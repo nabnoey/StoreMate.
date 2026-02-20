@@ -3,10 +3,11 @@ import { useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";
 import { HiOutlineInbox } from "react-icons/hi";
-import banner from "../assets/banner.png";
 import { fetchProducts, setSearchResult } from "../redux/products/productReducer";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
+import banner from "../assets/banner2.png";
+
 
 
   const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
@@ -40,6 +41,8 @@ function HomePage() {
  },[dispatch])
 
 
+  const products = useSelector((state: RootState) => state.products.items || []);
+ ProductService.getAllCategories().then(res => console.log(res));
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
   
@@ -62,8 +65,8 @@ useEffect(()=>{
 
 },[keyword,dispatch])
 
-
-
+  const filteredProducts = products.filter((item)=>
+  item.productName.toLowerCase().includes(keyword.toLowerCase()))
 
 
     if(keyword){
