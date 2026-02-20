@@ -11,8 +11,16 @@ const searchProducts = async (keyword: string) => {
     return res.data
 }
 
-export const ProductService = {
-    getAllCategories,
-    searchProducts
+
+ const getProductById = async (id: number) => {
+    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/${id}`)
+    return res.data
 }
 
+
+export const ProductService = {
+    // getAllProducts,
+    getAllCategories,
+    getProductById,
+    searchProducts
+}

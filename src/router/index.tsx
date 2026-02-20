@@ -19,7 +19,8 @@ const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
 const Profile = lazy(() => import("../pages/users/Profile"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
-import ChangePassword from "../pages/auth/ChangePassword";
+const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
+const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
 
 
 const router = createBrowserRouter([
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
         path:"/profile",
         element:<Profile/>
 
+    },
+    {
+        path:"/product/:id",
+        element:<ProductDetailPage/>
     }
 
 
