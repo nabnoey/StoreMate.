@@ -36,11 +36,12 @@ function HomePage() {
 
  const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
 
- ProductService.getAllCategories()
+//  ProductService.getAllCategories()
 
  useEffect(()=> {
   dispatch(fetchProducts())
  },[dispatch])
+
 
 
   //ดึงคำค้นหา

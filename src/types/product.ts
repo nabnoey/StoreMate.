@@ -10,7 +10,7 @@ id: number
 }
 
 export interface CategoryGroup {
-  categoryId: number;
+
   categoryName: string;
   products: Product[];
 }
