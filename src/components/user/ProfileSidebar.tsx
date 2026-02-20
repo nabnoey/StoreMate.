@@ -45,15 +45,16 @@ const ProfileSidebar = () => {
           >
             โปรไฟล์ของฉัน <span className="text-[10px] font-black">≡</span>
           </button>
-          <button className="flex-1 flex items-center justify-center text-gray-600 hover:bg-gray-50 rounded-r">
+          <button className="flex-1 flex items-center justify-center text-gray-600 hover:text-blue-500rounded-r"
+          onClick={()=>navigate("/history-shop")}>
             การซื้อของฉัน
           </button>
 
           {isMobileMenuOpen && (
             <div className="absolute top-[110%] left-0 w-[140px] bg-white shadow-xl rounded border border-gray-200 py-1.5 z-50">
-              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50" onClick={()=>navigate("/profile")}>โปรไฟล์</button>
-              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50" onClick={()=>navigate("/address-profile")}>จัดการที่อยู่</button>
-              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-gray-50" onClick={()=>navigate("/change-password")}>เปลี่ยนรหัสผ่าน</button>
+              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:text-blue-500" onClick={()=>navigate("/profile")}>โปรไฟล์</button>
+              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:text-blue-500" onClick={()=>navigate("/address-profile")}>จัดการที่อยู่</button>
+              <button className="block w-full text-left px-4 py-2 text-xs text-gray-600 hover:text-blue-500" onClick={()=>navigate("/change-password")}>เปลี่ยนรหัสผ่าน</button>
             </div>
           )}
         </div>
@@ -109,7 +110,8 @@ const ProfileSidebar = () => {
            </div>
            
            <div className="px-5 pt-4 border-t border-gray-100">
-             <h3 className="font-bold text-gray-800 hover:text-blue-500 cursor-pointer text-sm">
+             <h3 className="font-bold text-gray-800 hover:text-blue-500 cursor-pointer text-sm"
+             onClick={()=>navigate("/history-shop")}>
                 การซื้อของฉัน
              </h3>
            </div>

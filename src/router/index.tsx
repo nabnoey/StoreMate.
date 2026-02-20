@@ -27,7 +27,8 @@ const StoreEdit = lazy(() => import("../pages/admin/StoreEdit"));
 const UserEdit = lazy(() => import("../pages/admin/UserEdit"));
 const Orders = lazy(() => import("../pages/admin/Orders"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
-
+const HistoryShop = lazy(() => import("../pages/users/HistoryShop"));
+const ShoppingCart = lazy(() => import("../pages/carts/ShoppingCart"));
 
 
 const router = createBrowserRouter([
@@ -35,22 +36,17 @@ const router = createBrowserRouter([
         path:"/",
         element:<MainLayout/>,
         children:[
-
-
         {
-            path:"/",
-            element:<Home/>
-
-
+        path:"/",
+        element:<Home/>
         },
         {
-  path: "/cart",
-  element: <CartPage /> 
-},
-
-         {
-    path:"/register",
-    element:<RegisterPage/>
+        path: "/cart",
+        element: <CartPage /> 
+    },
+    {
+        path:"/register",
+        element:<RegisterPage/>
     },
     {
         path:"/login",
@@ -60,33 +56,35 @@ const router = createBrowserRouter([
         path:"/forgot-password",
         element:<ForgotPassword/>
     },
-
     {
         path:"/reset-password",
         element:<ResetPassword/>
-
     },
     {
         path:"/change-password",
         element:<ChangePassword/>
-
     },
     {
         path:"/profile",
         element:<Profile/>
-
     },
- {
+    {
         path:"/address-profile",
         element:<AddressProfile/>
-
-    }
-
-
-
+    },
+     {
+        path:"/address-profile",
+        element:<AddressProfile/>
+    },
+    {
+        path:"/history-shop",
+        element:<HistoryShop/>
+    },
+    {
+        path:"/shopping-cart",
+        element:<ShoppingCart/>
+    },
         ]
-
-        
     },
 
     {

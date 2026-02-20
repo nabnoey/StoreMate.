@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";
 import { HiOutlineInbox } from "react-icons/hi";
-import banner from "../assets/banner.png";
+import banner from "../assets/banner2.png";
 
  const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
     <div className={`max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
@@ -38,7 +38,7 @@ function HomePage() {
   // ดึงแค่ข้อมูลสินค้าพอ ไม่ต้องเช็ค isHome แล้ว
 
   const products = useSelector((state: RootState) => state.products.items || []);
- ProductService.getAllProducts()
+ ProductService.getAllCategories()
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
 
@@ -47,12 +47,12 @@ const keyword = useSelector((state:RootState)=>state.products.search)
   // const promotionProducts = products.filter(p => p.category === "promotion").slice(0, 4);
   // const soapProducts = products.filter(p => p.category === "soap").slice(0, 4);
   // const drinkProducts = products.filter(p => p.category === "drink").slice(0, 4);
-  const hairProducts = products.filter(p => p.category === "hair").slice(0, 4);
+  const hairProducts = products.filter(p => p.categoryName === "hair").slice(0, 4);
 
 
   //filter สินค้า
   const filteredProducts = products.filter((item)=>
-  item.name.toLowerCase().includes(keyword.toLowerCase()))
+  item.productName.toLowerCase().includes(keyword.toLowerCase()))
 
     // --- Utility Component: Container ---
   // const ContentWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -146,7 +146,7 @@ const keyword = useSelector((state:RootState)=>state.products.search)
           </div>
 
           {/* Right: Image Showcase */}
-          <div className="flex w-full md:w-[45%] lg:w-[500px] bg-white rounded-[32px] shadow-2xl p-6 lg:p-10 items-center justify-center relative transform md:rotate-2 hover:rotate-0 transition-transform duration-500 mt-10 md:mt-0">
+          <div className="flex w-full md:w-[45%] lg:w-[500px] bg-white rounded-[32px] shadow-2xl p-6 lg:p-10 items-center justify-center relative mt-10 md:mt-0">
             <img src={banner} alt="Promotion Banner" className="w-full h-auto object-contain scale-105" data-testid="hero-image" />
           </div>
         </ContentWrapper>

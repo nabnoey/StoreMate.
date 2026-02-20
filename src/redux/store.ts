@@ -4,6 +4,7 @@ import authReducer from "./auth/authReducer";
 import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
 import loadingReducer from "./loading/loadingReducer";
+import addressReducer from "./address/addressReducer";
 
 
 export const store = configureStore({
@@ -11,7 +12,8 @@ export const store = configureStore({
         auth: authReducer,
         carts: cartReducer,
         products: productsReducer,
-        loading: loadingReducer
+        loading: loadingReducer,
+        address: addressReducer,
     },
 devTools: true
 
