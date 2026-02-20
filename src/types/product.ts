@@ -3,6 +3,7 @@ id: number
   productName: string
   imageUrl: string | null
   categoryId: number
+  quantity:number,
   price: number
   summary: string
   status: string

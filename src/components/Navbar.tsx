@@ -90,7 +90,7 @@ const Navbar: React.FC = () => {
               <div className="relative cursor-pointer">
                 <FaCartShopping
                   size={22}
-                  className="hover:text-black"
+                  className="hover:text-black "
                   onClick={() => navigate("/cart")}
                 />
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-
+import { toast } from 'react-hot-toast';
 // Icons
 import { MdStar, MdStarBorder, MdLocalShipping, MdReplay } from "react-icons/md";
 
@@ -93,7 +93,7 @@ const ProductDetailPage: React.FC = () => {
     productName: productDetail.productName,
     imageUrl: productDetail.productImages?.[0]?.imageUrl,
     categoryId: 0, // เพราะ ProductDetail ไม่มี field นี้
-    
+    quantity: productDetail.quantity,
     price: productDetail.price,
     summary: "",   // Product บังคับให้มี
     stockQuantity: buyQuantity,
@@ -106,7 +106,7 @@ const ProductDetailPage: React.FC = () => {
   }
 
   setBuyQuantity(1);
-  alert("เพิ่มลงตะกร้าเรียบร้อย!");
+  return toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
 };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -209,13 +209,18 @@ const ProductDetailPage: React.FC = () => {
 
             {/* ปุ่มกด */}
             <div className="flex gap-4">
+                
                 <button 
+                
                     onClick={handleAddToCart}
                     disabled={currentStock <= 0}
+                    
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-md shadow-sm transition disabled:bg-gray-300"
+                    
                 >
                     Add To Cart
                 </button>
+                
                 <button 
                     disabled={currentStock <= 0}
                     className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-3 rounded-md shadow-sm transition disabled:bg-gray-300"

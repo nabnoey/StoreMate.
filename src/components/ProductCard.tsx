@@ -5,7 +5,7 @@ import { addToCart } from "../redux/carts/CartReducer";
 import { removeQuantity } from "../redux/products/productReducer";
 import { MdAddShoppingCart } from "react-icons/md";
 import { Link } from "react-router-dom";
-import type React from "react";
+
 
 type Props = {
   product: Product;
@@ -14,15 +14,11 @@ type Props = {
 function ProductCard({ product }: Props) {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleAddToCart = () => {
+    dispatch(addToCart(product))
+       dispatch(removeQuantity(product.id))
+  }
 
-    if (product.stockQuantity > 0) {
-      dispatch(addToCart(product));
-      dispatch(removeQuantity(product.id));
-    }
-  };
 
   return (
     <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
