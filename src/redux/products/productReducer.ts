@@ -98,7 +98,7 @@ const productsSlice = createSlice({
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
 
     const groupedArray = Object.keys(action.payload).map((key) => ({
-      categoryName: key,
+      categoryId: parseInt(key), // แปลง categoryId เป็นตัวเลข
       products: action.payload[key]
     }));
     

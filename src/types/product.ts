@@ -2,7 +2,7 @@ export type Product = {
 id: number
   productName: string
   imageUrl: string | null
-  categoryName: string
+  categoryId: number
   price: number
   summary: string
   status: string
@@ -10,7 +10,7 @@ id: number
 }
 
 export interface CategoryGroup {
-  categoryName: string;
+  categoryId: number;
   products: Product[];
 }
 

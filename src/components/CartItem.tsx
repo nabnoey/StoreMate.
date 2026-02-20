@@ -23,7 +23,7 @@ function CartItem({ item }: Props) {
   );
   
   // ใช้ Optional chaining และ Nullish coalescing เพื่อความปลอดภัย
-  const stock = productInStock?.quantity ?? 0;
+  const stock = productInStock?.stockQuantity ?? 0;
 
   const handleIncrease = () => {
     // เช็ค stock ก่อนเพิ่ม
@@ -52,9 +52,10 @@ function CartItem({ item }: Props) {
     >
       <div className="flex items-center gap-4 w-1/2">
         <img
+        
           id={`cart-img-${item.id}`}
-          src={item.image}
-          alt={item.title}
+          src={item.imageUrl || "https://via.placeholder.com/150"}
+          alt={item.productName}
           className="w-20 h-20 object-contain rounded"
         />
         <div>
@@ -62,7 +63,7 @@ function CartItem({ item }: Props) {
             id={`cart-title-${item.id}`} 
             className="font-semibold line-clamp-2"
           >
-            {item.title}
+            {item.productName}
           </h3>
            {/* STATUS */}
   {stock > 0 ? (
