@@ -98,9 +98,6 @@ useEffect(()=>{
 
      
       <section className="relative w-full min-h-150 md:h-150 bg-[#14261C] overflow-hidden flex items-center mb-10 py-10 md:py-0" id="hero-banner">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <img src="/path-to-leaf-pattern.png" alt="" className="w-full h-full object-cover" />
-        </div>
 
         
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 w-full px-6 md:px-12 lg:px-24 xl:px-32">
