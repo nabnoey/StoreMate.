@@ -159,14 +159,14 @@ const ProductDetailPage: React.FC = () => {
                         : <MdStarBorder key={i} className="text-gray-300"/>
                     ))}
                 </div>
-                <span className="text-gray-500 text-sm ml-2">({productDetail.reviews?.length || 0} รีวิว)</span>
+                <span className="text-gray-500 text-sm ml-2">({productDetail.reviews?.length} รีวิว)</span>
             </div>
 
             {/* กล่องราคา */}
             <div className="bg-gray-100 px-6 py-5 rounded-lg flex justify-between items-center mb-6">
                 <span className="text-xl font-bold text-gray-700">ราคา</span>
                 <span className="text-3xl font-bold text-gray-900">
-                    {Number(productDetail.price || 0).toLocaleString()}฿
+                    {Number(productDetail.price).toLocaleString()}฿
                 </span>
             </div>
 
