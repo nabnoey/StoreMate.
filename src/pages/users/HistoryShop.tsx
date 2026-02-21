@@ -1,5 +1,5 @@
 // src/pages/Profile/HistoryShop.tsx
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import ProfileSidebar from '../../components/user/ProfileSidebar';
 
 // --- Types ---
