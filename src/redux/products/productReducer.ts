@@ -31,27 +31,27 @@ const productsSlice = createSlice({
     // เพิ่มจำนวนสินค้าตอนกด +
     addQuantity: (state, action: PayloadAction<number>) => {
       const product = state.items.find(p => p.id === action.payload);
-      if (product && product.quantity < 10) {
-        product.quantity += 1;
+      if (product && product.stockQuantity < 10) {
+        product.stockQuantity += 1;
       }
     },
 
     // ลดจำนวนสินค้า 
     removeQuantity: (state, action: PayloadAction<number>) => {
       const product = state.items.find(p => p.id === action.payload);
-      if (product && product.quantity > 0) {
-        product.quantity -= 1;
+      if (product && product.stockQuantity > 0) {
+        product.stockQuantity -= 1;
       }
     },
 
     // คืนของเข้าสต็อก (ตอนลบจาก cart)
     returnQuantity: (
       state,
-      action: PayloadAction<{ id: number; quantity: number }>
+      action: PayloadAction<{ id: number; stockQuantity: number }>
     ) => {
       const product = state.items.find(p => p.id === action.payload.id);
       if (product) {
-        product.quantity += action.payload.quantity;
+        product.stockQuantity += action.payload.stockQuantity;
       }
     },
 

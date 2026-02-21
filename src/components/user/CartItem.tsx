@@ -12,7 +12,7 @@ import {
 import { GiTrashCan } from "react-icons/gi";
 
 type Props = {
-  item: Product & { quantity: number }; 
+  item: Product & { stockQuantity: number }; 
 };
 
 function CartItem({ item }: Props) {
@@ -23,7 +23,7 @@ function CartItem({ item }: Props) {
   );
   
   // ใช้ Optional chaining และ Nullish coalescing เพื่อความปลอดภัย
-  const stock = productInStock?.quantity ?? 0;
+  const stock = productInStock?.stockQuantity ?? 0;
 
   const handleIncrease = () => {
     // เช็ค stock ก่อนเพิ่ม
@@ -34,7 +34,7 @@ function CartItem({ item }: Props) {
   };
 
   const handleDecrease = () => {
-    if (item.quantity > 1) {
+    if (item.stockQuantity > 1) {
         dispatch(decreaseQuantity(item.id)); // ลดจำนวนในตะกร้า
         // dispatch(returnQuantity({ id: item.id, quantity: 1 })); // คืนจำนวนเข้าสต็อก
     }
@@ -53,8 +53,8 @@ function CartItem({ item }: Props) {
       <div className="flex items-center gap-4 w-1/2">
         <img
           id={`cart-img-${item.id}`}
-          src={item.image}
-          alt={item.title}
+          src={item.imageUrl}
+          alt={item.productName}
           className="w-20 h-20 object-contain rounded"
         />
         <div>
@@ -62,7 +62,7 @@ function CartItem({ item }: Props) {
             id={`cart-title-${item.id}`} 
             className="font-semibold line-clamp-2"
           >
-            {item.title}
+            {item.productName}
           </h3>
            {/* STATUS */}
   {stock > 0 ? (
@@ -90,7 +90,7 @@ function CartItem({ item }: Props) {
             id={`btn-decrease-${item.id}`}
             onClick={handleDecrease} 
             className="btn btn-ghost btn-sm" 
-            disabled={item.quantity <= 1}
+            disabled={item.stockQuantity <= 1}
           >
             -
           </button> 
@@ -99,7 +99,7 @@ function CartItem({ item }: Props) {
             id={`cart-qty-${item.id}`} 
             className="px-4 font-medium"
           >
-            {item.quantity}
+            {item.stockQuantity}
           </span>
           
           <button 
@@ -119,7 +119,7 @@ function CartItem({ item }: Props) {
           id={`cart-item-total-${item.id}`}
           className="font-semibold w-24 "
         >
-          ฿{(item.price * item.quantity).toFixed(2)}
+          ฿{(item.price * item.stockQuantity).toFixed(2)}
         </p>
         <div>
          </div>

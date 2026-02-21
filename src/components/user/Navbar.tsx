@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
 
   const cartItems = useSelector((state: RootState) => state.carts);
   const totalItems = cartItems.reduce(
-    (total: number, item: { quantity: number }) => total + item.quantity,
+    (total: number, item: { stockQuantity: number }) => total + item.stockQuantity,
     0
   );
 
@@ -91,7 +91,7 @@ const Navbar: React.FC = () => {
                 <FaCartShopping
                   size={22}
                   className="hover:text-black"
-                  onClick={() => navigate("/cart")}
+                  onClick={() => navigate("/shopping-cart")}
                 />
 
                 {totalItems > 0 && (
