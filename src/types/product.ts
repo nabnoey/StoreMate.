@@ -12,6 +12,7 @@ id: number
 
 export interface CategoryGroup {
 
+
   categoryName: string;
   products: Product[];
 }
@@ -46,4 +47,6 @@ export interface ProductDetail {
   productImages: ProductImage[];
   reviews: Review[];
 }
+
+
 

@@ -15,7 +15,7 @@ import { ProductService } from '../services/product.service';
 import type { ProductDetail, Product } from '../types/product'; 
 
 // Components
-import ProductCard from '../components/ProductCard'; 
+import ProductCard from "../components/user/ProductCard"; 
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

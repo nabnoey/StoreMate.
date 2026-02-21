@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Product } from '../../types/product';
 import { initialState } from "./initailState";
 
-type CartItem = Product & { quantity: number };
+type CartItem = Product & { stockQuantity: number };
 
 const cartsSlice = createSlice({
   name: 'carts',
@@ -11,9 +11,9 @@ const cartsSlice = createSlice({
     addToCart: (state, action: PayloadAction<Product>) => {
       const existingItem = state.find(item => item.id === action.payload.id);
       if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.stockQuantity += 1;
       } else {
-        state.push({ ...action.payload, quantity: 1 });
+        state.push({ ...action.payload, stockQuantity: 1 });
       }
     },
 
@@ -29,15 +29,15 @@ const cartsSlice = createSlice({
     increaseQuantity: (state, action: PayloadAction<number>) => {
       const item = state.find(item => item.id === action.payload);
       if (item) {
-        item.quantity++;
+        item.stockQuantity++;
       }
     },
 
     
     decreaseQuantity: (state, action: PayloadAction<number>) => {
       const item = state.find(item => item.id === action.payload);
-      if (item && item.quantity > 1) {
-        item.quantity--;
+      if (item && item.stockQuantity > 1) {
+        item.stockQuantity--;
       }
     },
   },

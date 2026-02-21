@@ -4,10 +4,10 @@ import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "../redux/store";
+import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
-import {setSearch  } from "../redux/products/productReducer";
-import logo from "../assets/logo.png";
+import {setSearch  } from "../../redux/products/productReducer";
+import logo from "../../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
 
   const cartItems = useSelector((state: RootState) => state.carts);
   const totalItems = cartItems.reduce(
-    (total: number, item: { quantity: number }) => total + item.quantity,
+    (total: number, item: { stockQuantity: number }) => total + item.stockQuantity,
     0
   );
 
@@ -90,8 +90,9 @@ const Navbar: React.FC = () => {
               <div className="relative cursor-pointer">
                 <FaCartShopping
                   size={22}
-                  className="hover:text-black "
-                  onClick={() => navigate("/cart")}
+                  className="hover:text-black"
+                  onClick={() => navigate("/shopping-cart")}
+
                 />
 
                 {totalItems > 0 && (

@@ -1,4 +1,4 @@
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/user/ProductCard";
 import { useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
 import { ProductService } from "../services/product.service";
@@ -7,6 +7,9 @@ import { fetchProducts, setSearchResult } from "../redux/products/productReducer
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
+
+
+
 
 
 
@@ -44,6 +47,7 @@ function HomePage() {
 
 
 
+
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
   
@@ -51,6 +55,7 @@ const keyword = useSelector((state:RootState)=>state.products.search)
 const searchResult = useSelector(
  (state:RootState)=>state.products.searchResult || []
 )
+
 
 useEffect(()=>{
 
@@ -127,7 +132,9 @@ useEffect(()=>{
           </div>
 
           {/* Right: Image Showcase */}
+
           <div className="flex w-full md:w-[45%] lg:w-125 bg-white rounded-4xl shadow-2xl p-6 lg:p-10 items-center justify-center relative transform md:rotate-2 hover:rotate-0 transition-transform duration-500 mt-10 md:mt-0">
+
             <img src={banner} alt="Promotion Banner" className="w-full h-auto object-contain scale-105" data-testid="hero-image" />
           </div>
         </div>

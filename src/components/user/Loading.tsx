@@ -1,9 +1,13 @@
 import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import type { RootState } from "../../redux/store";
 // 1. เปลี่ยนการ Import: ใช้ useLottie (ที่เป็น Named Export) แทน default
 import { useLottie } from "lottie-react";
 
-import loadingAnimation from "../assets/Shop.json";
+// <<<<<<< HEAD:src/components/Loading.tsx
+// import loadingAnimation from "../assets/Shop.json";
+// =======
+import loadingAnimation from "../../assets/Shop.json";
+// >>>>>>> Admin:src/components/user/Loading.tsx
 
 const Loading = () => {
   const isLoading = useSelector(

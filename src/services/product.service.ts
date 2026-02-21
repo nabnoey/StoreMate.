@@ -23,4 +23,6 @@ export const ProductService = {
     getAllCategories,
     getProductById,
     searchProducts
+
 }
+

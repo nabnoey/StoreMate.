@@ -1,18 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
-import type { Product } from '../types/product';
-import type { AppDispatch, RootState } from "../redux/store";
+import type { Product } from '../../types/product';
+import type { AppDispatch, RootState } from "../../redux/store";
 import {
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
-} from "../redux/carts/CartReducer";
+} from "../../redux/carts/CartReducer";
 import {
   removeQuantity
-} from "../redux/products/productReducer";
+} from "../../redux/products/productReducer";
 import { GiTrashCan } from "react-icons/gi";
 
 type Props = {
-  item: Product & { quantity: number }; 
+  item: Product & { stockQuantity: number }; 
 };
 
 function CartItem({ item }: Props) {
@@ -34,7 +34,7 @@ function CartItem({ item }: Props) {
   };
 
   const handleDecrease = () => {
-    if (item.quantity > 1) {
+    if (item.stockQuantity > 1) {
         dispatch(decreaseQuantity(item.id)); // ลดจำนวนในตะกร้า
         // dispatch(returnQuantity({ id: item.id, quantity: 1 })); // คืนจำนวนเข้าสต็อก
     }
@@ -54,7 +54,9 @@ function CartItem({ item }: Props) {
         <img
         
           id={`cart-img-${item.id}`}
+
           src={item.imageUrl || "https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D"}
+
           alt={item.productName}
           className="w-20 h-20 object-contain rounded"
         />
@@ -91,7 +93,7 @@ function CartItem({ item }: Props) {
             id={`btn-decrease-${item.id}`}
             onClick={handleDecrease} 
             className="btn btn-ghost btn-sm" 
-            disabled={item.quantity <= 1}
+            disabled={item.stockQuantity <= 1}
           >
             -
           </button> 
@@ -100,7 +102,7 @@ function CartItem({ item }: Props) {
             id={`cart-qty-${item.id}`} 
             className="px-4 font-medium"
           >
-            {item.quantity}
+            {item.stockQuantity}
           </span>
           
           <button 
@@ -120,7 +122,7 @@ function CartItem({ item }: Props) {
           id={`cart-item-total-${item.id}`}
           className="font-semibold w-24 "
         >
-          ฿{(item.price * item.quantity).toFixed(2)}
+          ฿{(item.price * item.stockQuantity).toFixed(2)}
         </p>
         <div>
          </div>

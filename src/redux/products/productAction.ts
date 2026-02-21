@@ -7,14 +7,14 @@ import {
 export type AddProductAction = {
   type: typeof ADD_PRODUCT
   payload: {
-  id: number;
-  name: string;
-  product_type_id: number;
-  price: number;
-  status_id: number;
-  description: string;
-  image: string;
-  quantity: number;
+  id: number
+  productName: string
+  imageUrl: string 
+  categoryName: string
+  price: number
+  summary: string
+  status: string
+  stockQuantity: number
 }
 }
 
