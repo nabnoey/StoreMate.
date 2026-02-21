@@ -1,98 +1,69 @@
 import React from "react";
-import logo from "../../assets/logo.png";
-
-import {
-  FaFacebookF,
-  FaLinkedinIn,
-  FaYoutube,
-  FaInstagram,
-  FaGoogle,
-  FaPinterestP,
-  FaRss,
-} from "react-icons/fa";
-import { MdLocalPhone } from "react-icons/md";
-import { AiFillPrinter } from "react-icons/ai";
+import { FaFacebookF, FaInstagram, FaLine } from "react-icons/fa";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-white text-gray-600">
-      <div className="max-w-7xl mx-auto px-10 py-12 grid grid-cols-1 md:grid-cols-3 gap-10 items-center ">
+    <footer className="bg-[#193220] text-gray-300 font-sans">
+      {/* Top Section */}
+      <div className="max-w-[1200px] mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         
-    
-    <div className="flex justify-center md:justify-start mt-6">
-  <img
-    src={logo}
-    alt="StoreMate Logo"
-    className="w-[205px]"
-  />
-</div>
-
-      
-        <div className="text-center space-y-3 text-sm">
-          <p>
-            📍 345 Faulconer Drive, Suite 4, Charlottesville, CA 12345
+        {/* Column 1: Brand */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[#EAB308] rounded-full flex items-center justify-center text-[#193220] font-bold text-sm">
+              PT
+            </div>
+            <h2 className="text-[#EAB308] font-bold text-xl">พัดทอง</h2>
+          </div>
+          <p className="text-xs sm:text-sm leading-relaxed text-gray-300 max-w-xs">
+            ผลิตภัณฑ์แปรรูปจากสมุนไพรไทย มะม่วงหาว มะนาวโห่คุณภาพสูง เพื่อสุขภาพที่ดีของคุณ
           </p>
-<div className="flex items-center justify-center gap-6 text-sm text-blue-600 ">
-  <p className="flex items-center gap-2">
-    <MdLocalPhone className="text-base w-30px" />
-    (123) 456-7890
-  </p>
+        </div>
 
-  <p className="flex items-center gap-2">
-    <AiFillPrinter className="text-base" />
-    (123) 456-7890
-  </p>
-</div>
+        {/* Column 2: Menu */}
+        <div>
+          <h3 className="text-[#EAB308] font-bold text-sm mb-4">เมนู</h3>
+          <ul className="space-y-3 text-xs sm:text-sm">
+            <li><a href="#" className="hover:text-white transition-colors">หน้าแรก</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">สินค้าทั้งหมด</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">โปรโมชั่น</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">ติดต่อเรา</a></li>
+          </ul>
+        </div>
 
-        
-          <div className="flex justify-center gap-4 pt-2 text-blue-600 text-lg">
-            <div className="text-gray-400 font-light">Social Media</div>
-         
-            <a href="#" className="hover:text-blue-800">
-              <FaFacebookF />
+        {/* Column 3: Help */}
+        <div>
+          <h3 className="text-[#EAB308] font-bold text-sm mb-4">ช่วยเหลือ</h3>
+          <ul className="space-y-3 text-xs sm:text-sm">
+            <li><a href="#" className="hover:text-white transition-colors">วิธีการสั่งซื้อ</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">แจ้งชำระเงิน</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">การจัดส่งสินค้า</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">นโยบายความเป็นส่วนตัว</a></li>
+          </ul>
+        </div>
+
+        {/* Column 4: Social Media */}
+        <div>
+          <h3 className="text-[#EAB308] font-bold text-sm mb-4">ติดตามเรา</h3>
+          <div className="flex gap-3">
+            <a href="#" className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors">
+              <FaFacebookF className="text-white text-sm" />
             </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaLinkedinIn />
+            <a href="#" className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors">
+              <FaInstagram className="text-white text-sm" />
             </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaYoutube />
-            </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaInstagram />
-            </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaGoogle />
-            </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaPinterestP />
-            </a>
-            <a href="#" className="hover:text-blue-800">
-              <FaRss />
+            <a href="#" className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors">
+              <FaLine className="text-white text-sm" />
             </a>
           </div>
         </div>
 
-        {/* RIGHT : EMPTY (BALANCE LAYOUT) */}
-        <div />
       </div>
 
-    
-      <div className="border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-10 py-4 flex flex-col md:flex-row justify-between items-center text-xs gap-2">
-          
-
-          <div className="flex gap-4 flex-wrap justify-center">
-            <span className="cursor-pointer hover:text-black">ABOUT US</span>
-            <span className="cursor-pointer hover:text-black">CONTACT US</span>
-            <span className="cursor-pointer hover:text-black">HELP</span>
-            <span className="cursor-pointer hover:text-black">PRIVACY POLICY</span>
-            <span className="cursor-pointer hover:text-black">DISCLAIMER</span>
-          </div>
-
- 
-          <p className="text-gray-400">
-            Copyright © 2018 · Lift Media Inc.
-          </p>
+      {/* Bottom Section (Copyright) */}
+      <div className="border-t border-white/10">
+        <div className="max-w-[1200px] mx-auto px-6 py-5 text-center text-xs text-gray-400 font-light">
+          © 2023 Phadthong Store. สงวนลิขสิทธิ์.
         </div>
       </div>
     </footer>
