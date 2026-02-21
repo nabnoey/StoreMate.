@@ -1,6 +1,5 @@
 // src/pages/Profile/HistoryShop.tsx
 import React, { useState, useEffect } from 'react';
-import { User, Edit2, Menu } from 'lucide-react'; 
 import ProfileSidebar from '../../components/user/ProfileSidebar';
 
 // --- Types ---

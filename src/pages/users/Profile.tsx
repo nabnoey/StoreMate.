@@ -125,11 +125,13 @@ const Profile = () => {
       });
       setActiveModal(null);
     } catch (error) {
+      console.error(error);
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
         text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
         confirmButtonColor: '#26c195'
+        
       });
     }
   };
