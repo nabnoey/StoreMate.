@@ -165,8 +165,8 @@ const Profile = () => {
         <main className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-5 sm:p-8 relative min-h-[500px]">
           
          <div className="border-b border-gray-100 pb-4 mb-6 md:mb-8">
-            <h1 id="title-profile-page" className="text-lg sm:text-xl font-bold text-gray-800">ข้อมูลของฉัน</h1>
-            <p id="desc-profile-page" className="text-sm text-gray-500 mt-1">จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้</p>
+            <h1 id="title-profile-page" className="text-lg sm:text-xl font-bold text-black">ข้อมูลของฉัน</h1>
+            <p id="desc-profile-page" className="text-sm text-black mt-1">จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้</p>
           </div>
 
           <div className="flex flex-col md:flex-row md:gap-8">
@@ -177,7 +177,7 @@ const Profile = () => {
                   {tempData.image ? (
                     <img id="img-profile-main" src={tempData.image} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <User id="icon-profile-placeholder" className="w-12 h-12 sm:w-14 sm:h-14 text-gray-300 stroke-[1.5]" />
+                    <User id="icon-profile-placeholder" className="w-18 h-18 sm:w-20 sm:h-20 text-black stroke-[0.5]" />
                   )}
                </div>
                
@@ -193,12 +193,12 @@ const Profile = () => {
                <button 
                 id="btn-upload-image"
                 onClick={handleImageClick}
-                className="border border-gray-300 bg-white px-6 py-2 text-sm text-gray-700 rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-3"
+                className="border border-gray-300 bg-white px-6 py-2 text-md front-normal text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-3"
                >
                  เลือกรูป
                </button>
 
-               <div id="desc-upload-limits" className="text-xs text-gray-500 text-center space-y-1">
+               <div id="desc-upload-limits" className="text-md front-normal text-black text-center space-y-1">
                  <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                  <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
                </div>          
@@ -212,13 +212,13 @@ const Profile = () => {
               
               {/* Row: Name */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-gray-700 font-medium text-sm md:w-40 md:text-right">ชื่อ - นามสกุล</label>
-                <div className="flex-1 text-gray-900 font-normal text-sm flex items-center justify-end md:justify-start">
+                <label className="text-black font-medium text-sm md:w-40 md:text-right">ชื่อ - นามสกุล</label>
+                <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
                     <span id="display-fullname" className="mr-3 md:mr-4 truncate">{tempData.firstName} {tempData.lastName}</span>
                     <button 
                         id="btn-edit-name"
                         onClick={() => openModal('name')} 
-                        className="text-[#4a90e2] hover:text-blue-500 transition-colors text-sm font-medium"
+                        className="text-blue-500 transition-colors text-sm font-medium"
                     >
                         เปลี่ยน
                     </button>
@@ -227,15 +227,15 @@ const Profile = () => {
 
               {/* Row: Email */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-gray-700 font-medium text-sm md:w-40 md:text-right">อีเมล</label>
-                <div className="flex-1 text-gray-900 font-normal text-sm flex items-center justify-end md:justify-start">
+                <label className="text-black font-medium text-sm md:w-40 md:text-right">อีเมล</label>
+                <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
                     <span id="display-email" className="mr-3 md:mr-4 truncate">
                         {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
                     </span>
                     <button 
                         id="btn-edit-email"
                         onClick={() => openModal('email')} 
-                        className="text-[#4a90e2] hover:text-blue-500 transition-colors text-sm font-medium"
+                        className="text-blue-500  transition-colors text-sm font-medium"
                     >
                         เปลี่ยน
                     </button>   
@@ -244,15 +244,15 @@ const Profile = () => {
 
                {/* Row: Phone */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-gray-700 font-medium text-sm md:w-40 md:text-right">หมายเลขโทรศัพท์</label>
-                <div className="flex-1 text-gray-900 font-normal text-sm flex items-center justify-end md:justify-start">
+                <label className="text-black font-medium text-sm md:w-40 md:text-right">หมายเลขโทรศัพท์</label>
+                <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
                     <span id="display-phone" className="mr-3 md:mr-4 truncate">
                         {tempData.phone.replace(/^(.*)(.{2})$/, "********$2")}
                     </span>
                     <button 
                         id="btn-edit-phone"
                         onClick={() => openModal('phone')} 
-                        className="text-[#4a90e2] hover:text-blue-700 transition-colors text-sm font-medium"
+                        className="text-blue-500 transition-colors text-sm font-medium"
                     >
                         เปลี่ยน
                     </button>
@@ -261,8 +261,8 @@ const Profile = () => {
 
               {/* Row: Date */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                 <label className="text-gray-700 font-medium text-sm md:w-40 md:text-right">วันที่สมัคร</label>
-                 <div className="flex-1 text-gray-600 font-normal text-sm flex items-center justify-end md:justify-start">
+                 <label className="text-black font-medium text-sm md:w-40 md:text-right">วันที่สมัคร</label>
+                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
                     <span id="display-joindate" className="md:mr-4 truncate">{user.joinDate || '-'}</span>
                  </div>
               </div>
@@ -274,7 +274,7 @@ const Profile = () => {
                     <button 
                         id="btn-main-save"
                         onClick={handleSave}
-                        className="w-full md:w-auto md:min-w-[150px] bg-[#26c195] hover:bg-[#1fa17d] transition-colors text-white px-8 py-3 md:py-2.5 rounded text-sm md:text-base shadow-sm font-medium"
+                        className="w-full md:w-auto md:min-w-[150px] bg-green-500 transition-colors text-white px-8 py-3 md:py-2.5 rounded text-sm md:text-base shadow-sm font-medium"
                     >
                         บันทึกข้อมูล
                     </button>
@@ -304,7 +304,7 @@ const Profile = () => {
                 <input 
                     id="input-firstname"
                     type="text" 
-                    className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-[#26c195] focus:border-[#26c195] text-sm"
+                    className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
                     value={tempData.firstName} 
                     onChange={e => setTempData({...tempData, firstName: e.target.value})} 
                 />
@@ -314,7 +314,7 @@ const Profile = () => {
                 <input 
                     id="input-lastname"
                     type="text" 
-                    className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-[#26c195] focus:border-[#26c195] text-sm"
+                    className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
                     value={tempData.lastName} 
                     onChange={e => setTempData({...tempData, lastName: e.target.value})} 
                 />
@@ -333,11 +333,11 @@ const Profile = () => {
         onSave={handleSave}
       >
          <div>
-            <label htmlFor="input-email" className="text-sm text-gray-600 font-medium mb-1.5 block">อีเมล</label>
+            <label htmlFor="input-email" className="text-sm text-black font-medium mb-1.5 block">อีเมล</label>
             <input 
                 id="input-email"
                 type="email" 
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-[#26c195] focus:border-[#26c195] text-sm"
+                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
                 value={tempData.email} 
                 onChange={e => setTempData({...tempData, email: e.target.value})} 
             />
@@ -360,7 +360,7 @@ const Profile = () => {
                 id="input-phone"
                 type="text" 
                 maxLength={10}
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-[#26c195] focus:border-[#26c195] text-sm"
+                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
                 value={tempData.phone} 
                 onChange={e => setTempData({...tempData, phone: e.target.value.replace(/[^0-9]/g, '')})} 
             />

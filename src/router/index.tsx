@@ -28,7 +28,8 @@ const UserEdit = lazy(() => import("../pages/admin/UserEdit"));
 const Orders = lazy(() => import("../pages/admin/Orders"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
 const HistoryShop = lazy(() => import("../pages/users/HistoryShop"));
-const ShoppingCart = lazy(() => import("../pages/carts/ShoppingCart"));
+const ShoppingCart = lazy(() => import("../pages/users/carts/ShoppingCart"));
+const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"))
 
 
 const router = createBrowserRouter([
@@ -83,6 +84,10 @@ const router = createBrowserRouter([
     {
         path:"/shopping-cart",
         element:<ShoppingCart/>
+    },
+     {
+        path:"/payment",
+        element:<PaymentShoping/>
     },
         ]
     },

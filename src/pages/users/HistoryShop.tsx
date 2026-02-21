@@ -90,10 +90,7 @@ const HistoryShop = () => {
     <div id="page-history-shop" className="min-h-screen bg-gray-50 font-sans text-gray-950 pt-4 sm:pt-10 pb-20">
       <div className="max-w-[1200px] mx-auto px-3 sm:px-4 flex flex-col md:flex-row gap-6">
         
-        {/* Sidebar สำหรับ Desktop */}
-        <div className="hidden md:block">
           <ProfileSidebar />
-        </div>
 
         {/* === RIGHT CONTENT === */}
         <main className="flex-1 w-full min-w-0">
@@ -108,8 +105,8 @@ const HistoryShop = () => {
                   onClick={() => setActiveTab(tab)}
                   className={`px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-colors flex-1 text-center border-b-2 
                     ${activeTab === tab 
-                      ? 'border-[#26c195] text-[#26c195]' 
-                      : 'border-transparent text-gray-600 hover:text-[#26c195]'
+                      ? 'border-blue-500 text-blue-500' 
+                      : 'border-transparent text-black hover:text-blue-500'
                     }`}
                 >
                   {tab}
@@ -121,17 +118,17 @@ const HistoryShop = () => {
           {/* --- Order List --- */}
           <div className="space-y-4">
             {isLoading ? (
-              <div className="text-center py-10 text-gray-500">กำลังโหลดข้อมูล...</div>
+              <div className="text-center py-10 text-black">กำลังโหลดข้อมูล...</div>
             ) : orders.length > 0 ? (
               orders.map((order) => (
                 <div key={order.id} className="bg-white shadow-sm border border-gray-200 p-4 sm:p-6">
                   
                   {/* Card Header : Shop & Status */}
                   <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center pb-3 border-b border-gray-100 gap-2 md:gap-0">
-                    <span className="font-semibold text-gray-800 text-base">{order.shopName}</span>
+                    <span className="font-semibold text-black text-base">{order.shopName}</span>
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-[#26c195]">{order.statusDelivery}</span>
-                      <span className="text-[#4a90e2]">{order.statusPayment}</span>
+                      <span className="text-green-500">{order.statusDelivery}</span>
+                      <span className="text-blue-500">{order.statusPayment}</span>
                     </div>
                   </div>
 
@@ -158,10 +155,10 @@ const HistoryShop = () => {
                           
                           {/* จำนวนและราคา (ชิดขวาล่าง) */}
                           <div className="mt-auto flex flex-col items-end w-full">
-                            <span className="text-gray-600 text-xs sm:text-sm mb-1">
+                            <span className="text-black text-xs sm:text-sm mb-1">
                               x {item.quantity}
                             </span>
-                            <span className="text-[#ff4d4f] font-semibold text-base sm:text-lg">
+                            <span className="text-[#E53725] font-bold text-base sm:text-lg">
                               {item.productDetail?.price}฿
                             </span>
                           </div>
@@ -173,12 +170,12 @@ const HistoryShop = () => {
                   {/* Card Footer : Total & Action */}
                   <div className="mt-2 pt-4 flex flex-col items-end gap-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-800">รวมการสั่งซื้อ</span>
-                      <span className="text-xl sm:text-2xl font-bold text-[#ff4d4f]">
+                      <span className="text-sm text-black">รวมการสั่งซื้อ</span>
+                      <span className="text-xl sm:text-xl font-bold text-[#E53725]">
                         {order.totalPrice}฿
                       </span>
                     </div>
-                    <button className="bg-[#4a90e2] hover:bg-blue-600 text-white px-8 py-2.5 rounded text-sm font-medium transition-colors shadow-sm">
+                    <button className="bg-blue-500 hover:bg-blue-500 text-white px-8 py-2.5 rounded text-sm font-medium transition-colors shadow-sm">
                       ซื้ออีกครั้ง
                     </button>
                   </div>
@@ -186,7 +183,7 @@ const HistoryShop = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center py-10 text-gray-500 bg-white border border-gray-200 shadow-sm">
+              <div className="text-center py-10 text-black bg-white border border-gray-200 shadow-sm">
                 ไม่มีประวัติการสั่งซื้อ
               </div>
             )}
