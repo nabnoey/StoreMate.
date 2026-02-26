@@ -51,12 +51,12 @@ function HomePage() {
   //ดึงคำค้นหา
 const keyword = useSelector((state:RootState)=>state.products.search)
   
-  //filter สินค้า
+  //filter สินค้า ต้องมาทำความเข้าใจพน.
 const searchResult = useSelector(
  (state:RootState)=>state.products.searchResult || []
 )
 
-
+//ทำความเข้าใจพน.
 useEffect(()=>{
 
  if(!keyword) return
