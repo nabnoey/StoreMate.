@@ -63,17 +63,10 @@ const productsSlice = createSlice({
     },
 
 
-      //ดึงคำค้นหาที่ผู้ใช้พิมพ์เข้ามา
-        setSearch:(state,action:PayloadAction<string>)=>{
-      state.search = action.payload
-    },
-
-    
-    //เก็บผลลัพธ์การค้นหา
-    setSearchResult:(state,action:PayloadAction<Product[]>)=>{
-  state.searchResult = action.payload
+    clearSearch:(state) =>{
+    state.search = ""
+    state.searchResult = []
 },
-
     // คืนของเข้าสต็อก (ตอนลบจาก cart)
     returnQuantity: (
       state,
@@ -102,18 +95,17 @@ const productsSlice = createSlice({
       products: action.payload[key]
     }));
     
-    
-
-
     state.groupedProducts = groupedArray;
 
   });
+
+   builder.addCase(search.fulfilled,(state,action) => {
+     console.log("RESULT:", action.payload)
+    state.searchResult = action.payload.data 
+    
+  })
   
 }
-
-
-
-
 });
 
 
@@ -125,8 +117,7 @@ export const {
   addQuantity,
   removeQuantity,
   returnQuantity,
-  setSearch,
-  setSearchResult
+  clearSearch
 } = productsSlice.actions;
 
 export default productsSlice.reducer;

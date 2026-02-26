@@ -1,19 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
+import { search, clearSearch } from "../../redux/products/productReducer";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+import type { AppDispatch } from "../../redux/store";
 import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
-import {setSearch  } from "../../redux/products/productReducer";
 import logo from "../../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>()
+  
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  dispatch(search(e.target.value))
+  const value = e.target.value
 
-  const [text, setText] = useState("");
+  if(!value.trim()){
+dispatch(clearSearch())
+}
+}
+
+
+
+  //ดึงคำค้นหา
+const keyword = useSelector((state:RootState)=>state.products.search)
+useEffect(()=>{
+ if(!keyword) return
+ dispatch(search(keyword))
+},[keyword,dispatch])
+
+
+
+
+
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -27,11 +49,7 @@ const Navbar: React.FC = () => {
     (state: RootState) => state.auth.isAuthenticated
   );
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setText(value);
-    dispatch(setSearch(value));
-  };
+
 
   return (
 
@@ -73,8 +91,8 @@ const Navbar: React.FC = () => {
             <input
               type="text"
               placeholder="ค้นหาสินค้า..."
-              value={text}
-              onChange={handleSearch}
+              
+               onChange={handleSearch}
               className="absolute right-8 top-[-8px] input input-bordered bg-white w-52 h-10 text-[#74768f]"
               autoFocus
             />
