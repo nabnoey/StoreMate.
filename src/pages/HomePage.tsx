@@ -53,10 +53,14 @@ const searchResult = useSelector(
  (state:RootState)=>state.products.searchResult || []
 )
 
+const keyword = useSelector((state:RootState)=> state.products.search)
+const isSearching = keyword.trim() !== ''
 
 
 
-    if (searchResult.length > 0) {
+
+
+    if (isSearching) {
   return (
     <div className="w-full mt-10 px-28">
       <h2 className="text-3xl font-bold mb-6 text-black">

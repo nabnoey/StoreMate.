@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState} from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
@@ -13,25 +13,20 @@ import logo from "../../assets/logo.png";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
-  
+
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  dispatch(search(e.target.value))
+  // dispatch(search(e.target.value))
   const value = e.target.value
 
-  if(!value.trim()){
-dispatch(clearSearch())
+  // dispatch(search(value))
+
+  if(value.trim()){
+dispatch(search(value))
+  }else{
+    dispatch(clearSearch())
 }
 }
-
-
-
-  //ดึงคำค้นหา
-const keyword = useSelector((state:RootState)=>state.products.search)
-useEffect(()=>{
- if(!keyword) return
- dispatch(search(keyword))
-},[keyword,dispatch])
-
 
 
 
