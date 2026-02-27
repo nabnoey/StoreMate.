@@ -38,7 +38,6 @@ function HomePage() {
 
  const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
 
-//  ProductService.getAllCategories()
 
  useEffect(()=> {
   dispatch(fetchProducts())
@@ -57,6 +56,7 @@ const keyword = useSelector((state:RootState)=> state.products.search)
 const isSearching = keyword.trim() !== ''
 
 
+ console.log("keyword", keyword)
 
 
 
@@ -68,9 +68,14 @@ const isSearching = keyword.trim() !== ''
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
         {searchResult.map((product) => (
+          
           <ProductCard key={product.id} product={product} />
+          
+         
         ))}
+
       </div>
     </div>
   );

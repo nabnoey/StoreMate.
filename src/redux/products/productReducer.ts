@@ -100,8 +100,11 @@ const productsSlice = createSlice({
   });
 
    builder.addCase(search.fulfilled,(state,action) => {
-     console.log("RESULT:", action.payload)
+     console.log("RESULT:", action.payload.data)
+     state.search = action.meta.arg
     state.searchResult = action.payload.data 
+
+    
     
   })
   

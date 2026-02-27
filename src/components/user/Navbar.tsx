@@ -13,6 +13,7 @@ import logo from "../../assets/logo.png";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
+  
 
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +28,11 @@ dispatch(search(value))
     dispatch(clearSearch())
 }
 }
+console.log(search)
+
+const keyword = useSelector(
+  (state: RootState) => state.products.search
+)
 
 
 
@@ -86,7 +92,7 @@ dispatch(search(value))
             <input
               type="text"
               placeholder="ค้นหาสินค้า..."
-              
+              value={keyword}
                onChange={handleSearch}
               className="absolute right-8 top-[-8px] input input-bordered bg-white w-52 h-10 text-[#74768f]"
               autoFocus
