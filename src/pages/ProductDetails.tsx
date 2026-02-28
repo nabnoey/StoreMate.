@@ -116,6 +116,7 @@ const ProductDetailPage: React.FC = () => {
       setProductDetail(updatedData);
     } catch (error) {
       toast.error("ไม่สามารถส่งรีวิวได้ในขณะนี้");
+      
     }
   };
 
