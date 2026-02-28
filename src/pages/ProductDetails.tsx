@@ -135,15 +135,16 @@ const ProductDetailPage: React.FC = () => {
   if (!productDetail) return <div id="error-not-found" className="min-h-screen flex items-center justify-center">Product not found</div>;
 
    return (
-    <div id="product-detail-page" className="bg-white min-h-screen pb-20 font-sans text-gray-800">
+    <div id="product-detail-page" className="bg-white min-h-screen  pb-20 font-sans text-gray-800">
 
-        <div className="-mt-10 flex justify-between items-center mb-8">
-             <button className="btn btn-outline w-15 h-8" onClick={()=>navigate("/")}>back</button> </div>
-      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-10">
+        <div className="flex justify-between items-center mb-8 px-25 ">
+             <button className="btn btn-outline w-15 h-8 ml-5 mt-20" onClick={()=>navigate("/")}>back</button> 
+             </div>
+      <div className="max-w-5xl mx-auto px-4 -mt-10 md:px-8 pt-10">
         
         {/* ================= ส่วนบน: รูปภาพ & รายละเอียด ================= */}
         {/* Responsive: ใช้ grid คอลัมน์เดียวในมือถือ และ 2 คอลัมน์ในจอขนาดกลางขึ้นไป (md:grid-cols-2) */}
-        <div id="product-info-section" className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-16">
+        <div id="product-info-section" className="grid grid-cols-1  md:grid-cols-2 gap-8 md:gap-10 mb-16">
           
           {/* ฝั่งซ้าย: รูปภาพ */}
           <div id="product-image-container" className="flex flex-col items-center">
