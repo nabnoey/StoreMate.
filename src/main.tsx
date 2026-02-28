@@ -6,7 +6,7 @@ import router from './router'
 import { store } from './redux/store'
 import { Provider, useDispatch } from 'react-redux' // เพิ่ม useDispatch
 import { RouterProvider } from 'react-router-dom'
-import Loading from "./components/user/Loading";
+import Loading from './components/user/Loading'
 import { stopLoading } from './redux/loading/loadingReducer' // import action
 
 // --- สร้าง Component เพื่อจัดการ Logic ตอนเปิดเว็บ ---

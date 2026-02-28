@@ -1,9 +1,8 @@
 import ProductCard from "../components/user/ProductCard";
 import { useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
-import { ProductService } from "../services/product.service";
 import { HiOutlineInbox } from "react-icons/hi";
-import { fetchProducts, setSearchResult } from "../redux/products/productReducer";
+import { fetchProducts} from "../redux/products/productReducer";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
@@ -39,7 +38,6 @@ function HomePage() {
 
  const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
 
-//  ProductService.getAllCategories()
 
  useEffect(()=> {
   dispatch(fetchProducts())
@@ -48,54 +46,40 @@ function HomePage() {
 
 
 
-  //ดึงคำค้นหา
-const keyword = useSelector((state:RootState)=>state.products.search)
   
-  //filter สินค้า ต้องมาทำความเข้าใจพน.
+  //filter สินค้า
 const searchResult = useSelector(
  (state:RootState)=>state.products.searchResult || []
 )
 
-//ทำความเข้าใจพน.
-useEffect(()=>{
+const keyword = useSelector((state:RootState)=> state.products.search)
+const isSearching = keyword.trim() !== ''
 
- if(!keyword) return
 
- ProductService.searchProducts(keyword)
- .then(res=>{
-  
-
-    // เช็คโครงสร้างก่อน
-    dispatch(setSearchResult(res.data || res || []))
- })
-
-},[keyword,dispatch])
+ console.log("keyword", keyword)
 
 
 
+    if (isSearching) {
+  return (
+    <div className="w-full mt-10 px-28">
+      <h2 className="text-3xl font-bold mb-6 text-black">
+        ผลการค้นหา:
+      </h2>
 
-    if(keyword){
-    return(
-      <div className="w-full mt-10 px-28">
-         {/* <ContentWrapper> */}
-        <h2 className="text-3xl font-bold mb-6 text-black">
-          ผลการค้นหา: "{keyword}"
-        </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {searchResult.map((product) => (
+          
+          <ProductCard key={product.id} product={product} />
+          
+         
+        ))}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {searchResult.length > 0 ? (
-            searchResult.map((product)=>(
-              <ProductCard key={product.id} product={product}/>
-            ))
-          ): (
-              <div className="col-span-full py-20 text-center">
-                <p className="text-gray-400 text-lg" data-testid="no-product-found">ไม่พบสินค้าที่คุณต้องการ</p>
-              </div>
-            )}
-          </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
 
   return (
