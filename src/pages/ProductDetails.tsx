@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
-// Icons
-import { MdStar, MdStarBorder, MdLocalShipping, MdReplay } from "react-icons/md";
+import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
 
 // Redux & Actions
 import type { RootState } from '../redux/store'; 
 import { removeQuantity } from '../redux/products/productReducer';
 import { addToCart } from '../redux/carts/CartReducer'; 
+import { submitProductReview } from '../redux/reviews/reviewsReducer';
 
 // Services & Types
 import { ProductService } from '../services/product.service';
@@ -19,7 +19,7 @@ import ProductCard from "../components/user/ProductCard";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>(); 
   
   // State
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
@@ -27,6 +27,11 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>(""); 
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+  // State สำหรับฟอร์มรีวิว
+  const [reviewScore, setReviewScore] = useState<number>(5);
+  const [reviewMessage, setReviewMessage] = useState<string>("");
+  const isSubmittingReview = useSelector((state: RootState) => state.reviews?.isLoading || false);
 
   // Redux Logic
   const productInStore = useSelector((state: RootState) => 
@@ -40,33 +45,20 @@ const ProductDetailPage: React.FC = () => {
       try {
         setLoading(true);
         if (id) {
-            // 1. ดึงข้อมูลสินค้าหลัก
             const data = await ProductService.getProductById(Number(id));
             setProductDetail(data);
             
-            // ตั้งค่ารูปแรกเป็นรูป default
             if(data.productImages && data.productImages.length > 0) {
                 setActiveImage(data.productImages[0].imageUrl);
             }
 
-            // 2. ดึงสินค้าแนะนำ (เพิ่มการเช็ค Array เพื่อกัน Error)
             try {
                 const allProducts = await ProductService.getAllCategories();
-                
-                // --- FIX: เช็คว่าเป็น Array หรือไม่ ก่อน filter ---
                 if (Array.isArray(allProducts)) {
-                  setRelatedProducts(
-  allProducts
-    .filter((p: Product) => p.id !== Number(id))
-    .slice(0, 4)
-);
-                } else {
-                    console.warn("API getAllProducts ไม่ได้คืนค่าเป็น Array:", allProducts);
-                    setRelatedProducts([]); // ใส่ค่าว่างกัน App พัง
+                  setRelatedProducts(allProducts.filter((p: Product) => p.id !== Number(id)).slice(0, 4));
                 }
             } catch (err) {
                 console.error("Error fetching related products", err);
-                setRelatedProducts([]);
             }
         }
       } catch (error) {
@@ -86,221 +78,281 @@ const ProductDetailPage: React.FC = () => {
   const handleDecrease = () => { if (buyQuantity > 1) setBuyQuantity(prev => prev - 1); };
 
   const handleAddToCart = () => {
-  if (!productDetail) return;
+    if (!productDetail) return;
+    const productForCart: Product = {
+      id: productDetail.id,
+      productName: productDetail.productName,
+      imageUrl: productDetail.productImages?.[0]?.imageUrl,
+      categoryId: 0, 
+      quantity: productDetail.quantity,
+      price: productDetail.price,
+      summary: "", 
+      stockQuantity: buyQuantity,
+      status: currentStock > 0 ? "available" : "out"
+    };
 
-  const productForCart: Product = {
-    id: productDetail.id,
-    productName: productDetail.productName,
-    imageUrl: productDetail.productImages?.[0]?.imageUrl,
-    categoryId: 0, // เพราะ ProductDetail ไม่มี field นี้
-    quantity: productDetail.quantity,
-    price: productDetail.price,
-    summary: "",   // Product บังคับให้มี
-    stockQuantity: buyQuantity,
-    status: currentStock > 0 ? "available" : "out"
+    for (let i = 0; i < buyQuantity; i++) {
+      dispatch(addToCart(productForCart));
+      dispatch(removeQuantity(productDetail.id));
+    }
+    setBuyQuantity(1);
+    return toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
   };
 
-  for (let i = 0; i < buyQuantity; i++) {
-    dispatch(addToCart(productForCart));
-    dispatch(removeQuantity(productDetail.id));
+  const handleSubmitReview = async () => {
+    if (!reviewMessage.trim()) {
+      return toast.error("กรุณากรอกข้อความรีวิวก่อนส่งครับ");
+    }
+    try {
+      await dispatch(submitProductReview({ 
+        id: Number(id), payload: { reviewScore, message: reviewMessage } 
+      })).unwrap();
+
+      toast.success("ขอบคุณสำหรับรีวิวครับ!");
+      setReviewMessage("");
+      setReviewScore(5);
+
+      const updatedData = await ProductService.getProductById(Number(id));
+      setProductDetail(updatedData);
+    } catch (error) {
+      toast.error("ไม่สามารถส่งรีวิวได้ในขณะนี้");
+    }
+  };
+
+  // ฟังก์ชันแปลงวันที่ให้เป็น YYYY-MM-DD
+  const formatDate = (dateString?: string) => {
+      if (!dateString) return ""; 
+      try {
+          return new Date(dateString).toISOString().split('T')[0];
+      } catch (e) {
+          return dateString;
+      }
   }
 
-  setBuyQuantity(1);
-  return toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
-};
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!productDetail) return <div className="min-h-screen flex items-center justify-center">Product not found</div>;
+  if (loading) return <div id="loading-spinner" className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!productDetail) return <div id="error-not-found" className="min-h-screen flex items-center justify-center">Product not found</div>;
 
    return (
-    <div className="bg-white min-h-screen pb-20 font-sans text-gray-800">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-10">
+    <div id="product-detail-page" className="bg-white min-h-screen pb-20 font-sans text-gray-800">
+      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-10">
         
-        {/* --- ส่วนบน (Top Section) --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+        {/* ================= ส่วนบน: รูปภาพ & รายละเอียด ================= */}
+        {/* Responsive: ใช้ grid คอลัมน์เดียวในมือถือ และ 2 คอลัมน์ในจอขนาดกลางขึ้นไป (md:grid-cols-2) */}
+        <div id="product-info-section" className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-16">
           
           {/* ฝั่งซ้าย: รูปภาพ */}
-          <div>
-            <div className="aspect-[4/5] w-full max-h-[500px] flex items-center justify-center mb-4 relative bg-gray-50 rounded-lg">
+          <div id="product-image-container" className="flex flex-col items-center">
+            <div className="w-full max-w-[400px] aspect-[4/5] flex items-center justify-center mb-4 relative">
               <img 
-                src={activeImage || 'https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D'} 
+                id="product-main-image"
+                src={activeImage || 'https://via.placeholder.com/500'} 
                 alt={productDetail.productName}
-                className="w-full h-full object-contain mix-blend-multiply"
+                className="w-full h-full object-contain rounded-md"
               />
             </div>
             {/* Thumbnails */}
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {productDetail.productImages?.map((img) => (
+            <div id="product-thumbnails" className="flex gap-2 overflow-x-auto pb-2 max-w-[400px] w-full justify-center md:justify-start">
+              {productDetail.productImages?.map((img, index) => (
                 <div 
+                    id={`product-thumb-${index}`}
                     key={img.id} 
                     onClick={() => setActiveImage(img.imageUrl)}
-                    className={`w-16 h-20 flex-shrink-0 border rounded cursor-pointer transition-all overflow-hidden
-                        ${activeImage === img.imageUrl ? 'border-orange-500 ring-1 ring-orange-500' : 'border-gray-200'}
+                    className={`w-16 h-20 md:w-20 md:h-24 flex-shrink-0 border cursor-pointer transition-all overflow-hidden rounded-md
+                        ${activeImage === img.imageUrl ? 'border-gray-300 ring-1 ring-gray-400' : 'border-gray-200'}
                     `}
                 >
-                  <img src={img.imageUrl} className="w-full h-full object-cover" alt="thumb" />
+                  <img src={img.imageUrl} className="w-full h-full object-cover" alt={`thumb-${index}`} />
                 </div>
               ))}
             </div>
           </div>
 
           {/* ฝั่งขวา: รายละเอียด */}
-          <div className="flex flex-col">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 leading-tight">
+          <div id="product-details-container" className="flex flex-col pt-4">
+            <h1 id="product-name" className="text-2xl md:text-3xl font-bold text-gray-800 mb-2 leading-tight text-center md:text-left">
                 {productDetail.productName}
             </h1>
 
-            {/* ดาวรีวิว */}
-            <div className="flex items-center gap-1 mb-6">
-                <div className="flex text-yellow-400 text-sm">
-                    {[...Array(5)].map((_, i) => (
-                        i < Math.round(productDetail.ratingScore || 5) 
-                        ? <MdStar key={i} /> 
-                        : <MdStarBorder key={i} className="text-gray-300"/>
-                    ))}
-                </div>
-                <span className="text-gray-500 text-sm ml-2">({productDetail.reviews?.length} รีวิว)</span>
+            {/* ดาว (แบบโปร่ง) */}
+            <div id="product-rating" className="flex text-gray-700 text-sm mb-4 justify-center md:justify-start">
+                {[...Array(5)].map((_, i) => (
+                    i < Math.round(productDetail.ratingScore || 5) 
+                    ? <MdStar key={i} id={`star-filled-${i}`} className="text-gray-800 text-lg" /> 
+                    : <MdStarBorder key={i} id={`star-empty-${i}`} className="text-gray-400 text-lg"/>
+                ))}
             </div>
 
             {/* กล่องราคา */}
-            <div className="bg-gray-100 px-6 py-5 rounded-lg flex justify-between items-center mb-6">
-                <span className="text-xl font-bold text-gray-700">ราคา</span>
-                <span className="text-3xl font-bold text-gray-900">
-                    {Number(productDetail.price).toLocaleString()}฿
+            <div id="product-price-box" className="bg-[#e5e7eb] px-6 py-4 rounded-md flex justify-between items-center mb-6">
+                <span className="text-xl font-bold text-gray-800">ราคา</span>
+                <span id="product-price" className="text-2xl md:text-3xl font-bold text-gray-800 tracking-wide">
+                    ฿ {Number(productDetail.price).toLocaleString()}
                 </span>
             </div>
 
-            {/* ข้อมูลการจัดส่ง */}
-            <div className="flex gap-10 mb-8 px-1">
-                <div className="flex gap-3 items-start">
-                    <MdLocalShipping className="text-xl text-gray-600 mt-1" />
-                    <div className="text-sm">
-                        <p className="font-bold text-gray-700">ส่งฟรี</p>
-                        <p className="text-gray-500">ถึงใน 2-3 วัน</p>
-                    </div>
-                </div>
-                <div className="flex gap-3 items-start">
-                    <MdReplay className="text-xl text-gray-600 mt-1" />
-                    <div className="text-sm">
-                        <p className="font-bold text-gray-700">คืนสินค้า</p>
-                        <p className="text-gray-500">ภายใน 7 วัน</p>
-                    </div>
+            {/* รายละเอียดสินค้า */}
+            <div id="product-description-box" className="mb-8">
+                <h3 className="text-lg font-bold mb-3 text-gray-800">รายละเอียดสินค้า</h3>
+                <div id="product-description" className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">
+                    {productDetail.description || "-"}
                 </div>
             </div>
 
-            {/* ตัวเลือกจำนวน */}
-            <div className="flex items-center gap-6 mb-8">
-                <span className="font-bold text-gray-700">จำนวน</span>
-                <div className="flex items-center border border-gray-200 rounded bg-white h-10 w-32">
-                    <button 
-                        onClick={handleDecrease}
-                        className="flex-1 h-full hover:bg-gray-50 text-gray-500 text-lg"
-                        disabled={buyQuantity <= 1}
-                    >−</button>
-                    <div className="flex-1 text-center font-bold text-gray-700">{buyQuantity}</div>
-                    <button 
-                        onClick={handleIncrease}
-                        className="flex-1 h-full hover:bg-gray-50 text-gray-500 text-lg"
-                        disabled={buyQuantity >= currentStock}
-                    >+</button>
+           {/* ส่วนเลือกจำนวน และ ปุ่มกด */}
+          <div id="product-actions" className="flex flex-col items-center gap-4 mt-8 pt-4">
+                {/* จำนวน */}
+                <div className="flex items-center gap-4">
+                    <span className="font-bold text-gray-800">จำนวน</span>
+                    <div className="flex items-center border border-gray-300 rounded-md bg-white h-10 w-32 overflow-hidden">
+                        <button 
+                            id="btn-decrease-qty"
+                            onClick={handleDecrease} 
+                            disabled={buyQuantity <= 1} 
+                            className="flex-1 h-full hover:bg-gray-100 text-gray-600 text-lg transition-colors"
+                        >−</button>
+                        <div id="input-qty" className="flex-1 text-center text-sm font-medium">{buyQuantity}</div>
+                        <button 
+                            id="btn-increase-qty"
+                            onClick={handleIncrease} 
+                            disabled={buyQuantity >= currentStock} 
+                            className="flex-1 h-full hover:bg-gray-100 text-gray-600 text-lg transition-colors"
+                        >+</button>
+                    </div>
                 </div>
-                <span className="text-sm text-gray-500">มีสินค้า {currentStock} ชิ้น</span>
-            </div>
 
-            {/* ปุ่มกด */}
-            <div className="flex gap-4">
-                
-                <button 
-                
-                    onClick={handleAddToCart}
-                    disabled={currentStock <= 0}
-                    
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-md shadow-sm transition disabled:bg-gray-300"
-                    
-                >
-                    Add To Cart
-                </button>
-                
-                <button 
-                    disabled={currentStock <= 0}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-3 rounded-md shadow-sm transition disabled:bg-gray-300"
-                >
-                    Buy Now
-                </button>
+                {/* ปุ่ม */}
+                <div className="flex gap-3 w-full md:w-auto justify-center">
+                    <button 
+                        id="btn-add-to-cart"
+                        onClick={handleAddToCart} 
+                        disabled={currentStock <= 0}
+                        className="bg-[#3b82f6] hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg shadow-sm transition disabled:bg-gray-300 text-sm w-full md:w-auto"
+                    >
+                        เพิ่มลงตะกร้า
+                    </button>
+                    <button 
+                        id="btn-buy-now"
+                        disabled={currentStock <= 0}
+                        className="bg-[#10b981] hover:bg-emerald-600 text-white font-medium py-2 px-6 rounded-lg shadow-sm transition disabled:bg-gray-300 text-sm w-full md:w-auto"
+                    >
+                        สั่งซื้อสินค้า
+                    </button>
+                </div>
             </div>
+            
           </div>
         </div>
 
-        {/* --- ส่วนรายละเอียด --- */}
-        <div className="bg-gray-50 p-8 rounded-lg mb-12 border border-gray-100">
-            <h3 className="text-lg font-bold mb-4 text-gray-800">รายละเอียด</h3>
-            <div className="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
-                {productDetail.description || "-"}
-            </div>
-        </div>
+        <hr className="my-10 border-gray-200" />
 
-        {/* --- ส่วนรีวิว --- */}
-        <div className="mb-16">
-            <h3 className="text-xl font-bold mb-6 text-gray-800">รีวิว ({productDetail.reviews?.length || 0})</h3>
+        {/* ================= ส่วนรีวิว (แบ่ง 2 คอลัมน์) ================= */}
+        {/* Responsive: 1 คอลัมน์บนมือถือ, 2 คอลัมน์ (1:2) บนจอ md ขึ้นไป */}
+        <div id="review-section" className="mb-16">
+            <h3 className="text-xl font-bold mb-8 flex items-center gap-2 text-gray-800">
+                <MdOutlineChatBubbleOutline className="text-2xl" /> รีวิวสินค้า
+            </h3>
             
-            <div className="flex flex-col gap-6">
-                {productDetail.reviews && productDetail.reviews.length > 0 ? (
-                    productDetail.reviews.map((review) => (
-                        <div key={review.id} className="border-b border-gray-200 pb-6 flex gap-4">
-                            {/* Avatar */}
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-200">
-                                <img 
-                                    src={review.reviewer?.imageUrl || "https://ui-avatars.com/api/?name=User"} 
-                                    alt="user" 
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            {/* Content */}
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-bold text-gray-900">{review.reviewer?.name}</span>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8">
+                
+                {/* ฝั่งซ้าย: ฟอร์มเขียนรีวิว */}
+                <div id="review-form-container">
+                    <div className="bg-[#f3f4f6] p-6 rounded-xl border border-gray-100">
+                        <h4 className="text-base font-bold mb-4 text-gray-800">เขียนรีวิว</h4>
+                        
+                        <p className="text-sm text-gray-600 mb-2">คะแนนความพึงพอใจ</p>
+                        <div id="review-rating-input" className="flex text-gray-800 text-xl cursor-pointer mb-4 gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <div key={star} id={`select-star-${star}`} onClick={() => setReviewScore(star)}>
+                                    {star <= reviewScore ? <MdStar /> : <MdStarBorder className="text-gray-400" />}
                                 </div>
-                                <div className="flex text-yellow-400 text-xs mb-2">
-                                    {[...Array(5)].map((_, i) => (
-                                        i < review.reviewScore ? <MdStar key={i} /> : <MdStarBorder key={i} className="text-gray-300"/>
-                                    ))}
-                                </div>
-                                <p className="text-gray-600 text-sm">{review.message}</p>
-                            </div>
+                            ))}
                         </div>
-                    ))
-                ) : (
-                    <p className="text-gray-400 italic">ยังไม่มีรีวิว</p>
-                )}
-            </div>
 
-            {/* Pagination */}
-            {productDetail.reviews && productDetail.reviews.length > 0 && (
-                <div className="flex justify-center mt-8 gap-2">
-                    <button className="w-8 h-8 flex items-center justify-center bg-blue-600 text-white rounded text-sm">1</button>
-                    <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 rounded text-sm">2</button>
-                    <span className="flex items-end px-2 text-gray-400">...</span>
+                        <textarea
+                            id="input-review-message"
+                            value={reviewMessage}
+                            onChange={(e) => setReviewMessage(e.target.value)}
+                            placeholder="รีวิวสินค้า..."
+                            className="w-full border border-gray-300 rounded-md p-3 mb-4 focus:ring-1 focus:ring-black focus:outline-none text-sm bg-transparent"
+                            rows={4}
+                        />
+
+                        <div className="flex justify-end">
+                            <button
+                                id="btn-submit-review"
+                                onClick={handleSubmitReview}
+                                disabled={isSubmittingReview}
+                                className="bg-black text-white text-sm font-medium py-2 px-8 rounded-md transition disabled:bg-gray-400 w-full md:w-auto"
+                            >
+                                {isSubmittingReview ? "กำลังส่ง..." : "รีวิว"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            )}
+
+                {/* ฝั่งขวา: รายการรีวิว */}
+                <div id="review-list-container" className="flex flex-col gap-4">
+                    {productDetail.reviews && productDetail.reviews.length > 0 ? (
+                        productDetail.reviews.map((review, index) => (
+                            <div key={review.id} id={`review-item-${index}`} className="border border-gray-300 rounded-xl p-5 bg-white">
+                                <div className="flex justify-between items-start mb-3">
+                                    {/* ชื่อและวันที่ */}
+                                    <div>
+                                        <p id={`review-reviewer-name-${index}`} className="font-bold text-gray-800 text-sm mb-1">
+                                            {review.reviewer?.name || "Anonymous User"}
+                                        </p>
+                                        <p id={`review-date-${index}`} className="text-xs text-gray-400 font-mono">
+                                            {formatDate(review.createdAt)}
+                                        </p>
+                                    </div>
+                                    
+                                    {/* ดาวรีวิวในกล่องขวา */}
+                                    <div id={`review-score-${index}`} className="flex text-gray-800 text-sm">
+                                        {[...Array(5)].map((_, i) => (
+                                            i < review.reviewScore 
+                                            ? <MdStar key={i} /> 
+                                            : <MdStarBorder key={i} className="text-gray-300"/>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* ข้อความรีวิว */}
+                                <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2">{review.message}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <div id="empty-review-state" className="border border-gray-200 rounded-xl p-8 flex justify-center items-center bg-gray-50">
+                            <p className="text-gray-400 italic">ยังไม่มีรีวิวสำหรับสินค้านี้</p>
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {productDetail.reviews && productDetail.reviews.length > 0 && (
+                        <div id="review-pagination" className="flex justify-center mt-6 gap-3 text-sm font-medium text-gray-600">
+                            <button id="btn-page-prev" className="px-2 hover:text-black">{'<'}</button>
+                            <button id="btn-page-1" className="text-blue-500 font-bold px-1">1</button>
+                            <button id="btn-page-2" className="hover:text-black px-1">2</button>
+                            <span className="tracking-widest">...</span>
+                            <button id="btn-page-next" className="px-2 hover:text-black">{'>'}</button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
 
-        {/* --- ส่วนคุณอาจสนใจ (Related Products) --- */}
-        <div className="border-t pt-10">
-            <h3 className="text-xl font-bold mb-8 text-gray-800">คุณอาจสนใจ</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                {relatedProducts.length > 0 ? (
-                    relatedProducts.map((product) => (
-                        <div key={product.id} className="flex justify-center">
+        {/* ================= ส่วนคุณอาจสนใจ ================= */}
+        {/* Responsive: มือถือ 1 คอลัมน์ (สมาร์ตโฟนเล็ก) -> 2 คอลัมน์ (sm) -> 4 คอลัมน์ (md) */}
+        {relatedProducts.length > 0 && (
+            <div id="related-products-section" className="border-t pt-10">
+                <h3 className="text-xl font-bold mb-8 text-gray-800 text-center md:text-left">คุณอาจสนใจ</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                    {relatedProducts.map((product, index) => (
+                        <div key={product.id} id={`related-product-${index}`} className="flex justify-center">
                             <ProductCard product={product} />
                         </div>
-                    ))
-                ) : (
-                    <p className="col-span-4 text-center text-gray-400">
-                        {loading ? "กำลังโหลดสินค้าแนะนำ..." : "ไม่มีสินค้าแนะนำ"}
-                    </p>
-                )}
+                    ))}
+                </div>
             </div>
-        </div>
+        )}
 
       </div>
     </div>

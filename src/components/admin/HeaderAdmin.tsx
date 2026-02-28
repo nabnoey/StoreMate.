@@ -7,16 +7,16 @@ type Props = {
 
 function HeaderAdmin({ title, subtitle }: Props) {
   return (
-    <div className="w-full  bg-white border-b p-4 py-5 shadow-sm ">
+    <div className="w-full  bg-white border-b p-8 py-4 shadow-sm ">
       <div className="flex flex-col gap-1">
         {/* title */}
-        <h1 className="text-2xl font-bold text-slate-800">
+        <h1 className="text-3xl font-bold text-black">
           {title}
         </h1>
 
         {/* subtitle */}
         {subtitle && (
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-md font-bold text-black mt-">
             {subtitle}
           </p>
         )}

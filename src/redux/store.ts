@@ -5,6 +5,7 @@ import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
 import loadingReducer from "./loading/loadingReducer";
 import addressReducer from "./address/addressReducer";
+import reviewsReducer from "./reviews/reviewsReducer"
 
 
 export const store = configureStore({
@@ -14,6 +15,7 @@ export const store = configureStore({
         products: productsReducer,
         loading: loadingReducer,
         address: addressReducer,
+        reviews: reviewsReducer,
     },
 devTools: true
 
