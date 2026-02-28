@@ -17,10 +17,7 @@ const Navbar: React.FC = () => {
 
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  // dispatch(search(e.target.value))
   const value = e.target.value
-
-  // dispatch(search(value))
 
   if(value.trim()){
 dispatch(search(value))
@@ -28,7 +25,6 @@ dispatch(search(value))
     dispatch(clearSearch())
 }
 }
-console.log(search)
 
 const keyword = useSelector(
   (state: RootState) => state.products.search
