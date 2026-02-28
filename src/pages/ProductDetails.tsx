@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
+import { useNavigate } from 'react-router-dom';
 
 // Redux & Actions
 import type { RootState } from '../redux/store'; 
@@ -20,6 +21,7 @@ import ProductCard from "../components/user/ProductCard";
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<any>(); 
+  const navigate = useNavigate(); 
   
   // State
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
@@ -116,7 +118,6 @@ const ProductDetailPage: React.FC = () => {
       setProductDetail(updatedData);
     } catch (error) {
       toast.error("ไม่สามารถส่งรีวิวได้ในขณะนี้");
-      
     }
   };
 
@@ -135,6 +136,9 @@ const ProductDetailPage: React.FC = () => {
 
    return (
     <div id="product-detail-page" className="bg-white min-h-screen pb-20 font-sans text-gray-800">
+
+        <div className="-mt-10 flex justify-between items-center mb-8">
+             <button className="btn btn-outline w-15 h-8" onClick={()=>navigate("/")}>back</button> </div>
       <div className="max-w-5xl mx-auto px-4 md:px-8 pt-10">
         
         {/* ================= ส่วนบน: รูปภาพ & รายละเอียด ================= */}
