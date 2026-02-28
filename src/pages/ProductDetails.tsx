@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 // Icons
 import { MdStar, MdStarBorder, MdLocalShipping, MdReplay } from "react-icons/md";
 
@@ -20,6 +21,7 @@ import ProductCard from "../components/user/ProductCard";
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   
   // State
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
@@ -109,16 +111,21 @@ const ProductDetailPage: React.FC = () => {
   return toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
 };
 
+
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!productDetail) return <div className="min-h-screen flex items-center justify-center">Product not found</div>;
 
    return (
-    <div className="bg-white min-h-screen pb-20 font-sans text-gray-800">
+    <div className="bg-white mt-15 min-h-screen pb-20 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto px-4 md:px-8 pt-10">
         
+          <div className="-mt-10 flex justify-between items-center mb-8">
+            <button className="btn btn-outline w-15 h-8" onClick={()=>navigate("/")}>back</button>
+          </div>
         {/* --- ส่วนบน (Top Section) --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-          
+        
           {/* ฝั่งซ้าย: รูปภาพ */}
           <div>
             <div className="aspect-[4/5] w-full max-h-[500px] flex items-center justify-center mb-4 relative bg-gray-50 rounded-lg">

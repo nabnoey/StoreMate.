@@ -13,7 +13,8 @@ import logo from "../../assets/logo.png";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
-  
+
+
 
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,9 +27,15 @@ dispatch(search(value))
 }
 }
 
+
+// search
 const keyword = useSelector(
   (state: RootState) => state.products.search
 )
+  const searchResult = useSelector(
+  (state: RootState) => state.products.searchResult
+)
+
 
 
 
@@ -77,24 +84,49 @@ const keyword = useSelector(
       <div className="navbar-end flex items-center gap-4">
 
         {/* SEARCH */}
-        <div className="relative">
-          <GoSearch
-            size={22}
-            className="cursor-pointer hover:text-black text-black"
-            onClick={() => setOpenSearch(!openSearch)}
-          />
+  <div className="relative">
 
-          {openSearch && (
-            <input
-              type="text"
-              placeholder="ค้นหาสินค้า..."
-              value={keyword}
-               onChange={handleSearch}
-              className="absolute right-8 top-[-8px] input input-bordered bg-white w-52 h-10 text-[#74768f]"
-              autoFocus
-            />
-          )}
+  <GoSearch
+    size={22}
+    className="cursor-pointer hover:text-black text-black z-50"
+    onClick={() => setOpenSearch(!openSearch)}
+  />
+
+  {openSearch && (
+    <>
+      <input
+        type="text"
+        placeholder="ค้นหาสินค้า..."
+        value={keyword}
+        onChange={handleSearch}
+        className="absolute right-8 top-[-8px] input input-bordered bg-white w-52 h-10 text-[#74768f]"
+        autoFocus
+      />
+
+      {keyword && searchResult.length > 0 && (
+        <div className="absolute right-0 mt-3 text-black w-64 bg-white shadow-lg rounded-md z-50 divide-y max-h-60 overflow-y-auto">
+
+          {searchResult.map((product) => (
+            <div
+              key={product.id}
+              className="p-3 hover:bg-gray-100 cursor-pointer "
+              onClick={() => {
+                navigate(`/product/${product.id}`)
+                dispatch(clearSearch())
+                setOpenSearch(false)
+              }}
+            >
+              {product.productName}
+            </div>
+          ))}
+
         </div>
+      )}
+
+    </>
+  )}
+
+</div>
 
         {/* LOGIN แล้ว */}
         {isAuthenticated ? (
