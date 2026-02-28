@@ -1,4 +1,3 @@
-import React from 'react';
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi"; // อย่าลืมติดตั้ง react-icons ถ้ายังไม่มี
