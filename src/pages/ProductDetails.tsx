@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import { updateProductReview } from '../redux/reviews/reviewsReducer';
+
 
 
 // Redux & Actions
@@ -20,7 +20,7 @@ import type { ProductDetail, Product } from '../types/product';
 
 // Components
 import ProductCard from "../components/user/ProductCard"; 
-import { number } from 'yup';
+
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
