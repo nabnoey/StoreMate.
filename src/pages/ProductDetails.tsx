@@ -24,6 +24,7 @@ const ProductDetailPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>(); 
   const navigate = useNavigate(); 
   
+  
   // State
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -311,7 +312,11 @@ const ProductDetailPage: React.FC = () => {
                                         <p id={`review-date-${index}`} className="text-xs text-gray-400 font-mono">
                                             {formatDate(review.createdAt)}
                                         </p>
+
+                                        
                                     </div>
+
+                                    
                                     
                                     {/* ดาวรีวิวในกล่องขวา */}
                                     <div id={`review-score-${index}`} className="flex text-gray-800 text-sm">
@@ -321,9 +326,19 @@ const ProductDetailPage: React.FC = () => {
                                             : <MdStarBorder key={i} className="text-gray-300"/>
                                         ))}
                                     </div>
+                                    
                                 </div>
+                                
                                 {/* ข้อความรีวิว */}
-                                <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2">{review.message}</p>
+                                <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
+                           
+                           <div className="flex justify-end mt-2 gap-2">
+  <button className="btn btn-soft btn-info" onClick={()=> dispatch(editP)}>
+  แก้ไข
+  </button>
+  <button className="btn btn-soft btn-error">ลบ</button>
+</div>
+
                             </div>
                         ))
                     ) : (
