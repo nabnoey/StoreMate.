@@ -7,6 +7,16 @@ const createReviews = async (id: number, payload: CreateReviewPayload) => {
     return res.data
 }
 
+const editReviews = async (id:number , paypload: CreateReviewPayload) => {
+    const res = await api.put (`${import.meta.env.VITE_REVIEW_API}/${id}`,paypload)
+    return res.data
+}
+const deleteReviews = async (id:number) => {
+    const res = await api.delete (`${import.meta.env.VITE_REVIEW_API}/${id}`)
+    return res.data
+}
 export const ReviewsService = {
     createReviews,
+    editReviews,
+    deleteReviews
 }

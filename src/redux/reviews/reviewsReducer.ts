@@ -1,7 +1,7 @@
-
+import type { CreateReviewPayload } from './../../types/review';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ReviewsService } from '../../services/reviews.service';
-import type { CreateReviewPayload } from '../../types/review'; 
+
 
 export const submitProductReview = createAsyncThunk(
   'reviews/submitReview',
@@ -15,6 +15,34 @@ export const submitProductReview = createAsyncThunk(
   }
 );
 
+export const updateProductReview = createAsyncThunk(
+  "reviews/updateReview",
+  async(
+    {id , payload}: {id:number;  payload:CreateReviewPayload},
+    {rejectWithValue}
+
+  )=>{
+    try{
+      const response = await ReviewsService.editReviews(id,payload)
+      return response
+    }catch(error){
+      return rejectWithValue(error)
+
+    }
+  }
+)
+
+export const deleteProductReview = createAsyncThunk(
+  "reviews/deleteReview",
+async({id} : {id:number},{rejectWithValue})=>{
+  try{
+     await ReviewsService.deleteReviews(id)
+   return id 
+  }catch(error){
+    return rejectWithValue(error)
+  }
+}
+) 
 // สร้าง Slice (ไว้สำหรับจัดการ Loading/Error state ถ้าต้องการ)
 const reviewSlice = createSlice({
   name: 'reviews',
@@ -36,7 +64,23 @@ const reviewSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
+
+      //editReview
+      builder.addCase(updateProductReview.pending,(state)=>{
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(updateProductReview.fulfilled,(state)=>{
+        state.isLoading = false
+      })
+      .addCase(updateProductReview.rejected,(state,action)=>{
+        state.isLoading = false
+        state.error = action.payload as string
+      })
   },
+
+
+  
 });
 
 export default reviewSlice.reducer;
