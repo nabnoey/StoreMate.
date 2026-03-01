@@ -22,7 +22,7 @@ function ProductCard({ product }: Props) {
 
 
   return (
-    <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
+    <div className="card  bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
 
       <Link to={`/product/${product.id}`} className="block group">
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">

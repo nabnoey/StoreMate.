@@ -135,7 +135,7 @@ const isSearching = keyword.trim() !== ''
               subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
               testId="promo"
             />
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
   {groupedProduct.map((group) =>
     group.categoryName.toLowerCase() === "promotion" &&
     group.products.map((product) => (

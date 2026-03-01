@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import { updateProductReview } from '../redux/reviews/reviewsReducer';
+
 
 
 // Redux & Actions
@@ -20,7 +20,7 @@ import type { ProductDetail, Product } from '../types/product';
 
 // Components
 import ProductCard from "../components/user/ProductCard"; 
-import { number } from 'yup';
+
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -143,7 +143,7 @@ const ProductDetailPage: React.FC = () => {
    return (
     <div id="product-detail-page" className="bg-white min-h-screen  pb-20 font-sans text-gray-800">
 
-        <div className="flex justify-between items-center mb-8 px-25 ">
+        <div className="flex items-center mb-8 px-4 ">
              <button className="btn btn-outline w-15 h-8 ml-5 mt-20" onClick={()=>navigate("/")}>back</button> 
              </div>
       <div className="max-w-5xl mx-auto px-4 -mt-10 md:px-8 pt-10">
@@ -337,9 +337,7 @@ const ProductDetailPage: React.FC = () => {
                                 <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
                            
                            <div className="flex justify-end mt-2 gap-2">
-  <button className="btn btn-soft btn-info" onClick={async()=>{
-    await dispatch(updateProductReview({id:})).unwrap()
-  }}>
+  <button className="btn btn-soft btn-info">
   แก้ไข
   </button>
   <button className="btn btn-soft btn-error">ลบ</button>
