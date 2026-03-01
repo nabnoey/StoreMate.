@@ -337,9 +337,7 @@ const ProductDetailPage: React.FC = () => {
                                 <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
                            
                            <div className="flex justify-end mt-2 gap-2">
-  <button className="btn btn-soft btn-info" onClick={async()=>{
-    await dispatch(updateProductReview({id:})).unwrap()
-  }}>
+  <button className="btn btn-soft btn-info">
   แก้ไข
   </button>
   <button className="btn btn-soft btn-error">ลบ</button>
