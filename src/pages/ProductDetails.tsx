@@ -143,7 +143,7 @@ const ProductDetailPage: React.FC = () => {
    return (
     <div id="product-detail-page" className="bg-white min-h-screen  pb-20 font-sans text-gray-800">
 
-        <div className="flex justify-between items-center mb-8 px-25 ">
+        <div className="flex items-center mb-8 px-4 ">
              <button className="btn btn-outline w-15 h-8 ml-5 mt-20" onClick={()=>navigate("/")}>back</button> 
              </div>
       <div className="max-w-5xl mx-auto px-4 -mt-10 md:px-8 pt-10">

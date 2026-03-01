@@ -64,7 +64,7 @@ const keyword = useSelector(
       <div className="navbar-start">
         <img
           src={logo}
-          className="w-32 lg:w-40 cursor-pointer mt-6"
+          className="w-27 lg:w-38 cursor-pointer mt-6"
           onClick={() => navigate("/")}
           alt="Logo"
         />
