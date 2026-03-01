@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
+import { updateProductReview } from '../redux/reviews/reviewsReducer';
+
 
 // Redux & Actions
 import type { RootState } from '../redux/store'; 
@@ -18,12 +20,14 @@ import type { ProductDetail, Product } from '../types/product';
 
 // Components
 import ProductCard from "../components/user/ProductCard"; 
+import { number } from 'yup';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>(); 
   const navigate = useNavigate(); 
   
+//   const editProductReviews = useSelector((state:RootState)=>state.reviews.)
   
   // State
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
@@ -333,7 +337,9 @@ const ProductDetailPage: React.FC = () => {
                                 <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
                            
                            <div className="flex justify-end mt-2 gap-2">
-  <button className="btn btn-soft btn-info" onClick={()=> dispatch(editP)}>
+  <button className="btn btn-soft btn-info" onClick={async()=>{
+    await dispatch(updateProductReview({id:})).unwrap()
+  }}>
   แก้ไข
   </button>
   <button className="btn btn-soft btn-error">ลบ</button>

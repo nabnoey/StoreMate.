@@ -1,5 +1,4 @@
 import type { CreateReviewPayload } from './../../types/review';
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ReviewsService } from '../../services/reviews.service';
 
@@ -35,14 +34,10 @@ export const updateProductReview = createAsyncThunk(
 
 export const deleteProductReview = createAsyncThunk(
   "reviews/deleteReview",
-async({id} : {id:number},
-  {rejectWithValue}
-
-
-)=>{
+async({id} : {id:number},{rejectWithValue})=>{
   try{
-    const response = await ReviewsService.deleteReviews(id)
-    return response
+     await ReviewsService.deleteReviews(id)
+   return id 
   }catch(error){
     return rejectWithValue(error)
   }
@@ -69,7 +64,21 @@ const reviewSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
+
+      //editReview
+      builder.addCase(updateProductReview.pending,(state)=>{
+        state.isLoading = true
+        state.error = null
+      })
+      .addCase(updateProductReview.fulfilled,(state)=>{
+        state.isLoading = false
+      })
+      .addCase(updateProductReview.rejected,(state,action)=>{
+        state.isLoading = false
+        state.error = action.payload as string
+      })
   },
+
 
   
 });

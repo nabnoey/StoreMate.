@@ -99,7 +99,7 @@ const keyword = useSelector(
         placeholder="ค้นหาสินค้า..."
         value={keyword}
         onChange={handleSearch}
-        className="absolute right-8 top-[-8px] input input-bordered bg-white w-52 h-10 text-[#74768f]"
+        className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
         autoFocus
       />
 
