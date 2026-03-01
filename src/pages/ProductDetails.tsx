@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import type { AppDispatch } from '../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdOutlineChatBubbleOutline } from "react-icons/md";
@@ -20,7 +21,7 @@ import ProductCard from "../components/user/ProductCard";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch<any>(); 
+  const dispatch = useDispatch<AppDispatch>(); 
   const navigate = useNavigate(); 
   
   // State
