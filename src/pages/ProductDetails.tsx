@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { AppDispatch } from '../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../redux/store'; 
 import { removeQuantity } from '../redux/products/productReducer';
 import { addToCart } from '../redux/carts/CartReducer'; 
-import { submitProductReview } from '../redux/reviews/reviewsReducer';
+import { submitProductReview, updateProductReview, deleteProductReview} from '../redux/reviews/reviewsReducer';
 
 // Services & Types
 import { ProductService } from '../services/product.service';
@@ -26,7 +26,8 @@ const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>(); 
   const navigate = useNavigate(); 
-  
+
+
 //   const editProductReviews = useSelector((state:RootState)=>state.reviews.)
   
   // State
@@ -337,7 +338,9 @@ const ProductDetailPage: React.FC = () => {
                                 <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
                            
                            <div className="flex justify-end mt-2 gap-2">
-  <button className="btn btn-soft btn-info">
+  <button
+  
+  className="btn btn-soft btn-info" >
   แก้ไข
   </button>
   <button className="btn btn-soft btn-error">ลบ</button>
