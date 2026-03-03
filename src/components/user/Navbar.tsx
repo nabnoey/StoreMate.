@@ -15,16 +15,19 @@ const Navbar: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
 
 
+const [inputValue, setInputValue] = useState("")
 
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value
-
-  if(value.trim()){
-dispatch(search(value))
-  }else{
-    dispatch(clearSearch())
+const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setInputValue(e.target.value)
 }
+
+const handleSubmitSearch = () => {
+  if (!inputValue.trim()) {
+    dispatch(clearSearch())
+    return
+  }
+
+  dispatch(search(inputValue))
 }
 
 
@@ -35,6 +38,8 @@ const keyword = useSelector(
   const searchResult = useSelector(
   (state: RootState) => state.products.searchResult
 )
+
+
 
 
 
@@ -87,21 +92,32 @@ const keyword = useSelector(
   <div className="relative">
 
   <GoSearch
-    size={22}
-    className="cursor-pointer hover:text-black text-black z-50"
-    onClick={() => setOpenSearch(!openSearch)}
-  />
+  size={22}
+  className="cursor-pointer hover:text-black text-black z-50"
+  onClick={() => {
+    if (openSearch) {
+      handleSubmitSearch()
+    } else {
+      setOpenSearch(true)
+    }
+  }}
+/>
 
   {openSearch && (
     <>
-      <input
-        type="text"
-        placeholder="ค้นหาสินค้า..."
-        value={keyword}
-        onChange={handleSearch}
-        className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
-        autoFocus
-      />
+    <input
+  type="text"
+  placeholder="ค้นหาสินค้า..."
+  value={inputValue}
+  onChange={handleSearch}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      handleSubmitSearch()
+    }
+  }}
+  className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
+  autoFocus
+/>
 
       {keyword && searchResult.length > 0 && (
         <div className="absolute right-0 mt-3 text-black w-64 bg-white shadow-lg rounded-md z-50 divide-y max-h-60 overflow-y-auto">
