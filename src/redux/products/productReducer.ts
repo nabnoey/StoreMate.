@@ -110,7 +110,7 @@ const productsSlice = createSlice({
 
    builder.addCase(search.fulfilled,(state,action) => {
      state.search = action.meta.arg
-    state.searchResult = action.payload
+    state.searchResult = action.payload.data
 
     
     
