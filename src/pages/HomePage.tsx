@@ -47,39 +47,6 @@ function HomePage() {
 
 
   
-  //filter สินค้า
-const searchResult = useSelector(
- (state:RootState)=>state.products.searchResult || []
-)
-
-const keyword = useSelector((state:RootState)=> state.products.search)
-const isSearching = keyword.trim() !== ''
-
-
- console.log("keyword", keyword)
-
-
-
-    if (isSearching) {
-  return (
-    <div className="w-full mt-10 px-28">
-      <h2 className="text-3xl font-bold mb-6 text-black">
-        ผลการค้นหา:
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {searchResult.map((product) => (
-          
-          <ProductCard key={product.id} product={product} />
-          
-         
-        ))}
-
-      </div>
-    </div>
-  );
-}
 
 
   return (

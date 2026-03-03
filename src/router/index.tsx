@@ -23,6 +23,8 @@ const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
 const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
 const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"));
+const SearchPage = lazy(() => import("../pages/users/SearchPage"));
+
 
 
 const router = createBrowserRouter([
@@ -79,6 +81,10 @@ element:<PaymentShoping/>
     {
         path:"/product/:id",
         element:<ProductDetailPage/>
+    },
+    {
+        path:"/search",
+        element:<SearchPage/>
     }
 
 
