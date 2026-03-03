@@ -1,234 +1,204 @@
 import ProductCard from "../components/user/ProductCard";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
 import { HiOutlineInbox } from "react-icons/hi";
-import { fetchProducts} from "../redux/products/productReducer";
-import { useDispatch } from "react-redux";
+import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
 
-
-
-
-
-
-  const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
-    <div className="flex justify-between items-center mb-8 mt-16">
-      <div>
-        <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight" data-testid={`${testId}-title`}>
-          {title}
-        </h2>
-        <p className="text-[14px] md:text-[16px] text-gray-500 mt-1 font-light opacity-80">
-          {subTitle}
-        </p>
-      </div>
-      <button
-        className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942] transition-all group shrink-0"
-        data-testid={`${testId}-see-all`}
+// เพิ่ม id ให้กับ element ย่อยใน SectionHeader โดยอิงจาก props testId
+const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
+  <div id={`${testId}-header`} className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-16 gap-4">
+    <div>
+      <h2
+        id={`${testId}-title`}
+        className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight"
+        data-testid={`${testId}-title`}
       >
-        <span className="text-[14px] md:text-[16px] font-semibold">ดูทั้งหมด</span>
-        <span className="text-xl leading-none transform group-hover:translate-x-1 transition-transform">›</span>
-      </button>
+        {title}
+      </h2>
+      <p 
+        id={`${testId}-subtitle`} 
+        className="text-[14px] md:text-[16px] text-gray-600 mt-1 font-light opacity-80"
+      >
+        {subTitle}
+      </p>
     </div>
-  );
 
+    <button
+      id={`${testId}-see-all-btn`}
+      className="flex items-center gap-2 text-[#D4AF37] transition-all group shrink-0 self-start md:self-auto"
+      data-testid={`${testId}-see-all`}
+    >
+      <span className="text-[14px] md:text-[16px] font-semibold">
+        ดูทั้งหมด
+      </span>
+      <span className="text-xl group-hover:translate-x-1 transition-transform">
+        ›
+      </span>
+    </button>
+  </div>
+);
 
 function HomePage() {
- const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
+  const groupedProduct = useSelector((state: RootState) => state.products.groupedProducts);
 
- const groupedProduct = useSelector((state:RootState) => state.products.groupedProducts)
-
-
- useEffect(()=> {
-  dispatch(fetchProducts())
- },[dispatch])
-
-
-
-
-  
-
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   return (
-     <div className="w-full pb-24 bg-white" id="home-page">
-
-     
+    <div className="w-full pb-24 bg-white" id="home-page">
       <section className="relative w-full min-h-150 md:h-150 bg-[#14261C] overflow-hidden flex items-center mb-10 py-10 md:py-0" id="hero-banner">
-
-        
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 w-full px-6 md:px-12 lg:px-24 xl:px-32">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 w-full px-6 md:px-12 lg:px-24 xl:px-32">
           <div className="w-full md:w-1/2 text-left">
             <span
+              id="hero-otop-badge"
               className="inline-block bg-[#3D4221] text-[#E5C67C] text-[12px] px-5 py-1.5 rounded-full border border-[#E5C67C]/30 mb-8 font-bold tracking-widest uppercase"
               data-testid="otop-badge"
             >
               OTOP ราชบุรี
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white mb-6">
+            <h1 id="hero-title" className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white mb-6">
               สมุนไพร <br />
-              <span className="text-[#E5C67C]">มะม่วงหาวมะนาวโห่</span> <br />
+              <span className="text-[#D4AF37]">มะม่วงหาวมะนาวโห่</span> <br />
               ตรา พัดทอง
             </h1>
-            <p className="text-gray-300 max-w-lg text-base md:text-lg font-light leading-relaxed mb-10 opacity-90">
+            <p id="hero-description" className="text-gray-300 max-w-lg text-base md:text-lg font-light leading-relaxed mb-10 opacity-90">
               คัดสรรวัตถุดิบคุณภาพจากธรรมชาติ เพื่อสุขภาพที่ดีของคุณ ด้วยกรรมวิธีผลิตที่สะอาด ปลอดภัย ได้มาตรฐานสากล
             </p>
             <div className="flex flex-wrap gap-4">
-              <button className="bg-[#E5C67C] hover:bg-[#D4B56B] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
+              <button id="btn-hero-see-all" className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
                 ดูสินค้าทั้งหมด
               </button>
-              <button className="bg-white/5 hover:bg-white/10 border border-white/30 text-white px-8 md:px-10 py-3 rounded-full transition-all backdrop-blur-md font-medium">
+              <button id="btn-hero-about-us" className="border border-white/30 bg-white/5 text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-white/10 transition-colors">
                 เกี่ยวกับเรา
               </button>
             </div>
           </div>
 
           {/* Right: Image Showcase */}
-
-          <div className="flex w-full md:w-[45%] lg:w-125 bg-white rounded-4xl shadow-2xl p-6 lg:p-10 items-center justify-center relative transform md:rotate-2 hover:rotate-0 transition-transform duration-500 mt-10 md:mt-0">
-
-            <img src={banner} alt="Promotion Banner" className="w-full h-auto object-contain scale-105" data-testid="hero-image" />
+          <div id="hero-image-container" className="w-full md:w-[37%] bg-white rounded-2xl shadow-2xl p-6">
+            <img
+              id="hero-image"
+              src={banner}
+              alt="Promotion Banner"
+              className="w-full h-auto object-contain"
+            />
           </div>
         </div>
       </section>
 
       {/* Main Content Area */}
-      <main className="w-full pt-4">
+      <main className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24">
 
-        {/* Promotion Section */}
-        <section id="promotion-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ">
-          {/* <ContentWrapper> */}
-            <SectionHeader
-              title="โปรโมชั่นสุดพิเศษ"
-              subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
-              testId="promo"
-            />
-    <div className="grid grid-cols-1 
-sm:grid-cols-2 
-lg:grid-cols-3 
-xl:grid-cols-4 
-gap-6 
-justify-items-center">
-  {groupedProduct.map((group) =>
-    group.categoryName.toLowerCase() === "promotion" &&
-    group.products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))
-  )}
-  </div>
-          {/* </ContentWrapper> */}
+        {/* PROMOTION */}
+        <section id="section-promotion" className="mb-20">
+          <SectionHeader
+            title="โปรโมชั่นสุดพิเศษ"
+            subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
+            testId="promotion"
+          />
+
+          {groupedProduct.length === 0 ? (
+            <div id="empty-state-promotion" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
+              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
+            </div>
+          ) : (
+            <div id="grid-promotion" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+              {groupedProduct.map(
+                (group) =>
+                  group.categoryName.toLowerCase() === "promotion" &&
+                  group.products.map((product) => (
+                    // แนะนำให้ส่ง prop id เข้าไปใน ProductCard ด้วย (ถ้าแก้ไฟล์นั้นได้)
+                    // เช่น id={`product-card-${product.id}`}
+                    <ProductCard key={product.id} product={product} />
+                  ))
+              )}
+            </div>
+          )}
         </section>
 
-   
-        {/* Soap Section */}
-        <section id="soap-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32">
-          {/* <ContentWrapper> */}
-            <SectionHeader
-              title="สบู่สมุนไพร"
-              subTitle="ดูแลและบำรุงผิวพรรณด้วยคุณค่าจากธรรมชาติแท้ 100%"
-              testId="soap"
-            />
-            
-               
-    <div className="grid grid-cols-1 
-sm:grid-cols-2 
-lg:grid-cols-3 
-xl:grid-cols-4 
-gap-6 
-justify-items-center">
-  {groupedProduct.map((group) =>
-    group.categoryName.toLowerCase() === "soap" &&
-    group.products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))
-  )}
-  </div>
+        {/* SOAP */}
+        <section id="section-soap" className="mb-20">
+          <SectionHeader
+            title="สบู่สมุนไพร"
+            subTitle="ดูแลและบำรุงผิวพรรณด้วยธรรมชาติแท้ 100%"
+            testId="soap"
+          />
 
-
-    {/* Soap Section */}
-        <section id="soap-section" className="mb-20 ">
-          {/* <ContentWrapper> */}
-            <SectionHeader
-              title="เครื่องดื่ม"
-              subTitle="ดูแลผิวผันให้สดใสจากธรรมชาติ"
-              testId="soap"
-            />
-            
-               
-    <div className="grid grid-cols-1 
-sm:grid-cols-2 
-lg:grid-cols-3 
-xl:grid-cols-4 
-gap-6 
-justify-items-center">
-  {groupedProduct.map((group) =>
-    group.categoryName.toLowerCase() === "drinks" &&
-    group.products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))
-  )}
-  </div>
-          {/* </ContentWrapper> */}
+          {groupedProduct.length === 0 ? (
+            <div id="empty-state-soap" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
+              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
+            </div>
+          ) : (
+            <div id="grid-soap" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+              {groupedProduct.map(
+                (group) =>
+                  group.categoryName.toLowerCase() === "soap" &&
+                  group.products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))
+              )}
+            </div>
+          )}
         </section>
 
-  <section id="soap-section" className="mb-20 ">
-          
-            <SectionHeader
-              title="แชมพูสมุนไพร"
-              subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
-              testId="soap"
-            />
-            
-               
-    <div className="grid grid-cols-1 
-sm:grid-cols-2 
-lg:grid-cols-3 
-xl:grid-cols-4 
-gap-6 
-justify-items-center">
-  {groupedProduct.map((group) =>
-    group.categoryName.toLowerCase() === "shampoo" &&
-    group.products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))
-  )}
-  </div>
-          {/* </ContentWrapper> */}
+        {/* DRINKS */}
+        <section id="section-drinks" className="mb-20">
+          <SectionHeader
+            title="เครื่องดื่ม"
+            subTitle="ดูแลสุขภาพให้สดใสจากธรรมชาติ"
+            testId="drinks"
+          />
+
+          {groupedProduct.length === 0 ? (
+            <div id="empty-state-drinks" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
+              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
+            </div>
+          ) : (
+            <div id="grid-drinks" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+              {groupedProduct.map(
+                (group) =>
+                  group.categoryName.toLowerCase() === "drinks" &&
+                  group.products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))
+              )}
+            </div>
+          )}
         </section>
 
-       
+        {/* SHAMPOO */}
+        <section id="section-shampoo" className="mb-20">
+          <SectionHeader
+            title="แชมพูสมุนไพร"
+            subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
+            testId="shampoo"
+          />
 
-
-
-
-
-          
-
- 
-            
-            {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
-            {groupedProduct.length === 0 ? (
-              <div className="w-full min-h-100 border-2 border-dashed border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-gray-50/30">
-                {/* วงกลมรองหลัง Icon */}
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                  {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-gray-300" />
-                </div>
-                {/* ข้อความ */}
-                <h3 className="text-xl font-bold text-[#14261C]">
-                  ไม่พบรายการสินค้า
-                </h3>
-                <p className="text-gray-400 mt-2 font-light">
-                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
-              
-              </div>
-            )}
-         
+          {groupedProduct.length === 0 ? (
+            <div id="empty-state-shampoo" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
+              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
+            </div>
+          ) : (
+            <div id="grid-shampoo" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+              {groupedProduct.map(
+                (group) =>
+                  group.categoryName.toLowerCase() === "shampoo" &&
+                  group.products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))
+              )}
+            </div>
+          )}
         </section>
-                
+
       </main>
     </div>
   );
