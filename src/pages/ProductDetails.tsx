@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../redux/store'; 
 import { removeQuantity } from '../redux/products/productReducer';
 import { addToCart } from '../redux/carts/CartReducer'; 
-import { submitProductReview, updateProductReview, deleteProductReview} from '../redux/reviews/reviewsReducer';
+import { submitProductReview} from '../redux/reviews/reviewsReducer';
 
 // Services & Types
 import { ProductService } from '../services/product.service';
@@ -339,7 +339,6 @@ const ProductDetailPage: React.FC = () => {
                            
                            <div className="flex justify-end mt-2 gap-2">
   <button
-  
   className="btn btn-soft btn-info" >
   แก้ไข
   </button>
