@@ -9,6 +9,7 @@ type ProductState = {
   groupedProducts: CategoryGroup[]
   search: string
   searchResult: Product[]
+  searchSuggestion: Product[]
   categories: string[]
 }
 
@@ -17,6 +18,7 @@ const initialState:ProductState = {
   groupedProducts:[],
   search:"",
    searchResult: [],
+   searchSuggestion: [], 
    categories: []
 }
 // 1. ส่วนดึงข้อมูล (เหมือนไปสั่งของจากโรงงาน/API)
@@ -29,6 +31,14 @@ export const search = createAsyncThunk("products/search",async(keyword:string)=>
   const response = await ProductService.searchProducts(keyword);
   return response
 })
+
+export const fetchSearchSuggestion = createAsyncThunk(
+  "products/fetchSearchSuggestion",
+  async (keyword: string) => {
+    const response = await ProductService.searchProducts(keyword)
+    return response.slice(0, 5) // เอาแค่ 5 รายการสำหรับ dropdown
+  }
+)
 
 const productsSlice = createSlice({
   name: "products",
@@ -89,7 +99,6 @@ const productsSlice = createSlice({
 
   extraReducers: (builder) => {
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
- console.log("DATA:", action.payload);
     const groupedArray = Object.keys(action.payload).map((key) => ({
       categoryName: key,
       products: action.payload[key]
@@ -100,12 +109,15 @@ const productsSlice = createSlice({
   });
 
    builder.addCase(search.fulfilled,(state,action) => {
-     console.log("RESULT:", action.payload.data)
      state.search = action.meta.arg
-    state.searchResult = action.payload.data 
+    state.searchResult = action.payload
 
     
     
+  })
+
+  builder.addCase(fetchSearchSuggestion.fulfilled, (state,action)=> {
+    state.searchSuggestion = action.payload
   })
   
 }
