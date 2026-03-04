@@ -1,0 +1,52 @@
+[33mb06bd1a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m HEAD@{0}: commit: add reviews products
+[33m9711e2a[m HEAD@{1}: checkout: moving from fature/stockpage to develop
+[33mc206a8a[m[33m ([m[1;31morigin/Admin[m[33m, [m[1;32mfature/stockpage[m[33m, [m[1;32mAdmin[m[33m)[m HEAD@{2}: checkout: moving from develop to fature/stockpage
+[33m9711e2a[m HEAD@{3}: pull origin develop: Fast-forward
+[33ma68c6f7[m HEAD@{4}: checkout: moving from fature/stockpage to develop
+[33mc206a8a[m[33m ([m[1;31morigin/Admin[m[33m, [m[1;32mfature/stockpage[m[33m, [m[1;32mAdmin[m[33m)[m HEAD@{5}: checkout: moving from Admin to fature/stockpage
+[33mc206a8a[m[33m ([m[1;31morigin/Admin[m[33m, [m[1;32mfature/stockpage[m[33m, [m[1;32mAdmin[m[33m)[m HEAD@{6}: checkout: moving from feature/reviewproduct to Admin
+[33m071d527[m[33m ([m[1;32mfeature/reviewproduct[m[33m)[m HEAD@{7}: commit: update homepage responsive
+[33m4a48c67[m[33m ([m[1;31morigin/HomePage[m[33m, [m[1;32mHomePage[m[33m)[m HEAD@{8}: checkout: moving from HomePage to feature/reviewproduct
+[33m4a48c67[m[33m ([m[1;31morigin/HomePage[m[33m, [m[1;32mHomePage[m[33m)[m HEAD@{9}: checkout: moving from feature/productDetails-mobile to HomePage
+[33m4a48c67[m[33m ([m[1;31morigin/HomePage[m[33m, [m[1;32mHomePage[m[33m)[m HEAD@{10}: checkout: moving from HomePage to feature/productDetails-mobile
+[33m4a48c67[m[33m ([m[1;31morigin/HomePage[m[33m, [m[1;32mHomePage[m[33m)[m HEAD@{11}: pull origin HomePage: Fast-forward
+[33m5a0714b[m HEAD@{12}: checkout: moving from develop to HomePage
+[33ma68c6f7[m HEAD@{13}: pull origin develop: Fast-forward
+[33m28106fe[m HEAD@{14}: pull origin develop: Fast-forward
+[33m5e3f9c4[m HEAD@{15}: checkout: moving from Admin to develop
+[33mc206a8a[m[33m ([m[1;31morigin/Admin[m[33m, [m[1;32mfature/stockpage[m[33m, [m[1;32mAdmin[m[33m)[m HEAD@{16}: commit: update redux payment/shoppingCart
+[33m41cd895[m HEAD@{17}: commit: fix(cart): update quantity property to stockQuantity and add navigation
+[33m1c974ba[m HEAD@{18}: pull origin Admin: Fast-forward
+[33m25a914b[m HEAD@{19}: checkout: moving from feature/update-userproflie to Admin
+[33m9b92c6d[m[33m ([m[1;32mfeature/update-userproflie[m[33m)[m HEAD@{20}: commit: refactor(profile): optimize ProfileSidebar code and improve mobile/desktop layouts
+[33m7cb54c3[m HEAD@{21}: commit: update cart ShoppingPage
+[33md36c7ac[m HEAD@{22}: checkout: moving from HomePage to feature/update-userproflie
+[33m5a0714b[m HEAD@{23}: commit (merge): confilct merge feature/productDetail to HomePage
+[33ma7c7ff3[m HEAD@{24}: pull origin HomePage: Fast-forward
+[33m2d2c7c7[m HEAD@{25}: checkout: moving from feature/update-userproflie to HomePage
+[33md36c7ac[m HEAD@{26}: checkout: moving from feature/productDetails to feature/update-userproflie
+[33m447f8c2[m[33m ([m[1;32mfeature/productDetails[m[33m)[m HEAD@{27}: checkout: moving from feature/update-userproflie to feature/productDetails
+[33md36c7ac[m HEAD@{28}: commit: update userprofile Address
+[33m25a914b[m HEAD@{29}: checkout: moving from Admin to feature/update-userproflie
+[33m25a914b[m HEAD@{30}: checkout: moving from develop to Admin
+[33m5e3f9c4[m HEAD@{31}: checkout: moving from feature/productDetails to develop
+[33m447f8c2[m[33m ([m[1;32mfeature/productDetails[m[33m)[m HEAD@{32}: commit: update productDetailsPage
+[33m5e3f9c4[m HEAD@{33}: checkout: moving from develop to feature/productDetails
+[33m5e3f9c4[m HEAD@{34}: pull origin develop: Fast-forward
+[33m3f2adb3[m HEAD@{35}: checkout: moving from feature/loadingpage-button to develop
+[33m1b44125[m[33m ([m[1;32mfeature/loadingpage-button[m[33m)[m HEAD@{36}: commit: confix: update loading page/login, register and responsive home page
+[33m283b8d1[m HEAD@{37}: commit: fix:loading to page/login
+[33m3f2adb3[m HEAD@{38}: checkout: moving from develop to feature/loadingpage-button
+[33m3f2adb3[m HEAD@{39}: commit (merge): fix: confilt to develop/package.json/lucide-react
+[33m5720b2a[m HEAD@{40}: checkout: moving from ShopPage to develop
+[33mb3ed36b[m[33m ([m[1;32mShopPage[m[33m)[m HEAD@{41}: pull origin ShopPage: Fast-forward
+[33mf2e1acf[m HEAD@{42}: checkout: moving from feaure/loadingpage to ShopPage
+[33m09224d8[m[33m ([m[1;32mfeaure/loadingpage[m[33m)[m HEAD@{43}: commit: feat(loading): implement initial splash screen and refactor Lottie implementation
+[33mf2e1acf[m HEAD@{44}: checkout: moving from ShopPage to feaure/loadingpage
+[33mf2e1acf[m HEAD@{45}: checkout: moving from develop to ShopPage
+[33m5720b2a[m HEAD@{46}: commit: remove extra semicolon
+[33m8b632dc[m HEAD@{47}: commit: fix case-sensitive filename
+[33ma9f30ce[m HEAD@{48}: commit: temp rename
+[33m85b1a51[m HEAD@{49}: commit: WIP: update product reducer
+[33m1dde9be[m HEAD@{50}: checkout: moving from main to develop
+[33m70c5f16[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{51}: clone: from https://github.com/nabnoey/storemate.git

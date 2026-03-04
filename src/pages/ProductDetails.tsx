@@ -117,7 +117,7 @@ const ProductDetailPage: React.FC = () => {
         id: Number(id), payload: { reviewScore, message: reviewMessage } 
       })).unwrap();
 
-      toast.success("ขอบคุณสำหรับรีวิวครับ!");
+      toast.success("ขอบคุณสำหรับรีวิว!");
       setReviewMessage("");
       setReviewScore(5);
 
@@ -187,13 +187,25 @@ const ProductDetailPage: React.FC = () => {
             </h1>
 
             {/* ดาว (แบบโปร่ง) */}
-            <div id="product-rating" className="flex text-gray-700 text-sm mb-4 justify-center md:justify-start">
-                {[...Array(5)].map((_, i) => (
-                    i < Math.round(productDetail.ratingScore || 5) 
-                    ? <MdStar key={i} id={`star-filled-${i}`} className="text-gray-800 text-lg" /> 
-                    : <MdStarBorder key={i} id={`star-empty-${i}`} className="text-gray-400 text-lg"/>
-                ))}
-            </div>
+            <div id="product-rating" className="flex text-gray-700 text-sm mb-4 justify-center md:justify-start gap-1">
+  {[...Array(5)].map((_, i) => (
+    i < Math.round(productDetail.ratingScore || 4)
+    ? (
+      // ส่วนของดาวเต็มที่มีขอบสีดำ (ใช้เทคนิคซ้อนไอคอน)
+      <div key={i} className="relative flex items-center justify-center h-6 w-6">
+        {/* เลเยอร์ล่าง: ดาวเต็มสีดำ (เพื่อทำเป็นขอบ) - ใช้ขนาดใหญ่กว่าเล็กน้อย */}
+        <MdStar id={`star-border-${i}`} className="absolute text-black text-2xl" />
+        
+        {/* เลเยอร์บน: ดาวทึบสีเหลือง (สีข้างใน) - ใช้ขนาดเล็กกว่าและจัดตำแหน่งให้อยู่ตรงกลาง */}
+        <MdStar id={`star-filled-${i}`} className="absolute text-[#FFEB55] text-xl transform scale-90" />
+      </div>
+    )
+    : (
+      // ส่วนของดาวว่าง (ขอบสีเทา) - เหมือนเดิม
+      <MdStarBorder key={i} id={`star-empty-${i}`} className="text-black text-2xl"/>
+    )
+  ))}
+</div>
 
             {/* กล่องราคา */}
             <div id="product-price-box" className="bg-[#e5e7eb] px-6 py-4 rounded-md flex justify-between items-center mb-6">
