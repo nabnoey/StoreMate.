@@ -19,7 +19,6 @@ const searchProducts = async (keyword: string) => {
 
 
 export const ProductService = {
-    // getAllProducts,
     getAllCategories,
     getProductById,
     searchProducts

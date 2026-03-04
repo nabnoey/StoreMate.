@@ -36,7 +36,7 @@ export const fetchSearchSuggestion = createAsyncThunk(
   "products/fetchSearchSuggestion",
   async (keyword: string) => {
     const response = await ProductService.searchProducts(keyword)
-    return response.slice(0, 5) // เอาแค่ 5 รายการสำหรับ dropdown
+    return response.slice(0, 5) 
   }
 )
 
@@ -73,10 +73,7 @@ const productsSlice = createSlice({
     },
 
 
-    clearSearch:(state) =>{
-    state.search = ""
-    state.searchResult = []
-},
+
     // คืนของเข้าสต็อก (ตอนลบจาก cart)
     returnQuantity: (
       state,
@@ -103,6 +100,7 @@ const productsSlice = createSlice({
       categoryName: key,
       products: action.payload[key]
     }));
+    
     
     state.groupedProducts = groupedArray;
 
@@ -131,8 +129,7 @@ export const {
   addProduct,
   addQuantity,
   removeQuantity,
-  returnQuantity,
-  clearSearch
+  returnQuantity
 } = productsSlice.actions;
 
 export default productsSlice.reducer;

@@ -14,6 +14,8 @@ import logo from "../../assets/logo.png";
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
+
+  
 const searchResult = useSelector(
   (state: RootState) => state.products.searchResult
 )
