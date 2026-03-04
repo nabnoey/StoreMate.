@@ -7,18 +7,15 @@ import { useEffect } from "react";
 import banner from "../assets/banner2.png";
 
 // เพิ่ม id ให้กับ element ย่อยใน SectionHeader โดยอิงจาก props testId
-const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
-  <div id={`${testId}-header`} className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-16 gap-4">
+const SectionHeader = ({ title, subTitle }: { title: string; subTitle: string;  }) => (
+  <div  className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-16 gap-4">
     <div>
       <h2
-        id={`${testId}-title`}
         className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight"
-        data-testid={`${testId}-title`}
       >
         {title}
       </h2>
       <p 
-        id={`${testId}-subtitle`} 
         className="text-[14px] md:text-[16px] text-gray-600 mt-1 font-light opacity-80"
       >
         {subTitle}
@@ -26,9 +23,8 @@ const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: s
     </div>
 
     <button
-      id={`${testId}-see-all-btn`}
       className="flex items-center gap-2 text-[#D4AF37] transition-all group shrink-0 self-start md:self-auto"
-      data-testid={`${testId}-see-all`}
+      data-test="btn-see-all"
     >
       <span className="text-[14px] md:text-[16px] font-semibold">
         ดูทั้งหมด
@@ -98,7 +94,6 @@ function HomePage() {
           <SectionHeader
             title="โปรโมชั่นสุดพิเศษ"
             subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
-            testId="promotion"
           />
 
           {groupedProduct.length === 0 ? (
@@ -107,7 +102,7 @@ function HomePage() {
               <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
             </div>
           ) : (
-            <div id="grid-promotion" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+            <div id="section-promotion" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
               {groupedProduct.map(
                 (group) =>
                   group.categoryName.toLowerCase() === "promotion" &&
@@ -126,7 +121,6 @@ function HomePage() {
           <SectionHeader
             title="สบู่สมุนไพร"
             subTitle="ดูแลและบำรุงผิวพรรณด้วยธรรมชาติแท้ 100%"
-            testId="soap"
           />
 
           {groupedProduct.length === 0 ? (
@@ -152,7 +146,6 @@ function HomePage() {
           <SectionHeader
             title="เครื่องดื่ม"
             subTitle="ดูแลสุขภาพให้สดใสจากธรรมชาติ"
-            testId="drinks"
           />
 
           {groupedProduct.length === 0 ? (
@@ -178,7 +171,6 @@ function HomePage() {
           <SectionHeader
             title="แชมพูสมุนไพร"
             subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
-            testId="shampoo"
           />
 
           {groupedProduct.length === 0 ? (

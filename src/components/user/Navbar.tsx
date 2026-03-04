@@ -77,16 +77,17 @@ const handleSubmitSearch = () => {
           className="w-27 lg:w-38 cursor-pointer mt-6"
           onClick={() => navigate("/")}
           alt="Logo"
+          data-test="logo"
         />
       </div>
 
       {/* MENU DESKTOP */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
         <ul className="menu menu-horizontal gap-7 text-[15px]">
-          <li><a className="hover:text-indigo-600 cursor-pointer">สินค้า</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="product-link">สินค้า</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="promotion-link">โปรโมชั่น</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="about-link">เกี่ยวกับร้าน</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="contact-link">ติดต่อ</a></li>
         </ul>
       </div>
 
@@ -99,6 +100,7 @@ const handleSubmitSearch = () => {
   <GoSearch
   size={22}
   className="cursor-pointer hover:text-black text-black z-50"
+  data-test="search"
   onClick={() => {
     if (openSearch) {
       handleSubmitSearch()
@@ -112,6 +114,7 @@ const handleSubmitSearch = () => {
     <>
     <input
   type="text"
+  data-test="search-input"
   placeholder="ค้นหาสินค้า..."
   value={inputValue}
   onChange={handleSearch}
@@ -157,6 +160,7 @@ const handleSubmitSearch = () => {
               <div className="relative cursor-pointer">
                 <FaCartShopping
                   size={22}
+                  data-test="cart-shopping"
                   className="hover:text-black"
                   onClick={() => navigate("/shopping-cart")}
 
@@ -178,6 +182,7 @@ const handleSubmitSearch = () => {
         ) : (
           <div className="hidden lg:flex items-center gap-3">
             <button
+            data-test="login-btn"
               className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]"
               onClick={() => navigate("/login")}
             >
@@ -185,6 +190,7 @@ const handleSubmitSearch = () => {
             </button>
 
             <button
+            data-test="register-btn"
               className="btn btn-outline text-[#0A157A] w-30 h-11 rounded-[10px]"
               onClick={() => navigate("/register")}
             >

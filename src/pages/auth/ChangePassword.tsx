@@ -71,6 +71,7 @@ function ChangePassword() {
 
           รหัสผ่านเดิม
           <input
+          data-test="old-password"
             value={oldPassword}
             onChange={(e)=>setOldPassword(e.target.value)}
             placeholder="อย่างน้อย 8 ตัว"
@@ -79,6 +80,7 @@ function ChangePassword() {
 
           รหัสผ่านใหม่
           <input
+          data-test="new-password"
             value={newPassword}
             onChange={(e)=>setNewPassword(e.target.value)}
             placeholder="อย่างน้อย 8 ตัว"
@@ -87,6 +89,7 @@ function ChangePassword() {
 
           ยืนยันรหัสผ่านใหม่
           <input
+          data-test="confirm-password"
             value={confirmPassword}
             onChange={(e)=>setConfirmPassword(e.target.value)}
             placeholder="อย่างน้อย 8 ตัว"
@@ -94,6 +97,7 @@ function ChangePassword() {
           />
 
           <button
+          data-test="submit-btn"
             onClick={handleSubmit}
             className="btn bg-[#16A249] border-0 text-white mt-4"
           >

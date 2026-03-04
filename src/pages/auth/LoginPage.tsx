@@ -163,6 +163,7 @@ function LoginPage() {
             />
             <button
               type="button"
+              data-test="show-password"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
             >
@@ -186,6 +187,7 @@ function LoginPage() {
           />
           <label
             htmlFor="remember-me"
+            data-test="remember-me"
             className="text-gray-800 cursor-pointer select-none"
           >
             จดจำฉัน
@@ -194,6 +196,7 @@ function LoginPage() {
 
         <button
           type="submit"
+          data-test="login-button"
           disabled={loading}
           className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -203,6 +206,7 @@ function LoginPage() {
         <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
           <p
             className="hover:underline cursor-pointer text-gray-600"
+            data-test="forgot-password"
             onClick={() => navigate("/forgot-password")}
           >
             ลืมรหัสผ่าน
@@ -212,6 +216,7 @@ function LoginPage() {
             <span>ถ้ายังไม่มีบัญชี?</span>
             <a
               className="text-blue-500 hover:underline ml-2 cursor-pointer font-medium"
+              data-test="register-link"
               onClick={() => navigate("/register")}
             >
               สมัครสมาชิก

@@ -145,7 +145,7 @@ const ProductDetailPage: React.FC = () => {
     <div id="product-detail-page" className="bg-white min-h-screen  pb-20 font-sans text-gray-800">
 
         <div className="flex items-center mb-8 px-4 ">
-             <button className="btn btn-outline w-15 h-8 ml-5 mt-20" onClick={()=>navigate("/")}>back</button> 
+             <button className="btn btn-outline w-15 h-8 ml-5 mt-20" data-test="btn-back" onClick={()=>navigate("/")}>back</button> 
              </div>
       <div className="max-w-5xl mx-auto px-4 -mt-10 md:px-8 pt-10">
         
@@ -167,7 +167,6 @@ const ProductDetailPage: React.FC = () => {
             <div id="product-thumbnails" className="flex gap-2 overflow-x-auto pb-2 max-w-[400px] w-full justify-center md:justify-start">
               {productDetail.productImages?.map((img, index) => (
                 <div 
-                    id={`product-thumb-${index}`}
                     key={img.id} 
                     onClick={() => setActiveImage(img.imageUrl)}
                     className={`w-16 h-20 md:w-20 md:h-24 flex-shrink-0 border cursor-pointer transition-all overflow-hidden rounded-md
@@ -194,15 +193,15 @@ const ProductDetailPage: React.FC = () => {
       // ส่วนของดาวเต็มที่มีขอบสีดำ (ใช้เทคนิคซ้อนไอคอน)
       <div key={i} className="relative flex items-center justify-center h-6 w-6">
         {/* เลเยอร์ล่าง: ดาวเต็มสีดำ (เพื่อทำเป็นขอบ) - ใช้ขนาดใหญ่กว่าเล็กน้อย */}
-        <MdStar id={`star-border-${i}`} className="absolute text-black text-2xl" />
+        <MdStar data-test="star-filled" className="absolute text-black text-2xl" />
         
         {/* เลเยอร์บน: ดาวทึบสีเหลือง (สีข้างใน) - ใช้ขนาดเล็กกว่าและจัดตำแหน่งให้อยู่ตรงกลาง */}
-        <MdStar id={`star-filled-${i}`} className="absolute text-[#FFEB55] text-xl transform scale-90" />
+        <MdStar data-test="star-empty" className="absolute text-[#FFEB55] text-xl transform scale-90" />
       </div>
     )
     : (
       // ส่วนของดาวว่าง (ขอบสีเทา) - เหมือนเดิม
-      <MdStarBorder key={i} id={`star-empty-${i}`} className="text-black text-2xl"/>
+      <MdStarBorder key={i} data-test="star-empty" className="text-black text-2xl"/>
     )
   ))}
 </div>
@@ -287,7 +286,7 @@ const ProductDetailPage: React.FC = () => {
                         <p className="text-sm text-gray-600 mb-2">คะแนนความพึงพอใจ</p>
                         <div id="review-rating-input" className="flex text-gray-800 text-xl cursor-pointer mb-4 gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <div key={star} id={`select-star-${star}`} onClick={() => setReviewScore(star)}>
+                                <div key={star} data-test="star" onClick={() => setReviewScore(star)}>
                                     {star <= reviewScore ? <MdStar /> : <MdStarBorder className="text-gray-400" />}
                                 </div>
                             ))}
@@ -318,15 +317,15 @@ const ProductDetailPage: React.FC = () => {
                 {/* ฝั่งขวา: รายการรีวิว */}
                 <div id="review-list-container" className="flex flex-col gap-4">
                     {productDetail.reviews && productDetail.reviews.length > 0 ? (
-                        productDetail.reviews.map((review, index) => (
-                            <div key={review.id} id={`review-item-${index}`} className="border border-gray-300 rounded-xl p-5 bg-white">
+                        productDetail.reviews.map((review) => (
+                            <div key={review.id} data-test="review-item" className="border border-gray-300 rounded-xl p-5 bg-white">
                                 <div className="flex justify-between items-start mb-3">
                                     {/* ชื่อและวันที่ */}
                                     <div>
-                                        <p id={`review-reviewer-name-${index}`} className="font-bold text-gray-800 text-sm mb-1">
+                                        <p  className="font-bold text-gray-800 text-sm mb-1">
                                             {review.reviewer?.name || "Anonymous User"}
                                         </p>
-                                        <p id={`review-date-${index}`} className="text-xs text-gray-400 font-mono">
+                                        <p  className="text-xs text-gray-400 font-mono">
                                             {formatDate(review.createdAt)}
                                         </p>
 
@@ -336,7 +335,7 @@ const ProductDetailPage: React.FC = () => {
                                     
                                     
                                     {/* ดาวรีวิวในกล่องขวา */}
-                                    <div id={`review-score-${index}`} className="flex text-gray-800 text-sm">
+                                    <div  className="flex text-gray-800 text-sm">
                                         {[...Array(5)].map((_, i) => (
                                             i < review.reviewScore 
                                             ? <MdStar key={i} /> 
@@ -347,14 +346,16 @@ const ProductDetailPage: React.FC = () => {
                                 </div>
                                 
                                 {/* ข้อความรีวิว */}
-                                <p id={`review-message-${index}`} className="text-gray-600 text-sm mt-2 ">{review.message}</p>
+                                <p  className="text-gray-600 text-sm mt-2 ">{review.message}</p>
                            
                            <div className="flex justify-end mt-2 gap-2">
   <button
+  data-test="btn-edit"
   className="btn btn-soft btn-info" >
   แก้ไข
   </button>
-  <button className="btn btn-soft btn-error">ลบ</button>
+ 
+  <button className="btn btn-soft btn-error"  data-test="btn-delete">ลบ</button>
 </div>
 
                             </div>

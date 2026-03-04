@@ -47,13 +47,13 @@ function CartItem({ item }: Props) {
 
   return (
     <div 
-      id={`cart-row-${item.id}`} 
+      data-test="cart-item" 
       className="flex items-center justify-between p-4 border-b last:border-b-0"
     >
       <div className="flex items-center gap-4 w-1/2">
         <img
         
-          id={`cart-img-${item.id}`}
+         data-test="img-cart"
 
           src={item.imageUrl || "https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D"}
 
@@ -62,7 +62,6 @@ function CartItem({ item }: Props) {
         />
         <div>
           <h3 
-            id={`cart-title-${item.id}`} 
             className="font-semibold line-clamp-2"
           >
             {item.productName}
@@ -78,7 +77,6 @@ function CartItem({ item }: Props) {
     </span>
   )}
           <p 
-            id={`cart-price-${item.id}`} 
             className="text-sm text-gray-500 mr-auto "
           >
             ฿{item.price.toFixed(2)}
@@ -90,7 +88,7 @@ function CartItem({ item }: Props) {
         {/* Quantity Controls */}
         <div className="flex items-center border rounded-lg">
           <button 
-            id={`btn-decrease-${item.id}`}
+          data-test="btn-decregase"
             onClick={handleDecrease} 
             className="btn btn-ghost btn-sm" 
             disabled={item.stockQuantity <= 1}
@@ -99,14 +97,14 @@ function CartItem({ item }: Props) {
           </button> 
           
           <span 
-            id={`cart-qty-${item.id}`} 
             className="px-4 font-medium"
           >
             {item.stockQuantity}
           </span>
           
           <button 
-            id={`btn-increase-${item.id}`}
+          data-test="btn-increase"
+            id={`${item.id}`}
             onClick={handleIncrease} 
             className="btn btn-ghost btn-sm" 
             disabled={stock <= 0}
@@ -119,7 +117,6 @@ function CartItem({ item }: Props) {
 
         {/* Total Price per Item */}
         <p 
-          id={`cart-item-total-${item.id}`}
           className="font-semibold w-24 "
         >
           ฿{(item.price * item.stockQuantity).toFixed(2)}
@@ -130,7 +127,7 @@ function CartItem({ item }: Props) {
 
         {/* Remove Button */}
         <button 
-          id={`btn-remove-${item.id}`}
+        data-test="btn-remove"
           onClick={handleRemove} 
           className="btn btn-circle btn-ghost btn-sm text-red-500 hover:bg-red-50"
         >

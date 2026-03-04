@@ -55,8 +55,6 @@ const ForgotPassword = () => {
         bg-white rounded-2xl shadow-2xl 
         w-[571px] h-[310px] max-w-105 
         p-6 relative 
-        
-        
         "
       >
 
@@ -67,6 +65,7 @@ const ForgotPassword = () => {
 <div className="mt-7 text-black text-[16px] font-light gap-3 flex flex-col">
     อีเมล
         <input
+        data-test="input-email"
           name="email"
           value={email}
           onChange={(e) =>setEmail(e.target.value)}
@@ -78,6 +77,7 @@ const ForgotPassword = () => {
    
 
         <button
+        data-test="submit-btn"
           type="submit"
           className="btn w-[368px] h-[52px] bg-[#16A249] text-white text-[20px] font-medium border-none font-bold"
         onClick={handleSubmit}>

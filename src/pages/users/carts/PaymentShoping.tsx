@@ -103,6 +103,7 @@ const PaymentShoping = () => {
                     {/* ปรับจำนวน */}
                     <div className="flex items-center border border-gray-200 rounded bg-white h-9">
                       <button 
+                      data-test="btn-decrease"
                         onClick={() => dispatch(decreaseQuantity(item.id))} 
                         className="px-3 h-full text-black hover:bg-gray-50 disabled:opacity-30 flex items-center justify-center"
                         disabled={item.stockQuantity <= 1}
@@ -113,6 +114,7 @@ const PaymentShoping = () => {
                         {item.stockQuantity}
                       </span>
                       <button 
+                        data-test="btn-increase"
                         onClick={() => dispatch(increaseQuantity(item.id))} 
                         className="px-3 h-full text-black hover:bg-gray-50 flex items-center justify-center"
                       >
@@ -143,7 +145,7 @@ const PaymentShoping = () => {
             ].map((method) => (
               <button
                 key={method.id}
-                id={`btn-payment-${method.id}`}
+                data-test="btn-payment-method"
                 onClick={() => setPaymentMethod(method.id)}
                 className={`px-5 py-2 sm:py-2.5 border rounded text-sm transition-colors ${
                   paymentMethod === method.id

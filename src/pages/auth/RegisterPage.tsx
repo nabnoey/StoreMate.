@@ -125,7 +125,6 @@ function RegisterPage() {
       >
         <div className="absolute top-4 right-4 -mt-7.5">
           <img
-            id="register-logo"
             src={logo}
             alt="logo"
             className="w-20 sm:w-24 lg:w-40 h-auto"
@@ -140,7 +139,7 @@ function RegisterPage() {
             <span className="font-semibold text-black">ชื่อ-นามสกุล</span>
           </label>
           <input
-            id="reg-name"
+            id="reg-input-name"
             type="text"
             placeholder="ชื่อ-นามสกุล"
             className={`input input-bordered w-full bg-white text-black border-gray-300 ${
@@ -162,7 +161,7 @@ function RegisterPage() {
             <span className="font-semibold text-black">อีเมล</span>
           </label>
           <input
-            id="reg-email"
+            id="reg-input-email"
             type="email"
             placeholder="example@gmail.com"
             className={`input input-bordered w-full bg-white text-black border-gray-300 ${
@@ -186,7 +185,7 @@ function RegisterPage() {
             <span className="font-semibold text-black">เบอร์โทร</span>
           </label>
           <input
-            id="reg-phone"
+            id="reg-input-phone"
             type="text"
             placeholder="เบอร์โทร"
             className={`input input-bordered w-full bg-white text-black border-gray-300 ${
@@ -211,7 +210,7 @@ function RegisterPage() {
           </label>
           <div className="relative">
             <input
-              id="reg-password"
+              id="reg-input-password"
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
               className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
@@ -220,7 +219,7 @@ function RegisterPage() {
                   : ""
               }`}
               {...formik.getFieldProps("password")}
-              data-testid="reg-input-password"
+              data-test="reg-input-password"
             />
             <button
               type="button"
@@ -254,9 +253,10 @@ function RegisterPage() {
                   : ""
               }`}
               {...formik.getFieldProps("confirmPassword")}
-              data-testid="reg-input-confirm"
+              data-test="reg-input-confirm"
             />
             <button
+              data-test="btn-show-confirm"
               type="button"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
