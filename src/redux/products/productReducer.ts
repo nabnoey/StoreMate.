@@ -101,8 +101,8 @@ const productsSlice = createSlice({
 
    builder.addCase(search.fulfilled,(state,action) => {
      console.log("RESULT:", action.payload.data)
-     state.search = action.meta.arg
-    state.searchResult = action.payload.data 
+     state.search = action.meta.arg //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
+    state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
 
     
     

@@ -3,7 +3,9 @@ import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import type { AppDispatch } from "../../redux/store";
+import { useSelector,useDispatch } from "react-redux";
+import {search} from "../../redux/products/productReducer";
 
 import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
@@ -11,13 +13,24 @@ import logo from "../../assets/logo.png";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>()
+
+  
+const searchResult = useSelector(
+  (state: RootState) => state.products.searchResult
+)
 
 
 
 const [inputValue, setInputValue] = useState("")
 
 const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setInputValue(e.target.value)
+  const value = e.target.value
+  setInputValue(value)
+
+  if (value.trim() !== "") {
+    dispatch(search(value))
+  }
 }
 
 const handleSubmitSearch = () => {
@@ -30,14 +43,6 @@ const handleSubmitSearch = () => {
 
 }
 
-
-// search
-const keyword = useSelector(
-  (state: RootState) => state.products.search
-)
-  const searchResult = useSelector(
-  (state: RootState) => state.products.searchResult
-)
 
 
 
@@ -118,26 +123,25 @@ const keyword = useSelector(
   className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
   autoFocus
 />
+{inputValue && searchResult.length > 0 && (
+  <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
+    {searchResult.map((product) => (
+      <div
+        key={product.id}
+        className="p-3 hover:bg-gray-100 cursor-pointer"
+        onClick={() => {
+          navigate(`/product/${product.id}`)
+          setOpenSearch(false)
+          setInputValue("")
+        }}
+      >
+        {product.productName}
+      </div>
+    ))}
+  </div>
+)}
 
-      {keyword && searchResult.length > 0 && (
- 
-        <div className="absolute right-0 mt-3 text-black w-64 bg-white shadow-lg rounded-md z-50 divide-y max-h-60 overflow-y-auto">
-
-          {searchResult.map((product) => (
-            <div
-              key={product.id}
-              className="p-3 hover:bg-gray-100 cursor-pointer "
-              onClick={() => {
-                navigate(`/product/${product.id}`)
-                setOpenSearch(false)
-              }}
-            >
-              {product.productName}
-            </div>
-          ))}
-
-        </div>
-      )}
+    
 
     </>
   )}
