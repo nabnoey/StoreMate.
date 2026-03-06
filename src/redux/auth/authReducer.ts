@@ -1,49 +1,77 @@
-import { LOGIN, LOGOUT, UPDATE_PROFILE } from "./actionTypes";
-// ✅ Import Action types ต้องมี type
-import type { LoginAction, LogoutAction, UpdateProfileAction } from "./authAction";
-// ✅ Import State types (AuthState) ต้องมี type แต่ค่า (authInitialState) ไม่ต้องมี
-import { authInitialState, type AuthState } from "./authInitalState"; 
-import type { UnknownAction } from "redux";
-// รวม Type Action ในไฟล์นี้ (หรือ import AuthAction มาใช้ก็ได้)
-type AuthAction = LoginAction | LogoutAction | UpdateProfileAction;
+import {createSlice, createAsyncThunk} from "@reduxjs/toolkit"
+import type {LoginDTO, User} from "../../types/user"
+import { AuthService} from '../../services/auth.service'
 
-const authReducer = (
-  state = authInitialState,
-  action: AuthAction | UnknownAction
-): AuthState => { // ระบุ Return Type ให้ชัดเจน
-  switch (action.type) {
-    case LOGIN:
-      return {
-        ...state,
-        token: (action as LoginAction).payload.token,
-        isAuthenticated: true,
-      };
 
-    case LOGOUT:
-      return {
-        ...state,
-        token: "",
-        isAuthenticated: false,
-      };
+interface AuthState {
+  isLoading: boolean;
+  error:string | null;
+  token: string | null;
+  user: User | null;
+  isAuthenticated: boolean;
+}
 
-    case UPDATE_PROFILE:{
-      // แปลง action เป็น UpdateProfileAction เพื่อดึง payload
-      const updatePayload = (action as UpdateProfileAction).payload;
-      
-      return {
-        ...state,
-        user: {
-          ...state.user,     // 1. กางข้อมูล User เก่าออกมาก่อน
-          ...updatePayload,  // 2. เอาข้อมูลใหม่ทับลงไป
-        },
-      };
+
+const initialState: AuthState = {
+  isLoading: false,
+  error: null,
+  token: null,
+  user: null,
+  isAuthenticated: false
+}
+export const Login =createAsyncThunk(
+  'auth/login',
+  async (data: LoginDTO , { rejectWithValue }) => {
+    try {
+      const response = await AuthService.loginService(data);
+      return response; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Login failed');
     }
-      
-
-    default:
-      return state;
   }
+);
 
-};
+const AuthSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
 
-export default authReducer;
+    logout: (state) => {
+      state.token = null;
+      state.user = null; 
+      state.isAuthenticated = false;
+      state.error = null;
+
+      localStorage.removeItem("auth")
+      sessionStorage.removeItem("auth")
+    },
+
+    setAuth: (state, action) => {
+      state.token = action.payload.token;
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(Login.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(Login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+
+      })
+      .addCase(Login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+       },
+});
+
+export const { logout, setAuth } = AuthSlice.actions;
+export default AuthSlice.reducer;
