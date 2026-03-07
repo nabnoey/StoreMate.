@@ -19,16 +19,10 @@ const UserProfile: React.FC = () => {
       confirmButtonText: "ออกจากระบบ",
       cancelButtonText: "ยกเลิก",
       confirmButtonColor: "#d33",
-
-      
     });
-    
-
-
 
     if (result.isConfirmed) {
-    //  TokenService.removeToken();
-    //   dispatch(logout());
+
 
       Swal.fire({
          title: "ออกจากระบบสำเร็จ",
@@ -46,7 +40,6 @@ const UserProfile: React.FC = () => {
 
   return (
     <div className="dropdown dropdown-end" id="user-profile-dropdown">
-      {/* 1. ปุ่มกดเปิด Dropdown */}
       <label 
         id="user-avatar-button"
         tabIndex={0} 

@@ -55,27 +55,29 @@ const ProductDetailPage: React.FC = () => {
   const handleIncrease = () => { if (buyQuantity < currentStock) setBuyQuantity(prev => prev + 1); };
   const handleDecrease = () => { if (buyQuantity > 1) setBuyQuantity(prev => prev - 1); };
 
-  const handleAddToCart = async (shouldRedirect = false) => {
-    if (!productDetail) return;
-    
-    const cartItemPayload = {
-      productId: productDetail.id,
-      quantity: buyQuantity, 
-    };
-
-    try {
-      await dispatch(addToCartThunk(cartItemPayload as any)).unwrap();
-      
-      toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
-      setBuyQuantity(1);
-
-      if (shouldRedirect) {
-        navigate('/cart');
-      }
-    } catch (error: any) {
-      toast.error(error?.message || "ไม่สามารถเพิ่มสินค้าได้");
-    }
+const handleAddToCart = async (shouldRedirect = false) => {
+  if (!productDetail) return;
+  
+  const cartItemPayload = {
+    ...productDetail,          
+    productId: productDetail.id, 
+    quantity: buyQuantity,       
+    imageUrl: activeImage       
   };
+
+  try {
+    await dispatch(addToCartThunk(cartItemPayload as any)).unwrap();
+    
+    toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
+    setBuyQuantity(1);
+
+    if (shouldRedirect) {
+      navigate('/cart');
+    }
+  } catch (error: any) {
+    toast.error(error?.message || "ไม่สามารถเพิ่มสินค้าได้");
+  }
+};
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return ""; 

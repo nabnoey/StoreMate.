@@ -5,6 +5,11 @@ export interface User {
   phone: string
   password: string
   accessToken: string
+
+  // firstName?: string 
+  // lastName?: string
+  image?: string
+  // joinDate?: string
 }
 
 // ข้อมูลสำหรับ backend ตอน register
