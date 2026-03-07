@@ -86,10 +86,12 @@ const totalItems = cartItems.reduce(
       {/* MENU DESKTOP */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
         <ul className="menu menu-horizontal gap-7 text-[15px]">
-          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="product-link">สินค้า</a></li>
+
+          <li><a className="hover:text-indigo-600 cursor-pointer" data-test="product-link" onClick={()=>navigate("/search")}>สินค้า</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer" data-test="promotion-link">โปรโมชั่น</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer" data-test="about-link">เกี่ยวกับร้าน</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer" data-test="contact-link">ติดต่อ</a></li>
+
         </ul>
       </div>
 
