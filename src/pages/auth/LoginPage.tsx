@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { login } from "../../redux/auth/action";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-import { loginService } from "../../services/auth.service";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
@@ -12,13 +10,21 @@ import { Eye, EyeOff } from "lucide-react";
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
-function LoginPage() {
+//redux & action
+import type { AppDispatch} from '../../redux/store';
+import { Login } from './../../redux/auth/authReducer';
+
+
+const LoginPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>(); 
+  const navigate = useNavigate();
+
+
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -43,6 +49,8 @@ function LoginPage() {
       password: "",
     },
     validationSchema: validationSchema,
+
+
     onSubmit: async (values) => {
       setLoading(true);
       
@@ -55,17 +63,9 @@ function LoginPage() {
           Swal.showLoading();
         },
       });
-      // ------------------------------------
-
+      
       try {
-        const authData = await loginService(values);
-
-        dispatch(
-          login({
-            token: authData.token,
-            isAuthenticated: true,
-          })
-        );
+        const authData = await dispatch(Login(values)).unwrap();
 
         if (rememberMe) {
           localStorage.setItem("auth", JSON.stringify(authData));
@@ -82,14 +82,13 @@ function LoginPage() {
         });
 
         navigate("/");
-      } catch (err) {
-        const error = err as AxiosError<{ message: string }>;
+      } catch (error : any) {
         
         // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
           title: "เข้าสู่ระบบไม่สำเร็จ", 
-          text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          text: error?.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
@@ -97,6 +96,7 @@ function LoginPage() {
       }
     },
   });
+
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24">
