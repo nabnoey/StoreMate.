@@ -4,6 +4,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ProductService } from "../../services/product.service";
 
 
+
 type ProductState = {
   items: Product[]
   groupedProducts: CategoryGroup[]
@@ -89,18 +90,20 @@ const productsSlice = createSlice({
 
   extraReducers: (builder) => {
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
- console.log("DATA:", action.payload);
+ 
     const groupedArray = Object.keys(action.payload).map((key) => ({
       categoryName: key,
       products: action.payload[key]
     }));
     
     state.groupedProducts = groupedArray;
+    state.items = groupedArray.flatMap((group) => group.products); 
+   
 
   });
 
    builder.addCase(search.fulfilled,(state,action) => {
-     console.log("RESULT:", action.payload.data)
+  
      state.search = action.meta.arg //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
     state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
 

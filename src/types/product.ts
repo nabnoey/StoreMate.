@@ -7,6 +7,8 @@ id: number
   categoryId: number
   quantity:number,
   price: number
+categoryName: string
+ 
   summary: string
   status: string
    stockQuantity: number
