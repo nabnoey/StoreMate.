@@ -6,7 +6,7 @@ import { TokenService } from "./token.service"
 // =========================
 // 📌 Register
 // =========================
-export const registerService = async (data: RegisterDTO) => {
+const registerService = async (data: RegisterDTO) => {
   const res = await api.post(
     `${import.meta.env.VITE_AUTH_API}/register`,
     data
@@ -18,7 +18,7 @@ export const registerService = async (data: RegisterDTO) => {
 // =========================
 // 📌 Login
 // =========================
-export const loginService = async (data: LoginDTO) => {
+const loginService = async (data: LoginDTO) => {
   const res = await api.post<AuthUser>(
     `${import.meta.env.VITE_AUTH_API}/login`,
     data
@@ -33,17 +33,25 @@ export const loginService = async (data: LoginDTO) => {
 }
 
 //มันใช้ query string เพราะว่าใน backend รับ email ผ่าน query string
-export const forgotPasswordService = async (email:string) => {
+const forgotPasswordService = async (email:string) => {
 const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/forgot-password?email=${email}`)
 return res.data
 }
 
-export const resetPasswordService = async (token:string,password:string, confirmPassword: string)=>{
+const resetPasswordService = async (token:string,password:string, confirmPassword: string)=>{
   const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/reset-password?token=${token}`,{token,password, confirmPassword})
   return res.data
 }
 
-export const changePasswordService = async (oldPassword:string, newPassword:string, confirmPassword:string) => {
+const changePasswordService = async (oldPassword:string, newPassword:string, confirmPassword:string) => {
   const res = await api.post<AuthUser>(`${import.meta.env.VITE_AUTH_API}/change-password`,{oldPassword, newPassword, confirmPassword})
   return res.data
+}
+
+export const AuthService = {
+    registerService,
+    loginService,
+    forgotPasswordService,
+    resetPasswordService,
+    changePasswordService
 }

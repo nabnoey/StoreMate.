@@ -62,6 +62,7 @@ const productsSlice = createSlice({
       };
       state.items.unshift(newProduct);
     },
+
     addQuantity: (state, action: PayloadAction<number>) => {
       const product = state.items.find(p => p.id === action.payload);
       if (product) {
@@ -90,13 +91,10 @@ const productsSlice = createSlice({
     },
   },
 
+  // แก้ไข extraReducers ตรงนี้ครับ (แยก addCase แต่ละอันออกจากกันให้ชัดเจน)
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProducts.pending, (state) => {
-        state.isLoading = true;
-      })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.isLoading = false;
         const groupedArray = Object.keys(action.payload).map((key) => ({
           categoryName: key,
           products: action.payload[key]
@@ -104,20 +102,17 @@ const productsSlice = createSlice({
         state.groupedProducts = groupedArray;
         state.items = groupedArray.flatMap((group) => group.products); 
       })
-      .addCase(fetchProducts.rejected, (state) => {
-        state.isLoading = false;
-      })
-
+      
       .addCase(search.fulfilled, (state, action) => {
-        state.search = action.meta.arg
-        state.searchResult = action.payload.data
+        state.search = action.meta.arg; // คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
+        state.searchResult = action.payload.data; // รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
       })
 
       .addCase(fetchSearchSuggestion.fulfilled, (state, action) => {
-        state.searchSuggestion = action.payload
+        state.searchSuggestion = action.payload;
       });
-  }
-});
+  } 
+}); 
 
 export const {
   addProduct,

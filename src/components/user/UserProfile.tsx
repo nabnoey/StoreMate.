@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa6";
-import { logout } from "../../redux/auth/action";
+import { logout } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
 import Swal from "sweetalert2";
 

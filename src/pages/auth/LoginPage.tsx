@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login } from "../../redux/auth/action";
-import { AxiosError } from "axios";
-import Swal from "sweetalert2";
-import { loginService } from "../../services/auth.service";
+import { Login } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
+import type { AppDispatch } from "../../redux/store";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -18,7 +17,7 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useDispatch();
+ const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const validationSchema = Yup.object({
@@ -44,10 +43,9 @@ function LoginPage() {
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: async (values) => {
+   onSubmit: async (values) => {
       setLoading(true);
       
-      // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
       Swal.fire({
         title: "กำลังเข้าสู่ระบบ...",
         text: "กรุณารอสักครู่",
@@ -56,23 +54,16 @@ function LoginPage() {
           Swal.showLoading();
         },
       });
-      // ------------------------------------
-try {
-  const authData = await loginService(values);
 
-  TokenService.setToken(authData.token);
+      try {
+    
+        const authData = await dispatch(Login(values)).unwrap();
 
-  dispatch(login({
-    token: authData.token,
-    isAuthenticated: true,
-  }));
+        TokenService.setToken(authData.token);
 
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("auth", JSON.stringify(authData));
 
-  const storage = rememberMe ? localStorage : sessionStorage;
-  storage.setItem("auth", JSON.stringify(authData));
-
-
-        // Swal Success จะทับ Loading ตัวเดิม
         await Swal.fire({
           icon: "success",
           title: "เข้าสู่ระบบสำเร็จ",
@@ -81,14 +72,11 @@ try {
         });
 
         navigate("/");
-      } catch (err) {
-        const error = err as AxiosError<{ message: string }>;
-        
-        // Swal Error จะทับ Loading ตัวเดิม
+      } catch (err: any) {
         Swal.fire({
           icon: "error",
           title: "เข้าสู่ระบบไม่สำเร็จ", 
-          text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          text: err.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
