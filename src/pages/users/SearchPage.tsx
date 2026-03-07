@@ -9,13 +9,15 @@ import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
-   const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
   const keyword = searchParams.get("keyword") || "";
+  const items = useSelector((state: RootState) => state.products.items);
 
-    const searchResult = useSelector((state: RootState) => state.products.searchResult);
-    const items = useSelector((state: RootState) => state.products.items);
-   const products = keyword ? searchResult : items;
-
+  const products = keyword
+    ? items.filter((p) =>
+        p.productName?.toLowerCase().includes(keyword.toLowerCase()),
+      )
+    : items;
   const [selectedCategory, setSelectedCategory] = useState<string | "all">(
     "all",
   );
@@ -32,8 +34,6 @@ const SearchPage = () => {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-
-
 
   useEffect(() => {
     if (keyword.trim() !== "") {
@@ -58,14 +58,14 @@ const SearchPage = () => {
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-  const value = inputValue.trim();
+      const value = inputValue.trim();
 
-  if (value) {
-    navigate(`/search?keyword=${encodeURIComponent(value)}`);
-  } else {
-    navigate("/search");
-  }
-}
+      if (value) {
+        navigate(`/search?keyword=${encodeURIComponent(value)}`);
+      } else {
+        navigate("/search");
+      }
+    }
   };
 
   return (
