@@ -102,6 +102,7 @@ const productsSlice = createSlice({
           products: action.payload[key]
         }));
         state.groupedProducts = groupedArray;
+        state.items = groupedArray.flatMap((group) => group.products); 
       })
       .addCase(fetchProducts.rejected, (state) => {
         state.isLoading = false;
