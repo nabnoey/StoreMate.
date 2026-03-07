@@ -9,7 +9,16 @@ import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
+   const dispatch = useDispatch<AppDispatch>();
   const keyword = searchParams.get("keyword") || "";
+
+    const searchResult = useSelector((state: RootState) => state.products.searchResult);
+    const items = useSelector((state: RootState) => state.products.items);
+   const products = keyword ? searchResult : items;
+
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
+    "all",
+  );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -20,16 +29,11 @@ const SearchPage = () => {
     setMaxPrice("");
   };
 
-  const dispatch = useDispatch<AppDispatch>();
-
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  const searchResult = useSelector((state: RootState) => state.products.items);
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
-    "all",
-  );
+
 
   useEffect(() => {
     if (keyword.trim() !== "") {
@@ -37,7 +41,7 @@ const SearchPage = () => {
     }
   }, [keyword, dispatch]);
 
-  const displayProducts = searchResult.filter((p) => {
+  const displayProducts = products.filter((p) => {
     const matchCategory =
       selectedCategory === "all" ||
       p.categoryName?.toLowerCase() === selectedCategory;
@@ -53,13 +57,19 @@ const SearchPage = () => {
   const navigate = useNavigate();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      navigate(`/search?keyword=${encodeURIComponent(inputValue)}`);
-    }
+    if (e.key === "Enter") {
+  const value = inputValue.trim();
+
+  if (value) {
+    navigate(`/search?keyword=${encodeURIComponent(value)}`);
+  } else {
+    navigate("/search");
+  }
+}
   };
 
   return (
-    <div className="w-full mt-10 px-4 md:px-10 lg:px-20 gap-8 flex flex-col lg:flex-row">
+    <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
       <div className="w-full lg:w-[320px] pt-6 lg:pt-16">
         <div className="relative w-full">
           <GoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -166,14 +176,15 @@ const SearchPage = () => {
 
         <div className="border-b border-gray-300 my-4"></div>
 
-        <div className="flex items-center gap-3 mt-5 text-black">
+        <p className="text-[16px] text-black">ช่วงราคา (฿)</p>
+        <div className="flex items-center gap-3 mt-1 text-black">
           <input
             data-test="input-min-price"
             type="number"
             placeholder="฿"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
+            className="w-full max-w-[120px] border border-gray-300 rounded p-2  text-black"
           />
           <span className="text-lg py-1">—</span>
           <input
@@ -187,21 +198,21 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="px-10 lg:px-20">
-        <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center w-full border border-gray-300 mt-16 rounded-lg px-4 py-3 bg-gray-50 text-[16px]">
+      <div className="flex-1 px-5 py-15 md:py lg:mt-0">
+        <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {displayProducts.length} รายการ</p>
 
-          <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 flex items-center justify-center">
+          <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
             เรียงโดย
           </div>
         </div>
 
         {displayProducts.length === 0 ? (
-          <p className="text-gray-500 text-center text-[24px] ">
+          <p className="text-gray-500 text-center text-[24px] mt-10 ">
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8 ">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
             {displayProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
