@@ -97,10 +97,6 @@ const productsSlice = createSlice({
 
   extraReducers: (builder) => {
   builder.addCase(fetchProducts.fulfilled, (state, action) => {
-<<<<<<< HEAD
-=======
- 
->>>>>>> feature/redux
     const groupedArray = Object.keys(action.payload).map((key) => ({
       categoryName: key,
       products: action.payload[key]
@@ -114,14 +110,9 @@ const productsSlice = createSlice({
   });
 
    builder.addCase(search.fulfilled,(state,action) => {
-<<<<<<< HEAD
-     state.search = action.meta.arg
-    state.searchResult = action.payload.data
-=======
-  
      state.search = action.meta.arg //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
     state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
->>>>>>> feature/redux
+
 
     
     
