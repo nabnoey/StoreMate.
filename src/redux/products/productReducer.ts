@@ -1,9 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Product , CategoryGroup } from '../../types/product';;
+import type { Product, CategoryGroup } from '../../types/product';
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ProductService } from "../../services/product.service";
-
-
 
 type ProductState = {
   items: Product[]
@@ -12,32 +10,44 @@ type ProductState = {
   searchResult: Product[]
   searchSuggestion: Product[]
   categories: string[]
+  isLoading: boolean;
 }
 
-const initialState:ProductState = {
+const initialState: ProductState = {
   items: [],
-  groupedProducts:[],
-  search:"",
-   searchResult: [],
-   searchSuggestion: [], 
-   categories: []
+  groupedProducts: [],
+  search: "",
+  searchResult: [],
+  searchSuggestion: [],
+  categories: [],
+  isLoading: false
 }
-// 1. ส่วนดึงข้อมูล (เหมือนไปสั่งของจากโรงงาน/API)
+
+const updateStockInGrouped = (state: ProductState, id: number, change: number) => {
+  state.groupedProducts.forEach(group => {
+    const product = group.products.find(p => Number(p.id) === Number(id));
+    if (product) {
+      const newStock = product.stockQuantity + change;
+      product.stockQuantity = newStock < 0 ? 0 : newStock;
+    }
+  });
+};
+
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
   const response = await ProductService.getAllCategories();
-  return response; // ข้อมูลที่ได้จะเป็น { soap: [...], drinks: [...] }
+  return response; 
 });
 
-export const search = createAsyncThunk("products/search",async(keyword:string)=>{
+export const search = createAsyncThunk("products/search", async (keyword: string) => {
   const response = await ProductService.searchProducts(keyword);
-  return response
+  return response;
 })
 
 export const fetchSearchSuggestion = createAsyncThunk(
   "products/fetchSearchSuggestion",
   async (keyword: string) => {
     const response = await ProductService.searchProducts(keyword)
-    return response.slice(0, 5) 
+    return response.slice(0, 5)
   }
 )
 
@@ -45,37 +55,30 @@ const productsSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-
-   
-
-    // เพิ่มสินค้าใหม่
-  addProduct: (state, action: PayloadAction<Product>) => {
-    const newProduct = {
-      ...action.payload,
-      id: Date.now() 
-    };
-    state.items.unshift(newProduct);
-  },
-
-    // เพิ่มจำนวนสินค้าตอนกด +
-    addQuantity: (state, action: PayloadAction<number>) => {
-      const product = state.items.find(p => p.id === action.payload);
-      if (product && product.stockQuantity < 10) {
-        product.stockQuantity += 1;
-      }
+    addProduct: (state, action: PayloadAction<Product>) => {
+      const newProduct = {
+        ...action.payload,
+        id: Date.now()
+      };
+      state.items.unshift(newProduct);
     },
 
-    // ลดจำนวนสินค้า 
+    addQuantity: (state, action: PayloadAction<number>) => {
+      const product = state.items.find(p => p.id === action.payload);
+      if (product) {
+        product.stockQuantity += 1;
+      }
+      updateStockInGrouped(state, action.payload, 1);
+    },
+
     removeQuantity: (state, action: PayloadAction<number>) => {
       const product = state.items.find(p => p.id === action.payload);
       if (product && product.stockQuantity > 0) {
         product.stockQuantity -= 1;
       }
+      updateStockInGrouped(state, action.payload, -1);
     },
 
-
-
-    // คืนของเข้าสต็อก (ตอนลบจาก cart)
     returnQuantity: (
       state,
       action: PayloadAction<{ id: number; quantity: number }>
@@ -84,50 +87,32 @@ const productsSlice = createSlice({
       if (product) {
         product.stockQuantity += action.payload.quantity;
       }
+      updateStockInGrouped(state, action.payload.id, action.payload.quantity);
     },
-
-
-
-
-    
-    
   },
 
-  
-
+  // แก้ไข extraReducers ตรงนี้ครับ (แยก addCase แต่ละอันออกจากกันให้ชัดเจน)
   extraReducers: (builder) => {
-  builder.addCase(fetchProducts.fulfilled, (state, action) => {
-    const groupedArray = Object.keys(action.payload).map((key) => ({
-      categoryName: key,
-      products: action.payload[key]
-    }));
-    
-    
-    state.groupedProducts = groupedArray;
-    state.items = groupedArray.flatMap((group) => group.products); 
-   
+    builder
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        const groupedArray = Object.keys(action.payload).map((key) => ({
+          categoryName: key,
+          products: action.payload[key]
+        }));
+        state.groupedProducts = groupedArray;
+        state.items = groupedArray.flatMap((group) => group.products); 
+      })
+      
+      .addCase(search.fulfilled, (state, action) => {
+        state.search = action.meta.arg; // คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
+        state.searchResult = action.payload.data; // รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
+      })
 
-  });
-
-   builder.addCase(search.fulfilled,(state,action) => {
-     state.search = action.meta.arg //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
-    state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
-
-
-    
-    
-  })
-
-  builder.addCase(fetchSearchSuggestion.fulfilled, (state,action)=> {
-    state.searchSuggestion = action.payload
-  })
-  
-}
-});
-
-
-
-
+      .addCase(fetchSearchSuggestion.fulfilled, (state, action) => {
+        state.searchSuggestion = action.payload;
+      });
+  } 
+}); 
 
 export const {
   addProduct,

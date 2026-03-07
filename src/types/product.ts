@@ -15,8 +15,6 @@ categoryName: string
 }
 
 export interface CategoryGroup {
-
-
   categoryName: string;
   products: Product[];
 }

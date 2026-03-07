@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { AxiosError } from "axios";
+import { Login } from "../../redux/auth/authReducer";
+import { TokenService } from "../../services/token.service";
+import type { AppDispatch } from "../../redux/store";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
@@ -10,21 +12,13 @@ import { Eye, EyeOff } from "lucide-react";
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
-//redux & action
-import type { AppDispatch} from '../../redux/store';
-import { Login } from './../../redux/auth/authReducer';
-
-
-const LoginPage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>(); 
-  const navigate = useNavigate();
-
-
+function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-
+ const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -49,12 +43,9 @@ const LoginPage: React.FC = () => {
       password: "",
     },
     validationSchema: validationSchema,
-
-
-    onSubmit: async (values) => {
+   onSubmit: async (values) => {
       setLoading(true);
       
-      // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
       Swal.fire({
         title: "กำลังเข้าสู่ระบบ...",
         text: "กรุณารอสักครู่",
@@ -63,17 +54,16 @@ const LoginPage: React.FC = () => {
           Swal.showLoading();
         },
       });
-      
+
       try {
+    
         const authData = await dispatch(Login(values)).unwrap();
 
-        if (rememberMe) {
-          localStorage.setItem("auth", JSON.stringify(authData));
-        } else {
-          sessionStorage.setItem("auth", JSON.stringify(authData));
-        }
+        TokenService.setToken(authData.token);
 
-        // Swal Success จะทับ Loading ตัวเดิม
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("auth", JSON.stringify(authData));
+
         await Swal.fire({
           icon: "success",
           title: "เข้าสู่ระบบสำเร็จ",
@@ -82,13 +72,11 @@ const LoginPage: React.FC = () => {
         });
 
         navigate("/");
-      } catch (error : any) {
-        
-        // Swal Error จะทับ Loading ตัวเดิม
+      } catch (err: any) {
         Swal.fire({
           icon: "error",
           title: "เข้าสู่ระบบไม่สำเร็จ", 
-          text: error?.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          text: err.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
@@ -96,7 +84,6 @@ const LoginPage: React.FC = () => {
       }
     },
   });
-
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24">

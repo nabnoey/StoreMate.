@@ -1,11 +1,7 @@
-
-import type { Product } from "../../types/product"
-import { useDispatch } from "react-redux"
-import type { AppDispatch } from "../../redux/store"
-import { addToCart } from "../../redux/carts/CartReducer"
-import { removeQuantity } from "../../redux/products/productReducer"
-import { MdAddShoppingCart } from "react-icons/md";
 import { Link } from "react-router-dom";
+import type { Product } from "../../types/product"
+
+
 
 
 type Props = {
@@ -13,17 +9,9 @@ type Props = {
 };
 
 function ProductCard({ product }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const handleAddToCart = () => {
-    dispatch(addToCart(product))
-       dispatch(removeQuantity(product.id))
-  }
-
 
   return (
-    <div className="card  bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
-
+    <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
       <Link to={`/product/${product.id}`} className="block group" data-test="product-card">
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
           <img
@@ -40,7 +28,6 @@ function ProductCard({ product }: Props) {
             >
               {product.productName}
             </h2>
-
             <p className="text-sm text-gray-500 line-clamp-2 mt-2">
               {product.summary}
             </p>
@@ -50,18 +37,11 @@ function ProductCard({ product }: Props) {
 
       <div className="px-4 pb-4 mt-auto">
         <div className="flex justify-between items-center">
-          <p className="font-extrabold text-lg text-[#D4AF37]">
+          <p className="font-extrabold text-lg text-blue-500">
             ฿{product.price}
           </p>
 
-          <button
-          data-test="add-to-cart"
-            onClick={handleAddToCart}
-            disabled={product.stockQuantity === 0}
-            className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center border border-[#E5E7EB] shadow-sm hover:bg-gray-100 hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <MdAddShoppingCart className="text-xl" />
-          </button>
+         
         </div>
       </div>
     </div>
