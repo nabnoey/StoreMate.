@@ -83,7 +83,7 @@ const handleSubmitSearch = () => {
       {/* MENU DESKTOP */}
       <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
         <ul className="menu menu-horizontal gap-7 text-[15px]">
-          <li><a className="hover:text-indigo-600 cursor-pointer">สินค้า</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
