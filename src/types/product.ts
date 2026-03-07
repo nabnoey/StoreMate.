@@ -13,8 +13,6 @@ id: number
 }
 
 export interface CategoryGroup {
-
-
   categoryName: string;
   products: Product[];
 }

@@ -53,11 +53,13 @@ const handleSubmitSearch = () => {
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
-  const cartItems = useSelector((state: RootState) => state.carts);
-  const totalItems = cartItems.reduce(
-    (total: number, item: { stockQuantity: number }) => total + item.stockQuantity,
-    0
-  );
+const cartItems = useSelector((state: RootState) => state.carts.items); 
+
+
+const totalItems = cartItems.reduce(
+  (total: number, item: { quantity: number }) => total + item.quantity,
+  0
+);
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
@@ -157,13 +159,14 @@ const handleSubmitSearch = () => {
             <div className="flex gap-4 items-center mr-2 text-gray-600">
 
               {/* CART */}
-              <div className="relative cursor-pointer">
+             <div 
+                className="relative cursor-pointer p-1" 
+                onClick={() => navigate("/shopping-cart")}
+              >
                 <FaCartShopping
                   size={22}
                   data-test="cart-shopping"
                   className="hover:text-black"
-                  onClick={() => navigate("/shopping-cart")}
-
                 />
 
                 {totalItems > 0 && (

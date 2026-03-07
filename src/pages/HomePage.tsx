@@ -6,7 +6,6 @@ import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
 
-// เพิ่ม id ให้กับ element ย่อยใน SectionHeader โดยอิงจาก props testId
 const SectionHeader = ({ title, subTitle }: { title: string; subTitle: string;  }) => (
   <div  className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-16 gap-4">
     <div>
@@ -23,7 +22,7 @@ const SectionHeader = ({ title, subTitle }: { title: string; subTitle: string;  
     </div>
 
     <button
-      className="flex items-center gap-2 text-[#D4AF37] transition-all group shrink-0 self-start md:self-auto"
+      className="flex items-center gap-2 text-blue-500 transition-all group shrink-0 self-start md:self-auto"
       data-test="btn-see-all"
     >
       <span className="text-[14px] md:text-[16px] font-semibold">
@@ -107,8 +106,6 @@ function HomePage() {
                 (group) =>
                   group.categoryName.toLowerCase() === "promotion" &&
                   group.products.map((product) => (
-                    // แนะนำให้ส่ง prop id เข้าไปใน ProductCard ด้วย (ถ้าแก้ไฟล์นั้นได้)
-                    // เช่น id={`product-card-${product.id}`}
                     <ProductCard key={product.id} product={product} />
                   ))
               )}

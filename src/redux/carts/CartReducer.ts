@@ -1,48 +1,89 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Product } from '../../types/product';
-import { initialState } from "./initailState";
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { CartItem } from '../../types/cartItem';
+import { CartItemService } from '../../services/cartitem.service'; 
 
-type CartItem = Product & { stockQuantity: number };
+const saveToStorage = (items: any[]) => localStorage.setItem('cart', JSON.stringify(items));
+const loadFromStorage = () => {
+  const data = localStorage.getItem('cart');
+  return data ? JSON.parse(data) : [];
+};
 
-const cartsSlice = createSlice({
-  name: 'carts',
-  initialState: initialState as CartItem[],
+interface CartState {
+  items: CartItem[];
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'; 
+  error: string | null;
+}
+
+const initialState: CartState = {
+  items: loadFromStorage(),
+  status: 'idle',
+  error: null,
+};
+
+export const addToCartThunk = createAsyncThunk(
+  'cart/addToCart',
+  async (itemData: CartItem, { rejectWithValue }) => {
+    try {
+      const response = await CartItemService.addToCart(itemData);
+      return response; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'เกิดข้อผิดพลาดในการเพิ่มสินค้า');
+    }
+  }
+);
+
+
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Product>) => {
-      const existingItem = state.find(item => item.id === action.payload.id);
-      if (existingItem) {
-        existingItem.stockQuantity += 1;
-      } else {
-        state.push({ ...action.payload, stockQuantity: 1 });
-      }
-    },
-
-
-    removeFromCart: (state, action: PayloadAction<number>) => {
-      const index = state.findIndex(item => item.id === action.payload);
-      if (index !== -1) {
-        state.splice(index, 1);
-      }
-    },
-
-    
     increaseQuantity: (state, action: PayloadAction<number>) => {
-      const item = state.find(item => item.id === action.payload);
+      const item = state.items.find(i => i.productId === action.payload);
       if (item) {
-        item.stockQuantity++;
+        item.quantity++;
+        saveToStorage(state.items);
       }
     },
-
-    
     decreaseQuantity: (state, action: PayloadAction<number>) => {
-      const item = state.find(item => item.id === action.payload);
-      if (item && item.stockQuantity > 1) {
-        item.stockQuantity--;
+      const item = state.items.find(i => i.productId === action.payload);
+      if (item && item.quantity > 1) {
+        item.quantity--;
+        saveToStorage(state.items);
       }
     },
+    removeFromCart: (state, action: PayloadAction<number>) => {
+      const index = state.items.findIndex(i => i.productId === action.payload);
+      if (index !== -1) {
+        state.items.splice(index, 1);
+      }
+      saveToStorage(state.items);
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(addToCartThunk.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(addToCartThunk.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const newItem = action.meta.arg; 
+        
+        const existingItem = state.items.find(i => i.productId === newItem.productId);
+        if (existingItem) {
+          existingItem.quantity += newItem.quantity;
+        } else {
+          state.items.push(newItem);
+        }
+        saveToStorage(state.items);
+      })
+      .addCase(addToCartThunk.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { addToCart, removeFromCart, increaseQuantity, decreaseQuantity } = cartsSlice.actions;
+export const { increaseQuantity, decreaseQuantity, removeFromCart } = cartSlice.actions;
 
-export default cartsSlice.reducer;
+export default cartSlice.reducer;

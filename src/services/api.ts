@@ -19,6 +19,7 @@ api.interceptors.request.use((config) => {
     !config.url?.includes("forgot-password") && !config.url?.includes("reset-password") // ไม่ต้องส่ง token ไปที่path forgot-password
   ) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log("Token sent:", token);
   }
 
   return config

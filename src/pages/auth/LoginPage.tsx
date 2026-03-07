@@ -4,6 +4,7 @@ import { login } from "../../redux/auth/action";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
 import { loginService } from "../../services/auth.service";
+import { TokenService } from "../../services/token.service";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -56,22 +57,20 @@ function LoginPage() {
         },
       });
       // ------------------------------------
+try {
+  const authData = await loginService(values);
 
-      try {
-        const authData = await loginService(values);
+  TokenService.setToken(authData.token);
 
-        dispatch(
-          login({
-            token: authData.token,
-            isAuthenticated: true,
-          })
-        );
+  dispatch(login({
+    token: authData.token,
+    isAuthenticated: true,
+  }));
 
-        if (rememberMe) {
-          localStorage.setItem("auth", JSON.stringify(authData));
-        } else {
-          sessionStorage.setItem("auth", JSON.stringify(authData));
-        }
+
+  const storage = rememberMe ? localStorage : sessionStorage;
+  storage.setItem("auth", JSON.stringify(authData));
+
 
         // Swal Success จะทับ Loading ตัวเดิม
         await Swal.fire({
