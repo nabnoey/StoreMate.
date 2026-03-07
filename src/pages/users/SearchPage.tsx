@@ -9,7 +9,16 @@ import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
+   const dispatch = useDispatch<AppDispatch>();
   const keyword = searchParams.get("keyword") || "";
+
+    const searchResult = useSelector((state: RootState) => state.products.searchResult);
+    const items = useSelector((state: RootState) => state.products.items);
+   const products = keyword ? searchResult : items;
+
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
+    "all",
+  );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -20,16 +29,11 @@ const SearchPage = () => {
     setMaxPrice("");
   };
 
-  const dispatch = useDispatch<AppDispatch>();
-
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  const searchResult = useSelector((state: RootState) => state.products.items);
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
-    "all",
-  );
+
 
   useEffect(() => {
     if (keyword.trim() !== "") {
@@ -37,7 +41,7 @@ const SearchPage = () => {
     }
   }, [keyword, dispatch]);
 
-  const displayProducts = searchResult.filter((p) => {
+  const displayProducts = products.filter((p) => {
     const matchCategory =
       selectedCategory === "all" ||
       p.categoryName?.toLowerCase() === selectedCategory;
@@ -53,9 +57,15 @@ const SearchPage = () => {
   const navigate = useNavigate();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
-      navigate(`/search?keyword=${encodeURIComponent(inputValue)}`);
-    }
+    if (e.key === "Enter") {
+  const value = inputValue.trim();
+
+  if (value) {
+    navigate(`/search?keyword=${encodeURIComponent(value)}`);
+  } else {
+    navigate("/search");
+  }
+}
   };
 
   return (
