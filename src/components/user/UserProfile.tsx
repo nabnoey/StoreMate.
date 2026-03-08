@@ -1,12 +1,13 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa6";
-import { logout } from "../../redux/auth/action";
+import { logout } from "../../redux/auth/authReducer";
+import type { AppDispatch } from "../../redux/store";
 import { TokenService } from "../../services/token.service";
 import Swal from "sweetalert2";
 
 const UserProfile: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const handleLogout = async () => {

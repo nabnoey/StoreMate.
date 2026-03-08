@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login } from "../../redux/auth/action";
+import type { AppDispatch } from "../../redux/store";
 import { AxiosError } from "axios";
 import Swal from "sweetalert2";
 import { loginService } from "../../services/auth.service";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
+import { login } from "../../redux/auth/authReducer";
 
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
@@ -17,7 +18,7 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const validationSchema = Yup.object({
@@ -33,7 +34,7 @@ function LoginPage() {
       .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น"
+        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
       ),
   });
 
@@ -45,7 +46,7 @@ function LoginPage() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      
+
       // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
       Swal.fire({
         title: "กำลังเข้าสู่ระบบ...",
@@ -58,13 +59,16 @@ function LoginPage() {
       // ------------------------------------
 
       try {
-        const authData = await loginService(values);
+        const authData = await loginService({
+          ...values,
+          email: values.email.toLowerCase(),
+        });
 
         dispatch(
-          login({
-            token: authData.token,
-            isAuthenticated: true,
-          })
+           login({
+    email: values.email,
+    password: values.password
+  })
         );
 
         if (rememberMe) {
@@ -84,16 +88,16 @@ function LoginPage() {
         navigate("/");
       } catch (err) {
         const error = err as AxiosError<{ message: string }>;
-        
+
         // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
-          title: "เข้าสู่ระบบไม่สำเร็จ", 
+          title: "เข้าสู่ระบบไม่สำเร็จ",
           text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     },
   });

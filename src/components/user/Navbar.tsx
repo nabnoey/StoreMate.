@@ -67,14 +67,14 @@ const handleSubmitSearch = () => {
 
   return (
 
-    <nav className="navbar bg-white shadow-sm h-[50px] lg:h-[101px] px-4 lg:px-10 relative">
+    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
 
 
       {/* LOGO */}
       <div className="navbar-start">
         <img
           src={logo}
-          className="w-27 lg:w-38 cursor-pointer mt-6"
+          className="w-27 lg:w-38 cursor-pointer mt-5"
           onClick={() => navigate("/")}
           alt="Logo"
         />
@@ -120,7 +120,7 @@ const handleSubmitSearch = () => {
       handleSubmitSearch()
     }
   }}
-  className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
+  className="absolute  right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
   autoFocus
 />
 {inputValue && searchResult.length > 0 && (
@@ -151,7 +151,7 @@ const handleSubmitSearch = () => {
         {/* LOGIN แล้ว */}
         {isAuthenticated ? (
           <>
-            <div className="flex gap-4 items-center mr-2 text-gray-600">
+            <div className="hidden lg:flex gap-4 items-center mr-2 text-gray-600">
 
               {/* CART */}
               <div className="relative cursor-pointer">

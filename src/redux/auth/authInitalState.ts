@@ -16,10 +16,16 @@ export interface AuthState {
   user: Profile; // มีข้อมูล User เสมอ (ตาม InitialState)
 }
 
+const auth =
+  localStorage.getItem("auth") ||
+  sessionStorage.getItem("auth");
+
+const authData = auth ? JSON.parse(auth) : null;
+
 // 3. ค่าเริ่มต้น
 export const authInitialState: AuthState = {
-  token: "",
-  isAuthenticated: false,
+token: authData?.token || "",
+isAuthenticated: authData ? true : false,
   user: {
     firstName: "บุญรักษา",
     lastName: "วินานนท์",

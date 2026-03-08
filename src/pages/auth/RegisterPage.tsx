@@ -25,8 +25,7 @@ function RegisterPage() {
       .email("รูปแบบอีเมลไม่ถูกต้อง")
       .required("กรุณากรอกอีเมล"),
     phone: Yup.string()
-      .matches(/^[0-9]+$/, "กรุณากรอกเฉพาะตัวเลข")
-      .min(10, "เบอร์โทรศัพท์ต้องมีอย่างน้อย 10 หลัก")
+      .matches(/^0[0-9]{9}$/, "เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก")
       .required("กรุณากรอกเบอร์โทรศัพท์"),
     password: Yup.string()
       .min(8, "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
@@ -71,7 +70,7 @@ function RegisterPage() {
       try {
         await registerService({
           name: values.name,
-          email: values.email,
+          email: values.email.toLowerCase(),
           phone: values.phone,
           password: values.password,
           confirmPassword: values.confirmPassword,
@@ -95,7 +94,7 @@ function RegisterPage() {
         Swal.fire("สมัครสมาชิกไม่สำเร็จ", message, "error");
       } finally {
         // แก้ไขจาก true เป็น false เพื่อให้ปุ่มกลับมาทำงานได้ถ้า popup ปิด
-        setLoading(false); 
+        setLoading(false);
       }
     },
   });
@@ -143,9 +142,8 @@ function RegisterPage() {
             id="reg-name"
             type="text"
             placeholder="ชื่อ-นามสกุล"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.name && formik.errors.name ? "border-red-500" : ""
-            }`}
+            className={`input input-bordered w-full bg-white text-black border-gray-300 ${formik.touched.name && formik.errors.name ? "border-red-500" : ""
+              }`}
             {...formik.getFieldProps("name")}
             data-testid="reg-input-name"
           />
@@ -165,11 +163,10 @@ function RegisterPage() {
             id="reg-email"
             type="email"
             placeholder="example@gmail.com"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.email && formik.errors.email
+            className={`input input-bordered w-full bg-white text-black border-gray-300 ${formik.touched.email && formik.errors.email
                 ? "border-red-500"
                 : ""
-            }`}
+              }`}
             {...formik.getFieldProps("email")}
             data-testid="reg-input-email"
           />
@@ -189,11 +186,10 @@ function RegisterPage() {
             id="reg-phone"
             type="text"
             placeholder="เบอร์โทร"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.phone && formik.errors.phone
+            className={`input input-bordered w-full bg-white text-black border-gray-300 ${formik.touched.phone && formik.errors.phone
                 ? "border-red-500"
                 : ""
-            }`}
+              }`}
             {...formik.getFieldProps("phone")}
             data-testid="reg-input-phone"
           />
@@ -214,11 +210,10 @@ function RegisterPage() {
               id="reg-password"
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
-              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
-                formik.touched.password && formik.errors.password
+              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${formik.touched.password && formik.errors.password
                   ? "border-red-500"
                   : ""
-              }`}
+                }`}
               {...formik.getFieldProps("password")}
               data-testid="reg-input-password"
             />
@@ -248,11 +243,10 @@ function RegisterPage() {
               id="reg-confirm-password"
               type={showConfirmPassword ? "text" : "password"}
               placeholder="ยืนยันรหัสผ่าน"
-              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
-                formik.touched.confirmPassword && formik.errors.confirmPassword
+              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${formik.touched.confirmPassword && formik.errors.confirmPassword
                   ? "border-red-500"
                   : ""
-              }`}
+                }`}
               {...formik.getFieldProps("confirmPassword")}
               data-testid="reg-input-confirm"
             />

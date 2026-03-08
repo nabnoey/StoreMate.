@@ -1,49 +1,60 @@
-import { LOGIN, LOGOUT, UPDATE_PROFILE } from "./actionTypes";
-// ✅ Import Action types ต้องมี type
-import type { LoginAction, LogoutAction, UpdateProfileAction } from "./authAction";
-// ✅ Import State types (AuthState) ต้องมี type แต่ค่า (authInitialState) ไม่ต้องมี
-import { authInitialState, type AuthState } from "./authInitalState"; 
-import type { UnknownAction } from "redux";
-// รวม Type Action ในไฟล์นี้ (หรือ import AuthAction มาใช้ก็ได้)
-type AuthAction = LoginAction | LogoutAction | UpdateProfileAction;
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { loginService, registerService } from "../../services/auth.service"
+import { TokenService } from '../../services/token.service';
 
-const authReducer = (
-  state = authInitialState,
-  action: AuthAction | UnknownAction
-): AuthState => { // ระบุ Return Type ให้ชัดเจน
-  switch (action.type) {
-    case LOGIN:
-      return {
-        ...state,
-        token: (action as LoginAction).payload.token,
-        isAuthenticated: true,
-      };
+interface AuthState {
+  token:string
+   isAuthenticated:boolean
+  loading:boolean
+}
 
-    case LOGOUT:
-      return {
-        ...state,
-        token: "",
-        isAuthenticated: false,
-      };
+const initialState:AuthState = {
+  token:TokenService.getAccessToken() || "",
+   isAuthenticated:!!TokenService.getAccessToken(),
+  loading:false
 
-    case UPDATE_PROFILE:{
-      // แปลง action เป็น UpdateProfileAction เพื่อดึง payload
-      const updatePayload = (action as UpdateProfileAction).payload;
-      
-      return {
-        ...state,
-        user: {
-          ...state.user,     // 1. กางข้อมูล User เก่าออกมาก่อน
-          ...updatePayload,  // 2. เอาข้อมูลใหม่ทับลงไป
-        },
-      };
-    }
-      
+}
 
-    default:
-      return state;
+export const login = createAsyncThunk(
+  "auth/login",
+  async (data: { email: string; password: string }) => {
+    const response = await loginService(data);
+    return response;
   }
 
-};
+)
 
-export default authReducer;
+export const register = createAsyncThunk (
+  "auth/register",
+  async (data:any) => {
+    const response = await registerService(data);
+    return response;
+  }
+
+)
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {
+    logout: (state) => {
+      state.token = ""
+      state. isAuthenticated = false
+      TokenService.removeToken()
+    }
+  },
+
+
+ extraReducers: (builder) => {
+
+    builder.addCase(login.fulfilled, (state, action) => {
+      state.token = action.payload.token
+      state. isAuthenticated = true
+    })
+
+  }
+
+})
+
+export const { logout } = authSlice.actions
+export default authSlice.reducer
