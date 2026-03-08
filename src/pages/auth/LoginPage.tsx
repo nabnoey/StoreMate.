@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Login } from "../../redux/auth/authReducer";
-import { TokenService } from "../../services/token.service";
 import type { AppDispatch } from "../../redux/store";
+import { AxiosError } from "axios";
 import Swal from "sweetalert2";
+import { loginService } from "../../services/auth.service";
 import { useNavigate } from "react-router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
+import { login } from "../../redux/auth/authReducer";
 
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
@@ -17,7 +18,7 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
- const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const validationSchema = Yup.object({
@@ -33,7 +34,7 @@ function LoginPage() {
       .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น"
+        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
       ),
   });
 
@@ -43,9 +44,10 @@ function LoginPage() {
       password: "",
     },
     validationSchema: validationSchema,
-   onSubmit: async (values) => {
+    onSubmit: async (values) => {
       setLoading(true);
-      
+
+      // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
       Swal.fire({
         title: "กำลังเข้าสู่ระบบ...",
         text: "กรุณารอสักครู่",
@@ -54,16 +56,28 @@ function LoginPage() {
           Swal.showLoading();
         },
       });
+      // ------------------------------------
 
       try {
-    
-        const authData = await dispatch(Login(values)).unwrap();
+        const authData = await loginService({
+          ...values,
+          email: values.email.toLowerCase(),
+        });
 
-        TokenService.setToken(authData.token);
+        dispatch(
+           login({
+    email: values.email,
+    password: values.password
+  })
+        );
 
-        const storage = rememberMe ? localStorage : sessionStorage;
-        storage.setItem("auth", JSON.stringify(authData));
+        if (rememberMe) {
+          localStorage.setItem("auth", JSON.stringify(authData));
+        } else {
+          sessionStorage.setItem("auth", JSON.stringify(authData));
+        }
 
+        // Swal Success จะทับ Loading ตัวเดิม
         await Swal.fire({
           icon: "success",
           title: "เข้าสู่ระบบสำเร็จ",
@@ -72,15 +86,18 @@ function LoginPage() {
         });
 
         navigate("/");
-      } catch (err: any) {
+      } catch (err) {
+        const error = err as AxiosError<{ message: string }>;
+
+        // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
-          title: "เข้าสู่ระบบไม่สำเร็จ", 
-          text: err.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          title: "เข้าสู่ระบบไม่สำเร็จ",
+          text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     },
   });
@@ -150,7 +167,6 @@ function LoginPage() {
             />
             <button
               type="button"
-              data-test="show-password"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
             >
@@ -174,7 +190,6 @@ function LoginPage() {
           />
           <label
             htmlFor="remember-me"
-            data-test="remember-me"
             className="text-gray-800 cursor-pointer select-none"
           >
             จดจำฉัน
@@ -183,7 +198,6 @@ function LoginPage() {
 
         <button
           type="submit"
-          data-test="login-button"
           disabled={loading}
           className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -193,7 +207,6 @@ function LoginPage() {
         <div className="text-black flex flex-col sm:flex-row justify-between items-center text-sm mt-4 gap-2">
           <p
             className="hover:underline cursor-pointer text-gray-600"
-            data-test="forgot-password"
             onClick={() => navigate("/forgot-password")}
           >
             ลืมรหัสผ่าน
@@ -203,7 +216,6 @@ function LoginPage() {
             <span>ถ้ายังไม่มีบัญชี?</span>
             <a
               className="text-blue-500 hover:underline ml-2 cursor-pointer font-medium"
-              data-test="register-link"
               onClick={() => navigate("/register")}
             >
               สมัครสมาชิก

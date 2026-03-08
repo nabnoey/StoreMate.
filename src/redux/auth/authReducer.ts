@@ -1,88 +1,60 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import type { LoginDTO, User } from "../../types/user";
-import { AuthService } from '../../services/auth.service';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { loginService, registerService } from "../../services/auth.service"
+import { TokenService } from '../../services/token.service';
 
 interface AuthState {
-  isLoading: boolean;
-  error: string | null;
-  token: string | null;
-  user: User | null;
-  isAuthenticated: boolean;
+  token:string
+   isAuthenticated:boolean
+  loading:boolean
 }
 
-const initialState: AuthState = {
-  isLoading: false,
-  error: null,
-  token: null,
-  user: null,
-  isAuthenticated: false
-};
+const initialState:AuthState = {
+  token:TokenService.getAccessToken() || "",
+   isAuthenticated:!!TokenService.getAccessToken(),
+  loading:false
 
-export const Login = createAsyncThunk(
-  'auth/login',
-  async (data: LoginDTO, { rejectWithValue }) => {
-    try {
-      const response = await AuthService.loginService(data); 
-      return response; 
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Login failed');
-    }
+}
+
+export const login = createAsyncThunk(
+  "auth/login",
+  async (data: { email: string; password: string }) => {
+    const response = await loginService(data);
+    return response;
   }
-);
 
-const AuthSlice = createSlice({
-  name: 'auth',
+)
+
+export const register = createAsyncThunk (
+  "auth/register",
+  async (data:any) => {
+    const response = await registerService(data);
+    return response;
+  }
+
+)
+
+const authSlice = createSlice({
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
-      state.token = null;
-      state.user = null; 
-      state.isAuthenticated = false;
-      state.error = null;
-
-      localStorage.removeItem("auth");
-      sessionStorage.removeItem("auth");
-    },
-
-    setAuth: (state, action) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
-      state.isAuthenticated = true;
-    },
-
-    updateProfile: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-        
-        try {
-            const authData = JSON.parse(localStorage.getItem("auth") || "{}");
-            authData.user = state.user;
-            localStorage.setItem("auth", JSON.stringify(authData));
-        } catch(e) {
-            console.error("Failed to update localStorage", e);
-        }
-      } 
-    },
-  }, 
-
-  extraReducers: (builder) => {
-    builder
-      .addCase(Login.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(Login.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
-      })
-      .addCase(Login.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      });
+      state.token = ""
+      state. isAuthenticated = false
+      TokenService.removeToken()
+    }
   },
-});
 
-export const { logout, setAuth, updateProfile } = AuthSlice.actions;
-export default AuthSlice.reducer;
+
+ extraReducers: (builder) => {
+
+    builder.addCase(login.fulfilled, (state, action) => {
+      state.token = action.payload.token
+      state. isAuthenticated = true
+    })
+
+  }
+
+})
+
+export const { logout } = authSlice.actions
+export default authSlice.reducer
