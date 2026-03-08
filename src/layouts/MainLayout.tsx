@@ -11,7 +11,7 @@ const MainLayout = () => {
       </div>
 
       {/* Main content: ปลดล็อค container และ px ออก เพื่อให้แต่ละหน้าจัดการเอง */}
-      <main className="flex-grow w-full mt-14 md:mt-16 bg-gray-50/50">
+      <main className="flex-grow w-full mt-14 md:mt-16 bg-gray-50/50 mb-20">
         <Outlet />
       </main>
 

@@ -6,12 +6,7 @@ import { fetchProducts} from "../redux/products/productReducer";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
-import { useNavigate } from "react-router";
-
-
-
-
-
+import { useNavigate } from "react-router-dom";
 
 
 const SectionHeader = ({
@@ -25,6 +20,8 @@ const SectionHeader = ({
 }) => {
 
   const navigate = useNavigate()
+ 
+ 
 
   return (
     <div className="flex justify-between items-center mb-8 mt-16">
@@ -41,7 +38,7 @@ const SectionHeader = ({
       <button
         className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942]"
         data-test="see-all-link"
-        onClick={() => navigate(`/category/${category}`)}
+        onClick={() => navigate(`/search?category=${category}`)}
       >
         <span className="text-[14px] md:text-[16px] font-semibold">
           ดูทั้งหมด
