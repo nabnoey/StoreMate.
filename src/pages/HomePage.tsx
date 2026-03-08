@@ -38,7 +38,7 @@ const SectionHeader = ({
         data-test="see-all-link"
         onClick={() => navigate(`/category/${category}`)}
       >
-        <span className="text-[14px] md:text-[16px] font-semibold">
+        <span className="text-[14px] md:text-[16px] font-semibold whitespace-nowrap">
           ดูทั้งหมด
         </span>
 
@@ -109,7 +109,7 @@ function HomePage() {
               subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
               category="promotion"
             />
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
   {groupedProduct.map((group) =>
     group.categoryName.toLowerCase() === "promotion" &&
     group.products.map((product) => (
@@ -142,7 +142,7 @@ function HomePage() {
  </section>
 
     {/* Soap Section */}
-        <section id="soap-section" className="mb-20 ">
+        <section id="soap-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32">
           {/* <ContentWrapper> */}
             <SectionHeader
               title="เครื่องดื่ม"
@@ -162,7 +162,7 @@ function HomePage() {
           {/* </ContentWrapper> */}
         </section>
 
-  <section id="soap-section" className="mb-20 ">
+  <section id="soap-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32">
           
             <SectionHeader
               title="แชมพูสมุนไพร"

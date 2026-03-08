@@ -21,7 +21,7 @@ const CategoryPage = () => {
 
   return (
     <div className="max-w-[1440px] mx-auto p-15  mt-8">
-      <h1 className="text-3xl font-medium mb-8 text-black">
+      <h1 className="text-3xl font-medium mb-8 text-black whitespace-nowrap">
         สินค้า{" "}
         <span className=" text-blue-500">{categoryName[category || ""]}</span>
       </h1>
