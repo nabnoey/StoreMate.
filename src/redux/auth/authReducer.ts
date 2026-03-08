@@ -5,6 +5,7 @@ import { TokenService } from '../../services/token.service';
 interface AuthState {
   token:string
    isAuthenticated:boolean
+   
   loading:boolean
 }
 
