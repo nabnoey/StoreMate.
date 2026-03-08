@@ -13,7 +13,7 @@ const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
 const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"));
 const SearchPage = lazy(() => import("../pages/users/SearchPage"));
 const CategoryPage = lazy(() => import("../pages/users/CategoryPage"));
-
+const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
 
 
 
@@ -79,6 +79,10 @@ element:<PaymentShoping/>
     {
         path:"/category/:category",
         element:<CategoryPage/>
+    },
+    {
+        path:"/address-profile",
+        element:<AddressProfile/>
     }
 
 

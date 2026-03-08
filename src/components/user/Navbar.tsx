@@ -155,12 +155,10 @@ const totalItems = cartItems.reduce(
 
 </div>
 
-        {/* LOGIN แล้ว */}
         {isAuthenticated ? (
           <>
             <div className="hidden lg:flex gap-4 items-center mr-2 text-gray-600">
 
-              {/* CART */}
              <div 
                 className="relative cursor-pointer p-1" 
                 onClick={() => navigate("/shopping-cart")}
@@ -178,7 +176,6 @@ const totalItems = cartItems.reduce(
                 )}
               </div>
 
-              {/* BELL */}
               <BiSolidBell size={22} className="cursor-pointer hover:text-black" />
             </div>
 
@@ -204,7 +201,6 @@ const totalItems = cartItems.reduce(
           </div>
         )}
 
-        {/*  HAMBURGER */}
         <div className="flex-none lg:hidden">
           <button
             className="btn btn-square btn-ghost"
@@ -222,36 +218,40 @@ const totalItems = cartItems.reduce(
 
       </div>
 
-      {/* MOBILE MENU */}
       {openMenu && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-xl z-50 lg:hidden border-t">
-
-          {!isAuthenticated && (
-            <div className="flex items-center justify-center gap-6 p-4">
-              <button
-                className="text-gray-500 font-semibold"
-                onClick={() => { navigate("/login"); setOpenMenu(false); }}
-              >
+        <div className="absolute top-[75px] right-4 w-[300px] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.15)] z-50 lg:hidden border rounded-2xl overflow-hidden animate-in fade-in zoom-in duration-200 origin-top-right">
+    
+          {isAuthenticated ? (
+            <UserProfile 
+            variant="mobile" 
+            onCloseMenu={() => setOpenMenu(false)} 
+            />
+           ) : (
+          <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-50">
+            <button 
+                className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm"
+                  onClick={() => { navigate("/login"); setOpenMenu(false); }}
+            >
                 เข้าสู่ระบบ
-              </button>
-              <button
-                className="border-2 border-[#0A157A] text-[#0A157A] px-6 py-2 rounded-xl font-bold"
-                onClick={() => { navigate("/register"); setOpenMenu(false); }}
-              >
-                สมัครสมาชิก
-              </button>
-            </div>
-          )}
+            </button>
 
-          <div className="p-6 flex flex-col gap-6 text-lg text-gray-700">
-            <a>สินค้า</a>
-            <a>โปรโมชั่น</a>
-            <a>เกี่ยวกับเรา</a>
-            <a>ติดต่อ</a>
-          </div>
+            <button 
+          className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm"
+          onClick={() => { navigate("/register"); setOpenMenu(false); }}
+            >
+          สมัครสมาชิก
+            </button>
         </div>
-      )}
+        )}
 
+    <div className="flex flex-col py-2">
+      <a onClick={() => { navigate("/products"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
+      <a onClick={() => { navigate("/promotions"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
+      <a onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
+      <a onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
+    </div>
+  </div>
+)}
     </nav>
   );
 };

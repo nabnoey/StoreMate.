@@ -31,7 +31,7 @@ export interface ProductDetail {
   description: string; // รายละเอียดสินค้า (ที่อยู่ในกรอบสีเทาในรูป)
   quantity: number;
   price: number;       // เพิ่มจาก DTO ล่าสุด
-  ratingScore: number;
+  RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
 }

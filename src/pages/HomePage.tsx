@@ -34,7 +34,7 @@ const SectionHeader = ({
       </div>
 
       <button
-        className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942]"
+        className="flex items-center gap-2 text-blue-500"
         data-test="see-all-link"
         onClick={() => navigate(`/category/${category}`)}
       >
