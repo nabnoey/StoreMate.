@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { AxiosError } from "axios";
 import Swal from "sweetalert2";
-import { loginService } from "../../services/auth.service";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
@@ -47,7 +45,7 @@ function LoginPage() {
     onSubmit: async (values) => {
       setLoading(true);
 
-      // --- ส่วนที่เพิ่ม: แสดง Loading Popup ---
+      // แสดง Loading Popup
       Swal.fire({
         title: "กำลังเข้าสู่ระบบ...",
         text: "กรุณารอสักครู่",
@@ -56,21 +54,18 @@ function LoginPage() {
           Swal.showLoading();
         },
       });
-      // ------------------------------------
 
       try {
-        const authData = await loginService({
-          ...values,
-          email: values.email.toLowerCase(),
-        });
+        // --- ส่วนที่แก้ไข: เรียกใช้งาน Redux action ---
+        // ใช้ .unwrap() เพื่อให้รับข้อมูลที่ return กลับมาจาก authSlice ได้โดยตรง
+        const authData = await dispatch(
+          login({
+            email: values.email.toLowerCase(),
+            password: values.password,
+          })
+        ).unwrap();
 
-        dispatch(
-           login({
-    email: values.email,
-    password: values.password
-  })
-        );
-
+        // จัดการเรื่อง Remember Me ตามที่คุณเขียนไว้
         if (rememberMe) {
           localStorage.setItem("auth", JSON.stringify(authData));
         } else {
@@ -85,15 +80,21 @@ function LoginPage() {
           showConfirmButton: false,
         });
 
-        navigate("/");
-      } catch (err) {
-        const error = err as AxiosError<{ message: string }>;
+        // ล็อกอินผ่านแล้ว เด้งไปหน้าแรก (หรือหน้า Profile)
+        navigate("/"); 
+      } catch (error: any) {
+        // --- ปรับ Error Handling ---
+        let errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+        if (error?.message) {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        }
 
-        // Swal Error จะทับ Loading ตัวเดิม
         Swal.fire({
           icon: "error",
           title: "เข้าสู่ระบบไม่สำเร็จ",
-          text: error.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+          text: errorMessage,
           confirmButtonText: "ลองใหม่อีกครั้ง",
         });
       } finally {
