@@ -11,6 +11,8 @@ const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const keyword = searchParams.get("keyword") || "";
+  const category = searchParams.get("category");
+
   const items = useSelector((state: RootState) => state.products.items);
 
   const products = keyword
@@ -18,9 +20,7 @@ const SearchPage = () => {
         p.productName?.toLowerCase().includes(keyword.toLowerCase()),
       )
     : items;
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(
-    "all",
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">(category || "");
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -40,6 +40,12 @@ const SearchPage = () => {
       dispatch(search(keyword));
     }
   }, [keyword, dispatch]);
+
+  // useEffect(()=>{
+  //   if(category){
+  //     setSelectedCategory(category)
+  //   }
+  // }, [category])
 
   const displayProducts = products.filter((p) => {
     const matchCategory =
@@ -163,9 +169,9 @@ const SearchPage = () => {
 
           <p
             data-test="category-drink"
-            onClick={() => setSelectedCategory("drink")}
+            onClick={() => setSelectedCategory("drinks")}
             className={`cursor-pointer ${
-              selectedCategory === "drink"
+              selectedCategory === "drinks"
                 ? "text-black font-medium"
                 : "text-gray-400"
             }`}
@@ -202,9 +208,9 @@ const SearchPage = () => {
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {displayProducts.length} รายการ</p>
 
-          <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
+          {/* <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
             เรียงโดย
-          </div>
+          </div> */}
         </div>
 
         {displayProducts.length === 0 ? (
