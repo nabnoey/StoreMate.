@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState, AppDispatch } from '../../../redux/store';
@@ -57,10 +57,7 @@ const ShoppingCart = () => {
   };
 
   const selectedCartItems = enrichedCartItems.filter(item => selectedItems.includes(item.productId));
-  // const totalItemsCount = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = selectedCartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const shipping = subtotal > 0 && subtotal < 1000 ? 50.00 : 0.00; 
-  // const totalPrice = subtotal + shipping;
 
   const handleRemoveItem = (productId: number) => {
     dispatch(removeFromCart(productId));

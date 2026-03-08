@@ -6,7 +6,7 @@ interface OrderItem {
   productDetail?: Product;
 }
 
-interface Order {
+export interface Order {
   id: string;
   shopName: string;
   statusDelivery: string;

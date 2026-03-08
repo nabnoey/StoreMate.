@@ -42,8 +42,8 @@ const AddressProfile = () => {
 
     const newAddress: AddressItem = {
       id: newId,
-      fullName: `${user.firstName} ${user.lastName}`,
-      phone: user.phone,
+      fullName: user?.name || "ไม่ระบุชื่อ",
+      phone: user?.phone || "ไม่ระบุเบอร์โทรศัพท์",
       addressLine,
       subDistrict,
       district,

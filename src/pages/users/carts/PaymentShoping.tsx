@@ -1,198 +1,173 @@
-import  { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, CreditCard, QrCode, Truck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../../../redux/store'; 
 import { increaseQuantity, decreaseQuantity } from '../../../redux/carts/CartReducer';
+import type { CartItem } from '../../../types/cartItem';
 
 const PaymentShoping = () => {
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  // 1. ดึงข้อมูลตะกร้าจาก CartItem
-  const cartItems = useSelector((state: RootState) => state.carts || []);
+  const cartItems = useSelector((state: RootState) => state.carts.items as CartItem[] || []);
+  const addresses = useSelector((state: RootState) => state.address.address || []);
+  const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
 
-  // 2. State สำหรับช่องทางการชำระเงิน
-  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('qr');
 
-  // 3. คำนวณยอดเงินรวม
-  // const subtotal = cartItems.reduce(
-  //   (sum, item) => sum + (item.price * item.stockQuantity),
-  //   0
-  // );
-  // const shipping = subtotal > 0 ? 50.00 : 0.00; // ค่าจัดส่ง
-  // const totalPrice = subtotal + shipping; // ยอดรวมสุทธิ
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const shipping = subtotal > 0 ? 14.00 : 0.00;
+  const totalPrice = subtotal + shipping;
 
-  // const handleConfirmOrder = () => {
-  //   if (!paymentMethod) {
-  //     alert("กรุณาเลือกช่องทางการชำระเงิน");
-  //     return;
-  //   }
-  //   // ตรงนี้เอาไว้เรียก API สั่งซื้อสินค้า
-  //   alert(`สั่งซื้อสำเร็จ! ยอดรวม ${totalPrice} บาท ชำระผ่าน ${paymentMethod}`);
-  // };
+  const handleConfirmOrder = () => {
+    if (cartItems.length === 0) return alert("ไม่มีสินค้าในตะกร้า");
+    if (!defaultAddress) return alert("กรุณาเพิ่มที่อยู่ในการจัดส่ง");
+    if (!paymentMethod) return alert("กรุณาเลือกช่องทางการชำระเงิน");
+    alert(`สั่งซื้อสำเร็จ! ยอดรวม ${totalPrice.toLocaleString()} บาท`);
+  };
 
   return (
-    <div id="checkout-summary-page" className="min-h-screen bg-white py-6 sm:py-10 px-3 sm:px-6 font-sans text-gray-800">
-      <div className="max-w-[1100px] mx-auto bg-white rounded-lg shadow-sm border border-gray-100 p-5 sm:p-10">
+    <div className="min-h-screen bg-gray-50/50 py-4 sm:py-8 px-2 sm:px-4 font-sans text-gray-800">
+      <div className="max-w-[1000px] mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         
-        {/* --- Header --- */}
-        <div className="flex items-center gap-3 mb-8 sm:mb-10">
-          <ShoppingCart className="w-7 h-7 sm:w-8 sm:h-8 text-[#111827]" />
-          <h3 id="page-title" className="text-xl sm:text-3xl font-bold">สรุปคำสั่งซื้อ</h3>
-        </div>
-
-        {/* --- Section 1: ที่อยู่ในการจัดส่ง --- */}
-        <div className="mb-8 border-b border-gray-100 pb-8">
-          <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-5 text-black">ที่อยู่ในการจัดส่ง</h2>
-          
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 text-sm text-black">
-              <span id="address-name" className="font-semibold text-base text-black">
-                บุญรักษา วินานนท์
-              </span>
-              <span id="address-detail" className="text-[#7E7E7E]">
-                116/1 ม.1 ต.ห้วยขวาง อ.กำแพงแสน จ.นครปฐม 73140
-              </span>
-              <span id="address-badge-default" className="text-blue-500 border border-blue-500 px-2 py-0.5 rounded text-[11px] font-medium whitespace-nowrap">
-                ค่าเริ่มต้น
-              </span>
-            </div>
-            
-            <button 
-              id="btn-change-address" 
-              className="text-blue-500 border border-blue-500 hover:bg-blue-50 px-5 py-1.5 rounded text-sm transition-colors whitespace-nowrap w-full lg:w-auto text-center mt-2 lg:mt-0"
-            >
-              เปลี่ยน
-            </button>
+        <div className="p-4 sm:p-6 md:p-10">
+          <div className="flex items-center gap-3 mb-6 sm:mb-10 border-b border-gray-50 pb-4 sm:pb-6">
+            <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-black" />
+            <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900">สรุปคำสั่งซื้อ</h1>
           </div>
-        </div>
-
-        {/* --- Section 2: รายการสินค้า (วนลูปจาก Redux) --- */}
-        <div className="mb-8 border-b border-gray-100 pb-8">
-          <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-5 text-black">รายการสินค้า</h2>
-          
-          {cartItems.length > 0 ? (
-            <div className="space-y-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6 border-b border-gray-50 pb-6 last:border-0 last:pb-0">
-                  
-                  {/* รูปภาพและชื่อสินค้า */}
-                  <div className="flex items-start gap-4 flex-1 w-full">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded border border-gray-200 overflow-hidden flex-shrink-0">
-                      <img 
-                        src={item.imageUrl || "https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D"}
-                        alt={item.productName} 
-                        className="w-full h-full object-cover"
-                      />
+          <div className="mb-8 sm:mb-10">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">ที่อยู่ในการจัดส่ง</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-3 py-4 border-b border-gray-100">
+              <div className="text-sm text-gray-600 leading-relaxed">
+                {defaultAddress ? (
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-gray-900">{defaultAddress.fullName}</span>
+                        <span className="text-gray-300 hidden sm:inline">|</span>
+                        <span className="text-gray-500">{defaultAddress.phone}</span>
+                        {defaultAddress.isDefault && (
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-500 border border-blue-200 rounded text-[10px] font-bold uppercase">ค่าเริ่มต้น</span>
+                        )}
                     </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-[#2C2221] line-clamp-2 leading-snug lg:pr-10 mb-1">
-                        {item.productName}
-                      </h3>
-                      <p className="text-xs text-gray-500 line-clamp-1">{item.summary}</p>
-                    </div>
+                    <p className="text-gray-600">
+                        {defaultAddress.addressLine} ต.{defaultAddress.subDistrict} อ.{defaultAddress.district} จ.{defaultAddress.province} {defaultAddress.zipcode}
+                    </p>
                   </div>
+                ) : (
+                  <span className="text-red-500 font-medium">ยังไม่มีข้อมูลที่อยู่</span>
+                )}
+              </div>
+              <button 
+                onClick={() => navigate('/profile/address')} 
+                className="text-blue-500 hover:text-blue-600 text-sm font-bold transition-colors whitespace-nowrap"
+              >
+                เปลี่ยนที่อยู่
+              </button>
+            </div>
+          </div>
 
-                  {/* ราคา, จำนวน, ราคารวม */}
-                  <div className="flex items-center justify-between w-full lg:w-auto gap-4 sm:gap-10 mt-2 lg:mt-0 pl-24 lg:pl-0">
-                    <span className="text-sm text-black whitespace-nowrap">
-                      {item.price} ฿
-                    </span>
-
-                    {/* ปรับจำนวน */}
-                    <div className="flex items-center border border-gray-200 rounded bg-white h-9">
-                      <button 
-                      data-test="btn-decrease"
-                        onClick={() => dispatch(decreaseQuantity(item.id))} 
-                        className="px-3 h-full text-black hover:bg-gray-50 disabled:opacity-30 flex items-center justify-center"
-                        disabled={item.stockQuantity <= 1}
-                      >
-                        -
-                      </button>
-                      <span className="w-8 text-center text-sm font-medium flex items-center justify-center h-full">
-                        {item.stockQuantity}
-                      </span>
-                      <button 
-                        data-test="btn-increase"
-                        onClick={() => dispatch(increaseQuantity(item.id))} 
-                        className="px-3 h-full text-black hover:bg-gray-50 flex items-center justify-center"
-                      >
-                        +
-                      </button>
+          <div className="mb-8 sm:mb-12">
+            <div className="space-y-6 sm:space-y-8">
+              {cartItems.map((item) => (
+                <div key={item.productId} className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 border-b border-gray-50 md:border-0 pb-6 md:pb-0">
+                  <div className="flex items-center gap-4 w-full md:flex-1">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg border border-gray-100 p-1.5 flex-shrink-0 shadow-sm flex items-center justify-center">
+                      <img src={item.imageUrl || ""} alt={item.productName} className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 md:line-clamp-3">
+                      {item.productName}
+                    </h3>
+                  </div>
+                  
+                  <div className="flex items-center justify-between w-full md:w-auto gap-4 md:gap-10">
+                    <div className="hidden lg:block text-sm font-medium text-gray-400 w-16 text-center">
+                      {item.price.toLocaleString()} ฿
                     </div>
 
-                    <span className="text-blue-500 font-normal text-base w-16 text-right whitespace-nowrap">
-                      {item.price * item.stockQuantity} ฿
-                    </span>
+                    <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 flex-shrink-0">
+                      <button 
+                        onClick={() => dispatch(decreaseQuantity(item.productId))}
+                        className="px-3 hover:bg-gray-50 text-gray-500 border-r border-gray-300 h-full transition-colors"
+                      >-</button>
+                      <span className="px-3 text-xs font-bold min-w-[30px] text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => dispatch(increaseQuantity(item.productId))}
+                        className="px-3 hover:bg-gray-50 text-gray-500 border-l border-gray-300 h-full transition-colors"
+                      >+</button>
+                    </div>
+
+                    <div className="text-[#4a89f3] font-bold text-sm sm:text-base w-24 text-right">
+                      {(item.price * item.quantity).toLocaleString()} ฿
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">ไม่มีสินค้าในคำสั่งซื้อ</div>
-          )}
-        </div>
+          </div>
 
-        {/* --- Section 3: ช่องทางการชำระเงิน --- */}
-        <div className="mb-10 pb-8 border-b border-gray-100">
-          <h2 className="text-base sm:text-lg font-bold mb-4 sm:mb-5 text-[#000000]">ช่องทางการชำระเงิน</h2>
-          <div className="flex flex-wrap gap-3 sm:gap-4">
-            {[
-              { id: 'cod', label: 'เก็บเงินปลายทาง' },
-              { id: 'qr', label: 'QR พร้อมเพย์' },
-              { id: 'credit', label: 'บัตรเครดิต' }
-            ].map((method) => (
-              <button
-                key={method.id}
-                data-test="btn-payment-method"
-                onClick={() => setPaymentMethod(method.id)}
-                className={`px-5 py-2 sm:py-2.5 border rounded text-sm transition-colors ${
-                  paymentMethod === method.id
-                    ? 'border-blue-500 text-blue-600 bg-blue-50 font-medium'
-                    : 'border-gray-300 text-gray-700 hover:border-blue-400 bg-white'
-                }`}
-              >
-                {method.label}
-              </button>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12">
+            
+            <div className="order-2 lg:order-1 space-y-4">
+              <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">เลือกช่องทางการชำระเงิน</h2>
+              
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { id: 'qr', title: 'พร้อมเพย์ (PromptPay)', desc: 'สแกน QR Code เพื่อชำระเงิน', icon: <QrCode size={18}/> },
+                  { id: 'credit', title: 'บัตรเครดิต / บัตรเดบิต', desc: 'Visa, Mastercard', icon: <CreditCard size={18}/> },
+                  { id: 'cod', title: 'เก็บเงินปลายทาง', desc: 'ชำระเงินเมื่อได้รับสินค้า', icon: <Truck size={18}/> }
+                ].map((method) => (
+                  <div 
+                    key={method.id}
+                    onClick={() => setPaymentMethod(method.id)}
+                    className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-xl cursor-pointer transition-all ${
+                      paymentMethod === method.id ? 'border-blue-500 bg-blue-50/40 shadow-sm' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      paymentMethod === method.id ? 'border-blue-500' : 'border-gray-300'
+                    }`}>
+                      {paymentMethod === method.id && <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-xs sm:text-sm text-gray-900">{method.title}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5">{method.desc}</p>
+                    </div>
+                    <div className={paymentMethod === method.id ? 'text-blue-500' : 'text-gray-300'}>
+                      {method.icon}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2 flex flex-col items-center lg:items-end">
+               <div className="w-full max-w-[400px] lg:max-w-[320px] bg-gray-50/50 sm:bg-transparent p-4 sm:p-0 rounded-xl">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center text-gray-500">
+                      <span>รวมการสั่งซื้อ</span>
+                      <span className="font-bold text-gray-800">฿{subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-gray-500">
+                      <span>การจัดส่ง</span>
+                      <span className="font-bold text-gray-800">฿{shipping.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+                      <span className="font-bold text-gray-900 text-base">ยอดชำระทั้งหมด</span>
+                      <span className="font-black text-[#4a89f3] text-xl sm:text-2xl">฿{totalPrice.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleConfirmOrder}
+                    className="w-full bg-[#4a89f3] hover:bg-blue-600 active:scale-[0.98] text-white py-3 sm:py-4 rounded-lg font-bold transition-all shadow-md mt-6 text-sm sm:text-base"
+                  >
+                    ยืนยันการสั่งซื้อ
+                  </button>
+               </div>
+            </div>
+
           </div>
         </div>
-        
-        {/* --- Section 4: สรุปยอดรวม & ยืนยันการสั่งซื้อ --- */}
-        {/* <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-6 bg-gray-50 p-6 rounded-lg">
-          <div className="w-full md:w-auto space-y-2 text-sm text-gray-600">
-            <div className="flex justify-between md:justify-start md:gap-8">
-              <span>ยอดรวมสินค้า:</span>
-              <span className="font-medium text-black">{subtotal.toFixed(2)} ฿</span>
-            </div>
-            <div className="flex justify-between md:justify-start md:gap-8">
-              <span>ค่าจัดส่ง:</span>
-              <span className="font-medium text-black">{shipping.toFixed(2)} ฿</span>
-            </div>
-            <div className="flex justify-between md:justify-start md:gap-8 text-base text-black mt-2 pt-2 border-t border-gray-200">
-              <span className="font-bold">ยอดชำระเงินทั้งหมด:</span>
-              <span className="font-bold text-blue-600 text-xl">{totalPrice.toFixed(2)} ฿</span>
-            </div>
-          </div> */}
-
-          {/* <div className="w-full md:w-auto flex gap-3">
-            <button 
-              onClick={() => navigate('/cart')} 
-              className="w-full md:w-auto px-6 py-3 border border-gray-300 rounded text-gray-700 font-medium hover:bg-gray-100 transition-colors"
-            >
-              กลับไปตะกร้า
-            </button>
-            <button 
-              onClick={handleConfirmOrder}
-              disabled={cartItems.length === 0}
-              className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded font-medium transition-colors shadow-sm"
-            >
-              สั่งซื้อสินค้า
-            </button>
-          </div> */}
-        {/* </div> */}
-
       </div>
     </div>
   );

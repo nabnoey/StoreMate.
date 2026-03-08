@@ -7,11 +7,10 @@ id: number
   categoryId: number
   quantity:number,
   price: number
-categoryName: string
- 
+  categoryName: string
   summary: string
   status: string
-   stockQuantity: number
+  stockQuantity: number
 }
 
 export interface CategoryGroup {
