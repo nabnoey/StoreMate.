@@ -193,7 +193,7 @@ const handleAddToCart = async (shouldRedirect = false) => {
                 <p className="text-gray-600 text-sm">{review.message}</p>
               </div>
             ))
-          ) : (ิ่น
+          ) : (
             <div className="text-center py-10 text-gray-400 border border-dashed rounded-xl">ยังไม่มีรีวิวสำหรับสินค้านี้</div>
           )}
         </div>
