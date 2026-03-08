@@ -168,7 +168,7 @@ const ShoppingCart = () => {
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                      <span className="w-8 text-center text-sm font-bold text-black">{item.quantity}</span>
                       <button 
                       data-test="increase-product"
                         onClick={() => dispatch(increaseQuantity(item.productId))}

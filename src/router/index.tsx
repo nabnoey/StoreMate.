@@ -1,18 +1,6 @@
 import { createBrowserRouter } from "react-router";
-
-// import Home from "../pages/HomePage";
-// import CartPage from "../pages/CartPage"
-// import RegisterPage from "../pages/auth/RegisterPage";
-// import MainLayout from "../layouts/MainLayout";
-// import LoginPage from "../pages/auth/LoginPage";
-// import ForgotPassword from "../pages/auth/ForgotPassword";
-// import Profile from "../pages/users/Profile"
-// import ResetPassword from "../pages/auth/ResetPassword";
-
-
 import {lazy} from "react";
 const Home = lazy(() => import("../pages/HomePage"));
-// const CartPage = lazy(() => import("../pages/CartPage"));
 const ShoppingCartPage = lazy(() => import("../pages/users/carts/ShoppingCart"));
 const RegisterPage = lazy  (() => import("../pages/auth/RegisterPage"));
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
@@ -24,6 +12,8 @@ const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
 const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
 const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"));
 const SearchPage = lazy(() => import("../pages/users/SearchPage"));
+const CategoryPage = lazy(() => import("../pages/users/CategoryPage"));
+
 
 
 
@@ -85,6 +75,10 @@ element:<PaymentShoping/>
     {
         path:"/search",
         element:<SearchPage/>
+    },
+    {
+        path:"/category/:category",
+        element:<CategoryPage/>
     }
 
 

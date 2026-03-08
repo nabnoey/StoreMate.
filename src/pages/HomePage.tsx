@@ -5,35 +5,48 @@ import { HiOutlineInbox } from "react-icons/hi";
 import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
+import { useNavigate } from "react-router";
 
-const SectionHeader = ({ title, subTitle }: { title: string; subTitle: string;  }) => (
-  <div  className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 mt-16 gap-4">
-    <div>
-      <h2
-        className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight"
+
+
+const SectionHeader = ({
+  title,
+  subTitle,
+  category
+}: {
+  title: string
+  subTitle: string
+  category: string
+}) => {
+
+  const navigate = useNavigate()
+
+  return (
+    <div className="flex justify-between items-center mb-8 mt-16">
+      <div>
+        <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900">
+          {title}
+        </h2>
+
+        <p className="text-[14px] md:text-[16px] text-gray-500 mt-1 font-light opacity-80">
+          {subTitle}
+        </p>
+      </div>
+
+      <button
+        className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942]"
+        data-test="see-all-link"
+        onClick={() => navigate(`/category/${category}`)}
       >
-        {title}
-      </h2>
-      <p 
-        className="text-[14px] md:text-[16px] text-gray-600 mt-1 font-light opacity-80"
-      >
-        {subTitle}
-      </p>
+        <span className="text-[14px] md:text-[16px] font-semibold">
+          ดูทั้งหมด
+        </span>
+
+        <span className="text-xl">›</span>
+      </button>
     </div>
-
-    <button
-      className="flex items-center gap-2 text-blue-500 transition-all group shrink-0 self-start md:self-auto"
-      data-test="btn-see-all"
-    >
-      <span className="text-[14px] md:text-[16px] font-semibold">
-        ดูทั้งหมด
-      </span>
-      <span className="text-xl group-hover:translate-x-1 transition-transform">
-        ›
-      </span>
-    </button>
-  </div>
-);
+  )
+}
 
 function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -88,104 +101,109 @@ function HomePage() {
       {/* Main Content Area */}
       <main className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-24">
 
-        {/* PROMOTION */}
-        <section id="section-promotion" className="mb-20">
-          <SectionHeader
-            title="โปรโมชั่นสุดพิเศษ"
-            subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
-          />
-
-          {groupedProduct.length === 0 ? (
-            <div id="empty-state-promotion" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
-              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
-            </div>
-          ) : (
-            <div id="section-promotion" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-              {groupedProduct.map(
-                (group) =>
-                  group.categoryName.toLowerCase() === "promotion" &&
-                  group.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))
-              )}
-            </div>
-          )}
+        {/* Promotion Section */}
+        <section id="promotion-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ">
+          {/* <ContentWrapper> */}
+            <SectionHeader
+              title="โปรโมชั่นสุดพิเศษ"
+              subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
+              category="promotion"
+            />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
+  {groupedProduct.map((group) =>
+    group.categoryName.toLowerCase() === "promotion" &&
+    group.products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  )}
+  </div>
+          {/* </ContentWrapper> */}
         </section>
 
-        {/* SOAP */}
-        <section id="section-soap" className="mb-20">
-          <SectionHeader
-            title="สบู่สมุนไพร"
-            subTitle="ดูแลและบำรุงผิวพรรณด้วยธรรมชาติแท้ 100%"
-          />
+   
+        {/* Soap Section */}
+        <section id="soap-section" className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32">
+          {/* <ContentWrapper> */}
+            <SectionHeader
+              title="สบู่สมุนไพร"
+              subTitle="ดูแลและบำรุงผิวพรรณด้วยคุณค่าจากธรรมชาติแท้ 100%"
+              category="soap"
+            />
+            
+               
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+  {groupedProduct.map((group) =>
+    group.categoryName.toLowerCase() === "soap" &&
+    group.products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  )}
+  </div>
+ </section>
 
-          {groupedProduct.length === 0 ? (
-            <div id="empty-state-soap" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
-              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
-            </div>
-          ) : (
-            <div id="grid-soap" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-              {groupedProduct.map(
-                (group) =>
-                  group.categoryName.toLowerCase() === "soap" &&
-                  group.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))
-              )}
-            </div>
-          )}
+    {/* Soap Section */}
+        <section id="soap-section" className="mb-20 ">
+          {/* <ContentWrapper> */}
+            <SectionHeader
+              title="เครื่องดื่ม"
+              subTitle="ดูแลผิวผันให้สดใสจากธรรมชาติ"
+              category="drinks"
+            />
+            
+               
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+  {groupedProduct.map((group) =>
+    group.categoryName.toLowerCase() === "drinks" &&
+    group.products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  )}
+  </div>
+          {/* </ContentWrapper> */}
         </section>
 
-        {/* DRINKS */}
-        <section id="section-drinks" className="mb-20">
-          <SectionHeader
-            title="เครื่องดื่ม"
-            subTitle="ดูแลสุขภาพให้สดใสจากธรรมชาติ"
-          />
+  <section id="soap-section" className="mb-20 ">
+          
+            <SectionHeader
+              title="แชมพูสมุนไพร"
+              subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
+              category="shampoo"
+            />
+            
+               
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+  {groupedProduct.map((group) =>
+    group.categoryName.toLowerCase() === "shampoo" &&
+    group.products.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  )}
+  </div>
+        
 
-          {groupedProduct.length === 0 ? (
-            <div id="empty-state-drinks" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
-              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
-            </div>
-          ) : (
-            <div id="grid-drinks" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-              {groupedProduct.map(
-                (group) =>
-                  group.categoryName.toLowerCase() === "drinks" &&
-                  group.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* SHAMPOO */}
-        <section id="section-shampoo" className="mb-20">
-          <SectionHeader
-            title="แชมพูสมุนไพร"
-            subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
-          />
-
-          {groupedProduct.length === 0 ? (
-            <div id="empty-state-shampoo" className="w-full min-h-[300px] border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-10">
-              <HiOutlineInbox className="text-4xl text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold">ไม่พบรายการสินค้า</h3>
-            </div>
-          ) : (
-            <div id="grid-shampoo" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-              {groupedProduct.map(
-                (group) =>
-                  group.categoryName.toLowerCase() === "shampoo" &&
-                  group.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))
-              )}
-            </div>
-          )}
+            
+            {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
+            {groupedProduct.length === 0 ? (
+              <div className="w-full min-h-100 border-2 border-dashed border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-gray-50/30 text-black">
+                {/* วงกลมรองหลัง Icon */}
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                  {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
+                  <HiOutlineInbox className="text-4xl text-gray-300" />
+                </div>
+                {/* ข้อความ */}
+                <h3 className="text-xl font-bold text-[#14261C]">
+                  ไม่พบรายการสินค้า
+                </h3>
+                <p className="text-gray-400 mt-2 font-light">
+                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
+              
+              </div>
+            )}
+         
         </section>
 
       </main>
