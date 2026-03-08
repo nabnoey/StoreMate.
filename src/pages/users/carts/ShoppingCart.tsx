@@ -139,7 +139,7 @@ const ShoppingCart = () => {
                       >
                         <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
-                      <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-medium">
+                      <span className="w-8 sm:w-10 text-center text-xs sm:text-sm font-medium text-black">
                         {item.stockQuantity}
                       </span>
                       <button 

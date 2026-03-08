@@ -88,7 +88,7 @@ function CartItem({ item }: Props) {
       
       <div className="flex items-center gap-4">
         {/* Quantity Controls */}
-        <div className="flex items-center border rounded-lg">
+        <div className="flex items-center border rounded-lg text-black">
           <button 
             id={`btn-decrease-${item.id}`}
             onClick={handleDecrease} 

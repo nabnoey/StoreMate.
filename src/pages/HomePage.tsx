@@ -6,32 +6,52 @@ import { fetchProducts} from "../redux/products/productReducer";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
+import { useNavigate } from "react-router";
 
 
 
 
 
 
-  const SectionHeader = ({ title, subTitle, testId }: { title: string; subTitle: string; testId: string }) => (
+
+const SectionHeader = ({
+  title,
+  subTitle,
+  category
+}: {
+  title: string
+  subTitle: string
+  category: string
+}) => {
+
+  const navigate = useNavigate()
+
+  return (
     <div className="flex justify-between items-center mb-8 mt-16">
       <div>
-        <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900 leading-tight" data-testid={`${testId}-title`}>
+        <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900">
           {title}
         </h2>
+
         <p className="text-[14px] md:text-[16px] text-gray-500 mt-1 font-light opacity-80">
           {subTitle}
         </p>
       </div>
+
       <button
-        className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942] transition-all group shrink-0"
-        data-testid={`${testId}-see-all`}
+        className="flex items-center gap-2 text-[#C5A353] hover:text-[#A68942]"
+        data-test="see-all-link"
+        onClick={() => navigate(`/category/${category}`)}
       >
-        <span className="text-[14px] md:text-[16px] font-semibold">ดูทั้งหมด</span>
-        <span className="text-xl leading-none transform group-hover:translate-x-1 transition-transform">›</span>
+        <span className="text-[14px] md:text-[16px] font-semibold">
+          ดูทั้งหมด
+        </span>
+
+        <span className="text-xl">›</span>
       </button>
     </div>
-  );
-
+  )
+}
 
 function HomePage() {
  const dispatch = useDispatch<AppDispatch>();
@@ -100,7 +120,7 @@ function HomePage() {
             <SectionHeader
               title="โปรโมชั่นสุดพิเศษ"
               subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
-              testId="promo"
+              category="promotion"
             />
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-center">
   {groupedProduct.map((group) =>
@@ -120,7 +140,7 @@ function HomePage() {
             <SectionHeader
               title="สบู่สมุนไพร"
               subTitle="ดูแลและบำรุงผิวพรรณด้วยคุณค่าจากธรรมชาติแท้ 100%"
-              testId="soap"
+              category="soap"
             />
             
                
@@ -140,7 +160,7 @@ function HomePage() {
             <SectionHeader
               title="เครื่องดื่ม"
               subTitle="ดูแลผิวผันให้สดใสจากธรรมชาติ"
-              testId="soap"
+              category="drinks"
             />
             
                
@@ -160,7 +180,7 @@ function HomePage() {
             <SectionHeader
               title="แชมพูสมุนไพร"
               subTitle="ดูแลเส้นผมและหนังศีรษะด้วยธรรมชาติ"
-              testId="soap"
+              category="shampoo"
             />
             
                
@@ -187,7 +207,7 @@ function HomePage() {
             
             {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
             {groupedProduct.length === 0 ? (
-              <div className="w-full min-h-100 border-2 border-dashed border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-gray-50/30">
+              <div className="w-full min-h-100 border-2 border-dashed border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-gray-50/30 text-black">
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
