@@ -29,14 +29,12 @@ const ProductDetailPage: React.FC = () => {
         if (id) {
           const data = await ProductService.getProductById(Number(id));
           setProductDetail(data);
-          console.log("ข้อมูลสินค้าที่ได้จาก API:", data);
 
           if (data.productImages && data.productImages.length > 0) {
             setActiveImage(data.productImages[0].imageUrl);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch product:", error);
       } finally {
         setLoading(false);
       }
@@ -93,8 +91,6 @@ const ProductDetailPage: React.FC = () => {
         navigate('/cart');
       }
     } catch (error: any) {
-      console.error("Add to cart error:", error);
-
       const backendMessage = error?.message || error?.data?.message;
 
       if (backendMessage === "There is insufficient stock.") {
@@ -114,10 +110,8 @@ const ProductDetailPage: React.FC = () => {
     }
   }
 
-  // เก็บ ID ของรีวิวที่กำลังเปิดเมนูอยู่ ถ้าเป็น null คือปิดหมด
 const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
 
-// ฟังก์ชันสำหรับสลับเปิด/ปิดเมนู
 const toggleMenu = (reviewId: number | string) => {
   setOpenMenuId(prev => prev === reviewId ? null : reviewId);
 };
@@ -253,7 +247,6 @@ const toggleMenu = (reviewId: number | string) => {
         <button 
         data-test="edit-review"
           onClick={() => {
-            console.log("แก้ไขรีวิว ID:", review.id);
             setOpenMenuId(null);
           }}
           className="w-full text-left px-4 py-2 text-sm text-blue-500 transition-colors"
@@ -263,7 +256,6 @@ const toggleMenu = (reviewId: number | string) => {
         <button 
         data-test="delete-review"
           onClick={() => {
-            console.log("ลบรีวิว ID:", review.id);
             setOpenMenuId(null);
           }}
           className="w-full text-left px-4 py-2 text-sm text-red-500 transition-colors"
