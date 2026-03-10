@@ -43,15 +43,37 @@ const ProductDetailPage: React.FC = () => {
     };
 
     fetchDetail();
+  
     setBuyQuantity(1);
     window.scrollTo(0, 0);
   }, [id]);
 
-  const handleIncrease = () => { setBuyQuantity(prev => prev + 1); };
-  const handleDecrease = () => { if (buyQuantity > 1) setBuyQuantity(prev => prev - 1); };
+  const handleIncrease = () => { 
+    if (buyQuantity < currentStock) {
+      setBuyQuantity(prev => prev + 1); 
+    } else {
+      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+    }
+  };
+
+  const handleDecrease = () => { 
+    if (buyQuantity > 1) {
+      setBuyQuantity(prev => prev - 1); 
+    }
+  };
 
   const handleAddToCart = async (shouldRedirect = false) => {
     if (!productDetail) return;
+
+    if (currentStock <= 0) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย");
+      return;
+    }
+
+    if (buyQuantity > currentStock) {
+      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+      return;
+    }
 
     const cartItemPayload = {
       ...productDetail,
@@ -63,8 +85,9 @@ const ProductDetailPage: React.FC = () => {
     try {
       await dispatch(addToCartThunk(cartItemPayload as any)).unwrap();
 
-      toast.success("เพิ่มลงตะกร้าเรียบร้อย!");
-      setBuyQuantity(1);
+      toast.success("เพิ่มสินค้าเข้าตะกร้าเรียบร้อยแล้ว");
+      
+      setBuyQuantity(1); 
 
       if (shouldRedirect) {
         navigate('/cart');
@@ -75,7 +98,7 @@ const ProductDetailPage: React.FC = () => {
       const backendMessage = error?.message || error?.data?.message;
 
       if (backendMessage === "There is insufficient stock.") {
-        toast.error("ขออภัย สินค้าในสต็อกไม่เพียงพอ");
+        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
         toast.error(backendMessage || "ไม่สามารถเพิ่มสินค้าได้");
       }
@@ -90,6 +113,14 @@ const ProductDetailPage: React.FC = () => {
       return dateString;
     }
   }
+
+  // เก็บ ID ของรีวิวที่กำลังเปิดเมนูอยู่ ถ้าเป็น null คือปิดหมด
+const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
+
+// ฟังก์ชันสำหรับสลับเปิด/ปิดเมนู
+const toggleMenu = (reviewId: number | string) => {
+  setOpenMenuId(prev => prev === reviewId ? null : reviewId);
+};
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">กำลังโหลดข้อมูล...</div>;
   if (!productDetail) return <div className="min-h-screen flex items-center justify-center">ไม่พบสินค้า</div>;
@@ -131,12 +162,11 @@ const ProductDetailPage: React.FC = () => {
               ))}
             </div>
 
-           <div className="w-full max-w-[489px] h-[69px] bg-[#F3F4F6] px-6 rounded-md flex justify-between items-center mb-8">
+            <div className="w-full max-w-[489px] h-[69px] bg-[#F3F4F6] px-6 rounded-md flex justify-between items-center mb-8">
               <span className="text-3xl font-bold text-black">ราคา</span>
               <span className="text-4xl font-semibold text-black">฿{productDetail.price.toLocaleString()}</span>
             </div>
 
-            {/* รายละเอียดสินค้า */}
             <div className="mb-8">
               <h3 className="font-medium mb-3 px-0.5 pt-0.2 text-3xl text-[#111827]">รายละเอียดสินค้า</h3>
               <div className="text-black text-md leading-relaxed whitespace-pre-line">
@@ -144,61 +174,56 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-        <div id="product-actions" className="w-full max-w-[723px] mx-auto flex flex-col items-center gap-5 mt-auto border-t pt-6 text-[#D9D9D9]">
-  
-            <div className="flex items-center gap-4">
-                <span className="font-bold text-[#2C2221]">จำนวน</span>
-                  <div className="flex items-center border border-gray-200 rounded-md h-9 w-28 bg-white ">
-                    <button 
-                      data-test="btn-decrease" 
-                      onClick={handleDecrease} 
-        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors" 
-        disabled={buyQuantity <= 1}
-      >
-        −
-      </button>
-      <div className="flex-1 text-center font-medium text-gray-800 border-x border-gray-200 h-full flex items-center justify-center text-sm">
-        {buyQuantity}
-      </div>
-      <button 
-        data-test="btn-increase" 
-        onClick={handleIncrease} 
-        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors" 
-        disabled={buyQuantity >= 10}
-      >
-        +
-      </button>
-    </div>
-  </div>
+            <div id="product-actions" className="w-full max-w-[723px] mx-auto flex flex-col items-center gap-5 mt-auto border-t pt-6 text-[#D9D9D9]">
+        
+              <div className="flex items-center gap-4">
+                  <span className="font-bold text-[#2C2221]">จำนวน</span>
+                    <div className="flex items-center border border-gray-200 rounded-md h-9 w-28 bg-white ">
+                      <button 
+                        data-test="btn-decrease" 
+                        onClick={handleDecrease} 
+                        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
+                      >
+                        −
+                      </button>
+                      <div className="flex-1 text-center font-medium text-gray-800 border-x border-gray-200 h-full flex items-center justify-center text-sm">
+                        {buyQuantity}
+                      </div>
+                      <button 
+                        data-test="btn-increase" 
+                        onClick={handleIncrease} 
+                        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
+                      >
+                        +
+                      </button>
+                    </div>
+              </div>
 
-  {/* ปุ่มกดสองปุ่ม */}
-  <div className="flex gap-3">
-    <button
-      data-test="btn-add-to-cart"
-      onClick={() => handleAddToCart(false)}
-      className="px-6 py-2.5 bg-blue-500 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
-    >
-      เพิ่มลงตะกร้า
-    </button>
-    
-    <button
-      data-test="btn-buy-cart"
-      onClick={() => handleAddToCart(true)}
-      disabled={currentStock <= 0}
-      className="px-6 py-2.5 bg-green-500 text-white rounded-sm font-semibold text-md transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-    >
-      สั่งซื้อสินค้า
-    </button>
-  </div>
+              <div className="flex gap-3">
+                <button
+                  data-test="btn-add-to-cart"
+                  onClick={() => handleAddToCart(false)}
+                  className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
+                >
+                  เพิ่มลงตะกร้า
+                </button>
+                
+                <button
+                  data-test="btn-buy-cart"
+                  onClick={() => handleAddToCart(true)}
+                  className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
+                >
+                  สั่งซื้อสินค้า
+                </button>
+              </div>
 
-</div>
+            </div>
           </div>
         </div>
 
-        {/* เส้นคั่นส่วนรีวิว */}
         <hr className="my-10 border-gray-200" />
 
-        {/* ส่วนรีวิว (ล่าง) */}
+        {/* ส่วนรีวิว*/}
         <div className="max-w-4xl mx-auto">
           <div className="space-y-4">
             {productDetail.reviews && productDetail.reviews.length > 0 ? (
@@ -210,13 +235,45 @@ const ProductDetailPage: React.FC = () => {
                       <p className="text-xs text-gray-400">{formatDate(review.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex text-yellow-400 text-sm">
-                        {[...Array(5)].map((_, i) => (
-                          i < review.reviewScore ? <MdStar key={i} /> : <MdStarBorder key={i} className="text-gray-300" />
-                        ))}
-                      </div>
-                      <MdMoreVert className="text-gray-400 cursor-pointer" />
-                    </div>
+  <div className="flex text-yellow-400 text-sm">
+    {[...Array(5)].map((_, i) => (
+      i < review.reviewScore ? <MdStar key={i} /> : <MdStarBorder key={i} className="text-gray-300" />
+    ))}
+  </div>
+  
+  <div className="relative">
+    <MdMoreVert 
+    data-test="onclick-toggle-menu"
+      className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" 
+      onClick={() => toggleMenu(review.id)}
+    />
+
+    {openMenuId === review.id && (
+      <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-100 rounded-md shadow-lg z-10 py-1 overflow-hidden">
+        <button 
+        data-test="edit-review"
+          onClick={() => {
+            console.log("แก้ไขรีวิว ID:", review.id);
+            setOpenMenuId(null);
+          }}
+          className="w-full text-left px-4 py-2 text-sm text-blue-500 transition-colors"
+        >
+          แก้ไข
+        </button>
+        <button 
+        data-test="delete-review"
+          onClick={() => {
+            console.log("ลบรีวิว ID:", review.id);
+            setOpenMenuId(null);
+          }}
+          className="w-full text-left px-4 py-2 text-sm text-red-500 transition-colors"
+        >
+          ลบ
+        </button>
+      </div>
+    )}
+  </div>
+</div>
                   </div>
                   <p className="text-gray-600 text-sm mt-2">{review.message}</p>
                 </div>
@@ -226,7 +283,6 @@ const ProductDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Pagination */}
           <div className="flex justify-center items-center gap-1 mt-8 text-sm font-medium text-gray-600">
             <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-md transition-colors">&lt;</button>
             <button className="w-8 h-8 flex items-center justify-center text-blue-600 font-bold transition-colors">1</button>

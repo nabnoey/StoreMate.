@@ -72,7 +72,13 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
 
-  // const handleIncrease = (productId: number, currentQty: number, stock: number) => { ... } // เก็บไว้ใช้ถ้าต้องการเช็คสต็อกก่อน
+  const handleIncrease = (productId: number, currentQty: number, stock: number) => {
+  if (currentQty < stock) {
+    dispatch(increaseQuantity(productId));
+  } else {
+    toast.error("ไม่สามารถเพิ่มจำนวนเกินสต็อกที่มีอยู่ได้");
+  }
+};
 
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
@@ -116,9 +122,9 @@ const ShoppingCart = () => {
                     <div className="flex items-center pt-2 md:pt-0">
                       <input
                         data-test="checkbox-radio"
-                        type="radio" // ควรเปลี่ยนเป็น type="checkbox" เพื่อให้สมเหตุสมผลกับการเลือกหลายรายการ
+                        type="radio" 
                         checked={selectedItems.includes(item.productId)}
-                        onChange={() => toggleSelect(item.productId)}
+                        onClick={() => toggleSelect(item.productId)}
                         className="w-5 h-5 rounded-full accent-blue-500 cursor-pointer border-gray-300"
                       />
                     </div>
@@ -171,7 +177,7 @@ const ShoppingCart = () => {
                       <span className="w-8 text-center text-sm font-bold text-black">{item.quantity}</span>
                       <button 
                       data-test="increase-product"
-                        onClick={() => dispatch(increaseQuantity(item.productId))}
+                        onClick={() => handleIncrease(item.productId, item.quantity, Number(item.product.stockQuantity))}
                         className="px-2 hover:bg-gray-50 text-gray-400 flex items-center justify-center h-full"
                       >
                         <Plus size={14} />
@@ -202,7 +208,7 @@ const ShoppingCart = () => {
                   data-test="redio-all-product"
                     type="radio" 
                     checked={isAllSelected} 
-                    onChange={toggleSelectAll} 
+                    onClick={toggleSelectAll} 
                     className="w-5 h-5 accent-blue-500 rounded-full cursor-pointer" 
                   />
                   <span className="text-sm text-gray-500 font-medium">เลือกทั้งหมด</span>
