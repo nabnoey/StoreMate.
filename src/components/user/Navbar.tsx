@@ -42,13 +42,6 @@ const handleSubmitSearch = () => {
 
 }
 
-
-
-
-
-
-
-
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -86,10 +79,13 @@ const totalItems = cartItems.reduce(
 
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
-          <li><a className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
+          <li><a data-test="list-search" className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
+          <li><a 
+          data-test="list-promo" 
+          className="hover:text-indigo-600 cursor-pointer" 
+          onClick={() => navigate(`/search?category=promotion`)}>โปรโมชั่น</a></li>
+          <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
+          <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
         </ul>
       </div>
 
@@ -132,6 +128,7 @@ const totalItems = cartItems.reduce(
   <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
     {searchResult.map((product) => (
       <div
+        data-test = "click-to-product"
         key={product.id}
         className="p-3 hover:bg-gray-100 cursor-pointer"
         onClick={() => {
@@ -158,6 +155,7 @@ const totalItems = cartItems.reduce(
             <div className="hidden lg:flex gap-4 items-center mr-2 text-gray-600">
 
              <div 
+                data-test="click-shop-cart"
                 className="relative cursor-pointer p-1" 
                 onClick={() => navigate("/shopping-cart")}
               >
@@ -183,15 +181,15 @@ const totalItems = cartItems.reduce(
           <div className="hidden lg:flex items-center gap-3">
             <button
             data-test="login-btn"
-              className="bg-[#0A157A] text-white w-24 h-11 rounded-[10px]"
+              className="bg-[#073A8D] text-white w-24 h-11 rounded-[10px]"
               onClick={() => navigate("/login")}
             >
               เข้าสู่ระบบ
             </button>
 
             <button
-            data-test="register-btn"
-              className="btn btn-outline text-[#0A157A] w-30 h-11 rounded-[10px]"
+            data-test="register-btn" 
+              className="btn btn-outline text-[#073A8D] text-[#0A157A] w-30 h-11 rounded-[10px]"
               onClick={() => navigate("/register")}
             >
               สมัครสมาชิก
@@ -201,6 +199,7 @@ const totalItems = cartItems.reduce(
 
         <div className="flex-none lg:hidden">
           <button
+            data-test = "btn-open-menu"
             className="btn btn-square btn-ghost"
             onClick={() => setOpenMenu(!openMenu)}
           >
@@ -217,7 +216,7 @@ const totalItems = cartItems.reduce(
       </div>
 
       {openMenu && (
-        <div className="absolute top-[75px] right-4 w-[300px] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.15)] z-50 lg:hidden border rounded-2xl overflow-hidden animate-in fade-in zoom-in duration-200 origin-top-right">
+        <div className="absolute top-[60px] right-4 w-[300px] bg-white z-30 lg:hidden rounded-none overflow-hidden animate-in fade-in zoom-in origin-top-right">
     
           {isAuthenticated ? (
             <UserProfile 
@@ -227,6 +226,7 @@ const totalItems = cartItems.reduce(
            ) : (
           <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-50">
             <button 
+                data-test="btn-login"
                 className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm"
                   onClick={() => { navigate("/login"); setOpenMenu(false); }}
             >
@@ -234,6 +234,7 @@ const totalItems = cartItems.reduce(
             </button>
 
             <button 
+            data-test="btn-register"
           className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm"
           onClick={() => { navigate("/register"); setOpenMenu(false); }}
             >
@@ -243,10 +244,10 @@ const totalItems = cartItems.reduce(
         )}
 
     <div className="flex flex-col py-2">
-      <a onClick={() => { navigate("/products"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
-      <a onClick={() => { navigate("/promotions"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
-      <a onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
-      <a onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
+      <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
+      <a data-test="list-promo" onClick={() => navigate(`/search?category=promotion`)} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
+      <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
+      <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
     </div>
   </div>
 )}
