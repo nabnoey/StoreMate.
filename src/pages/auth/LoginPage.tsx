@@ -133,7 +133,7 @@ function LoginPage() {
             <span className="font-semibold text-black">อีเมล</span>
           </label>
           <input
-            id="email"
+            data-test="email"
             type="email"
             placeholder="example@gmail.com"
             className={`input input-bordered w-full bg-white border-gray-300 text-black ${
@@ -156,7 +156,7 @@ function LoginPage() {
           </label>
           <div className="relative">
             <input
-              id="password"
+              data-test="password"
               type={showPassword ? "text" : "password"}
               placeholder="รหัสผ่าน"
               className={`input input-bordered w-full bg-white border-gray-300 text-black pr-10 ${
@@ -167,6 +167,7 @@ function LoginPage() {
               {...formik.getFieldProps("password")}
             />
             <button
+            data-test ="show-password"
               type="button"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
               onClick={() => setShowPassword(!showPassword)}
@@ -183,7 +184,7 @@ function LoginPage() {
 
         <div className="flex items-center gap-3 mb-6">
           <input
-            id="remember-me"
+            data-test="remember-me"
             type="checkbox"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
@@ -198,6 +199,7 @@ function LoginPage() {
         </div>
 
         <button
+        data-test="btn-submit"
           type="submit"
           disabled={loading}
           className="btn w-full rounded-lg bg-green-400 text-black text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed"
