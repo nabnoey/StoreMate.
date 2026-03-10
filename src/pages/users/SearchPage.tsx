@@ -20,7 +20,7 @@ const SearchPage = () => {
         p.productName?.toLowerCase().includes(keyword.toLowerCase()),
       )
     : items;
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(category || "");
+  const [selectedCategory, setSelectedCategory] = useState<string | "all">(category || "all");
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -118,14 +118,14 @@ const SearchPage = () => {
         <div className="border-b border-gray-300 my-4"></div>
         <p className="text-black text-[16px]">หมวดหมู่</p>
 
-        <div className="space-y-2 mt-2 text-black">
+        <div className="space-y-2 mt-2 indent-3">
           <p
             data-test="category-all"
             onClick={() => setSelectedCategory("all")}
             className={`cursor-pointer ${
               selectedCategory === "all"
                 ? "text-black font-medium"
-                : "text-gray-400"
+                : "text-gray-400 text-[16px] "
             }`}
           >
             ทั้งหมด
@@ -137,7 +137,7 @@ const SearchPage = () => {
             className={`cursor-pointer ${
               selectedCategory === "promotion"
                 ? "text-black font-medium"
-                : "text-gray-400"
+                : "text-gray-400 text-[14px]" 
             }`}
           >
             โปรโมชั่น
@@ -149,7 +149,7 @@ const SearchPage = () => {
             className={`cursor-pointer ${
               selectedCategory === "soap"
                 ? "text-black font-medium"
-                : "text-gray-400"
+                : "text-gray-400  text-[14px]"
             }`}
           >
             สบู่
@@ -161,7 +161,7 @@ const SearchPage = () => {
             className={`cursor-pointer ${
               selectedCategory === "shampoo"
                 ? "text-black font-medium"
-                : "text-gray-400"
+                : "text-gray-400  text-[14px]"
             }`}
           >
             แชมพู
@@ -173,7 +173,7 @@ const SearchPage = () => {
             className={`cursor-pointer ${
               selectedCategory === "drinks"
                 ? "text-black font-medium"
-                : "text-gray-400"
+                : "text-gray-400  text-[14px]"
             }`}
           >
             เครื่องดื่ม
@@ -201,7 +201,9 @@ const SearchPage = () => {
             onChange={(e) => setMaxPrice(e.target.value)}
             className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
           />
+          
         </div>
+           <div className="border-b border-gray-300 my-4 mt-2"></div>
       </div>
 
       <div className="flex-1 px-5 py-15 md:py lg:mt-0">

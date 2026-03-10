@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../../redux/store";
 import { useSelector,useDispatch } from "react-redux";
 import {search} from "../../redux/products/productReducer";
-
 import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
@@ -81,8 +80,8 @@ const handleSubmitSearch = () => {
       </div>
 
       {/* MENU DESKTOP */}
-      <div className="navbar-center hidden lg:flex text-[#74768f] font-semibold text-lg">
-        <ul className="menu menu-horizontal gap-7 text-[15px]">
+      <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
+        <ul className="menu menu-horizontal gap-7 text-[16px]  ">
           <li><a className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
