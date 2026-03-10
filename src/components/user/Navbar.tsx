@@ -83,7 +83,7 @@ const handleSubmitSearch = () => {
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
           <li><a className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
-          <li><a className="hover:text-indigo-600 cursor-pointer">โปรโมชั่น</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" >โปรโมชั่น</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
           <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
         </ul>
@@ -231,12 +231,7 @@ const handleSubmitSearch = () => {
             </div>
           )}
 
-          <div className="p-6 flex flex-col gap-6 text-lg text-gray-700">
-            <a>สินค้า</a>
-            <a>โปรโมชั่น</a>
-            <a>เกี่ยวกับเรา</a>
-            <a>ติดต่อ</a>
-          </div>
+          
         </div>
       )}
 

@@ -20,7 +20,7 @@ const SearchPage = () => {
         p.productName?.toLowerCase().includes(keyword.toLowerCase()),
       )
     : items;
-  const [selectedCategory, setSelectedCategory] = useState<string | "all">(category || "all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(category || "all");
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
