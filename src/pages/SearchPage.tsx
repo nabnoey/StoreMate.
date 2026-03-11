@@ -247,7 +247,7 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-8 md:gap-5  md:ml-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-194 gap-8 md:gap-8  md:ml-19 justif-center">
             {displayProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
