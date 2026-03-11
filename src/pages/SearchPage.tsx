@@ -1,16 +1,16 @@
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../redux/store";
-import { fetchProducts, search } from "../../redux/products/productReducer";
-import ProductCard from "../../components/user/ProductCard";
+import type { RootState, AppDispatch } from "../redux/store";
+import { fetchProducts, search } from "../../src/redux/products/productReducer";
+import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
-  const keyword = searchParams.get("keyword") || "";
+  const keyword: string = searchParams.get("keyword") || "";
   const category = searchParams.get("category");
 
   const items = useSelector((state: RootState) => state.products.items);
@@ -19,8 +19,12 @@ const SearchPage = () => {
     ? items.filter((p) =>
         p.productName?.toLowerCase().includes(keyword.toLowerCase()),
       )
-    : items;
-  const [selectedCategory, setSelectedCategory] = useState<string>(category || "all");
+    : items; //ถ้าไม่ได้ป้อนkeywordจะเป็น false 
+
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    category || "all",
+  );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -37,15 +41,11 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (keyword.trim() !== "") {
-      dispatch(search(keyword));
+      dispatch(search({keyword}));
     }
   }, [keyword, dispatch]);
 
-  // useEffect(()=>{
-  //   if(category){
-  //     setSelectedCategory(category)
-  //   }
-  // }, [category])
+ 
 
   const displayProducts = products.filter((p) => {
     const matchCategory =
@@ -121,7 +121,13 @@ const SearchPage = () => {
         <div className="space-y-2 mt-2 indent-3">
           <p
             data-test="category-all"
-            onClick={() => setSelectedCategory("all")}
+            onClick={() => {
+              setSelectedCategory("all");
+              setSearchParams({
+                keyword: keyword,
+                category: "all",
+              });
+            }}
             className={`cursor-pointer ${
               selectedCategory === "all"
                 ? "text-black font-medium"
@@ -133,11 +139,17 @@ const SearchPage = () => {
 
           <p
             data-test="category-promotion"
-            onClick={() => setSelectedCategory("promotion")}
+            onClick={() => {
+              setSelectedCategory("promotion");
+              setSearchParams({
+                keyword: keyword,
+                category: "promotion",
+              });
+            }}
             className={`cursor-pointer ${
               selectedCategory === "promotion"
                 ? "text-black font-medium"
-                : "text-gray-400 text-[14px]" 
+                : "text-gray-400 text-[14px]"
             }`}
           >
             โปรโมชั่น
@@ -145,7 +157,13 @@ const SearchPage = () => {
 
           <p
             data-test="category-soap"
-            onClick={() => setSelectedCategory("soap")}
+            onClick={() => {
+              setSelectedCategory("soap");
+              setSearchParams({
+                keyword: keyword,
+                category: "soap",
+              });
+            }}
             className={`cursor-pointer ${
               selectedCategory === "soap"
                 ? "text-black font-medium"
@@ -157,7 +175,13 @@ const SearchPage = () => {
 
           <p
             data-test="category-shampoo"
-            onClick={() => setSelectedCategory("shampoo")}
+            onClick={() => {
+              setSelectedCategory("shampoo");
+              setSearchParams({
+                keyword: keyword,
+                category: "shampoo",
+              });
+            }}
             className={`cursor-pointer ${
               selectedCategory === "shampoo"
                 ? "text-black font-medium"
@@ -169,7 +193,13 @@ const SearchPage = () => {
 
           <p
             data-test="category-drink"
-            onClick={() => setSelectedCategory("drinks")}
+            onClick={() => {
+              setSelectedCategory("drinks");
+              setSearchParams({
+                keyword: keyword,
+                category: "drinks",
+              });
+            }}
             className={`cursor-pointer ${
               selectedCategory === "drinks"
                 ? "text-black font-medium"
@@ -201,9 +231,8 @@ const SearchPage = () => {
             onChange={(e) => setMaxPrice(e.target.value)}
             className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
           />
-          
         </div>
-           <div className="border-b border-gray-300 my-4 mt-2"></div>
+        <div className="border-b border-gray-300 my-4 mt-2"></div>
       </div>
 
       <div className="flex-1 px-5 py-15 md:py lg:mt-0">

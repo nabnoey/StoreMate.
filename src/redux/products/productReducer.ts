@@ -26,10 +26,13 @@ export const fetchProducts = createAsyncThunk("products/fetch", async () => {
   return response; // ข้อมูลที่ได้จะเป็น { soap: [...], drinks: [...] }
 });
 
-export const search = createAsyncThunk("products/search",async(keyword:string)=>{
-  const response = await ProductService.searchProducts(keyword);
-  return response
-})
+export const search = createAsyncThunk(
+  "products/search", 
+  async ({ keyword, category }: { keyword: string,category:string }) => {
+    const response = await ProductService.searchProducts(keyword,category);
+    return response;
+  }
+);
 
 const productsSlice = createSlice({
   name: "products",
@@ -94,7 +97,7 @@ const productsSlice = createSlice({
     const groupedArray = Object.keys(action.payload).map((key) => ({
       categoryName: key,
       products: action.payload[key]
-    }));
+    })); //ผลลัพธ์ [{soap:[...]},]
     
     state.groupedProducts = groupedArray;
     state.items = groupedArray.flatMap((group) => group.products); 
@@ -104,7 +107,7 @@ const productsSlice = createSlice({
 
    builder.addCase(search.fulfilled,(state,action) => {
   
-     state.search = action.meta.arg //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
+     state.search = action.meta.arg.keyword //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
     state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
 
     
