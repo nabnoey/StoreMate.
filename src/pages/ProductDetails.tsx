@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { MdStar, MdStarBorder, MdMoreVert } from "react-icons/md";
 
-import type { AppDispatch } from '../redux/store';
+import type { AppDispatch, RootState } from '../redux/store';
 import { addToCartThunk } from '../redux/carts/CartReducer';
 
 import { ProductService } from '../services/product.service';
 import type { ProductDetail } from '../types/product';
+import { TokenService } from '../services/token.service';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,9 @@ const ProductDetailPage: React.FC = () => {
   const [buyQuantity, setBuyQuantity] = useState(1);
 
   const currentStock = productDetail?.quantity || 0;
+  const token = TokenService.getAccessToken();
+  let currentUser = useSelector((state: RootState) => state.auth?.user)
+  const isLoggedIn = !!TokenService.getAccessToken();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -47,6 +51,12 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   const handleIncrease = () => { 
+  const token = TokenService.getAccessToken();
+if(!token){
+  toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มจำนวนสินค้าลงตะกร้า");
+  navigate('/login')
+  return;
+}
     if (buyQuantity < currentStock) {
       setBuyQuantity(prev => prev + 1); 
     } else {
@@ -55,12 +65,24 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => { 
+    const token = TokenService.getAccessToken();
+if(!token){
+  toast.error("กรุณาเข้าสู่ระบบก่อนลบจำนวนสินค้าลงตะกร้า");
+  navigate('/login')
+  return;
+}
     if (buyQuantity > 1) {
       setBuyQuantity(prev => prev - 1); 
     }
   };
 
   const handleAddToCart = async (shouldRedirect = false) => {
+const token = TokenService.getAccessToken();
+if(!token){
+  toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงตะกร้า");
+  navigate('/login')
+  return;
+}
     if (!productDetail) return;
 
     if (currentStock <= 0) {
@@ -221,7 +243,9 @@ const toggleMenu = (reviewId: number | string) => {
         <div className="max-w-4xl mx-auto">
           <div className="space-y-4">
             {productDetail.reviews && productDetail.reviews.length > 0 ? (
-              productDetail.reviews.map((review) => (
+              productDetail.reviews.map((review) => {
+                
+                return (
                 <div key={review.id} className="border border-gray-200 p-5 rounded-lg bg-white shadow-sm flex flex-col gap-2">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col gap-1">
@@ -235,6 +259,7 @@ const toggleMenu = (reviewId: number | string) => {
     ))}
   </div>
   
+  {isLoggedIn && currentUser && currentUser.id === review.reviewer?.id && (
   <div className="relative">
     <MdMoreVert 
     data-test="onclick-toggle-menu"
@@ -265,11 +290,14 @@ const toggleMenu = (reviewId: number | string) => {
       </div>
     )}
   </div>
+   )}
 </div>
                   </div>
                   <p className="text-gray-600 text-sm mt-2">{review.message}</p>
                 </div>
-              ))
+              );
+
+            })
             ) : (
               <div className="text-center py-10 text-gray-400 border border-dashed border-gray-300 rounded-xl">ยังไม่มีรีวิวสำหรับสินค้านี้</div>
             )}

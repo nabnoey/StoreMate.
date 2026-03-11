@@ -104,7 +104,7 @@ function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
       <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
         <img
           src={auth}
