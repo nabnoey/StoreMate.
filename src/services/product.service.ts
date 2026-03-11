@@ -6,8 +6,8 @@ import api from "./api";
     const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/grouped-by-category`)
     return res.data
 }
-const searchProducts = async (keyword: string) => {
-    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search?keyword=${keyword}`)
+const searchProducts = async (keyword: string, category:string ) => {
+    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search?keyword=${keyword}&category=${category}`)
     return res.data
 }
 

@@ -38,10 +38,20 @@ export const fetchProducts = createAsyncThunk("products/fetch", async () => {
   return response; 
 });
 
+<<<<<<< HEAD
 export const search = createAsyncThunk("products/search", async (keyword: string) => {
   const response = await ProductService.searchProducts(keyword);
   return response;
 })
+=======
+export const search = createAsyncThunk(
+  "products/search", 
+  async ({ keyword, category }: { keyword: string,category:string }) => {
+    const response = await ProductService.searchProducts(keyword,category);
+    return response;
+  }
+);
+>>>>>>> feature/redux
 
 export const fetchSearchSuggestion = createAsyncThunk(
   "products/fetchSearchSuggestion",
@@ -93,6 +103,7 @@ const productsSlice = createSlice({
 
   // แก้ไข extraReducers ตรงนี้ครับ (แยก addCase แต่ละอันออกจากกันให้ชัดเจน)
   extraReducers: (builder) => {
+<<<<<<< HEAD
     builder
       .addCase(fetchProducts.fulfilled, (state, action) => {
         const groupedArray = Object.keys(action.payload).map((key) => ({
@@ -107,6 +118,35 @@ const productsSlice = createSlice({
         state.search = action.meta.arg; // คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
         state.searchResult = action.payload.data; // รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
       })
+=======
+  builder.addCase(fetchProducts.fulfilled, (state, action) => {
+ 
+    const groupedArray = Object.keys(action.payload).map((key) => ({
+      categoryName: key,
+      products: action.payload[key]
+    })); //ผลลัพธ์ [{soap:[...]},]
+    
+    state.groupedProducts = groupedArray;
+    state.items = groupedArray.flatMap((group) => group.products); 
+   
+
+  });
+
+   builder.addCase(search.fulfilled,(state,action) => {
+  
+     state.search = action.meta.arg.keyword //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
+    state.searchResult = action.payload.data //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
+
+    
+    
+  })
+  
+}
+});
+
+
+
+>>>>>>> feature/redux
 
       .addCase(fetchSearchSuggestion.fulfilled, (state, action) => {
         state.searchSuggestion = action.payload;

@@ -79,6 +79,7 @@ const totalItems = cartItems.reduce(
 
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
+<<<<<<< HEAD
           <li><a data-test="list-search" className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
           <li><a 
           data-test="list-promo" 
@@ -86,6 +87,12 @@ const totalItems = cartItems.reduce(
           onClick={() => navigate(`/search?category=promotion`)}>โปรโมชั่น</a></li>
           <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
           <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
+=======
+          <li><a className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer" >โปรโมชั่น</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
+          <li><a className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
+>>>>>>> feature/redux
         </ul>
       </div>
 
@@ -233,6 +240,7 @@ const totalItems = cartItems.reduce(
                 เข้าสู่ระบบ
             </button>
 
+<<<<<<< HEAD
             <button 
             data-test="btn-register"
           className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm"
@@ -240,6 +248,9 @@ const totalItems = cartItems.reduce(
             >
           สมัครสมาชิก
             </button>
+=======
+          
+>>>>>>> feature/redux
         </div>
         )}
 
