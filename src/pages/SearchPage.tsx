@@ -20,7 +20,7 @@ const SearchPage = () => {
         p.productName?.toLowerCase().includes(keyword.toLowerCase()),
       )
     : items;
-    
+
   const [selectedCategory, setSelectedCategory] = useState<string>(category || "all");
 
 
@@ -108,7 +108,7 @@ const SearchPage = () => {
           <button
             data-test="clear-filter"
             onClick={handleClearFilter}
-            className="text-gray-500 hover:text-black"
+            className="text-gray-500 hover:text-black cursor-pointer"
           >
             ล้างค่า
           </button>
@@ -247,7 +247,7 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-8 md:gap-5  md:ml-5">
             {displayProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}

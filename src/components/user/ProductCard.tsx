@@ -11,8 +11,9 @@ type Props = {
 function ProductCard({ product }: Props) {
 
   return (
+          <Link to={`/product/${product.id}`} className="block group" data-test="product-card">
     <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
-      <Link to={`/product/${product.id}`} className="block group" data-test="product-card">
+
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
           <img
             src={product.imageUrl || "https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=13d280&_nc_ohc=LVsLjxBcDngQ7kNvwFmpYeP&_nc_oc=AdmHGAm1Ibg5tetmmBOuVUnoW_F2a1qp7KhZsXxMvcnSR7A5c33a3gZ1xUjWiQ_TpjoNQHOLqHy16moZpzcR1Kzo&_nc_zt=23&_nc_ht=scontent.fbkk12-1.fna&_nc_gid=byhROHe1c6lbVBOBQwjGhw&oh=00_AfvmSssPV69WDuHi2p-gcgpsU1WcdQhqEid0bw71o-2qmQ&oe=699E715D"}
@@ -33,7 +34,7 @@ function ProductCard({ product }: Props) {
             </p>
           </div>
         </div>
-      </Link>
+   
 
       <div className="px-4 pb-4 mt-auto">
         <div className="flex justify-between items-center">
@@ -45,6 +46,7 @@ function ProductCard({ product }: Props) {
         </div>
       </div>
     </div>
+       </Link>
   );
 }
 
