@@ -28,7 +28,7 @@ const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   setInputValue(value)
 
   if (value.trim() !== "") {
-    dispatch(search(value))
+    dispatch(search({ keyword: value, category:"all" }))
   }
 }
 
