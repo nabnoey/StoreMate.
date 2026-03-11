@@ -39,9 +39,9 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (keyword.trim() !== "") {
-      dispatch(search({keyword}));
+      dispatch(search({keyword, category:"all"}));
     }
-  }, [keyword, dispatch]);
+  }, [keyword,category, dispatch]);
 
  
 
