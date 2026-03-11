@@ -105,7 +105,8 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
-      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
+     <div className="hidden lg:flex flex-col items-center justify-center">
         <img
           src={auth}
           alt="Auth Illustration"
@@ -226,6 +227,7 @@ function LoginPage() {
           </div>
         </div>
       </form>
+    </div>
     </div>
   );
 }
