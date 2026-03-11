@@ -24,14 +24,15 @@ export const addToCartThunk = createAsyncThunk(
   'cart/addToCart',
   async (itemData: CartItem, { rejectWithValue }) => {
     try {
+      
       const response = await CartItemService.addToCart(itemData);
       return response; 
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'เกิดข้อผิดพลาดในการเพิ่มสินค้า');
+      const errorMessage = error.response?.data?.message || error.response?.data || error.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้า';
+      return rejectWithValue({ message: errorMessage });
     }
   }
 );
-
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -67,7 +68,7 @@ const cartSlice = createSlice({
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const newItem = action.meta.arg; 
+        const newItem = action.meta.arg;
         
         const existingItem = state.items.find(i => i.productId === newItem.productId);
         if (existingItem) {
@@ -77,9 +78,9 @@ const cartSlice = createSlice({
         }
         saveToStorage(state.items);
       })
-      .addCase(addToCartThunk.rejected, (state, action) => {
+      .addCase(addToCartThunk.rejected, (state, action: any) => {
         state.status = 'failed';
-        state.error = action.payload as string;
+        state.error = action.payload?.message || 'เกิดข้อผิดพลาด';
       });
   },
 });
