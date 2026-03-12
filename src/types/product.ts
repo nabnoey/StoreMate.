@@ -8,6 +8,7 @@ export type Product = {
   categoryName: string
   status: string
   createAt:string
+  stockQuantity:number
 }
 
 export interface CategoryGroup {
