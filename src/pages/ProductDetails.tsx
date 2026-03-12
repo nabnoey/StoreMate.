@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
-
+import {jwtDecode } from  "jwt-decode";
 import { Icon } from '@iconify/react';
 
-import type { AppDispatch, RootState } from '../redux/store';
+import type { AppDispatch } from '../redux/store';
 import { addToCartThunk } from '../redux/carts/CartReducer';
 
 import { ProductService } from '../services/product.service';
@@ -30,10 +30,19 @@ const ProductDetailPage: React.FC = () => {
   const [buyQuantity, setBuyQuantity] = useState(1);
 
   const currentStock = productDetail?.quantity || 0;
-  let currentUser = useSelector((state: RootState) => state.auth?.user)
-  const isLoggedIn = !!TokenService.getAccessToken();
+  const token = TokenService.getAccessToken();
+  const isLoggedIn = !!token;
+  let currentUserId: number | null = null;
   const categoryName = location.state?.categoryName || "สินค้า";
 
+  if (token) {
+  try {
+    const decoded: any = jwtDecode(token);
+    currentUserId = decoded.userId; 
+  } catch (error) {
+    console.error("ถอดรหัส Token ไม่ได้:", error);
+  }
+}
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -279,7 +288,7 @@ const ProductDetailPage: React.FC = () => {
   ))}
 </div>
                       
-                      {isLoggedIn && currentUser && currentUser.id === review.reviewer?.id && (
+                     {isLoggedIn && currentUserId === review.reviewer?.id && (
                       <div className="relative">
                         <Icon 
   icon="mdi:dots-vertical" 
