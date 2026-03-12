@@ -1,16 +1,13 @@
 import type {Review} from "./review"
 
 export type Product = {
-id: number
+  id: number
   productName: string
   imageUrl: string | null
-  categoryId: number
-  quantity:number,
   price: number
   categoryName: string
-  summary: string
   status: string
-  stockQuantity: number
+  createAt:string
 }
 
 export interface CategoryGroup {
@@ -28,9 +25,9 @@ export interface ProductImage {
 export interface ProductDetail {
   id: number;
   productName: string;
-  description: string; // รายละเอียดสินค้า (ที่อยู่ในกรอบสีเทาในรูป)
+  description: string; 
   quantity: number;
-  price: number;       // เพิ่มจาก DTO ล่าสุด
+  price: number; 
   RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
