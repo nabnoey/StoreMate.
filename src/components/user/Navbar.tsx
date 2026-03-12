@@ -61,10 +61,8 @@ const totalItems = cartItems.reduce(
 
 
 
-  return (
-
+return (
     <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
-
 
       {/* LOGO */}
       <div className="navbar-start">
@@ -78,7 +76,6 @@ const totalItems = cartItems.reduce(
       </div>
 
       {/* MENU DESKTOP */}
-
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
           <li><a data-test="list-search" className="hover:text-indigo-600 cursor-pointer" onClick={()=> navigate("/search")}>สินค้า</a></li>
@@ -88,76 +85,71 @@ const totalItems = cartItems.reduce(
           onClick={() => navigate(`/search?category=promotion`)}>โปรโมชั่น</a></li>
           <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
           <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
-
         </ul>
       </div>
 
       {/* RIGHT */}
-      <div className="navbar-end flex items-center gap-4">
+      <div className="navbar-end flex items-center gap-3 lg:gap-4">
 
         {/* SEARCH */}
-  <div className="relative">
+        <div className="relative flex items-center">
+          <GoSearch
+            size={22}
+            className="cursor-pointer hover:text-black text-black z-50"
+            data-test="search"
+            onClick={() => {
+              if (openSearch) {
+                handleSubmitSearch()
+              } else {
+                setOpenSearch(true)
+              }
+            }}
+          />
 
-  <GoSearch
-  size={22}
-  className="cursor-pointer hover:text-black text-black z-50"
-  data-test="search"
-  onClick={() => {
-    if (openSearch) {
-      handleSubmitSearch()
-    } else {
-      setOpenSearch(true)
-    }
-  }}
-/>
-
-  {openSearch && (
-    <>
-    <input
-  type="text"
-  data-test="search-input"
-  placeholder="ค้นหาสินค้า..."
-  value={inputValue}
-  onChange={handleSearch}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      handleSubmitSearch()
-    }
-  }}
-  className="absolute  right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
-  autoFocus
-/>
-{inputValue && searchResult.length > 0 && (
-  <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
-    {searchResult.map((product) => (
-      <div
-        data-test = "click-to-product"
-        key={product.id}
-        className="p-3 hover:bg-gray-100 cursor-pointer"
-        onClick={() => {
-          navigate(`/product/${product.id}`)
-          setOpenSearch(false)
-          setInputValue("")
-        }}
-      >
-        {product.productName}
-      </div>
-    ))}
-  </div>
-)}
-
-    
-
-    </>
-  )}
-
-</div>
+          {openSearch && (
+            <>
+              <input
+                type="text"
+                data-test="search-input"
+                placeholder="ค้นหาสินค้า..."
+                value={inputValue}
+                onChange={handleSearch}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSubmitSearch()
+                  }
+                }}
+                /* ปรับ width เล็กน้อยบนจอมือถือเพื่อให้พอดีกับไอคอนที่เพิ่มขึ้นมา */
+                className="absolute right-8 -top-2 input input-bordered bg-white w-[140px] sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
+                autoFocus
+              />
+              {inputValue && searchResult.length > 0 && (
+                <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
+                  {searchResult.map((product) => (
+                    <div
+                      data-test="click-to-product"
+                      key={product.id}
+                      className="p-3 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        navigate(`/product/${product.id}`)
+                        setOpenSearch(false)
+                        setInputValue("")
+                      }}
+                    >
+                      {product.productName}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {isAuthenticated ? (
           <>
-            <div className="hidden lg:flex gap-4 items-center mr-2 text-gray-600">
-
-             <div 
+            {/* นำ hidden lg:flex ออก เพื่อให้แสดงบนมือถือ และลด gap ลงเพื่อให้พอดีจอ */}
+            <div className="flex gap-3 lg:gap-4 items-center text-gray-600">
+              <div 
                 data-test="click-shop-cart"
                 className="relative cursor-pointer p-1" 
                 onClick={() => navigate("/shopping-cart")}
@@ -178,7 +170,10 @@ const totalItems = cartItems.reduce(
               <BiSolidBell size={22} className="cursor-pointer hover:text-black" />
             </div>
 
-            <UserProfile />
+            {/* ซ่อน Profile ไอคอนไว้เฉพาะจอใหญ่ เพราะจอมือถือมีอยู่ใน Hamburger แล้ว */}
+            <div className="hidden lg:block">
+              <UserProfile />
+            </div>
           </>
         ) : (
           <div className="hidden lg:flex items-center gap-3">
@@ -200,9 +195,10 @@ const totalItems = cartItems.reduce(
           </div>
         )}
 
+        {/* HAMBURGER MENU (MOBILE) */}
         <div className="flex-none lg:hidden">
           <button
-            data-test = "btn-open-menu"
+            data-test="btn-open-menu"
             className="btn btn-square btn-ghost"
             onClick={() => setOpenMenu(!openMenu)}
           >
@@ -218,9 +214,9 @@ const totalItems = cartItems.reduce(
 
       </div>
 
+      {/* MOBILE MENU DROPDOWN */}
       {openMenu && (
-        <div className="absolute top-[60px] right-4 w-[300px] bg-white z-30 lg:hidden rounded-none overflow-hidden animate-in fade-in zoom-in origin-top-right">
-    
+        <div className="absolute top-[60px] right-4 w-[300px] bg-white z-30 lg:hidden rounded-none overflow-hidden animate-in fade-in zoom-in origin-top-right shadow-lg">
           {isAuthenticated ? (
             <UserProfile 
             variant="mobile" 
@@ -246,14 +242,14 @@ const totalItems = cartItems.reduce(
         </div>
         )}
 
-    <div className="flex flex-col py-2">
-      <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
-      <a data-test="list-promo" onClick={() => navigate(`/search?category=promotion`)} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
-      <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
-      <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
-    </div>
-  </div>
-)}
+        <div className="flex flex-col py-2">
+          <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50 cursor-pointer">สินค้า</a>
+          <a data-test="list-promo" onClick={() => { navigate(`/search?category=promotion`); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50 cursor-pointer">โปรโมชั่น</a>
+          <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50 cursor-pointer">เกี่ยวกับเรา</a>
+          <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50 cursor-pointer">ติดต่อ</a>
+        </div>
+      </div>
+      )}
     </nav>
   );
 };
