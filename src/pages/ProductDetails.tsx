@@ -196,7 +196,6 @@ const ProductDetailPage: React.FC = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-[#2C2221] mb-3 leading-tight">
               {productDetail.productName}
             </h1>
-
            <div className="flex text-[#FFEB55] text-xl mb-6 gap-0.5">
   {[...Array(5)].map((_, i) => (
     i < Math.round(productDetail.RatingScore || 0) 

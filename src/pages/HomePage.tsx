@@ -1,4 +1,3 @@
-import ProductCard from "../components/user/ProductCard";
 import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
 import { HiOutlineInbox } from "react-icons/hi";
@@ -6,7 +5,7 @@ import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
 import { useNavigate } from "react-router-dom";
-
+import ProductCard from "../components/user/ProductCard";
 
 const SectionHeader = ({
   title,
