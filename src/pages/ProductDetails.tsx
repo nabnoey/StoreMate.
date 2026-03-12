@@ -12,6 +12,8 @@ import { ProductService } from '../services/product.service';
 import type { ProductDetail } from '../types/product';
 import { TokenService } from '../services/token.service';
 
+import Pagination from '../components/user/Pagination';
+
 const catagoryTranslator: Record<string, string> ={
   Promotion: "โปรโมชัน",
   Soap: "สบู่",
@@ -28,12 +30,27 @@ const ProductDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+
 
   const currentStock = productDetail?.quantity || 0;
   const token = TokenService.getAccessToken();
   const isLoggedIn = !!token;
   let currentUserId: number | null = null;
   const categoryName = location.state?.categoryName || "สินค้า";
+  const totalPages = 10;
+   const fixedTotalPages = 5;
+  const REVIEWS_PER_PAGE = 3; 
+  const allReviews = productDetail?.reviews || [];
+
+  const calculatedTotalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+
+
+  const indexOfLastReview = currentPage * REVIEWS_PER_PAGE;
+  const indexOfFirstReview = indexOfLastReview - REVIEWS_PER_PAGE;
+
+  const currentReviews = allReviews.slice(indexOfFirstReview, indexOfLastReview);
+
 
   if (token) {
   try {
@@ -153,6 +170,11 @@ const ProductDetailPage: React.FC = () => {
     setOpenMenuId(prev => prev === reviewId ? null : reviewId);
   };
 
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">กำลังโหลดข้อมูล...</div>;
   if (!productDetail) return <div className="min-h-screen flex items-center justify-center">ไม่พบสินค้า</div>;
 
@@ -268,8 +290,8 @@ const ProductDetailPage: React.FC = () => {
         {/* ส่วนรีวิว*/}
         <div className="max-w-4xl mx-auto">
           <div className="space-y-4">
-            {productDetail.reviews && productDetail.reviews.length > 0 ? (
-              productDetail.reviews.map((review) => {
+           {currentReviews.length > 0 ? (
+              currentReviews.map((review) => {
                 
                 return (
                 <div key={review.id} className="border border-gray-400 p-5 rounded-lg bg-white shadow-sm flex flex-col gap-2">
@@ -335,20 +357,17 @@ const ProductDetailPage: React.FC = () => {
           </div>
 
         
-          <div className="flex justify-center items-center gap-5 mt-10 text-2xl font-medium text-black">
-            <button className="w-8 h-8 flex items-center justify-center  not-even:hover:bg-blue-600/60 rounded-md transition-colors">&lt;</button>
-            <button className="w-8 h-8 flex items-center justify-center text-blue-500 font-bold transition-colors">1</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/60 rounded-md transition-colors">2</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/60 rounded-md transition-colors">3</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/60 rounded-md transition-colors">4</button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/60 rounded-md transition-colors">5</button>
-            <span className="px-2 text-black">...</span>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/60 rounded-md transition-colors">&gt;</button>
+          <div className="flex justify-center items-center gap-5 mt-10">
+           <Pagination 
+        currentPage={currentPage} 
+        totalPages={fixedTotalPages} 
+        onPageChange={handlePageChange} 
+      />
+    </div>
           </div>
         </div>
 
       </div>
-    </div>
   );
 };
 
