@@ -19,22 +19,23 @@ const SectionHeader = ({
 
   const navigate = useNavigate()
  
+
  
 
   return (
-    <div className="flex justify-between items-center mb-8 mt-16">
+    <div className="flex justify-between pr-5  items-center mb-5 mt-20 ">
       <div>
-        <h2 className="text-[24px] md:text-[32px] font-bold text-gray-900">
+        <h2 className="text-[24px] md:text-[32px] -ml-4 font-bold text-gray-900">
           {title}
         </h2>
 
-        <p className="text-[14px] md:text-[16px] text-gray-500 mt-1 font-light opacity-80">
+        <p className="text-[14px] md:text-[16px] -ml-4 text-gray-500 mt-1 font-light opacity-80">
           {subTitle}
         </p>
       </div>
 
       <button
-        className="flex items-center gap-2 text-blue-500 cursor-pointer"
+        className="flex items-center mt-10 gap-2 text-blue-500 cursor-pointer "
         data-test="see-all-link"
         onClick={() => navigate(`/search?category=${category}`)}
       >

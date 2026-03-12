@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
-import { fetchProducts, search } from "../../src/redux/products/productReducer";
+import { search,fetchProducts } from "../../src/redux/products/productReducer";
 import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
@@ -11,51 +11,71 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const keyword: string = searchParams.get("keyword") || "";
-  const category = searchParams.get("category");
+  const category = searchParams.get("category")?.toLowerCase() || "";
 
   const items = useSelector((state: RootState) => state.products.items);
-
-  const products = keyword
-    ? items.filter((p) =>
-        p.productName?.toLowerCase().includes(keyword.toLowerCase()),
-      )
-    : items;
-
-  const [selectedCategory, setSelectedCategory] = useState<string>(category || "all");
-
+  // const searchResult = useSelector(
+  //   (state: RootState) => state.products.searchResult,
+  // );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
   const handleClearFilter = () => {
-    setSelectedCategory("all");
     setMinPrice("");
     setMaxPrice("");
+    setSearchParams();
+    setInputValue("");
   };
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+  dispatch(fetchProducts())
+}, [dispatch])
 
   useEffect(() => {
-    if (keyword.trim() !== "") {
-      dispatch(search({keyword, category:"all"}));
+    if (keyword.trim() !== "" || category !== "") {
+      dispatch(
+        search({
+          keyword,
+          category: category,
+          minPrice: 0,
+          maxPrice: 0,
+        }),
+      );
     }
-  }, [keyword,category, dispatch]);
+  }, [keyword, category, dispatch]);
 
- 
+  const displayProducts = items.filter((p) => {
+  const matchCategory =
+    category === "" ||
+    p.categoryName?.toLowerCase() === category.toLowerCase();
 
-  const displayProducts = products.filter((p) => {
-    const matchCategory =
-      selectedCategory === "all" ||
-      p.categoryName?.toLowerCase() === selectedCategory;
+  const matchPrice =
+    (!minPrice || p.price >= Number(minPrice)) &&
+    (!maxPrice || p.price <= Number(maxPrice));
 
-    const matchPrice =
-      (!minPrice || p.price >= Number(minPrice)) &&
-      (!maxPrice || p.price <= Number(maxPrice));
+  const matchKeyword =
+    !keyword ||
+    p.productName?.toLowerCase().includes(keyword.toLowerCase());
 
-    return matchCategory && matchPrice;
-  });
+  return matchCategory && matchPrice && matchKeyword;
+});
+
+// const displayProducts =
+
+//   searchResult.length > 0
+//     ? searchResult
+//     : items.filter((p) => {
+//         const matchCategory =
+//           category === "" ||
+//           p.categoryName?.toLowerCase() === category.toLowerCase();
+
+//         const matchPrice =
+//           (!minPrice || p.price >= Number(minPrice)) &&
+//           (!maxPrice || p.price <= Number(maxPrice));
+
+//         return matchCategory && matchPrice;
+//       });
 
   const [inputValue, setInputValue] = useState(keyword);
   const navigate = useNavigate();
@@ -120,14 +140,13 @@ const SearchPage = () => {
           <p
             data-test="category-all"
             onClick={() => {
-              setSelectedCategory("all");
               setSearchParams({
                 keyword: keyword,
-                category: "all",
+                category: "",
               });
             }}
             className={`cursor-pointer ${
-              selectedCategory === "all"
+              category === ""
                 ? "text-black font-medium"
                 : "text-gray-400 text-[16px] "
             }`}
@@ -136,34 +155,15 @@ const SearchPage = () => {
           </p>
 
           <p
-            data-test="category-promotion"
-            onClick={() => {
-              setSelectedCategory("promotion");
-              setSearchParams({
-                keyword: keyword,
-                category: "promotion",
-              });
-            }}
-            className={`cursor-pointer ${
-              selectedCategory === "promotion"
-                ? "text-black font-medium"
-                : "text-gray-400 text-[14px]"
-            }`}
-          >
-            โปรโมชั่น
-          </p>
-
-          <p
             data-test="category-soap"
             onClick={() => {
-              setSelectedCategory("soap");
               setSearchParams({
                 keyword: keyword,
                 category: "soap",
               });
             }}
             className={`cursor-pointer ${
-              selectedCategory === "soap"
+              category === "soap"
                 ? "text-black font-medium"
                 : "text-gray-400  text-[14px]"
             }`}
@@ -174,14 +174,13 @@ const SearchPage = () => {
           <p
             data-test="category-shampoo"
             onClick={() => {
-              setSelectedCategory("shampoo");
               setSearchParams({
                 keyword: keyword,
                 category: "shampoo",
               });
             }}
             className={`cursor-pointer ${
-              selectedCategory === "shampoo"
+              category === "shampoo"
                 ? "text-black font-medium"
                 : "text-gray-400  text-[14px]"
             }`}
@@ -192,14 +191,13 @@ const SearchPage = () => {
           <p
             data-test="category-drink"
             onClick={() => {
-              setSelectedCategory("drinks");
               setSearchParams({
                 keyword: keyword,
                 category: "drinks",
               });
             }}
             className={`cursor-pointer ${
-              selectedCategory === "drinks"
+              category === "drinks"
                 ? "text-black font-medium"
                 : "text-gray-400  text-[14px]"
             }`}
@@ -247,7 +245,7 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-194 gap-8 md:gap-8  md:ml-19 justif-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justif-center">
             {displayProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}

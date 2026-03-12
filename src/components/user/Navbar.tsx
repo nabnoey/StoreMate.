@@ -23,24 +23,26 @@ const searchResult = useSelector(
 
 const [inputValue, setInputValue] = useState("")
 
+
 const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
   setInputValue(value)
 
   if (value.trim() !== "") {
-    dispatch(search({ keyword: value, category:"all" }))
+    dispatch(search({ keyword: value, category:"", minPrice: 0, maxPrice: 0}))
   }
 }
 
 const handleSubmitSearch = () => {
   if (!inputValue.trim()) {
-   navigate("/")
+   navigate("/search")
     return
   }
     navigate(`/search?keyword=${inputValue}`)
     setOpenSearch(false)
-
 }
+
+
 
   const [openSearch, setOpenSearch] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
@@ -79,7 +81,7 @@ const totalItems = cartItems.reduce(
 
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
-          <li><a data-test="list-search" className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("/search")}>สินค้า</a></li>
+          <li><a data-test="list-search" className="hover:text-indigo-600 cursor-pointer" onClick={()=> navigate("/search")}>สินค้า</a></li>
           <li><a 
           data-test="list-promo" 
           className="hover:text-indigo-600 cursor-pointer" 
