@@ -16,13 +16,9 @@ const Navbar: React.FC = () => {
 
   
 const searchResult = useSelector(
-  (state: RootState) => state.products.searchResult
-)
-
-
+  (state: RootState) => state.products.searchResult)
 
 const [inputValue, setInputValue] = useState("")
-
 
 const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   const value = e.target.value
