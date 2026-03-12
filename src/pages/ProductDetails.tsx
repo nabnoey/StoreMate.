@@ -161,9 +161,9 @@ const ProductDetailPage: React.FC = () => {
       
      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 pt-2 md:pt-8">
         <nav className="flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
-          <Link to="/" className="hover:text-black transition-colors">หน้าหลัก</Link>
+          <Link data-test="click-home" to="/" className="transition-colors">หน้าหลัก</Link>
           <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-black" />
-         <Link to="/products" className="hover:text-black transition-colors">
+         <Link to="/products" className="transition-colors">
         {catagoryTranslator[categoryName]||categoryName}
       </Link>     
           <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-black" />
