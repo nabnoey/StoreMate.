@@ -7,7 +7,6 @@ const addToCart = async (data: CartItem) => {
     `${import.meta.env.VITE_CART_API}/items`,
     data
   )
-
   return res.data
 }
 

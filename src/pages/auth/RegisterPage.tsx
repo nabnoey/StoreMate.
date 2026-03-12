@@ -111,12 +111,9 @@ function RegisterPage() {
   });
 
   return (
-    <div
-      id="register-page-container"
-      className="min-h-screen flex flex-col lg:flex-row bg-white justify-center lg:justify-end items-center lg:items-start gap-8 lg:gap-20 px-4 lg:mr-40 pt-8 lg:pt-24"
-    >
-      {/* Illustration Section */}
-      <div className="flex flex-col items-center justify-center mb-10 lg:mb-0 lg:mr-20 ">
+   <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
+     <div className="hidden lg:flex flex-col items-center justify-center">
         <img
           src={Auth}
           alt="Auth Illustration"
@@ -292,6 +289,7 @@ function RegisterPage() {
         </button>
       </form>
     </div>
+     </div>
   );
 }
 

@@ -1,88 +1,85 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginService, registerService } from "../../services/auth.service";
 import { TokenService } from '../../services/token.service';
+import { jwtDecode } from "jwt-decode";
+
 
 interface AuthState {
   token: string;
   isAuthenticated: boolean;
   loading: boolean;
   user: any | null; 
+  error: string | null;
 }
 
-const sessionData = JSON.parse(localStorage.getItem('auth_session') || '{}');
+const getUserFromToken = (tokenStr: string) => {
+  if (!tokenStr) return null;
+  try {
+    const decoded: any = jwtDecode(tokenStr);
+    //ดึงมาจาก backend ดูที่ jwt.io
+    return {
+      userId: decoded.userId,
+      email: decoded.sub,
+      roles: decoded.roles,
+    };
+  } catch (error) {
+    console.error("ถอดรหัส Token ไม่สำเร็จ", error);
+    return null;
+  }
+};
+
+const currentToken = TokenService.getAccessToken() || "";
+const currentUser = getUserFromToken(currentToken);
 
 const initialState: AuthState = {
-  token: TokenService.getAccessToken() || "",
-  isAuthenticated: !!TokenService.getAccessToken(),
+  token: currentToken,
+  isAuthenticated: !!currentToken && !!currentUser, // จะเป็น true ก็ต่อเมื่อมี Token และถอดรหัสสำเร็จ
   loading: false,
-  //ดึงข้อมูล user มาใส่ค่าเริ่มต้น
-  user: sessionData.user || null 
+  user: currentUser,
+  error: null
 };
 
 export const register = createAsyncThunk(
   "auth/register",
-  async (data: any) => {
-    const response = await registerService(data);
-    
-    // เก็ยข้อมูลไว้ที่ local ชื่อว่า mock_users
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    
-   //เช็คเรื่อง email ห้ามซ้ำ
-    const isExist = mockUsers.find((u: any) => u.email === data.email);
-    if (!isExist) {
-      mockUsers.push({ ...data, image: '' }); 
-      localStorage.setItem('mock_users', JSON.stringify(mockUsers));
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const response = await registerService(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "สมัครสมาชิกไม่สำเร็จ");
     }
-
-    return response;
   }
 );
 
+
 export const login = createAsyncThunk(
   "auth/login",
-  async (data: { email: string; password: string }) => {
-    const response = await loginService(data); 
-     
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    let matchedUser = mockUsers.find((user: any) => user.email === data.email);
+  async (data: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const response = await loginService(data); 
+      
+      const token = response.token; 
+      TokenService.setToken(token);
 
-    if (!matchedUser) {
-      matchedUser = { name: "User", email: data.email, phone: "", image: "" };
+      return token; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "เข้าสู่ระบบไม่สำเร็จ");
     }
-
-    const payload = {
-      token: response.token, 
-      user: matchedUser
-    };
-
-    localStorage.setItem('auth_session', JSON.stringify(payload));
-    TokenService.setToken(payload.token);
-
-    return payload; 
   }
 );
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (data: any, { getState }) => {
-    const state: any = getState();
-    const currentUserEmail = state.auth.user?.email;
-
-    const mockUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-    const userIndex = mockUsers.findIndex((user: any) => user.email === currentUserEmail);
-    
-    if (userIndex !== -1) {
-      mockUsers[userIndex] = { ...mockUsers[userIndex], ...data };
-      localStorage.setItem('mock_users', JSON.stringify(mockUsers));
+  async (data: any, { rejectWithValue }) => {
+    try {
+      // 💡 ข้อแนะนำ: ตรงนี้ในอนาคตคุณควรเรียก API อัปเดตโปรไฟล์ เช่น
+      // const response = await updateProfileService(data);
+      
+      // เมื่อ Backend อัปเดตสำเร็จ เราก็ส่ง data กลับไปทับใน Redux State
+      return data; 
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "อัปเดตโปรไฟล์ไม่สำเร็จ");
     }
-
-    const currentSession = JSON.parse(localStorage.getItem('auth_session') || '{}');
-    if (currentSession.user) {
-      currentSession.user = { ...currentSession.user, ...data };
-      localStorage.setItem('auth_session', JSON.stringify(currentSession));
-    }
-
-    return data;
   }
 );
 
@@ -90,20 +87,31 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    //ถ้า logout ข้อมูลที่เก็บไว้ใน local จะหายไปด้วย
     logout: (state) => {
       state.token = "";
       state.isAuthenticated = false;
       state.user = null; 
-      TokenService.removeToken();
-      localStorage.removeItem('auth_session');
+      state.error = null;
+      TokenService.removeToken(); 
     }
   },
   extraReducers: (builder) => {
+
+    builder.addCase(login.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
     builder.addCase(login.fulfilled, (state, action) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user; 
+      state.loading = false;
+      const newToken = action.payload;
+      state.token = newToken;
+      state.user = getUserFromToken(newToken); //ถอดToken เพื่อดึง userId, email
       state.isAuthenticated = true;
+      state.error = null;
+    });
+    builder.addCase(login.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
     });
 
     builder.addCase(updateProfile.fulfilled, (state, action) => {

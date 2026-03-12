@@ -11,7 +11,7 @@ type Props = {
 function ProductCard({ product }: Props) {
 
   return (
-          <Link to={`/product/${product.id}`} className="block group" data-test="product-card">
+          <Link to={`/product/${product.id}`} state={{ categoryName: product.categoryName }} className="block group" data-test="product-card">
     <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
 
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
