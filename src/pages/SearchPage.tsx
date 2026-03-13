@@ -62,21 +62,6 @@ const SearchPage = () => {
   return matchCategory && matchPrice && matchKeyword;
 });
 
-// const displayProducts =
-
-//   searchResult.length > 0
-//     ? searchResult
-//     : items.filter((p) => {
-//         const matchCategory =
-//           category === "" ||
-//           p.categoryName?.toLowerCase() === category.toLowerCase();
-
-//         const matchPrice =
-//           (!minPrice || p.price >= Number(minPrice)) &&
-//           (!maxPrice || p.price <= Number(maxPrice));
-
-//         return matchCategory && matchPrice;
-//       });
 
   const [inputValue, setInputValue] = useState(keyword);
   const navigate = useNavigate();
@@ -96,16 +81,16 @@ const SearchPage = () => {
   return (
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
       <div className="w-full lg:w-[320px] pt-6 lg:pt-16 ">
-       <div className="flex items-center gap-3">
+       <div className="flex items-center gap-10 justify-between w-full lg:w-full">
 
-  <div className="relative flex-1 w-full pl-4">
-  <GoSearch className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-500" />
+  <div className="relative flex-1 w-full pl-5 lg:pl-0 md:left-1">
+  <GoSearch className="absolute lg:left-4 left-8  top-1/2 -translate-y-1/2 text-gray-500 " />
 
   <input
     data-test="input-search"
     type="text"
     placeholder="ค้นหาสินค้า..."
-    className="w-full h-[40px] text-black border border-gray-300 rounded pl-10"
+    className="w-full h-[40px]  text-black border border-gray-300 rounded pl-10 "
     value={inputValue}
     onChange={(e) => setInputValue(e.target.value)}
     onKeyDown={handleSearch}
@@ -115,13 +100,13 @@ const SearchPage = () => {
   
   <button
     onClick={() => setOpenFilter(!openFilter)}
-    className="p-2  rounded-md lg:hidden text-black "
+    className="p-2   rounded-md lg:hidden text-black "
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
+      width="30"
+      height="30"
+      viewBox="4 0 24 24"
     >
       <path
         fill="currentColor"
