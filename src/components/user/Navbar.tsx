@@ -67,10 +67,10 @@ const totalItems = cartItems.reduce(
 
 
       {/* LOGO */}
-      <div className="navbar-start">
+      <div className="navbar-start right-5 flex items-center justify-start">
         <img
           src={logo}
-          className="w-27 lg:w-38 cursor-pointer mt-5"
+          className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5"
           onClick={() => navigate("/")}
           alt="Logo"
           data-test="logo"
@@ -124,7 +124,7 @@ const totalItems = cartItems.reduce(
       handleSubmitSearch()
     }
   }}
-  className="absolute  right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
+  className="absolute  right-8 -top-2 input input-bordered bg-white w-31 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
   autoFocus
 />
 {inputValue && searchResult.length > 0 && (
@@ -155,7 +155,7 @@ const totalItems = cartItems.reduce(
 
         {isAuthenticated ? (
           <>
-            <div className="hidden lg:flex gap-4 items-center mr-2 text-gray-600">
+            <div className="flex gap-3 lg:gap-4 items-center text-gray-600">
 
              <div 
                 data-test="click-shop-cart"
