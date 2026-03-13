@@ -20,8 +20,6 @@ const SectionHeader = ({
   const navigate = useNavigate()
  
 
- 
-
   return (
     <div className="flex justify-between pr-5  items-center mb-5 mt-20 ">
       <div>

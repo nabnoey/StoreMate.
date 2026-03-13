@@ -1,94 +1,67 @@
-import {useState} from "react"
+import { useState } from "react";
 import axios from "axios";
-import Swal from "sweetalert2"
+import { toast } from "react-hot-toast"; 
 import { forgotPasswordService } from "../../services/auth.service";
 
-
-
 const ForgotPassword = () => {
+  const [email, setEmail] = useState<string>("");
 
-    const [email,setEmail] = useState<string>("")
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    //สร้าง funtion กดปุ่ม
+    try {
+      await forgotPasswordService(email);
+      toast.success("เราได้ส่งลิงก์รีเซ็ตรหัสผ่านให้คุณแล้ว");
+      setEmail("");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const apiMessage = error.response?.data?.message?.toLowerCase() || "";
 
-    const handleSubmit = async (e:React.FormEvent) => {
-        e.preventDefault();
-
-        try{
-            await forgotPasswordService(email);
-
-            Swal.fire({
-                icon:"success",
-                title:"ส่งสำเร็จ",
-                text: "เราได้ส่งลิงก์รีเซ็ตรหัสผ่านให้คุณแล้ว",
-                 confirmButtonColor: "#22c55e"
-            })
-
-        }catch(error:unknown){
-            if (axios.isAxiosError(error)){
-            Swal.fire({
-                icon:"error",
-                title:"เกิดข้อผิดพลาด",
-                text: error.response?.data?.message|| "ไม่สามารถส่งได้",
-                confirmButtonColor: "#ef4444"
-            })
+        if (status === 404 || apiMessage.includes("not found") || apiMessage.includes("user")) {
+          toast.error("ไม่พบผู้ใช้งาน");
+        } else {
+          toast.error(error.response?.data?.message || "ไม่สามารถส่งลิงก์ได้");
         }
-        }
+      } else {
+        toast.error("เกิดข้อผิดพลาดบางอย่าง");
+      }
     }
-
+  };
 
   return (
-    <div
-      className="
-       min-h-screen flex flex-col lg:flex-row 
-      bg-white
-      justify-center 
-      items-center lg:items-start
-      gap-8 lg:gap-20
-      px-4  pt-8 lg:pt-24
-      "
-    >
-
-
-      <div
-        className="
-        bg-white rounded-2xl shadow-2xl 
-        w-[571px] h-[310px] max-w-105 
-        p-6 relative 
-        "
-      >
-
-
-        <h2 className="text-[36px]  font-semibold mb-6 text-black">
-   กู้คืนรหัสผ่าน
+    <div className="min-h-screen flex justify-center items-center bg-white p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[571px] p-6 sm:p-8 relative">
+        <h2 className="text-2xl sm:text-[36px] font-semibold mb-6 text-black">
+          กู้คืนรหัสผ่าน
         </h2>
-<div className="mt-7 text-black text-[16px] font-light gap-3 flex flex-col">
-    อีเมล
-        <input
-        data-test="input-email"
-          name="email"
-          value={email}
-          onChange={(e) =>setEmail(e.target.value)}
-          placeholder="example@gmail.com"
-          className="input input-bordered w-full mb-4 bg-white font-light text-black border-gray-300"
-        />
 
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-black text-[16px] font-light">
+          <label className="flex flex-col gap-2">
+            อีเมล
+            <input
+              type="email" 
+              data-test="input-email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@gmail.com"
+              className="input input-bordered w-full bg-white font-light text-[#4B5563] focus:border-[#6B7280] border-gray-300"
+              required 
+            />
+          </label>
 
-   
-
-        <button
-        data-test="submit-btn"
-          type="submit"
-          className="btn w-[368px] h-[52px] bg-[#16A249] text-white text-[20px] font-medium border-none font-bold"
-        onClick={handleSubmit}>
-         ยืนยัน
-        </button>
-        </div>
-        </div>
+          <button
+            data-test="submit-btn"
+            type="submit"
+            className="btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors"
+          >
+            ยืนยัน
+          </button>
+        </form>
       </div>
-    
+    </div>
   );
-}
+};
 
-
-export default ForgotPassword
+export default ForgotPassword;

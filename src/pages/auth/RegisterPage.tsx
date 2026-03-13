@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { register } from "../../redux/auth/authReducer"; // เช็ค path ให้ตรงกับ authReducer ของคุณ
-import type { AppDispatch } from "../../redux/store";     // เช็ค path ให้ตรงกับ store ของคุณ
-import Swal from "sweetalert2";
+import { register } from "../../redux/auth/authReducer";
+import type { AppDispatch } from "../../redux/store";   
+import { toast } from "react-hot-toast";
 import axios from "axios";
-// import { registerService } from "../../services/auth.service"; // ไม่ได้ใช้แล้วเพราะย้ายไปเรียกผ่าน Redux
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -22,7 +21,6 @@ function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // --- 1. Validation Schema ---
   const validationSchema = Yup.object({
     name: Yup.string().required("กรุณากรอกชื่อ-นามสกุล"),
     email: Yup.string()
@@ -47,7 +45,7 @@ function RegisterPage() {
       .required("กรุณายืนยันรหัสผ่าน"),
   });
 
-  // --- 2. Formik Setup ---
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -60,19 +58,10 @@ function RegisterPage() {
     onSubmit: async (values) => {
       setLoading(true);
 
-      // แสดง Loading Popup
-      Swal.fire({
-        title: "กำลังลงทะเบียน...",
-        text: "กรุณารอสักครู่",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+
+      const toastId = toast.loading("กำลังลงทะเบียน...");
 
       try {
-        // ใช้ dispatch เรียก action 'register' ที่สร้างไว้ใน authReducer
-        // และใช้ .unwrap() เพื่อให้จับ Error ใน block catch ได้
         await dispatch(
           register({
             name: values.name,
@@ -83,17 +72,15 @@ function RegisterPage() {
           })
         ).unwrap();
 
-        // สำเร็จ -> Popup Success มาทับ Loading
-        await Swal.fire({
-          icon: "success",
-          title: "ลงทะเบียนสำเร็จ",
-          timer: 1500,
-          showConfirmButton: false,
-        });
 
-        navigate("/login");
+        toast.success("ลงทะเบียนสำเร็จ", { id: toastId });
+
+  
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+
       } catch (error: any) {
-        // ปรับ Error Handling ให้รองรับ Error จาก Redux
         let message = "เกิดข้อผิดพลาดในการสมัครสมาชิก";
         if (axios.isAxiosError(error)) {
           message = error.response?.data?.message ?? "Server error";
@@ -103,7 +90,8 @@ function RegisterPage() {
           message = error;
         }
 
-        Swal.fire("สมัครสมาชิกไม่สำเร็จ", message, "error");
+
+        toast.error(message, { id: toastId });
       } finally {
         setLoading(false);
       }
@@ -111,185 +99,187 @@ function RegisterPage() {
   });
 
   return (
-   <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
-     <div className="hidden lg:flex flex-col items-center justify-center">
-        <img
-          src={Auth}
-          alt="Auth Illustration"
-          className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
-        />
-        <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
-          สร้างบัญชี Storemate ของคุณ
-        </p>
-      </div>
-
-      {/* Register Card */}
-      <form
-        id="register-form"
-        onSubmit={formik.handleSubmit}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
-      >
-        <div className="absolute top-4 right-4 -mt-7.5">
+        
+        {/* ฝั่งรูปภาพ (ซ่อนในจอมือถือ) */}
+        <div className="hidden lg:flex flex-col items-center justify-center">
           <img
-            src={logo}
-            alt="logo"
-            className="w-20 sm:w-24 lg:w-40 h-auto"
+            src={Auth}
+            alt="Auth Illustration"
+            className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
           />
+          <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
+            สร้างบัญชี Storemate ของคุณ
+          </p>
         </div>
 
-        <h2 className="text-xl font-bold mb-6 text-black">สมัครสมาชิก</h2>
-
-        {/* Name Input */}
-        <div className="mb-4">
-          <label htmlFor="reg-name" className="label p-0 mb-1">
-            <span className="font-semibold text-black">ชื่อ-นามสกุล</span>
-          </label>
-          <input
-            id="reg-input-name"
-            type="text"
-            placeholder="ชื่อ-นามสกุล"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.name && formik.errors.name ? "border-red-500" : ""
-            }`}
-            {...formik.getFieldProps("name")}
-            data-testid="reg-input-name"
-          />
-          {formik.touched.name && formik.errors.name && (
-            <div className="text-red-500 text-xs mt-1">
-              {formik.errors.name}
-            </div>
-          )}
-        </div>
-
-        {/* Email Input */}
-        <div className="mb-4">
-          <label htmlFor="reg-email" className="label p-0 mb-1">
-            <span className="font-semibold text-black">อีเมล</span>
-          </label>
-          <input
-            id="reg-input-email"
-            type="email"
-            placeholder="example@gmail.com"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.email && formik.errors.email
-                ? "border-red-500"
-                : ""
-            }`}
-            {...formik.getFieldProps("email")}
-            data-testid="reg-input-email"
-          />
-          {formik.touched.email && formik.errors.email && (
-            <div className="text-red-500 text-xs mt-1">
-              {formik.errors.email}
-            </div>
-          )}
-        </div>
-
-        {/* Phone Input */}
-        <div className="mb-4">
-          <label htmlFor="reg-phone" className="label p-0 mb-1">
-            <span className="font-semibold text-black">เบอร์โทร</span>
-          </label>
-          <input
-            id="reg-input-phone"
-            type="text"
-            placeholder="เบอร์โทร"
-            className={`input input-bordered w-full bg-white text-black border-gray-300 ${
-              formik.touched.phone && formik.errors.phone
-                ? "border-red-500"
-                : ""
-            }`}
-            {...formik.getFieldProps("phone")}
-            data-testid="reg-input-phone"
-          />
-          {formik.touched.phone && formik.errors.phone && (
-            <div className="text-red-500 text-xs mt-1">
-              {formik.errors.phone}
-            </div>
-          )}
-        </div>
-
-        {/* Password Input */}
-        <div className="mb-4">
-          <label htmlFor="reg-password" className="label p-0 mb-1">
-            <span className="font-semibold text-black">รหัสผ่าน</span>
-          </label>
-          <div className="relative">
-            <input
-              id="reg-input-password"
-              type={showPassword ? "text" : "password"}
-              placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
-              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
-                formik.touched.password && formik.errors.password
-                  ? "border-red-500"
-                  : ""
-              }`}
-              {...formik.getFieldProps("password")}
-              data-test="reg-input-password"
-            />
-            <button
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-            </button>
-          </div>
-          {formik.touched.password && formik.errors.password && (
-            <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
-              {formik.errors.password}
-            </div>
-          )}
-        </div>
-
-        {/* Confirm Password Input */}
-        <div className="mb-6">
-          <label htmlFor="reg-confirm-password" className="label p-0 mb-1">
-            <span className="font-semibold text-black">ยืนยันรหัสผ่าน</span>
-          </label>
-          <div className="relative">
-            <input
-              id="reg-confirm-password"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="ยืนยันรหัสผ่าน"
-              className={`input input-bordered w-full bg-white text-black border-gray-300 pr-10 ${
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-                  ? "border-red-500"
-                  : ""
-              }`}
-              {...formik.getFieldProps("confirmPassword")}
-              data-test="reg-input-confirm"
-            />
-            <button
-              data-test="btn-show-confirm"
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-            </button>
-          </div>
-          {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-            <div className="text-red-500 text-xs mt-1">
-              {formik.errors.confirmPassword}
-            </div>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button
-          id="btn-register-submit"
-          type="submit"
-          disabled={loading}
-          className="btn w-full bg-green-400 text-black border-none font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-500 transition-colors"
-          data-testid="reg-btn-submit"
+        {/* Register Card */}
+        <form
+          id="register-form"
+          onSubmit={formik.handleSubmit}
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
         >
-          {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
-        </button>
-      </form>
+          <div className="absolute top-4 right-4 -mt-7.5">
+            <img
+              src={logo}
+              alt="logo"
+              className="w-35 sm:w-35 lg:w-40 h-auto"
+            />
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-black text-left">สมัครสมาชิก</h2>
+
+          {/* Name Input */}
+          <div className="mb-4">
+            <label htmlFor="reg-input-name" className="label p-0 mb-1">
+              <span className="font-semibold text-black">ชื่อ-นามสกุล</span>
+            </label>
+            <input
+              id="reg-input-name"
+              type="text"
+              placeholder="ชื่อ-นามสกุล"
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                formik.touched.name && formik.errors.name ? "border-red-500 focus:border-red-500" : ""
+              }`}
+              {...formik.getFieldProps("name")}
+              data-testid="reg-input-name"
+            />
+            {formik.touched.name && formik.errors.name && (
+              <div className="text-red-500 text-xs mt-1">
+                {formik.errors.name}
+              </div>
+            )}
+          </div>
+
+          {/* Email Input */}
+          <div className="mb-4">
+            <label htmlFor="reg-input-email" className="label p-0 mb-1">
+              <span className="font-semibold text-black">อีเมล</span>
+            </label>
+            <input
+              id="reg-input-email"
+              type="email"
+              placeholder="example@gmail.com"
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                formik.touched.email && formik.errors.email
+                  ? "border-red-500 focus:border-red-500"
+                  : ""
+              }`}
+              {...formik.getFieldProps("email")}
+              data-testid="reg-input-email"
+            />
+            {formik.touched.email && formik.errors.email && (
+              <div className="text-red-500 text-xs mt-1">
+                {formik.errors.email}
+              </div>
+            )}
+          </div>
+
+          {/* Phone Input */}
+          <div className="mb-4">
+            <label htmlFor="reg-input-phone" className="label p-0 mb-1">
+              <span className="font-semibold text-black">เบอร์โทร</span>
+            </label>
+            <input
+              id="reg-input-phone"
+              type="text"
+              placeholder="เบอร์โทร"
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                formik.touched.phone && formik.errors.phone
+                  ? "border-red-500 focus:border-red-500"
+                  : ""
+              }`}
+              {...formik.getFieldProps("phone")}
+              data-testid="reg-input-phone"
+            />
+            {formik.touched.phone && formik.errors.phone && (
+              <div className="text-red-500 text-xs mt-1">
+                {formik.errors.phone}
+              </div>
+            )}
+          </div>
+
+          {/* Password Input */}
+          <div className="mb-4">
+            <label htmlFor="reg-input-password" className="label p-0 mb-1">
+              <span className="font-semibold text-black">รหัสผ่าน</span>
+            </label>
+            <div className="relative">
+              <input
+                id="reg-input-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
+                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                  formik.touched.password && formik.errors.password
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("password")}
+                data-test="reg-input-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
+                {formik.errors.password}
+              </div>
+            )}
+          </div>
+
+          {/* Confirm Password Input */}
+          <div className="mb-6">
+            <label htmlFor="reg-confirm-password" className="label p-0 mb-1">
+              <span className="font-semibold text-black">ยืนยันรหัสผ่าน</span>
+            </label>
+            <div className="relative">
+              <input
+                id="reg-confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="ยืนยันรหัสผ่าน"
+                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                  formik.touched.confirmPassword && formik.errors.confirmPassword
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("confirmPassword")}
+                data-test="reg-input-confirm"
+              />
+              <button
+                data-test="btn-show-confirm"
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <div className="text-red-500 text-xs mt-1">
+                {formik.errors.confirmPassword}
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            id="btn-register-submit"
+            type="submit"
+            disabled={loading}
+            className="btn w-full h-[52px] bg-[#16A249]  text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
+            data-testid="reg-btn-submit"
+          >
+            {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
+          </button>
+        </form>
+      </div>
     </div>
-     </div>
   );
 }
 

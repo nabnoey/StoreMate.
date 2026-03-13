@@ -1,94 +1,160 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { resetPasswordService } from "../../services/auth.service";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { toast } from "react-hot-toast"; 
 import axios from "axios";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Eye, EyeOff } from "lucide-react";
 
 function ResetPassword() {
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
-  const [password,setPassword] = useState("");
-  const [confirmPassword,setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = async () => {
+  // ตั้งค่าเงื่อนไขการตรวจสอบ (Validation Schema) ให้เหมือนหน้าอื่นๆ
+  const validationSchema = Yup.object({
+    password: Yup.string()
+      .min(8, "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
+      .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
+      .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
+      .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
+      .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
+      .matches(
+        /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
+        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค"
+      )
+      .required("กรุณากรอกรหัสผ่านใหม่"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน")
+      .required("กรุณายืนยันรหัสผ่านใหม่"),
+  });
 
-    if (!token) {
-      Swal.fire("Error","Token not found","error");
-      return;
-    }
-
-    if (!password || !confirmPassword) {
-      Swal.fire("Error","กรุณากรอกรหัสผ่านให้ครบ","error");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Swal.fire("Error","รหัสผ่านไม่ตรงกัน","error");
-      return;
-    }
-
-    try {
-      await resetPasswordService(token,password, confirmPassword);
-
-      Swal.fire("Success","ระบบบันทึกรหัสผ่านแล้ว","success");
-
-      setPassword("");
-      setConfirmPassword("");
-
-      navigate("/login");
-
-    } catch (error: unknown) {
-      let message = "Reset password failed";
-
-      if (axios.isAxiosError(error)) {
-        message =
-          error.response?.data?.message ||
-          error.response?.data ||
-          error.message;
+  const formik = useFormik({
+    initialValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      if (!token) {
+        toast.error("ไม่พบข้อมูล Token ยืนยันตัวตน");
+        return;
       }
 
-      Swal.fire("Error",message,"error");
-    }
-  };
+      setLoading(true);
+
+      try {
+        await resetPasswordService(token, values.password, values.confirmPassword);
+
+        toast.success("เปลี่ยนรหัสผ่านสำเร็จ");
+        formik.resetForm();
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
+
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          const apiMessage = error.response?.data?.message?.toLowerCase() || "";
+          const status = error.response?.status;
+
+          if (status === 401 || status === 400 || apiMessage.includes("expire") || apiMessage.includes("invalid")) {
+            toast.error("ลิงก์หมดอายุ กรุณารีเซ็ตรหัสผ่านใหม่อีกครั้ง");
+          } else {
+            toast.error(error.response?.data?.message || "ไม่สามารถเปลี่ยนรหัสผ่านได้");
+          }
+        } else {
+          toast.error("เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน");
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-white">
-      <div className="bg-white rounded-2xl shadow-2xl w-[571px] p-6">
-
-        <h2 className="text-[36px] font-semibold mb-6 text-black">
+    <div className="min-h-screen flex justify-center items-center bg-white p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[571px] p-6 sm:p-8">
+        
+        <h2 className="text-2xl sm:text-[36px] font-semibold mb-6 text-black text-center">
           กู้คืนรหัสผ่าน
         </h2>
 
-        <div className="flex flex-col gap-3 text-black">
+        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4 text-black text-[16px]">
+          
+          {/* รหัสผ่านใหม่ */}
+          <div className="flex flex-col gap-2">
+            <label>รหัสผ่านใหม่</label>
+            <div className="relative">
+              <input
+                data-test="new-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="อย่างน้อย 8 ตัว"
+                className={`input input-bordered w-full bg-white border text-[#4B5563] focus:border-[#6B7280] pr-10 ${
+                  formik.touched.password && formik.errors.password
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-gray-300"
+                }`}
+                {...formik.getFieldProps("password")}
+              />
+              <button
+              data-test="toggle-new-password"
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-xs whitespace-pre-line">{formik.errors.password}</div>
+            )}
+          </div>
 
-          รหัสผ่านใหม่
-          <input
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-            placeholder="อย่างน้อย 8 ตัว"
-            className="input input-bordered w-full bg-white text-black"
-          />
-
-          ยืนยันรหัสผ่านใหม่
-          <input
-            value={confirmPassword}
-            onChange={(e)=>setConfirmPassword(e.target.value)}
-            placeholder="อย่างน้อย 8 ตัว"
-            className="input input-bordered w-full bg-white text-black"
-          />
+          {/* ยืนยันรหัสผ่านใหม่ */}
+          <div className="flex flex-col gap-2">
+            <label>ยืนยันรหัสผ่านใหม่</label>
+            <div className="relative">
+              <input
+                data-test="confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="อย่างน้อย 8 ตัว"
+                className={`input input-bordered w-full bg-white border text-[#4B5563] focus:border-[#6B7280] pr-10 ${
+                  formik.touched.confirmPassword && formik.errors.confirmPassword
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-gray-300"
+                }`}
+                {...formik.getFieldProps("confirmPassword")}
+              />
+              <button
+                data-test="toggle-confirm-password"
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <div className="text-red-500 text-xs">{formik.errors.confirmPassword}</div>
+            )}
+          </div>
 
           <button
-            onClick={handleSubmit}
-            className="btn bg-[#16A249] text-white mt-4"
+            data-test="submit-btn"
+            type="submit"
+            disabled={loading}
+            className="btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors disabled:opacity-50"
           >
-            ยืนยัน
+            {loading ? "กำลังดำเนินการ..." : "ยืนยัน"}
           </button>
+        </form>
 
-        </div>
       </div>
     </div>
   );
