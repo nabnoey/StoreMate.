@@ -34,16 +34,18 @@ const ProductDetailPage: React.FC = () => {
 
 
   const currentStock = productDetail?.quantity || 0;
+
+  //จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
-  const isLoggedIn = !!token;
+  const isLoggedIn = !!token; 
   let currentUserId: number | null = null;
   const categoryName = location.state?.categoryName || "สินค้า";
-  // const totalPages = 10;
-   const fixedTotalPages = 5;
+
+  //Pagination
   const REVIEWS_PER_PAGE = 3; 
   const allReviews = productDetail?.reviews || [];
 
-  // const calculatedTotalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+  const calculatedTotalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
 
 
   const indexOfLastReview = currentPage * REVIEWS_PER_PAGE;
@@ -185,7 +187,7 @@ const ProductDetailPage: React.FC = () => {
         <nav className="flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
           <Link data-test="click-home" to="/" className="transition-colors">หน้าหลัก</Link>
           <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-black" />
-         <Link to="/products" className="transition-colors">
+         <Link to={`/search?category=${categoryName}`} className="transition-colors">
         {catagoryTranslator[categoryName]||categoryName}
       </Link>     
           <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-black" />
@@ -360,7 +362,7 @@ const ProductDetailPage: React.FC = () => {
           <div className="flex justify-center items-center gap-5 mt-10">
            <Pagination 
         currentPage={currentPage} 
-        totalPages={fixedTotalPages} 
+        totalPages={calculatedTotalPages} 
         onPageChange={handlePageChange} 
       />
     </div>
