@@ -122,10 +122,10 @@ function LoginPage() {
         className="bg-white rounded-2xl shadow-2xl w-full max-w-105 p-6 relative"
       >
         <div className="absolute top-4 right-4 -mt-7.5">
-          <img src={logo} alt="logo" className="w-20 sm:w-24 lg:w-40 h-auto" />
+          <img src={logo} alt="logo" className="w-35 sm:w-35 lg:w-40 h-auto" />
         </div>
 
-        <h2 className="text-2xl font-extrabold mb-6 text-black text-center lg:text-left">
+        <h2 className="text-2xl font-extrabold mb-6 text-black text-left lg:text-left">
           เข้าสู่ระบบ
         </h2>
 
