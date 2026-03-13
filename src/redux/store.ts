@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authReducer";
 import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
-import loadingReducer from "./loading/loadingReducer";
 import addressReducer from "./address/addressReducer";
 import reviewsReducer from "./reviews/reviewsReducer"
 
@@ -12,7 +11,6 @@ export const store = configureStore({
         auth: authReducer,
         carts: cartReducer,
         products: productsReducer,
-        loading: loadingReducer,
         address: addressReducer,
         reviews: reviewsReducer,
     },
