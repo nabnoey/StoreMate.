@@ -12,9 +12,7 @@ const Profile = lazy(() => import("../pages/users/Profile"));
 const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
 const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
-const PaymentShoping = lazy(
-  () => import("../pages/users/carts/PaymentShoping"),
-);
+const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"),);
 const SearchPage = lazy(() => import("../pages/SearchPage"));
 const CategoryPage = lazy(() => import("../pages/users/CategoryPage"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
