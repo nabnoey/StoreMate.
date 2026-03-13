@@ -91,7 +91,7 @@ return (
         <div className="relative flex items-center">
           <GoSearch
             size={22}
-            className="cursor-pointer hover:text-black text-black z-50"
+            className="cursor-pointer hover:text-black text-black z-50 "
             data-test="search"
             onClick={() => {
               if (openSearch) {
@@ -153,7 +153,7 @@ return (
                 <FaCartShopping
                   size={22}
                   data-test="cart-shopping"
-                  className="hover:text-black"
+                  className="hidden md:flex hover:text-black"
                 />
 
                 {totalItems > 0 && (
@@ -163,7 +163,7 @@ return (
                 )}
               </div>
 
-              <BiSolidBell size={22} className="cursor-pointer hover:text-black" />
+              <BiSolidBell size={22} className="hidden md:flex cursor-pointer hover:text-black" />
             </div>
 
             {/* ซ่อน Profile ไอคอนไว้เฉพาะจอใหญ่ เพราะจอมือถือมีอยู่ใน Hamburger แล้ว */}
