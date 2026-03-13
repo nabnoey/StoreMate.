@@ -20,6 +20,7 @@ const SearchPage = () => {
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [openFilter,setOpenFilter] = useState(false)
 
   const handleClearFilter = () => {
     setMinPrice("");
@@ -94,22 +95,44 @@ const SearchPage = () => {
 
   return (
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
-      <div className="w-full lg:w-[320px] pt-6 lg:pt-16">
-        <div className="relative w-full">
-          <GoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+      <div className="w-full lg:w-[320px] pt-6 lg:pt-16 ">
+       <div className="flex items-center gap-3">
 
-          <input
-            data-test="input-search"
-            type="text"
-            placeholder="ค้นหาสินค้า..."
-            className="w-full h-[40px] text-black border border-gray-300 rounded pl-10"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleSearch}
-          />
-        </div>
+  <div className="relative flex-1 w-full pl-4">
+  <GoSearch className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-500" />
 
-        <div className="flex items-center justify-between mt-5 mb-4 ">
+  <input
+    data-test="input-search"
+    type="text"
+    placeholder="ค้นหาสินค้า..."
+    className="w-full h-[40px] text-black border border-gray-300 rounded pl-10"
+    value={inputValue}
+    onChange={(e) => setInputValue(e.target.value)}
+    onKeyDown={handleSearch}
+  />
+</div>
+
+  
+  <button
+    onClick={() => setOpenFilter(!openFilter)}
+    className="p-2  rounded-md lg:hidden text-black "
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill="currentColor"
+        d="M11 20q-.425 0-.712-.288T10 19v-6L4.2 5.6q-.375-.5-.112-1.05T5 4h14q.65 0 .913.55T19.8 5.6L14 13v6q0 .425-.288.713T13 20z"
+      />
+    </svg>
+  </button>
+
+</div>
+<div className={`${openFilter ? "block" : "hidden"} lg:block w-full lg:w-[320px] pt-6 lg:pt-16`}>
+        <div className="flex items-center justify-between mb-4 ">
           <h3 className="text-xl font-bold flex items-center gap-2 text-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -205,6 +228,7 @@ const SearchPage = () => {
             เครื่องดื่ม
           </p>
         </div>
+     
 
         <div className="border-b border-gray-300 my-4"></div>
 
@@ -228,10 +252,12 @@ const SearchPage = () => {
             className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
           />
         </div>
+        
         <div className="border-b border-gray-300 my-4 mt-2"></div>
+           </div>
       </div>
 
-      <div className="flex-1 px-5 py-15 md:py lg:mt-0">
+      <div className="flex-1 px-5 py-15 md:py -mt-10 lg:mt-0">
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {displayProducts.length} รายการ</p>
 
@@ -245,7 +271,7 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justif-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justif-center pl-3">
             {displayProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
