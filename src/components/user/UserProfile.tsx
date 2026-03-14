@@ -35,13 +35,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ variant = "desktop", onCloseM
               toast.success("ออกจากระบบสำเร็จ");
               navigate("/login");
             }}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
           >
             ออกจากระบบ
           </button>
           <button
             onClick={() => toast.dismiss(t.id)} // ปิด Toast เฉยๆ ถ้ายกเลิก
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
+            className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
           >
             ยกเลิก
           </button>
@@ -85,20 +85,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ variant = "desktop", onCloseM
   return (
     <div className="dropdown dropdown-end lg:block hidden" id="user-profile-dropdown">
       <label tabIndex={0} className="cursor-pointer">
-        <div className="w-11 h-11 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
+        <div className="cursor-pointer w-11 h-11 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
           <FaRegUser size={20} />
         </div>
       </label>
       <ul tabIndex={0} className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50">
         <li>
-          <a onClick={() => navigate("/profile")} className="flex items-center gap-3 py-3">
+          <a onClick={() => navigate("/profile")} className="cursor-pointer flex items-center gap-3 py-3">
             <IoSettingsOutline size={22} className="text-gray-600" />
             <span className="font-medium">แก้ไขโปรไฟล์</span>
           </a>
         </li>
         <hr className="my-1 border-gray-50" />
         <li>
-          <a onClick={handleLogout} className="flex items-center gap-3 py-3 text-gray-700 hover:text-red-600 cursor-pointer">
+          <a onClick={handleLogout} className=" flex items-center gap-3 py-3 text-gray-700 hover:text-red-600 cursor-pointer">
             <MdLogout size={22} className="rotate-180" /> 
             <span className="font-medium">ลงชื่อออกจากระบบ</span>
           </a>

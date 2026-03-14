@@ -49,6 +49,7 @@ const SectionHeader = ({
 
 function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const groupedProduct = useSelector((state: RootState) => state.products.groupedProducts);
 
   useEffect(() => {
@@ -76,10 +77,15 @@ function HomePage() {
               คัดสรรวัตถุดิบคุณภาพจากธรรมชาติ เพื่อสุขภาพที่ดีของคุณ ด้วยกรรมวิธีผลิตที่สะอาด ปลอดภัย ได้มาตรฐานสากล
             </p>
             <div className="flex flex-wrap gap-4">
-              <button id="btn-hero-see-all" className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
+              <button 
+              id="btn-hero-see-all" 
+              className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
                 ดูสินค้าทั้งหมด
               </button>
-              <button id="btn-hero-about-us" className="border border-white/30 bg-white/5 text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-white/10 transition-colors">
+              <button 
+               onClick={() => navigate(`/about-us`)}
+              id="btn-hero-about-us" 
+              className="border border-white/30 bg-white/5 text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-white/10 transition-colors">
                 เกี่ยวกับเรา
               </button>
             </div>

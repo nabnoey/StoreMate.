@@ -69,7 +69,7 @@ const totalItems = cartItems.reduce(
       <div className="navbar-start right-5 flex items-center justify-start">
         <img
           src={logo}
-          className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5"
+          className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
           onClick={() => navigate("/")}
           alt="Logo"
           data-test="logo"
@@ -85,7 +85,7 @@ const totalItems = cartItems.reduce(
           data-test="list-promo" 
           className="hover:text-indigo-600 cursor-pointer" 
           onClick={() => navigate(`/search?category=promotion`)}>โปรโมชั่น</a></li>
-          <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer">เกี่ยวกับร้าน</a></li>
+          <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer" onClick={() => navigate("/about-us")} >เกี่ยวกับเรา</a></li>
           <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
 
         </ul>
@@ -158,13 +158,13 @@ const totalItems = cartItems.reduce(
 
              <div 
                 data-test="click-shop-cart"
-                className="relative cursor-pointer p-1" 
+                className="relative cursor-pointer p-1 cursor-pointer" 
                 onClick={() => navigate("/shopping-cart")}
               >
                 <FaCartShopping
                   size={22}
                   data-test="cart-shopping"
-                  className="hover:text-black"
+                  className="hover:text-black cursor-pointer"
                 />
 
                 {totalItems > 0 && (
@@ -174,7 +174,7 @@ const totalItems = cartItems.reduce(
                 )}
               </div>
 
-              <BiSolidBell size={22} className="cursor-pointer hover:text-black" />
+              <BiSolidBell size={22} className="cursor-pointer hover:text-black cursor-pointer" />
             </div>
 
             <UserProfile />
@@ -183,7 +183,7 @@ const totalItems = cartItems.reduce(
           <div className="hidden lg:flex items-center gap-3">
             <button
             data-test="login-btn"
-              className="bg-[#073A8D] text-white w-24 h-11 rounded-[10px]"
+              className="bg-[#073A8D] text-white w-24 h-11 rounded-[10px] cursor-pointer"
               onClick={() => navigate("/login")}
             >
               เข้าสู่ระบบ
@@ -191,7 +191,7 @@ const totalItems = cartItems.reduce(
 
             <button
             data-test="register-btn" 
-              className="btn btn-outline text-[#073A8D] text-[#0A157A] w-30 h-11 rounded-[10px]"
+              className="btn btn-outline text-[#073A8D] text-[#0A157A] w-30 h-11 rounded-[10px] cursor-pointer"
               onClick={() => navigate("/register")}
             >
               สมัครสมาชิก
@@ -229,7 +229,7 @@ const totalItems = cartItems.reduce(
           <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-50">
             <button 
                 data-test="btn-login"
-                className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm"
+                className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer"
                   onClick={() => { navigate("/login"); setOpenMenu(false); }}
             >
                 เข้าสู่ระบบ
@@ -237,7 +237,7 @@ const totalItems = cartItems.reduce(
 
             <button 
             data-test="btn-register"
-          className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm"
+          className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm cursor-pointer"
           onClick={() => { navigate("/register"); setOpenMenu(false); }}
             >
           สมัครสมาชิก
@@ -246,10 +246,10 @@ const totalItems = cartItems.reduce(
         )}
 
     <div className="flex flex-col py-2">
-      <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
-      <a data-test="list-promo" onClick={() => navigate(`/search?category=promotion`)} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
-      <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
-      <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
+      <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className=" cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
+      <a data-test="list-promo" onClick={() => navigate(`/search?category=promotion`)} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
+      <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
+      <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
     </div>
   </div>
 )}

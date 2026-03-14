@@ -41,6 +41,10 @@ const CategoryPage = lazy(() =>
 const AddressProfile = lazy(() =>
   lazyDelay(() => import("../pages/users/AddreesProfile"), 1200)
 );
+const AboutUs = lazy(() =>
+  lazyDelay(() => import("../pages/AboutAs"), 1200)
+);
+
 
 const router = createBrowserRouter([
   {
@@ -106,6 +110,10 @@ const router = createBrowserRouter([
       {
         path: "address-profile",
         element: <AddressProfile />,
+      },
+      {
+        path: "about-us",
+        element: <AboutUs />,
       },
     ],
   },
