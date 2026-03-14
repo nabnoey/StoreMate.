@@ -20,7 +20,7 @@ const EditModal = ({ isOpen, title, onClose, onSave, children }: ModalProps) => 
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[450px] p-6">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[450px] p-6 ">
         <h3 className="text-xl font-bold text-gray-800 mb-6">{title}</h3>
         <div className="space-y-4">{children}</div>
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8">

@@ -31,14 +31,14 @@ const ProfileSidebar = () => {
           </button>
         </div>
 
-        <div className="flex-[1.2] flex bg-white rounded shadow-sm border border-gray-100 text-xs font-bold relative">
+        <div className="flex-[1.2] flex bg-white rounded shadow-sm border border-gray-100 text-xs font-bold relative  ">
           <button 
-            className={`flex-1 flex items-center justify-center gap-1 rounded-l transition-colors ${isMobileMenuOpen ? 'bg-gray-200' : 'bg-gray-100'}`}
+            className={`flex-1 flex items-center justify-center gap-1 rounded-l transition-colors cursor-pointer ${isMobileMenuOpen ? 'bg-gray-200' : 'bg-gray-100'}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            โปรไฟล์ของฉัน <span className="text-[10px] font-black">≡</span>
+            โปรไฟล์ของฉัน <span className="text-[10px] font-black cursor-pointer">≡</span>
           </button>
-          <button className="flex-1 flex items-center justify-center text-black hover:text-blue-500 rounded-r"
+          <button className="flex-1 flex items-center justify-center text-black hover:text-blue-500 rounded-r "
           onClick={()=>navigate("/history-shop")}>
             การซื้อของฉัน
           </button>
