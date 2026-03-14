@@ -1,22 +1,46 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-const Home = lazy(() => import("../pages/HomePage"));
-const ShoppingCartPage = lazy(
-  () => import("../pages/users/carts/ShoppingCart"),
-);
-const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
-const MainLayout = lazy(() => import("../layouts/MainLayout"));
-const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
-const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
-const Profile = lazy(() => import("../pages/users/Profile"));
-const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
-const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
-const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
-const PaymentShoping = lazy(() => import("../pages/users/carts/PaymentShoping"),);
-const SearchPage = lazy(() => import("../pages/SearchPage"));
-const CategoryPage = lazy(() => import("../pages/users/CategoryPage"));
-const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
+import MainLayout from "../layouts/MainLayout";
 import GuestRoute from "./GuestRoute";
+import { lazyDelay } from "../utils/lazyDelay";
+
+const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
+const ShoppingCartPage = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/ShoppingCart"), 1200)
+);
+const RegisterPage = lazy(() =>
+  lazyDelay(() => import("../pages/auth/RegisterPage"), 1200)
+);
+const LoginPage = lazy(() =>
+  lazyDelay(() => import("../pages/auth/LoginPage"), 1200)
+);
+const ForgotPassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ForgotPassword"), 1200)
+);
+const Profile = lazy(() =>
+  lazyDelay(() => import("../pages/users/Profile"), 1200)
+);
+const ResetPassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ResetPassword"), 1200)
+);
+const ChangePassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ChangePassword"), 1200)
+);
+const ProductDetailPage = lazy(() =>
+  lazyDelay(() => import("../pages/ProductDetails"), 1200)
+);
+const PaymentShoping = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentShoping"), 1200)
+);
+const SearchPage = lazy(() =>
+  lazyDelay(() => import("../pages/SearchPage"), 1200)
+);
+const CategoryPage = lazy(() =>
+  lazyDelay(() => import("../pages/users/CategoryPage"), 1200)
+);
+const AddressProfile = lazy(() =>
+  lazyDelay(() => import("../pages/users/AddreesProfile"), 1200)
+);
 
 const router = createBrowserRouter([
   {
@@ -24,21 +48,19 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       {
-        path: "/",
+        index: true,
         element: <Home />,
       },
       {
-        path: "/shopping-cart",
+        path: "shopping-cart",
         element: <ShoppingCartPage />,
       },
-
       {
-        path: "/payment",
+        path: "payment",
         element: <PaymentShoping />,
       },
-
       {
-        path: "/register",
+        path: "register",
         element: (
           <GuestRoute>
             <RegisterPage />
@@ -46,7 +68,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/login",
+        path: "login",
         element: (
           <GuestRoute>
             <LoginPage />
@@ -54,36 +76,35 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/forgot-password",
+        path: "forgot-password",
         element: <ForgotPassword />,
       },
-
       {
-        path: "/reset-password",
+        path: "reset-password",
         element: <ResetPassword />,
       },
       {
-        path: "/change-password",
+        path: "change-password",
         element: <ChangePassword />,
       },
       {
-        path: "/profile",
+        path: "profile",
         element: <Profile />,
       },
       {
-        path: "/product/:id",
+        path: "product/:id",
         element: <ProductDetailPage />,
       },
       {
-        path: "/search",
+        path: "search",
         element: <SearchPage />,
       },
       {
-        path: "/category/:category",
+        path: "category/:category",
         element: <CategoryPage />,
       },
       {
-        path: "/address-profile",
+        path: "address-profile",
         element: <AddressProfile />,
       },
     ],
