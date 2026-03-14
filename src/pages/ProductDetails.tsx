@@ -63,27 +63,33 @@ const ProductDetailPage: React.FC = () => {
     console.error("ถอดรหัส Token ไม่ได้:", error);
   }
 }
-  useEffect(() => {
-    const fetchDetail = async () => {
-  try {
-    setLoading(true);
+ useEffect(() => {
+  const fetchDetail = async () => {
+    try {
+      setLoading(true);
 
-    await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1200));
 
-    if (id) {
-      const data = await ProductService.getProductById(Number(id));
-      setProductDetail(data);
+      if (id) {
+        const data = await ProductService.getProductById(Number(id));
+        setProductDetail(data);
+
+        // ⭐ ตั้งค่ารูปแรกเป็นรูปหลัก
+        if (data.productImages && data.productImages.length > 0) {
+          setActiveImage(data.productImages[0].imageUrl);
+        }
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-    fetchDetail();
-  
-    setBuyQuantity(1);
-    window.scrollTo(0, 0);
-  }, [id]);
+  fetchDetail();
+
+  setBuyQuantity(1);
+  window.scrollTo(0, 0);
+}, [id]);
+
 
   const handleIncrease = () => { 
     const token = TokenService.getAccessToken();
@@ -197,10 +203,10 @@ const ProductDetailPage: React.FC = () => {
           <div id="product-image-container" className="flex flex-col items-center">
             <div className="w-full max-w-[450px] aspect-[4/5] flex items-center justify-center mb-4 bg-white">
               <img
-                src={activeImage || 'https://via.placeholder.com/500'}
-                alt={productDetail.productName}
-                className="w-full h-full object-contain"
-              />
+  src={activeImage || productDetail.productImages?.[0]?.imageUrl || 'https://via.placeholder.com/500'}
+  alt={productDetail.productName}
+  className="w-full h-full object-contain"
+/>
             </div>
             <div id="product-thumbnails" className="flex gap-3 overflow-x-auto justify-center w-full">
               {productDetail.productImages?.map((img) => (
