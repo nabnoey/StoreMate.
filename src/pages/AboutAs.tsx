@@ -60,7 +60,7 @@ const AboutUs = () => {
           
           {/* Breadcrumb */}
           <div className="mb-8 md:mb-12 text-sm text-gray-500">
-            <a href="/" className="hover:text-blue-500 transition-colors">หน้าหลัก</a>
+            <a href="/" className="cursor-pointer hover:text-blue-500 transition-colors">หน้าหลัก</a>
             <span className="mx-2">&gt;</span>
             <span className="text-gray-900 font-medium">เกี่ยวกับเรา</span>
           </div>
