@@ -6,52 +6,42 @@ import { MdLogout } from "react-icons/md";
 import { logout } from "../../redux/auth/authReducer";
 import type { AppDispatch } from "../../redux/store";
 import { TokenService } from "../../services/token.service";
-import { toast } from "react-hot-toast"; 
+import Swal from "sweetalert2";
 
 interface UserProfileProps {
   variant?: "desktop" | "mobile";
-  onCloseMenu?: () => void; 
+  onCloseMenu?: () => void; // สำหรับปิดเมนู mobile เวลาเลือกเมนู
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ variant = "desktop", onCloseMenu }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    if (onCloseMenu) onCloseMenu(); 
+  const handleLogout = async () => {
+    if (onCloseMenu) onCloseMenu(); // ปิดเมนู mobile ก่อนแสดง Swal
 
-    // ใช้ Custom Toast เพื่อสร้างหน้าต่างยืนยัน
-    toast((t) => (
-      <div className="flex flex-col gap-3 items-center p-2">
-        <span className="text-gray-800 font-medium text-base">
-          คุณต้องการออกจากระบบใช่หรือไม่?
-        </span>
-        <div className="flex gap-3 mt-2">
-          <button
-            onClick={() => {
-              toast.dismiss(t.id); // ปิด Toast ตัวยืนยัน
-              TokenService.removeToken();
-              dispatch(logout());
-              toast.success("ออกจากระบบสำเร็จ");
-              navigate("/login");
-            }}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
-          >
-            ออกจากระบบ
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)} // ปิด Toast เฉยๆ ถ้ายกเลิก
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
-          >
-            ยกเลิก
-          </button>
-        </div>
-      </div>
-    ), {
-      duration: Infinity, // ตั้งเป็น Infinity เพื่อไม่ให้ Toast หายไปเองจนกว่าจะกดปุ่ม
-      position: "top-center",
-      id: "logout-confirm", // ใส่ ID ป้องกันไม่ให้เด้งซ้อนกันหลายอันถ้ากดรัวๆ
+    const result = await Swal.fire({
+      title: "ออกจากระบบ?",
+      text: "คุณต้องการออกจากระบบใช่หรือไม่",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ออกจากระบบ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#d33",
     });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "ออกจากระบบสำเร็จ",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        TokenService.removeToken();
+        dispatch(logout());
+        navigate("/login");
+      });
+    }
   };
 
   // --- แบบ MOBILE (แสดงใน Dropdown รวมกับเมนูสินค้า) ---
@@ -98,7 +88,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ variant = "desktop", onCloseM
         </li>
         <hr className="my-1 border-gray-50" />
         <li>
-          <a onClick={handleLogout} className="flex items-center gap-3 py-3 text-gray-700 hover:text-red-600 cursor-pointer">
+          <a onClick={handleLogout} className="flex items-center gap-3 py-3 text-gray-700 hover:text-red-600">
             <MdLogout size={22} className="rotate-180" /> 
             <span className="font-medium">ลงชื่อออกจากระบบ</span>
           </a>

@@ -6,7 +6,6 @@ import { search,fetchProducts } from "../../src/redux/products/productReducer";
 import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import Loading from '../components/loading/Loading'
 
 
 const SearchPage = () => {
