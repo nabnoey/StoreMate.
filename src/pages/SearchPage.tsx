@@ -62,21 +62,6 @@ const SearchPage = () => {
   return matchCategory && matchPrice && matchKeyword;
 });
 
-// const displayProducts =
-
-//   searchResult.length > 0
-//     ? searchResult
-//     : items.filter((p) => {
-//         const matchCategory =
-//           category === "" ||
-//           p.categoryName?.toLowerCase() === category.toLowerCase();
-
-//         const matchPrice =
-//           (!minPrice || p.price >= Number(minPrice)) &&
-//           (!maxPrice || p.price <= Number(maxPrice));
-
-//         return matchCategory && matchPrice;
-//       });
 
   const [inputValue, setInputValue] = useState(keyword);
   const navigate = useNavigate();
@@ -86,7 +71,7 @@ const SearchPage = () => {
       const value = inputValue.trim();
 
       if (value) {
-        navigate(`/search?keyword=${encodeURIComponent(value)}`);
+        navigate(`/search?keyword=${encodeURIComponent(value)}&category=${category}`);
       } else {
         navigate("/search");
       }
