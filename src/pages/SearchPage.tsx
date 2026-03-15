@@ -42,6 +42,8 @@ const SearchPage = () => {
           category: category,
           minPrice: 0,
           maxPrice: 0,
+          page: 1,
+          size:1000
         }),
       );
     }
@@ -72,7 +74,7 @@ const SearchPage = () => {
       const value = inputValue.trim();
 
       if (value) {
-        navigate(`/search?keyword=${encodeURIComponent(value)}`);
+        navigate(`/search?keyword=${encodeURIComponent(value)}&category=${category}`);
       } else {
         navigate("/search");
       }

@@ -29,12 +29,11 @@ export const fetchProducts = createAsyncThunk("products/fetch", async () => {
 
 export const search = createAsyncThunk(
   "products/search", 
-  async ({ keyword, category,minPrice,maxPrice }: { keyword: string,category:string,minPrice:number,maxPrice:number }) => {
-    const response = await ProductService.searchProducts(keyword,category,minPrice,maxPrice);
+  async ({ keyword, category,minPrice,maxPrice,page,size }: { keyword: string,category:string,minPrice:number,maxPrice:number,page:number,size:number }) => {
+    const response = await ProductService.searchProducts(keyword,category,minPrice,maxPrice,page,size);
     return response;
   }
 );
-
 
 const productsSlice = createSlice({
   name: "products",

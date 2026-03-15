@@ -37,7 +37,7 @@ const SectionHeader = ({
         data-test="see-all-link"
         onClick={() => navigate(`/search?category=${category}`)}
       >
-        <span className="text-[14px] md:text-[16px] font-semibold whitespace-nowrap">
+        <span className="text-[14px] md:text-[16px] font-semibold whitespace-nowrap" >
           ดูทั้งหมด
         </span>
 
@@ -51,6 +51,8 @@ function HomePage() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const groupedProduct = useSelector((state: RootState) => state.products.groupedProducts);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -77,9 +79,13 @@ function HomePage() {
               คัดสรรวัตถุดิบคุณภาพจากธรรมชาติ เพื่อสุขภาพที่ดีของคุณ ด้วยกรรมวิธีผลิตที่สะอาด ปลอดภัย ได้มาตรฐานสากล
             </p>
             <div className="flex flex-wrap gap-4">
+<<<<<<< HEAD
               <button 
               id="btn-hero-see-all" 
               className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
+=======
+              <button id="btn-hero-see-all" className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl" onClick={()=> navigate("/search")}>
+>>>>>>> Edit/feature-responsive
                 ดูสินค้าทั้งหมด
               </button>
               <button 

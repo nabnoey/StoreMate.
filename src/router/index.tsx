@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
-import MainLayout from "../layouts/MainLayout";
 import GuestRoute from "./GuestRoute";
 import { lazyDelay } from "../utils/lazyDelay";
 
@@ -44,6 +43,10 @@ const AddressProfile = lazy(() =>
 const AboutUs = lazy(() =>
   lazyDelay(() => import("../pages/AboutAs"), 1200)
 );
+const MainLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/MainLayout"), 1200)
+);
+
 
 
 const router = createBrowserRouter([
@@ -115,6 +118,7 @@ const router = createBrowserRouter([
         path: "about-us",
         element: <AboutUs />,
       },
+
     ],
   },
 ]);
