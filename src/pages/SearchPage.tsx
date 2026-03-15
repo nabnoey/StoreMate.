@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 
   const categoryMap: Record<string, number> = {
-    promotion: 1,
+  promotion: 1,
   soap: 2,
   drinks: 3,
   shampoo: 4,
@@ -62,7 +62,7 @@ const SearchPage = () => {
 
       
     
-  }, [keyword, category, dispatch,categoryMap]);
+  }, [keyword, category, dispatch]);
 
 
 
