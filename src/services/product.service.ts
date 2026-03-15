@@ -9,10 +9,10 @@ const searchProducts = async ( keyword: string,
   category: string,
   minPrice?: number,
   maxPrice?: number,
-  size?:number,
-  page?:number
+page?: number,
+size?: number
  ) => {
-    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search?keyword=${encodeURIComponent(keyword)}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&size=${size}&page=${page}`)
+    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search?keyword=${encodeURIComponent(keyword)}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&page=${page}&size=${size}`)
     return res.data
 }
 

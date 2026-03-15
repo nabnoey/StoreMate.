@@ -2,10 +2,11 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
-import { search,fetchProducts } from "../../src/redux/products/productReducer";
+import { search } from "../../src/redux/products/productReducer";
 import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+
 
 
 const SearchPage = () => {
@@ -14,10 +15,9 @@ const SearchPage = () => {
   const keyword: string = searchParams.get("keyword") || "";
   const category = searchParams.get("category")?.toLowerCase() || "";
 
-  const items = useSelector((state: RootState) => state.products.items);
-  // const searchResult = useSelector(
-  //   (state: RootState) => state.products.searchResult,
-  // );
+  const searchResult = useSelector(
+    (state: RootState) => state.products.searchResult,
+  );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -30,40 +30,24 @@ const SearchPage = () => {
     setInputValue("");
   };
 
-  useEffect(() => {
-  dispatch(fetchProducts())
-}, [dispatch])
+
 
   useEffect(() => {
-    if (keyword.trim() !== "" || category !== "") {
+
       dispatch(
         search({
           keyword,
           category: category,
           minPrice: 0,
-          maxPrice: 0,
-          page: 1,
-          size:1000
+          maxPrice: 100000,
+          page: 0,
+          size:10
         }),
       );
-    }
+    
   }, [keyword, category, dispatch]);
 
-  const displayProducts = items.filter((p) => {
-  const matchCategory =
-    category === "" ||
-    p.categoryName?.toLowerCase() === category.toLowerCase();
 
-  const matchPrice =
-    (!minPrice || p.price >= Number(minPrice)) &&
-    (!maxPrice || p.price <= Number(maxPrice));
-
-  const matchKeyword =
-    !keyword ||
-    p.productName?.toLowerCase().includes(keyword.toLowerCase());
-
-  return matchCategory && matchPrice && matchKeyword;
-});
 
 
   const [inputValue, setInputValue] = useState(keyword);
@@ -247,20 +231,20 @@ const SearchPage = () => {
 
       <div className="flex-1 px-5 py-15 md:py -mt-10 lg:mt-0">
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
-          <p className="text-black">พบสินค้า {displayProducts.length} รายการ</p>
+          <p className="text-black">พบสินค้า {searchResult.length} รายการ</p>
 
           {/* <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
             เรียงโดย
           </div> */}
         </div>
 
-        {displayProducts.length === 0 ? (
+        {searchResult.length === 0 ? (
           <p className="text-gray-500 text-center text-[24px] mt-10 ">
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justif-center pl-3">
-            {displayProducts.map((product) => {
+            {searchResult.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
           </div>
