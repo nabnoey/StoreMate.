@@ -37,7 +37,7 @@ const SectionHeader = ({
         data-test="see-all-link"
         onClick={() => navigate(`/search?category=${category}`)}
       >
-        <span className="text-[14px] md:text-[16px] font-semibold whitespace-nowrap" >
+        <span className="text-[14px] md:text-[16px] font-semibold whitespace-nowrap"  >
           ดูทั้งหมด
         </span>
 
@@ -82,14 +82,14 @@ function HomePage() {
 
               <button 
               id="btn-hero-see-all" 
-              className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl">
+              className="bg-[#D4AF37] text-[#14261C] px-8 md:px-10 py-3 rounded-full font-bold transition-transform hover:scale-105 shadow-xl cursor-pointer" onClick={()=> navigate("/search")}>
                 
                 ดูสินค้าทั้งหมด
               </button>
               <button 
                onClick={() => navigate(`/about-us`)}
               id="btn-hero-about-us" 
-              className="border border-white/30 bg-white/5 text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-white/10 transition-colors">
+              className="border border-white/30 bg-white/5 text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-white/10 transition-colors cursor-pointer">
                 เกี่ยวกับเรา
               </button>
             </div>
