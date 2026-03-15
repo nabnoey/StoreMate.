@@ -134,15 +134,12 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-gray-300" />
+                  <HiOutlineInbox className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
-                <h3 className="text-xl font-bold text-[#14261C]">
+                <h3 className="text-xl font-bold text-black">
                   ไม่พบรายการสินค้า
                 </h3>
-                <p className="text-gray-400 mt-2 font-light">
-                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
-                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
@@ -177,15 +174,12 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-gray-300" />
+                  <HiOutlineInbox className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
-                <h3 className="text-xl font-bold text-[#14261C]">
+                <h3 className="text-xl font-bold text-black">
                   ไม่พบรายการสินค้า
                 </h3>
-                <p className="text-gray-400 mt-2 font-light">
-                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
-                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
@@ -219,15 +213,12 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-gray-300" />
+                  <HiOutlineInbox className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
-                <h3 className="text-xl font-bold text-[#14261C]">
+                <h3 className="text-xl font-bold text-black">
                   ไม่พบรายการสินค้า
                 </h3>
-                <p className="text-gray-400 mt-2 font-light">
-                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
-                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
@@ -263,15 +254,12 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-gray-300" />
+                  <HiOutlineInbox className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
-                <h3 className="text-xl font-bold text-[#14261C]">
+                <h3 className="text-xl font-bold text-black">
                   ไม่พบรายการสินค้า
                 </h3>
-                <p className="text-gray-400 mt-2 font-light">
-                  ขออภัย ขณะนี้ยังไม่มีสินค้าในหมวดหมู่นี้
-                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-2">
