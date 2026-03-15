@@ -259,7 +259,7 @@ const totalItems = cartItems.reduce(
     <div className="flex flex-col py-2">
       <a data-test="list-product" onClick={() => { navigate("/search"); setOpenMenu(false); }} className=" cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">สินค้า</a>
       <a data-test="list-promo" onClick={() => navigate(`/search?category=promotion`)} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">โปรโมชั่น</a>
-      <a data-test="list-about" onClick={() => { navigate("/about"); setOpenMenu(false); }} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
+      <a data-test="list-about" onClick={() => { navigate("/about-as"); setOpenMenu(false); }} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">เกี่ยวกับเรา</a>
       <a data-test="list-contact" onClick={() => { navigate("/contact"); setOpenMenu(false); }} className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50">ติดต่อ</a>
     </div>
   </div>
