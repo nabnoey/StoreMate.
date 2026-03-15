@@ -33,7 +33,7 @@ const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   setInputValue(value)
 
   if (value.trim() !== "") {
-    dispatch(search({ keyword: value, category:"", minPrice: 0, maxPrice: 0, page: 1, size: 1000}))
+    dispatch(search({ keyword: value, categoryId:0, minPrice: 0, maxPrice: 0, page: 1, size: 1000}))
   }
 }
 
