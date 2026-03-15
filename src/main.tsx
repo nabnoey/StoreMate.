@@ -9,6 +9,7 @@ import { RouterProvider } from 'react-router-dom'
 import Loading from './components/user/Loading'
 import { stopLoading } from './redux/loading/loadingReducer'
 
+
 // 1. เพิ่ม Import Toaster
 import { Toaster } from 'react-hot-toast' 
 
@@ -36,6 +37,8 @@ createRoot(document.getElementById('root')!).render(
         <Toaster position="top-center" reverseOrder={false} /> 
         
         <RouterProvider router={router} />
+       
+    
       </AppInitializer>
     </Provider>
   </StrictMode>

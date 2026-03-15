@@ -41,6 +41,8 @@ const SearchPage = () => {
           category: category,
           minPrice: 0,
           maxPrice: 0,
+          page: 1,
+          size:1000
         }),
       );
     }

@@ -233,7 +233,7 @@ function RegisterPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer" 
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
@@ -267,7 +267,7 @@ function RegisterPage() {
             <button
               data-test="btn-show-confirm"
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none cursor-pointer"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}

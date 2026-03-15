@@ -18,6 +18,8 @@ const PaymentShoping = lazy(
 const SearchPage = lazy(() => import("../pages/SearchPage"));
 const CategoryPage = lazy(() => import("../pages/users/CategoryPage"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
+const Contact = lazy(() => import("../pages/Contact"));
+
 import GuestRoute from "./GuestRoute";
 
 const router = createBrowserRouter([
@@ -88,6 +90,10 @@ const router = createBrowserRouter([
         path: "/address-profile",
         element: <AddressProfile />,
       },
+      {
+        path: "/contact",
+        element: <Contact />,
+      }
     ],
   },
 ]);

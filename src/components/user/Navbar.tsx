@@ -10,6 +10,8 @@ import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
 
+
+
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
@@ -20,7 +22,6 @@ const searchResult = useSelector(
 )
 
 
-
 const [inputValue, setInputValue] = useState("")
 
 
@@ -29,7 +30,7 @@ const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
   setInputValue(value)
 
   if (value.trim() !== "") {
-    dispatch(search({ keyword: value, category:"", minPrice: 0, maxPrice: 0}))
+    dispatch(search({ keyword: value, category:"", minPrice: 0, maxPrice: 0, page: 1, size: 1000}))
   }
 }
 
@@ -119,6 +120,13 @@ const totalItems = cartItems.reduce(
   placeholder="ค้นหาสินค้า..."
   value={inputValue}
   onChange={handleSearch}
+   onFocus={() => setOpenSearch(true)}
+
+  onBlur={() => {
+    setTimeout(() => {
+      setOpenSearch(false)
+    },150)
+  }}
   onKeyDown={(e) => {
     if (e.key === "Enter") {
       handleSubmitSearch()
