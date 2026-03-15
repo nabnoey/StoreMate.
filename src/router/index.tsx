@@ -43,6 +43,9 @@ const AddressProfile = lazy(() =>
 const AboutUs = lazy(() =>
   lazyDelay(() => import("../pages/AboutAs"), 1200)
 );
+const Contact = lazy(() =>
+lazyDelay(()=> import("../pages/Contact"))
+)
 const MainLayout = lazy(() =>
   lazyDelay(() => import("../layouts/MainLayout"), 1200)
 );
@@ -118,6 +121,10 @@ const router = createBrowserRouter([
         path: "about-us",
         element: <AboutUs />,
       },
+      {
+        path: "contact",
+        element: <Contact />,
+      }
 
     ],
   },

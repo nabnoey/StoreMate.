@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import { use, useState} from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
@@ -9,12 +9,15 @@ import {search} from "../../redux/products/productReducer";
 import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
+import { useSearchParams } from "react-router-dom";
 
 
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>()
+  const [searchParams] = useSearchParams();
+  const keyword = searchParams.get("keyword") || "";
 
   
 const searchResult = useSelector(
@@ -85,9 +88,9 @@ const totalItems = cartItems.reduce(
           <li><a 
           data-test="list-promo" 
           className="hover:text-indigo-600 cursor-pointer" 
-          onClick={() => navigate(`/search?category=promotion`)}>โปรโมชั่น</a></li>
+          onClick={() => navigate(`/search?keyword=${keyword}&category=promotion`)}>โปรโมชั่น</a></li>
           <li><a data-test="list-about" className="hover:text-indigo-600 cursor-pointer" onClick={() => navigate("/about-us")} >เกี่ยวกับเรา</a></li>
-          <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer">ติดต่อ</a></li>
+          <li><a data-test="list-contact" className="hover:text-indigo-600 cursor-pointer" onClick={()=>navigate("contact")}>ติดต่อ</a></li>
 
         </ul>
       </div>
