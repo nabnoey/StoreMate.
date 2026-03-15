@@ -154,7 +154,7 @@ const SearchPage = () => {
             onClick={() => {
               setSearchParams({
                 keyword: keyword,
-                category: "",
+                // category: "",
               });
             }}
             className={`cursor-pointer ${

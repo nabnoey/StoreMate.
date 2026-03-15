@@ -5,16 +5,27 @@ import api from "./api";
     return res.data
 }
 
-const searchProducts = async ( keyword: string,
+const searchProducts = async (
+  keyword: string,
   categoryId: number | null,
   minPrice?: number,
   maxPrice?: number,
   page?: number,
   size?: number
- ) => {
-    const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search?keyword=${encodeURIComponent(keyword)}&categoryId=${categoryId}&minPrice=${minPrice}&maxPrice=${maxPrice}&size=${size}&page=${page}`)
-    return res.data
-}
+) => {
+  const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/search`, {
+  params: {
+    keyword,
+    categoryId: categoryId ?? undefined,
+    minPrice,
+    maxPrice,
+    page,
+    size
+  }
+});
+  return res.data;
+};
+
 
 
  const getProductById = async (id: number) => {
