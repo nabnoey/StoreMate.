@@ -124,22 +124,7 @@ function LoginPage() {
               }`}
               {...formik.getFieldProps("email")}
             />
-<<<<<<< HEAD
-            {formik.touched.email && formik.errors.email && (
-              <div className="text-red-500 text-xs mt-1">
-                {formik.errors.email}
-              </div>
-            )}
-=======
-            <button
-            data-test ="show-password"
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-            </button>
->>>>>>> Edit/feature-responsive
+
           </div>
 
           <div className="mb-4">
