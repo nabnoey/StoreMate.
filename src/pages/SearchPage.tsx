@@ -9,6 +9,14 @@ import { useNavigate } from "react-router-dom";
 
 
 
+  const categoryMap: Record<string, number> = {
+    promotion: 1,
+  soap: 2,
+  drinks: 3,
+  shampoo: 4,
+  
+};
+
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
@@ -23,6 +31,10 @@ const SearchPage = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [openFilter,setOpenFilter] = useState(false)
 
+
+
+
+
   const handleClearFilter = () => {
     setMinPrice("");
     setMaxPrice("");
@@ -34,18 +46,23 @@ const SearchPage = () => {
 
   useEffect(() => {
 
+    const categoryId = categoryMap[category];
+
       dispatch(
         search({
           keyword,
-          category: category,
+          categoryId: categoryId,
           minPrice: 0,
           maxPrice: 100000,
           page: 0,
-          size:10
+          size:1000
         }),
+        
       );
+
+      
     
-  }, [keyword, category, dispatch]);
+  }, [keyword, category, dispatch,categoryMap]);
 
 
 
