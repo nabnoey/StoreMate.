@@ -11,7 +11,7 @@ const AboutUs = () => {
       {/* ========================================== */}
       {/* Section 1: Hero (ส่วนบนสุด)                  */}
       {/* ========================================== */}
-      <section className="w-full bg-[#fbf9f4] pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden">
+      <section className="w-full bg-[#fbf9f4] pt-5 pb-10 md:pt-20 md:pb-21 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             
@@ -143,64 +143,98 @@ const AboutUs = () => {
         </div>
       </section>
 
-     {/* ========================================== */}
-      {/* Section 4: Highlight Features (จุดเด่น)      */}
-      {/* ========================================== */}
-      <section className="w-full flex flex-col bg-[#faf9f6] m-0 p-0 border-none">
-        {/* ส่วนกล่องสีดำ */}
-        <div className="w-full bg-white py-12 md:py-20">
-          <div className="w-full flex justify-end">
-            <div className="w-[85%] md:w-[75%] lg:w-[60%] bg-[#050505] rounded-l-[2.5rem] sm:rounded-l-[3.5rem] p-8 sm:p-12 md:p-16 shadow-2xl">
-              <div className="flex flex-col items-start text-left w-full pl-2 sm:pl-6 lg:pl-10">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.3] tracking-wide">
-                  ปลุกความสดชื่น เติมพลังสีแดง...<br />
-                  ด้วยพลังธรรมชาติ 100%
-                </h2>
-                <p className="mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-gray-300 font-light max-w-2xl pl-2">
-                  จากภูมิปัญญาคนไทย สู่ผลิตภัณฑ์คุณภาพ... พลิกโฉมสมุนไพรไทยให้กลับมา
-                </p>
-              </div>  
-            </div>
-          </div>
+   {/* ========================================== */}
+{/* Section 4: Highlight Features (จุดเด่น) */}
+{/* ========================================== */}
+<section className="w-full flex flex-col bg-[#faf9f6] m-0 p-0 border-none">
+
+  {/* กล่องข้อความสีดำ */}
+  <div className="w-full bg-white py-12 md:py-20">
+    <div className="w-full flex justify-end">
+
+      <div className="w-[90%] max-w-[940px] min-h-[274px] bg-[#050505] rounded-l-[30px] py-10 px-4 sm:px-10 md:px-16 shadow-2xl flex items-center">
+
+        <div className="flex flex-col items-start text-left w-full gap-2 md:gap-3">
+
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.1] tracking-wide">
+            ปลุกความสดชื่น เติมพลังสีแดง...
+          </h2>
+
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.1] tracking-wide pl-12 md:pl-20">
+            ด้วยพลังธรรมชาติ 100%
+          </h2>
+
+          <p className="text-xs sm:text-sm md:text-base text-gray-300 font-bold max-w-2xl self-end text-right pt-4 md:pt-9">
+            จากภูมิปัญญาหลังบ้าน สู่ผลิตภัณฑ์คุณภาพ... ปัดฝุ่นสมุนไพรไทยให้กลับมา
+          </p>
+
         </div>
 
-        <div className="w-full bg-[#faf9f6] pt-24 pb-0 md:pt-32 md:pb-0 font-anuphan m-0"> 
-          <div className="max-w-[1440px] mx-auto px-8 sm:px-12 lg:px-20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-0 pb-24 md:pb-40"> 
-              
-              <div className="md:pr-10 lg:pr-16 md:border-r border-gray-300/80 flex flex-col justify-start">
-                <h3 className="tracking-tight text-2xl sm:text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 md:mb-6 leading-[1.2]">
-                  ใส่ใจคุณภาพ<br />เพื่อสุขภาพที่<br />ยั่งยืนของคุณ
-                </h3>
-                <p className="text-sm md:text-base text-gray-500 font-light">
-                  ดูแลมาตรฐานตั้งแต่กระบวนการผลิตและคัดสรรวัตถุดิบ
-                </p>
-              </div>
+      </div>
 
-              {/* Column 2 */}
-              <div className="md:px-10 lg:px-16 md:border-r border-gray-300/80 flex flex-col justify-start">
-                <h3 className="tracking-tight text-2xl sm:text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 md:mb-6 leading-[1.2]">
-                  พลิกโฉมสมุนไพรไทย<br />ด้วยกระบวนการ<br />ที่ทันสมัย
-                </h3>
-                <p className="text-sm md:text-base text-gray-500 font-light">
-                  ดูแลมาตรฐานการผลิตที่สะอาดปลอดภัยผ่านเทคโนโลยีใหม่
-                </p>
-              </div>
+    </div>
+  </div>
 
-              {/* Column 3 */}
-              <div className="md:pl-10 lg:pl-16 flex flex-col justify-start">
-                <h3 className="tracking-tight text-2xl sm:text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 md:mb-6 leading-[1.2]">
-                  ออกแบบมาเพื่อ<br />ไลฟ์สไตล์และ<br />การใช้งานที่ลงตัว
-                </h3>
-                <p className="text-sm md:text-base text-gray-500 font-light">
-                  ดูแลมาตรฐานการออกแบบเพื่อผู้บริโภคในยุคปัจจุบัน
-                </p>
-              </div>
-              
-            </div>
-          </div>
+
+  {/* พื้นหลังสีครีม */}
+  <div className="w-full bg-[#faf9f6] m-0 border-none">
+
+    <div className="max-w-[1440px] mx-auto min-h-[240px] px-[60px] py-[16px] flex flex-col justify-center">
+
+      <div className="flex flex-col md:flex-row justify-between items-start gap-10 md:gap-0 pb-10 md:pb-0">
+
+        {/* Column 1 */}
+        <div className="flex-1 md:pr-10 lg:pr-16 md:border-r border-black flex flex-col justify-start">
+
+          <h3 className="tracking-tight text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 leading-[1.2]">
+            ใส่ใจคุณภาพ
+            <br />
+            เพื่อสุขภาพที่ยั่งยืนของคุณ
+          </h3>
+
+          <p className="text-sm md:text-base text-black font-semibold max-w-[300px]">
+            ดูมาตรฐานการคัดสรรวัตถุดิบ
+          </p>
+
+        </div> 
+
+        {/* Column 2 */}
+        <div className="flex-1 md:px-10 lg:px-16 md:border-r border-black flex flex-col justify-start">
+
+          <h3 className="tracking-tight text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 leading-[1.2]">
+            พลิกโฉมสมุนไพรไทย
+            <br />
+            ด้วยกระบวนการที่ทันสมัย
+          </h3>
+
+          <p className="text-sm md:text-base text-blalck font-semibold max-w-[300px]">
+            ดูมาตรฐานการคัดสรรวัตถุดิบ
+          </p>
+
         </div>
-      </section>
+
+        {/* Column 3 */}
+        <div className="flex-1 md:pl-10 lg:pl-16 flex flex-col justify-start">
+
+          <h3 className="tracking-tight text-2xl md:text-3xl font-bold text-[#1f1a17] mb-4 leading-[1.2]">
+            ออกแบบมาเพื่อไลฟ์สไตล์
+            <br />
+            และการใช้งานที่ลงตัว
+          </h3>
+
+          <p className="text-sm md:text-base text-black font-semibold max-w-[300px]">
+            ดูมาตรฐานการคัดสรรวัตถุดิบ
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
     </main>
   );
