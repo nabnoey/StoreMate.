@@ -1,4 +1,4 @@
-import { use, useState} from "react";
+import { useState} from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";

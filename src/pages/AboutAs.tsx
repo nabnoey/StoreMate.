@@ -1,4 +1,3 @@
-import React from "react";
 import champoo from "../assets/champoo.jpg";
 import drink from "../assets/drink_mango.jpg";
 import soap from "../assets/soap_padthong.webp";
