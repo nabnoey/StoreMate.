@@ -74,7 +74,7 @@ const ProductDetailPage: React.FC = () => {
         const data = await ProductService.getProductById(Number(id));
         setProductDetail(data);
 
-        // ⭐ ตั้งค่ารูปแรกเป็นรูปหลัก
+
         if (data.productImages && data.productImages.length > 0) {
           setActiveImage(data.productImages[0].imageUrl);
         }
@@ -186,7 +186,8 @@ const ProductDetailPage: React.FC = () => {
   if (!productDetail) return <div className="min-h-screen flex items-center justify-center">ไม่พบสินค้า</div>;
 
   return (
-   <div id="product-detail-page" className="bg-white min-h-screen pb-20 pt-4 md:pt-10 font-sans text-gray-800">
+    <main className="w-full min-h-screen bg-white flex flex-col font-anuphan">
+   <div id="product-detail-page" className="bg-white min-h-screen pb-20 pt-4 md:pt-10 text-gray-800">
       
      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 pt-2 md:pt-8">
         <nav className="flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
@@ -253,7 +254,7 @@ const ProductDetailPage: React.FC = () => {
                       <button 
                         data-test="btn-decrease" 
                         onClick={handleDecrease} 
-                        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
+                        className="flex-1 h-full cursor-pointer text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
                       >
                         −
                       </button>
@@ -263,7 +264,7 @@ const ProductDetailPage: React.FC = () => {
                       <button 
                         data-test="btn-increase" 
                         onClick={handleIncrease} 
-                        className="flex-1 h-full text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
+                        className="flex-1 h-full cursor-pointer text-lg font-medium text-gray-500 hover:bg-gray-100 transition-colors" 
                       >
                         +
                       </button>
@@ -274,7 +275,7 @@ const ProductDetailPage: React.FC = () => {
                 <button
                   data-test="btn-add-to-cart"
                   onClick={() => handleAddToCart(false)}
-                  className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
+                  className="cursor-pointer px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
                 >
                   เพิ่มลงตะกร้า
                 </button>
@@ -282,7 +283,7 @@ const ProductDetailPage: React.FC = () => {
                 <button
                   data-test="btn-buy-cart"
                   onClick={() => handleAddToCart(true)}
-                  className="px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
+                  className="cursor-pointer px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-sm font-semibold text-md transition-colors shadow-sm"
                 >
                   สั่งซื้อสินค้า
                 </button>
@@ -323,7 +324,7 @@ const ProductDetailPage: React.FC = () => {
   width="24" 
   height="24"
   data-test="onclick-toggle-menu"
-  className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" 
+  className="cursor-pointer text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" 
   onClick={() => toggleMenu(review.id)}
 />
 
@@ -334,7 +335,7 @@ const ProductDetailPage: React.FC = () => {
                               onClick={() => {
                                 setOpenMenuId(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-blue-500 transition-colors"
+                              className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 transition-colors"
                             >
                               แก้ไข
                             </button>
@@ -343,7 +344,7 @@ const ProductDetailPage: React.FC = () => {
                               onClick={() => {
                                 setOpenMenuId(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-red-500 transition-colors"
+                              className="w-full cursor-pointer  text-left px-4 py-2 text-sm text-red-500 transition-colors"
                             >
                               ลบ
                             </button>
@@ -375,6 +376,7 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
       </div>
+      </main>
   );
 };
 

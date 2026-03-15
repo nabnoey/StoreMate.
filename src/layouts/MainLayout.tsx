@@ -12,7 +12,7 @@ const MainLayout = () => {
         <NavBar />
       </div>
 
-      <main className="flex-grow w-full mt-14 md:mt-16 bg-gray-50/50 mb-20">
+      <main className="flex-grow w-full mt-14 md:mt-16">
         <Suspense fallback={<Loading />}>
           <Outlet />
         </Suspense>

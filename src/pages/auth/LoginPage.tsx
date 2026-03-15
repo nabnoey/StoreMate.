@@ -185,7 +185,7 @@ function LoginPage() {
             data-test="btn-submit"
             type="submit"
             disabled={loading}
-            className="btn w-full h-[52px] rounded-lg bg-[#16A249] hover:bg-[#12863c] text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="cursor-pointer btn w-full h-[52px] rounded-lg bg-[#16A249] hover:bg-[#12863c] text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
           </button>
