@@ -46,7 +46,7 @@ const SearchPage = () => {
 
   useEffect(() => {
 
-    const categoryId = categoryMap[category];
+  const categoryId = category ? categoryMap[category] ?? null : null;
 
       dispatch(
         search({

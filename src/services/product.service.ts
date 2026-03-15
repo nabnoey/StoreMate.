@@ -6,7 +6,7 @@ import api from "./api";
 }
 
 const searchProducts = async ( keyword: string,
-  categoryId: number,
+  categoryId: number | null,
   minPrice?: number,
   maxPrice?: number,
   page?: number,
