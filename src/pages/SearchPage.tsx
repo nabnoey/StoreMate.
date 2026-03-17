@@ -22,13 +22,15 @@ const SearchPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const keyword: string = searchParams.get("keyword") || "";
   const category = searchParams.get("category")?.toLowerCase() || "";
+  const minPriceParam = searchParams.get("minPrice") || "";
+const maxPriceParam = searchParams.get("maxPrice") || "";
 
   const searchResult = useSelector(
     (state: RootState) => state.products.searchResult,
   );
 
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  // const [minPrice, setMinPrice] = useState("");
+  // const [maxPrice, setMaxPrice] = useState("");
   const [openFilter,setOpenFilter] = useState(false)
 
 
@@ -36,8 +38,8 @@ const SearchPage = () => {
 
 
   const handleClearFilter = () => {
-    setMinPrice("");
-    setMaxPrice("");
+    // setMinPrice("");
+    // setMaxPrice("");
     setSearchParams();
     setInputValue("");
   };
@@ -52,8 +54,8 @@ const SearchPage = () => {
         search({
           keyword,
           categoryId: categoryId,
-          minPrice: 0,
-          maxPrice: 100000,
+          minPrice: minPriceParam ? Number(minPriceParam) : 0,
+          maxPrice: maxPriceParam ? Number(maxPriceParam) : 0,
           page: 0,
           size:1000
         }),
@@ -62,7 +64,18 @@ const SearchPage = () => {
 
       
     
-  }, [keyword, category, dispatch]);
+  }, [keyword, category,minPriceParam,maxPriceParam, dispatch]);
+
+  const handlePriceChange = (type: "min" | "max", value: string) => {
+  const params: any = {
+    keyword,
+    category,
+    minPrice: type === "min" ? value : minPriceParam,
+    maxPrice: type === "max" ? value : maxPriceParam,
+  };
+
+  setSearchParams(params);
+};
 
 
 
@@ -227,8 +240,8 @@ const SearchPage = () => {
             data-test="input-min-price"
             type="number"
             placeholder="฿"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
+            value={minPriceParam}
+            onChange={(e) => handlePriceChange("min", e.target.value)}
             className="w-full max-w-[120px] border border-gray-300 rounded p-2  text-black"
           />
           <span className="text-lg py-1">—</span>
@@ -236,8 +249,8 @@ const SearchPage = () => {
             data-test="input-max-price"
             type="number"
             placeholder="฿"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
+            value={maxPriceParam}
+            onChange={(e) => handlePriceChange("max", e.target.value)}
             className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
           />
         </div>
