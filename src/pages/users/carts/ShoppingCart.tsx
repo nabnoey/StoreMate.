@@ -60,12 +60,13 @@ const ShoppingCart = () => {
   const selectedCartItems = enrichedCartItems.filter(item => selectedItems.includes(item.productId));
   const subtotal = selectedCartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
-  const handleRemoveItem = (productId: number) => {
-    dispatch(removeFromCart(productId));
-    setSelectedItems(prev => prev.filter(id => id !== productId));
-    toast.success("ลบออกจากตะกร้าแล้ว");
-  };
-
+const handleRemoveItem = (productId: number) => {
+  console.log("👉 กำลังลบสินค้า ID:", productId, "ชนิดข้อมูล:", typeof productId); // ลองเพิ่มบรรทัดนี้
+  
+  dispatch(removeFromCart(productId));
+  setSelectedItems(prev => prev.filter(id => id !== productId));
+  toast.success("ลบออกจากตะกร้าแล้ว");
+};
   const handleRemoveSelected = () => {
     if (selectedItems.length === 0) return;
     selectedItems.forEach(id => dispatch(removeFromCart(id)));
