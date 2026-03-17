@@ -1,4 +1,4 @@
-import type {Review} from "./review"
+import type { Review } from "./review";
 
 export type Product = {
   id: number
@@ -18,7 +18,6 @@ export interface CategoryGroup {
   products: Product[];
 }
 
-
 export interface ProductImage {
   id: number;
   imageName: string;
@@ -28,13 +27,10 @@ export interface ProductImage {
 export interface ProductDetail {
   id: number;
   productName: string;
-  description: string; 
+  description: string;
   quantity: number;
-  price: number; 
+  price: number;
   RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
 }
-
-
-

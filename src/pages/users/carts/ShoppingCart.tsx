@@ -10,8 +10,9 @@ import {
 import { fetchProducts } from '../../../redux/products/productReducer';
 
 import type { Product } from '../../../types/product';
-import { ShoppingCart as CartIcon, Trash2, Minus, Plus, ArrowRight, Loader2 } from 'lucide-react';
+import { ShoppingCart as CartIcon, Trash2, Minus, Plus, ArrowRight} from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import Loading from '../../../components/loading/Loading';
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
@@ -59,12 +60,13 @@ const ShoppingCart = () => {
   const selectedCartItems = enrichedCartItems.filter(item => selectedItems.includes(item.productId));
   const subtotal = selectedCartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
-  const handleRemoveItem = (productId: number) => {
-    dispatch(removeFromCart(productId));
-    setSelectedItems(prev => prev.filter(id => id !== productId));
-    toast.success("ลบออกจากตะกร้าแล้ว");
-  };
-
+const handleRemoveItem = (productId: number) => {
+  console.log("👉 กำลังลบสินค้า ID:", productId, "ชนิดข้อมูล:", typeof productId); // ลองเพิ่มบรรทัดนี้
+  
+  dispatch(removeFromCart(productId));
+  setSelectedItems(prev => prev.filter(id => id !== productId));
+  toast.success("ลบออกจากตะกร้าแล้ว");
+};
   const handleRemoveSelected = () => {
     if (selectedItems.length === 0) return;
     selectedItems.forEach(id => dispatch(removeFromCart(id)));
@@ -83,8 +85,8 @@ const ShoppingCart = () => {
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-        <p className="text-gray-500 font-medium font-sans">กำลังเตรียมข้อมูลตะกร้า...</p>
+        <Loading />
+
       </div>
     );
   }

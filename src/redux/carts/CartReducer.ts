@@ -24,6 +24,7 @@ export const addToCartThunk = createAsyncThunk(
   'cart/addToCart',
   async (itemData: CartItem, { rejectWithValue }) => {
     try {
+      
       const response = await CartItemService.addToCart(itemData);
       return response; 
     } catch (error: any) {
@@ -34,7 +35,7 @@ export const addToCartThunk = createAsyncThunk(
 );
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: 'carts',
   initialState,
   reducers: {
     increaseQuantity: (state, action: PayloadAction<number>) => {
@@ -51,13 +52,16 @@ const cartSlice = createSlice({
         saveToStorage(state.items);
       }
     },
-    removeFromCart: (state, action: PayloadAction<number>) => {
-      const index = state.items.findIndex(i => i.productId === action.payload);
-      if (index !== -1) {
-        state.items.splice(index, 1);
-      }
-      saveToStorage(state.items);
-    },
+// เปลี่ยนการลบให้เป็นแบบนี้ ใน CartReducer.ts
+removeFromCart: (state, action: PayloadAction<number | string>) => {
+  // บังคับแปลงทั้งสองฝั่งให้เป็น String ก่อนเช็ค และสร้าง Array ใหม่ด้วย filter
+  state.items = state.items.filter(
+    (item) => String(item.productId) !== String(action.payload)
+  );
+  
+  // เซฟทับลง LocalStorage
+  saveToStorage(state.items);
+},
   },
   extraReducers: (builder) => {
     builder
@@ -69,7 +73,7 @@ const cartSlice = createSlice({
         state.status = 'succeeded';
         const newItem = action.meta.arg;
         
-        const existingItem = state.items.find(i => i.productId === newItem.productId);
+        const existingItem = state.items.find(i => String(i.productId) === String(newItem.productId));
         if (existingItem) {
           existingItem.quantity += newItem.quantity;
         } else {
