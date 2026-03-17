@@ -54,8 +54,8 @@ const SearchPage = () => {
   
   const handleApplyPrice = () => {
     const params: any = {};
-    if (keyword) params.keyword = keyword;
-    if (category) params.category = category;
+    if (keyword !== "") params.keyword = keyword;
+    if (category !== "") params.category = category;
 
     if (minPriceInput !== "") params.minPrice = minPriceInput;
     if (maxPriceInput !== "") params.maxPrice = maxPriceInput;
