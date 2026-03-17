@@ -94,7 +94,7 @@ const AboutUs = () => {
       {/* ========================================== */}
       {/* Section 3: Store History (ประวัติร้านค้า)      */}
       {/* ========================================== */}
-      <section className="w-full bg-[#050505] text-white py-16 md:py-24 overflow-hidden">
+      <section className="w-full bg-[#1B3022] text-white py-16 md:py-24 overflow-hidden">
         <div className="max-w-[1600px] mx-auto px-6 lg:pl-16 lg:pr-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
@@ -152,7 +152,7 @@ const AboutUs = () => {
   <div className="w-full bg-white py-12 md:py-20">
     <div className="w-full flex justify-end">
 
-      <div className="w-[90%] max-w-[940px] min-h-[274px] bg-[#050505] rounded-l-[30px] py-10 px-4 sm:px-10 md:px-16 shadow-2xl flex items-center">
+      <div className="w-[90%] max-w-[940px] min-h-[274px] bg-[#1B3022] rounded-l-[30px] py-10 px-4 sm:px-10 md:px-16 shadow-2xl flex items-center">
 
         <div className="flex flex-col items-start text-left w-full gap-2 md:gap-3">
 

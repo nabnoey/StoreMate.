@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/store";
-import { HiOutlineInbox } from "react-icons/hi";
+import { Icon } from '@iconify/react';
 import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
 import banner from "../assets/banner2.png";
@@ -134,7 +134,7 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-black" />
+                  <Icon icon="icon-park:ad-product" className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
                 <h3 className="text-xl font-bold text-black">
@@ -174,7 +174,7 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-black" />
+                  <Icon icon="icon-park:ad-product" className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
                 <h3 className="text-xl font-bold text-black">
@@ -213,7 +213,7 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-black" />
+                  <Icon icon="icon-park:ad-product" className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
                 <h3 className="text-xl font-bold text-black">
@@ -254,7 +254,7 @@ function HomePage() {
                 {/* วงกลมรองหลัง Icon */}
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   {/* Icon กล่อง (ใช้ HiOutlineInbox หรือ Icon อื่นๆ ที่สื่อความหมาย) */}
-                  <HiOutlineInbox className="text-4xl text-black" />
+                  <Icon icon="icon-park:ad-product" className="text-4xl text-black" />
                 </div>
                 {/* ข้อความ */}
                 <h3 className="text-xl font-bold text-black">
