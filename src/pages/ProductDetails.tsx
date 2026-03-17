@@ -93,11 +93,6 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   const handleIncrease = () => {
-    const token = TokenService.getToken();
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
@@ -106,18 +101,13 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => {
-    // const token = TokenService.getToken();
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
     if (buyQuantity > 1) {
       setBuyQuantity((prev) => prev - 1);
     }
   };
 
   const handleAddToCart = async (shouldRedirect = false) => {
-    const token = TokenService.getToken();
+    const token = TokenService.getAccessToken();
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
       navigate("/login");
