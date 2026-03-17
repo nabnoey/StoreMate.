@@ -37,7 +37,7 @@ function ProductCard({ product }: Props) {
             </h2>
             <p className="text-sm text-gray-500 line-clamp-2 mt-2">
              
-              {product.description || "ไม่มีคำอธิบายสินค้า"}
+              {product.description || ""}
             </p>
           </div>
         </div>

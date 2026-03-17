@@ -28,7 +28,7 @@ const getUserFromToken = (tokenStr: string) => {
   }
 };
 
-const currentToken = TokenService.getAccessToken() || "";
+const currentToken = TokenService.getToken() || "";
 const currentUser = getUserFromToken(currentToken);
 
 const initialState: AuthState = {

@@ -1,22 +1,21 @@
-import type {Review} from "./review"
+import type { Review } from "./review";
 
 export type Product = {
-  id: number
-  productName: string
-  imageUrl: string | null
-  price: number
-  categoryName: string
-  description: string
-  status: string
-  createAt:string
-  stockQuantity:number
-}
+  id: number;
+  productName: string;
+  imageUrl: string | null;
+  price: number;
+  categoryName: string;
+  description: string;
+  status: string;
+  createAt: string;
+  stockQuantity: number;
+};
 
 export interface CategoryGroup {
   categoryName: string;
   products: Product[];
 }
-
 
 export interface ProductImage {
   id: number;
@@ -27,13 +26,10 @@ export interface ProductImage {
 export interface ProductDetail {
   id: number;
   productName: string;
-  description: string; 
+  description: string;
   quantity: number;
-  price: number; 
+  price: number;
   RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
 }
-
-
-

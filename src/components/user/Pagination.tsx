@@ -39,7 +39,7 @@ export default function Pagination({
   return (
     <div className="flex justify-center items-center gap-2 mt-10 text-xl font-medium text-black">
       <button
-      data-test ="click-prev"
+        data-test="click-prev"
         onClick={handlePrev}
         disabled={currentPage === 1}
         className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/20 rounded-md transition-colors disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
@@ -49,13 +49,13 @@ export default function Pagination({
 
       {getPageNumbers().map((page) => (
         <button
-        data-test="click-on-page"
+          data-test="click-on-page"
           key={page}
           onClick={() => onPageChange(page)}
           className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
             currentPage === page
-              ? "text-blue-500 font-bold bg-blue-50" 
-              : "hover:bg-blue-600/20"               
+              ? "text-blue-500 font-bold bg-blue-50"
+              : "hover:bg-blue-600/20"
           }`}
         >
           {page}
@@ -66,7 +66,7 @@ export default function Pagination({
         <>
           <span className="px-1 text-black">...</span>
           <button
-          data-test="click-total-page"
+            data-test="click-total-page"
             onClick={() => onPageChange(totalPages)}
             className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/20 rounded-md transition-colors cursor-pointer"
           >
@@ -77,7 +77,7 @@ export default function Pagination({
 
       {/* ปุ่ม > */}
       <button
-      data-test="click-next"
+        data-test="click-next"
         onClick={handleNext}
         disabled={currentPage === totalPages}
         className="w-8 h-8 flex items-center justify-center hover:bg-blue-600/20 rounded-md transition-colors disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"

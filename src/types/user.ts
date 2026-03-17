@@ -1,26 +1,26 @@
 export interface User {
-  id: number
-  name: string
-  email: string
-  phone: string
-  password: string
-  accessToken: string
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  accessToken: string;
+  imageURL: string;
+  roles: Role[];
+}
 
-  // firstName?: string 
-  // lastName?: string
-  image?: string
-  // joinDate?: string
+export interface Role {
+  id: number;
+  roleName: "ADMIN" | "MODERATOR" | "USER";
 }
 
 // ข้อมูลสำหรับ backend ตอน register
 export interface RegisterDTO {
-  name: string
-  email: string
-  phone: string
-  password: string
-  confirmPassword: string
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
 }
 
-
-export type LoginDTO = Pick<User, "email" | "password">
-
+export type LoginDTO = Pick<User, "email" | "password">;

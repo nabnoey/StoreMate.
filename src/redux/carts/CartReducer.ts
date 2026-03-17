@@ -1,3 +1,101 @@
+// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// import type { CartItemRequestDTO, CartItem } from "../../types/cartItem";
+// import { CartItemService } from "../../services/cartitem.service";
+
+// interface CartState {
+//   items: CartItem[];
+//   status: "idle" | "loading" | "succeeded" | "failed";
+//   error: string | null;
+// }
+
+// const initialState: CartState = {
+//   items: [],
+//   status: "idle",
+//   error: null,
+// };
+
+// //ดึงข้อมูลรถเข็นจาก backend
+// export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
+//   const response = await CartItemService.getCart();
+//   return response;
+// });
+
+// export const addToCartThunk = createAsyncThunk<CartItem, CartItemRequestDTO>(
+//   "cart/addToCart",
+//   async (data) => {
+//     return await CartItemService.addToCart(data);
+//   },
+// );
+
+// //เพิ่มจำนวนสินค้าในรถเข็น
+// export const incrementCartItemThunk = createAsyncThunk(
+//   "cart/incrementCartItem",
+//   async (productId: number) => {
+//     const response = await CartItemService.incrementCartItem(productId);
+//     return response;
+//   },
+// );
+
+// export const decrementCartItemThunk = createAsyncThunk(
+//   "cart/decrementCartItem",
+//   async (productId: number) => {
+//     const response = await CartItemService.decrementCartItem(productId);
+//     return response;
+//   },
+// );
+
+// export const removeCartThunk = createAsyncThunk(
+//   "cart/removeCartThunk",
+//   async (productId: number) => {
+//     const response = await CartItemService.removeCartItem(productId);
+//     return response;
+//   },
+// );
+
+// const cartReducer = createSlice({
+//   name: "cart",
+//   initialState,
+//   reducers: {},
+//   extraReducers: (builder) => {
+//     builder
+
+//       .addCase(fetchCartThunk.pending, (state) => {
+//         state.status = "loading";
+//       })
+
+//       .addCase(fetchCartThunk.fulfilled, (state, action) => {
+//         state.status = "succeeded";
+//         state.items = action.payload;
+//       })
+
+//       .addCase(addToCartThunk.fulfilled, (state, action) => {
+//         state.status = "succeeded";
+
+//         const existingItem = state.items.find(
+//           (item) => item.productId === action.payload.productId,
+//         );
+
+//         if (existingItem) {
+//           existingItem.quantity = action.payload.quantity;
+//           existingItem.subTotal = action.payload.subTotal;
+//         } else {
+//           state.items.push(action.payload);
+//         }
+//       })
+
+//       .addCase(removeCartThunk.fulfilled, (state, action) => {
+//         state.items = state.items.filter(
+//           (item) => item.productId !== action.meta.arg,
+//         );
+//       });
+//   },
+// });
+
+// export default cartReducer.reducer;
+
+
+
+
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { CartItem } from '../../types/cartItem';
 import { CartItemService } from '../../services/cartitem.service'; 
@@ -24,6 +122,7 @@ export const addToCartThunk = createAsyncThunk(
   'cart/addToCart',
   async (itemData: CartItem, { rejectWithValue }) => {
     try {
+      
       const response = await CartItemService.addToCart(itemData);
       return response; 
     } catch (error: any) {

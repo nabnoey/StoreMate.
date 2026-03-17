@@ -1,6 +1,15 @@
 import type { Product } from "./product";
 
-export type CartItem = Product & {
-  productId: number; 
-  quantity: number; 
+export type CartItem = {
+  productId: Product["id"];
+  productName: string;
+  imageUrl: string | null;
+  price: number;
+  quantity: number;
+  subTotal: number;
+  stockQuantity: number;
+  productStatus: string;
 };
+
+export type CartItemRequestDTO = Pick<CartItem, "productId" | "quantity">;
+export type UpdateCartItemDTO = Pick<CartItem, "productId">;
