@@ -68,10 +68,7 @@ const productsSlice = createSlice({
     },
 
 
-    clearSearch:(state) =>{
-    state.search = ""
-    state.searchResult = []
-},
+  
     // คืนของเข้าสต็อก (ตอนลบจาก cart)
     returnQuantity: (
       state,
@@ -126,8 +123,8 @@ export const {
   addProduct,
   addQuantity,
   removeQuantity,
-  returnQuantity,
-  clearSearch
+  returnQuantity
+
 } = productsSlice.actions;
 
 export default productsSlice.reducer;
