@@ -6,7 +6,6 @@ export type Product = {
   imageUrl: string | null
   price: number
   categoryName: string
-  sammary: string
   description: string
   status: string
   createAt:string
