@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
-
+  
   
 const searchResult = useSelector(
   (state: RootState) => state.products.searchResult
