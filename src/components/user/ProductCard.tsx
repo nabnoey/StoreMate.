@@ -4,6 +4,7 @@ import type { Product } from "../../types/product";
 type Props = { product: Product };
 
 function ProductCard({ product }: Props) {
+  console.log("มาไหม",product.description)
   return (
     <Link
       to={`/product/${product.id}`}
@@ -17,10 +18,9 @@ function ProductCard({ product }: Props) {
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
           <img
             src={
-              product.imageUrl ||
-              "https://scontent.fbkk12-1.fna.fbcdn.net/v/t39.30808-6/631033255_1486282403500023_4710477623864277946_n.jpg"
+              product.imageUrl 
             }
-            alt={product.productName}
+           
             className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-110"
           />
         </figure>
@@ -29,15 +29,11 @@ function ProductCard({ product }: Props) {
           <div>
         
             <h2
-              className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors"
-              title={product.productName}
-            >
-              
+              className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors">
               {product.productName}
             </h2>
             <p className="text-sm text-gray-500 line-clamp-2 mt-2">
-             
-              {product.description || ""}
+              {product.description}
             </p>
           </div>
         </div>
@@ -46,7 +42,6 @@ function ProductCard({ product }: Props) {
           <div className="flex justify-between items-center">
             
             <p className="font-extrabold text-lg text-blue-500">
-             
               ฿{product.price}
             </p>
           </div>

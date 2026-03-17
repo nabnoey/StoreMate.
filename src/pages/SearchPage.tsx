@@ -62,7 +62,7 @@ const SearchPage = () => {
 
       
     
-  }, [keyword, category, dispatch]);
+  }, [keyword, category,minPrice,maxPrice, dispatch]);
 
 
 
@@ -172,6 +172,7 @@ const SearchPage = () => {
               setSearchParams({
                 keyword: keyword,
                 category: "soap",
+                 
               });
             }}
             className={`cursor-pointer ${
@@ -189,6 +190,7 @@ const SearchPage = () => {
               setSearchParams({
                 keyword: keyword,
                 category: "shampoo",
+                 
               });
             }}
             className={`cursor-pointer ${
@@ -206,6 +208,7 @@ const SearchPage = () => {
               setSearchParams({
                 keyword: keyword,
                 category: "drinks",
+                 
               });
             }}
             className={`cursor-pointer ${

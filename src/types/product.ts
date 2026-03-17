@@ -1,16 +1,17 @@
 import type { Review } from "./review";
 
 export type Product = {
-  id: number;
-  productName: string;
-  imageUrl: string | null;
-  price: number;
-  categoryName: string;
-  description: string;
-  status: string;
-  createAt: string;
-  stockQuantity: number;
-};
+  id: number
+  productName: string
+  imageUrl: string 
+  price: number
+  categoryName: string
+  sammary: string
+  description: string
+  status: string
+  createAt:string
+  stockQuantity:number
+}
 
 export interface CategoryGroup {
   categoryName: string;

@@ -38,7 +38,9 @@ const ProductDetailPage: React.FC = () => {
   const currentStock = productDetail?.quantity || 0;
 
   //จำกัดสิทธิ์
-  const token = TokenService.getToken();
+
+  const token = TokenService.getAccessToken();
+
   const isLoggedIn = !!token;
 
   const categoryName = location.state?.categoryName || "สินค้า";
@@ -93,7 +95,8 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   const handleIncrease = () => {
-    const token = TokenService.getToken();
+
+    // const token = TokenService.getAccessToken();
     // if (!token) {
     //   navigate("/login");
     //   return;
@@ -106,6 +109,7 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => {
+
     // const token = TokenService.getToken();
     // if (!token) {
     //   navigate("/login");
@@ -117,7 +121,10 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = async (shouldRedirect = false) => {
-    const token = TokenService.getToken();
+
+
+    const token = TokenService.getAccessToken();
+
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
       navigate("/login");
@@ -329,7 +336,7 @@ const ProductDetailPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex w-[257px] h-[52px] gap-[11px] -translate-x-[23px]">
+                <div className="flex w-[257px] h-[52px] gap-[11px] -translate-x-[110px]">
                   <button
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
