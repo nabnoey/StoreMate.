@@ -31,6 +31,8 @@ const SearchPage = () => {
   const [openFilter, setOpenFilter] = useState(false);
 
   const handleClearFilter = () => {
+    setMaxPriceInput("");
+    setMinPriceInput("");
     setSearchParams();
     setInputValue("");
   };
