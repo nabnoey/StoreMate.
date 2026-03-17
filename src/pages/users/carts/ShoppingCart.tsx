@@ -10,9 +10,9 @@ import {
 import { fetchProducts } from '../../../redux/products/productReducer';
 
 import type { Product } from '../../../types/product';
-import { ShoppingCart as CartIcon, Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { ShoppingCart as CartIcon, Trash2, Minus, Plus, ArrowRight} from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import Loading from "../../../components/loading/Loading";
+import Loading from '../../../components/loading/Loading';
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
@@ -84,7 +84,8 @@ const ShoppingCart = () => {
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-          <Loading  />
+        <Loading />
+
       </div>
     );
   }

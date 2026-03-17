@@ -94,10 +94,10 @@ const ProductDetailPage: React.FC = () => {
 
   const handleIncrease = () => {
     const token = TokenService.getToken();
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    // if (!token) {
+    //   navigate("/login");
+    //   return;
+    // }
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
@@ -106,11 +106,11 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => {
-    const token = TokenService.getToken();
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    // const token = TokenService.getToken();
+    // if (!token) {
+    //   navigate("/login");
+    //   return;
+    // }
     if (buyQuantity > 1) {
       setBuyQuantity((prev) => prev - 1);
     }
