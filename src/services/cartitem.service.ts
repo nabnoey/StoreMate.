@@ -1,10 +1,10 @@
 import api from "./api";
 import type { CartItemRequestDTO } from "../types/cartItem";
 
-// const getCart = async () => {
-//   const res = await api.get(`${import.meta.env.VITE_CART_API}/items`);
-//   return res.data;
-// };
+const getCart = async () => {
+  const res = await api.get(`${import.meta.env.VITE_CART_API}/items`);
+  return res.data;
+};
 
 const addToCart = async (data: CartItemRequestDTO) => {
   const res = await api.post(`${import.meta.env.VITE_CART_API}/items`, data);
@@ -34,6 +34,6 @@ export const CartItemService = {
   addToCart,
   incrementCartItem,
   decrementCartItem,
-  // getCart,
+  getCart,
   removeCartItem,
 };
