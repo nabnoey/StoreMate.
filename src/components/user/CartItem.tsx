@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import type { Product } from '../../types/product';
 import type { AppDispatch, RootState } from "../../redux/store";
 import {
-  increaseQuantity,
   decreaseQuantity,
   removeFromCart,
 } from "../../redux/carts/CartReducer";

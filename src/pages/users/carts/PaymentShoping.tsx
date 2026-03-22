@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { ShoppingCart, CreditCard, QrCode, Truck } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import type { RootState } from '../../../redux/store'; 
-import { increaseQuantity, decreaseQuantity } from '../../../redux/carts/CartReducer';
+import type { RootState, AppDispatch} from '../../../redux/store'; 
 import type { CartItem } from '../../../types/cartItem';
+import { decrementCartItemThunk, incrementCartItemThunk } from '../../../redux/carts/CartReducer';
 
 const PaymentShoping = () => {
-  const dispatch = useDispatch();
+const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const cartItems = useSelector((state: RootState) => state.carts.items as CartItem[] || []);
@@ -87,12 +87,12 @@ const PaymentShoping = () => {
 
                     <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 flex-shrink-0">
                       <button 
-                        onClick={() => dispatch(decreaseQuantity(item.productId))}
+                        onClick={()=> dispatch(decrementCartItemThunk(item.productId))}
                         className="px-3 hover:bg-gray-50 text-gray-500 border-r border-gray-300 h-full transition-colors"
                       >-</button>
                       <span className="px-3 text-xs font-bold min-w-[30px] text-center">{item.quantity}</span>
                       <button 
-                        onClick={() => dispatch(increaseQuantity(item.productId))}
+                        onClick={() => dispatch(incrementCartItemThunk(item.productId))}
                         className="px-3 hover:bg-gray-50 text-gray-500 border-l border-gray-300 h-full transition-colors"
                       >+</button>
                     </div>
