@@ -92,17 +92,6 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
 
-  // const handleIncrease = (
-  //   productId: number,
-  //   currentQty: number,
-  //   stock: number,
-  // ) => {
-  //   if (currentQty < stock) {
-  //     dispatch(incrementCartItemThunk(productId));
-  //   } else {
-  //     toast.error("ไม่สามารถเพิ่มจำนวนเกินสต็อกที่มีอยู่ได้");
-  //   }
-  // };
 
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
