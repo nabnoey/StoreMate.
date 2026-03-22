@@ -2,7 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import type { Product } from '../../types/product';
 import type { AppDispatch, RootState } from "../../redux/store";
 import {
-  decreaseQuantity,
+  decrementCartItemThunk,
+  incrementCartItemThunk,
   removeFromCart,
 } from "../../redux/carts/CartReducer";
 import {
@@ -27,14 +28,14 @@ function CartItem({ item }: Props) {
   const handleIncrease = () => {
     // เช็ค stock ก่อนเพิ่ม
     if (stock > 0) {
-      dispatch(increaseQuantity(item.id)); // เพิ่มจำนวนในตะกร้า
+      dispatch(incrementCartItemThunk(item.id)); // เพิ่มจำนวนในตะกร้า
       dispatch(removeQuantity(item.id));   // ลดจำนวนในสต็อก (ถ้าต้องการ logic นี้)
     }
   };
 
   const handleDecrease = () => {
     if (item.stockQuantity > 1) {
-        dispatch(decreaseQuantity(item.id)); // ลดจำนวนในตะกร้า
+        dispatch(decrementCartItemThunk(item.id)); // ลดจำนวนในตะกร้า
         // dispatch(returnQuantity({ id: item.id, quantity: 1 })); // คืนจำนวนเข้าสต็อก
     }
   };
