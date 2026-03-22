@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { register } from "../../redux/auth/authReducer";
-import type { AppDispatch } from "../../redux/store";   
+import type { AppDispatch } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -37,14 +37,13 @@ function RegisterPage() {
       .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค"
+        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค",
       )
       .required("กรุณากรอกรหัสผ่าน"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password")], "รหัสผ่านไม่ตรงกัน")
       .required("กรุณายืนยันรหัสผ่าน"),
   });
-
 
   const formik = useFormik({
     initialValues: {
@@ -58,7 +57,6 @@ function RegisterPage() {
     onSubmit: async (values) => {
       setLoading(true);
 
-
       const toastId = toast.loading("กำลังลงทะเบียน...");
 
       try {
@@ -66,20 +64,18 @@ function RegisterPage() {
           register({
             name: values.name,
             email: values.email.toLowerCase(),
+
             phone: values.phone,
             password: values.password,
             confirmPassword: values.confirmPassword,
-          })
+          }),
         ).unwrap();
-
 
         toast.success("ลงทะเบียนสำเร็จ", { id: toastId });
 
-  
         setTimeout(() => {
           navigate("/login");
         }, 1000);
-
       } catch (error: any) {
         let message = "เกิดข้อผิดพลาดในการสมัครสมาชิก";
         if (axios.isAxiosError(error)) {
@@ -89,7 +85,6 @@ function RegisterPage() {
         } else if (typeof error === "string") {
           message = error;
         }
-
 
         toast.error(message, { id: toastId });
       } finally {
@@ -101,7 +96,6 @@ function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
-        
         {/* ฝั่งรูปภาพ (ซ่อนในจอมือถือ) */}
         <div className="hidden lg:flex flex-col items-center justify-center">
           <img
@@ -113,7 +107,6 @@ function RegisterPage() {
             สร้างบัญชี Storemate ของคุณ
           </p>
         </div>
-
         {/* Register Card */}
         <form
           id="register-form"
@@ -128,22 +121,25 @@ function RegisterPage() {
             />
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-black text-left">สมัครสมาชิก</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-black text-left">
+            สมัครสมาชิก
+          </h2>
 
-          {/* Name Input */}
           <div className="mb-4">
             <label htmlFor="reg-input-name" className="label p-0 mb-1">
-              <span className="font-semibold text-black">ชื่อ-นามสกุล</span>
+              <span className="font-semibold text-black">ชื่อ-นามสกุล</span>   
             </label>
             <input
-              id="reg-input-name"
+              data-test="reg-input-name"
               type="text"
               placeholder="ชื่อ-นามสกุล"
-              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
-                formik.touched.name && formik.errors.name ? "border-red-500 focus:border-red-500" : ""
+              disabled={loading}
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
+                formik.touched.name && formik.errors.name
+                  ? "border-red-500 focus:border-red-500"
+                  : ""
               }`}
               {...formik.getFieldProps("name")}
-              data-testid="reg-input-name"
             />
             {formik.touched.name && formik.errors.name && (
               <div className="text-red-500 text-xs mt-1">
@@ -152,23 +148,23 @@ function RegisterPage() {
             )}
           </div>
 
-          {/* Email Input */}
           <div className="mb-4">
             <label htmlFor="reg-input-email" className="label p-0 mb-1">
               <span className="font-semibold text-black">อีเมล</span>
             </label>
             <input
-              id="reg-input-email"
+              data-test="reg-input-email"
               type="email"
               placeholder="example@gmail.com"
-              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+              disabled={loading}
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
                 formik.touched.email && formik.errors.email
                   ? "border-red-500 focus:border-red-500"
                   : ""
               }`}
               {...formik.getFieldProps("email")}
-              data-testid="reg-input-email"
             />
+
             {formik.touched.email && formik.errors.email && (
               <div className="text-red-500 text-xs mt-1">
                 {formik.errors.email}
@@ -176,23 +172,24 @@ function RegisterPage() {
             )}
           </div>
 
-          {/* Phone Input */}
           <div className="mb-4">
             <label htmlFor="reg-input-phone" className="label p-0 mb-1">
               <span className="font-semibold text-black">เบอร์โทร</span>
             </label>
+
             <input
-              id="reg-input-phone"
+              data-test="reg-input-phone"
               type="text"
               placeholder="เบอร์โทร"
-              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+              disabled={loading}
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
                 formik.touched.phone && formik.errors.phone
                   ? "border-red-500 focus:border-red-500"
                   : ""
               }`}
               {...formik.getFieldProps("phone")}
-              data-testid="reg-input-phone"
             />
+
             {formik.touched.phone && formik.errors.phone && (
               <div className="text-red-500 text-xs mt-1">
                 {formik.errors.phone}
@@ -200,32 +197,36 @@ function RegisterPage() {
             )}
           </div>
 
-          {/* Password Input */}
           <div className="mb-4">
             <label htmlFor="reg-input-password" className="label p-0 mb-1">
               <span className="font-semibold text-black">รหัสผ่าน</span>
             </label>
+
             <div className="relative">
               <input
-                id="reg-input-password"
+                data-test="reg-input-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
-                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+                disabled={loading}
+                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed pr-10 ${
                   formik.touched.password && formik.errors.password
                     ? "border-red-500 focus:border-red-500"
                     : ""
                 }`}
                 {...formik.getFieldProps("password")}
-                data-test="reg-input-password"
               />
+
               <button
+                data-test="btn-show-password"
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
+                disabled={loading}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-black disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+
             {formik.touched.password && formik.errors.password && (
               <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
                 {formik.errors.password}
@@ -233,47 +234,50 @@ function RegisterPage() {
             )}
           </div>
 
-          {/* Confirm Password Input */}
           <div className="mb-6">
             <label htmlFor="reg-confirm-password" className="label p-0 mb-1">
               <span className="font-semibold text-black">ยืนยันรหัสผ่าน</span>
             </label>
+
             <div className="relative">
               <input
-                id="reg-confirm-password"
+                data-test="reg-input-confirm"
                 type={showConfirmPassword ? "text" : "password"}
                 placeholder="ยืนยันรหัสผ่าน"
-                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
-                  formik.touched.confirmPassword && formik.errors.confirmPassword
+                disabled={loading}
+                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed pr-10 ${
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
                     ? "border-red-500 focus:border-red-500"
                     : ""
                 }`}
                 {...formik.getFieldProps("confirmPassword")}
-                data-test="reg-input-confirm"
               />
+
               <button
                 data-test="btn-show-confirm"
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
+                disabled={loading}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none cursor-pointer"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <div className="text-red-500 text-xs mt-1">
-                {formik.errors.confirmPassword}
-              </div>
-            )}
+
+            {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword && (
+                <div className="text-red-500 text-xs mt-1">
+                  {formik.errors.confirmPassword}
+                </div>
+              )}
           </div>
 
-          {/* Submit Button */}
           <button
-            id="btn-register-submit"
+            data-test="btn-register-submit"
             type="submit"
             disabled={loading}
-            className="btn w-full h-[52px] bg-[#16A249]  text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
-            data-testid="reg-btn-submit"
+            className="btn w-full h-[52px] bg-[#16A249]  text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
           >
             {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
           </button>
