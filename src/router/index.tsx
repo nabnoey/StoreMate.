@@ -51,6 +51,11 @@ const MainLayout = lazy(() =>
 );
 
 
+const AdminLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/AdminLayout"), 1200)
+);
+import Stock from "../pages/admin/Stock";
+
 
 const router = createBrowserRouter([
   {
@@ -128,6 +133,18 @@ const router = createBrowserRouter([
 
     ],
   },
+
+
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        path: "stock",
+        element: <Stock />,
+      }
+    ]
+  }
 ]);
 
 export default router;

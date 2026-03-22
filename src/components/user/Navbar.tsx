@@ -95,12 +95,11 @@ const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1
       <div className="navbar-end flex items-center gap-4">
 
         {/* SEARCH */}
-  <div className="relative">
+  <button className="relative border border-white" data-test="search">
 
   <GoSearch
   size={22}
   className="cursor-pointer hover:text-black text-black z-50"
-  data-test="search"
   onClick={() => {
     if (openSearch) {
       handleSubmitSearch()
@@ -157,7 +156,7 @@ const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1
     </>
   )}
 
-</div>
+</button>
 
         {isAuthenticated ? (
           <>
