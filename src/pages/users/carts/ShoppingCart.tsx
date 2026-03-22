@@ -4,10 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import {
   removeFromCart,
-  increaseQuantity,
-  decreaseQuantity,
+
+  incrementCartItemThunk,
+  decrementCartItemThunk,
+  fetchCartThunk
 } from "../../../redux/carts/CartReducer";
-import { fetchProducts } from "../../../redux/products/productReducer";
+// import { fetchProducts } from "../../../redux/products/productReducer";
 
 import type { Product } from "../../../types/product";
 import { Icon } from "@iconify/react";
@@ -24,10 +26,15 @@ const ShoppingCart = () => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   useEffect(() => {
-    if (groupedProducts.length === 0) {
-      dispatch(fetchProducts());
-    }
-  }, [dispatch, groupedProducts.length]);
+    dispatch(fetchCartThunk());
+  }, [dispatch]);
+
+
+  // useEffect(() => {
+  //   if (groupedProducts.length === 0) {
+  //     dispatch(fetchProducts());
+  //   }
+  // }, [dispatch, groupedProducts.length]);
 
   const allFlatProducts = groupedProducts.flatMap((group) => group.products);
 
@@ -85,17 +92,17 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
 
-  const handleIncrease = (
-    productId: number,
-    currentQty: number,
-    stock: number,
-  ) => {
-    if (currentQty < stock) {
-      dispatch(increaseQuantity(productId));
-    } else {
-      toast.error("ไม่สามารถเพิ่มจำนวนเกินสต็อกที่มีอยู่ได้");
-    }
-  };
+  // const handleIncrease = (
+  //   productId: number,
+  //   currentQty: number,
+  //   stock: number,
+  // ) => {
+  //   if (currentQty < stock) {
+  //     dispatch(incrementCartItemThunk(productId));
+  //   } else {
+  //     toast.error("ไม่สามารถเพิ่มจำนวนเกินสต็อกที่มีอยู่ได้");
+  //   }
+  // };
 
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
@@ -212,7 +219,7 @@ const ShoppingCart = () => {
                       <button
                         data-test="decrease-product"
                         onClick={() =>
-                          dispatch(decreaseQuantity(item.productId))
+                          dispatch(decrementCartItemThunk(item.productId))
                         }
                         className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                       >
@@ -223,13 +230,8 @@ const ShoppingCart = () => {
                       </span>
                       <button
                         data-test="increase-product"
-                        onClick={() =>
-                          handleIncrease(
-                            item.productId,
-                            item.quantity,
-                            Number(item.product.stockQuantity),
-                          )
-                        }
+                        onClick={()=>dispatch(incrementCartItemThunk(item.productId))}
+                        disabled={item.quantity >= item.product.stockQuantity}
                         className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                       >
                         <Icon icon="lucide:plus" width="14" height="14" />

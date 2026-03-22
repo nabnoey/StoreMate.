@@ -120,6 +120,16 @@ const initialState: CartState = {
   error: null,
 };
 
+
+export const fetchCartThunk = createAsyncThunk(
+  "cart/fetchCart", async () => {
+    const response = await CartItemService.getCart();
+    return response;
+  }
+)
+
+
+
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
   async (itemData: CartItem, { rejectWithValue }) => {
@@ -136,6 +146,58 @@ export const addToCartThunk = createAsyncThunk(
     }
   },
 );
+
+export const incrementCartItemThunk = createAsyncThunk(
+  'cart/incrementCartItem',
+  async (productId: number, { rejectWithValue }) => {
+    try {
+      const response = await CartItemService.incrementCartItem(productId);
+      return response;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        "เกิดข้อผิดพลาดในการเพิ่มจำนวนสินค้า";
+
+      return rejectWithValue({ message: errorMessage });
+    }
+  }
+);
+
+export const decrementCartItemThunk = createAsyncThunk(
+  'cart/decrementCartItem',
+  async (productId: number, { rejectWithValue }) => {
+    try {
+      const response = await CartItemService.decrementCartItem(productId);
+      return response;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        "เกิดข้อผิดพลาดในการลดจำนวนสินค้า";
+
+      return rejectWithValue({ message: errorMessage });
+    }
+  }
+);
+
+// export const incrementCartItemThunk = createAsyncThunk(
+//   'cart/incrementCartItem',
+//   async (productId:number) => {
+//       const response = await CartItemService.incrementCartItem(productId);
+//       return response;
+//   }
+// )
+
+// export const decrementCartItemThunk = createAsyncThunk(
+//   'cart/decrementCartItem',
+//   async (productId:number) => {
+//       const response = await CartItemService.decrementCartItem(productId);
+//       return response;
+//   }
+// )
 
 const cartSlice = createSlice({
   name: "carts",
@@ -166,19 +228,24 @@ const cartSlice = createSlice({
       saveToStorage(state.items);
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(addToCartThunk.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(addToCartThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        const newItem = action.meta.arg;
 
-        const existingItem = state.items.find(
-          (i) => String(i.productId) === String(newItem.productId),
-        );
+
+
+
+   extraReducers: (builder) => {
+    builder
+
+.addCase(fetchCartThunk.fulfilled, (state,action) => {
+  state.items = action.payload;
+
+})
+
+
+      .addCase(addToCartThunk.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const newItem = action.meta.arg;
+        
+        const existingItem = state.items.find(i => String(i.productId) === String(newItem.productId));
         if (existingItem) {
           existingItem.quantity += newItem.quantity;
         } else {
@@ -187,13 +254,65 @@ const cartSlice = createSlice({
         saveToStorage(state.items);
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
-        state.status = "failed";
-        state.error = action.payload?.message || "เกิดข้อผิดพลาด";
-      });
-  },
+        state.status = 'failed';
+        state.error = action.payload?.message || 'เกิดข้อผิดพลาด';
+      })
+      .addCase(incrementCartItemThunk.fulfilled,(state,action) => {
+        
+        const productId = action.meta.arg;
+
+        const item = state.items.find(i => String(i.productId) === String(productId))
+        if (item) {
+          item.quantity += 1;
+          saveToStorage(state.items);
+        }
+  })
+
+  .addCase(decrementCartItemThunk.fulfilled,(state,action)=>{
+    const productId = action.meta.arg;
+
+    const item = state.items.find(i => String(i.productId) === String(productId))
+    if (item) {
+      item.quantity -= 1;
+      saveToStorage(state.items);
+    }
+  })
+      
+  }
+  
 });
 
-export const { increaseQuantity, decreaseQuantity, removeFromCart } =
-  cartSlice.actions;
+export const {  decreaseQuantity, removeFromCart } = cartSlice.actions;
 
 export default cartSlice.reducer;
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(addToCartThunk.pending, (state) => {
+//         state.status = "loading";
+//         state.error = null;
+//       })
+//       .addCase(addToCartThunk.fulfilled, (state, action) => {
+//         state.status = "succeeded";
+//         const newItem = action.meta.arg;
+
+//         const existingItem = state.items.find(
+//           (i) => String(i.productId) === String(newItem.productId),
+//         );
+//         if (existingItem) {
+//           existingItem.quantity += newItem.quantity;
+//         } else {
+//           state.items.push(newItem);
+//         }
+//         saveToStorage(state.items);
+//       })
+//       .addCase(addToCartThunk.rejected, (state, action: any) => {
+//         state.status = "failed";
+//         state.error = action.payload?.message || "เกิดข้อผิดพลาด";
+//       });
+//   },
+// });
+
+// export const { increaseQuantity, decreaseQuantity, removeFromCart } =
+//   cartSlice.actions;
+
+// export default cartSlice.reducer;

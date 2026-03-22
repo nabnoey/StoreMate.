@@ -52,8 +52,7 @@ const handleSubmitSearch = () => {
 
 const cartItems = useSelector((state: RootState) => state.carts.items); 
 
-const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 1), 0);
-
+const totalItems = cartItems.length
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
