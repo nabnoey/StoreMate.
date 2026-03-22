@@ -95,7 +95,6 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   const handleIncrease = () => {
-
     // const token = TokenService.getAccessToken();
     // if (!token) {
     //   navigate("/login");
@@ -109,7 +108,6 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => {
-
     // const token = TokenService.getToken();
     // if (!token) {
     //   navigate("/login");
@@ -121,8 +119,6 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleAddToCart = async (shouldRedirect = false) => {
-
-
     const token = TokenService.getAccessToken();
 
     if (!token) {
@@ -144,11 +140,11 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-        const cartItemPayload = {
+    const cartItemPayload = {
       ...productDetail,
       productId: productDetail.id,
       quantity: buyQuantity,
-      imageUrl: activeImage
+      imageUrl: activeImage,
     };
 
     try {
@@ -156,7 +152,7 @@ const ProductDetailPage: React.FC = () => {
 
       toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
 
-          setBuyQuantity(1);
+      setBuyQuantity(1);
 
       if (shouldRedirect) {
         navigate("/shopping-cart");
@@ -310,7 +306,10 @@ const ProductDetailPage: React.FC = () => {
               >
                 <div className="flex items-center gap-4">
                   <span className="font-bold text-[#2C2221]">จำนวน</span>
-                  <div className="flex items-center w-[130px] h-[42px] gap-[10px] p-[10px] border border-gray-200 rounded-[8px] bg-white">
+                  <div
+                    data-test="buy-quantity"
+                    className="flex items-center w-[130px] h-[42px] gap-[10px] p-[10px] border border-gray-200 rounded-[8px] bg-white"
+                  >
                     <button
                       data-test="btn-decrease"
                       onClick={handleDecrease}
@@ -336,11 +335,19 @@ const ProductDetailPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex w-[257px] h-[52px] gap-[11px] -translate-x-[110px]">
+                <div
+                  data-test="container-cart-actions"
+                  // รอดู responsive figma อีกที อันนี้เอาแบบ shopee ไปก่อน
+                  // mobile: ติดขอบล่าง (fixed bottom-0), มีเงาบางๆ shadow-[0_-2px_10px_rgba(0,0,0,0.05)], มีระยะห่างจากขอบหน้าจอ 0px, background สีขาว, จัดเรียงปุ่มแบบคอลัมน์, gap ระหว่างปุ่ม 10px
+                  // deasktop (sm ขึ้นไป): กลับไปอยู่ตำแหน่งปกติ, ไม่มีเงา, ระยะปุ่มเท่าเดิม
+                  className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
+                >
                   <button
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
-                    className="w-[151px] h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-500 text-white rounded-[12px] font-semibold text-md transition-colors shadow-sm"
+                    // mobile กว้าง 50%, พื้นหลังสีฟ้าอ่อน ตัวอักษรสีฟ้า, ขอบเหลี่ยม, สูง 60px
+                    // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
+                    className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
                   >
                     เพิ่มลงรถเข็น
                   </button>
@@ -348,7 +355,9 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     data-test="btn-buy-cart"
                     onClick={() => handleAddToCart(true)}
-                    className="w-[115px] h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] text-white rounded-[12px] font-semibold text-md transition-colors shadow-sm"
+                    // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
+                    // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
+                    className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
                   >
                     สั่งซื้อสินค้า
                   </button>

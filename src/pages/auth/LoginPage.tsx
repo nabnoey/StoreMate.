@@ -6,7 +6,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
 import { login } from "../../redux/auth/authReducer";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
 
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
@@ -32,7 +32,7 @@ function LoginPage() {
       .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น"
+        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
       ),
   });
 
@@ -51,7 +51,7 @@ function LoginPage() {
           login({
             email: values.email.toLowerCase(),
             password: values.password,
-          })
+          }),
         ).unwrap();
 
         if (rememberMe) {
@@ -65,7 +65,6 @@ function LoginPage() {
         setTimeout(() => {
           navigate("/");
         }, 1000);
-        
       } catch (error: any) {
         let errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
         if (error?.message) {
@@ -84,7 +83,6 @@ function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
       <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
-        
         <div className="hidden lg:flex flex-col items-center justify-center">
           <img
             src={auth}
@@ -102,7 +100,11 @@ function LoginPage() {
           className="bg-white rounded-2xl shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
         >
           <div className="absolute top-4 right-4 -mt-7.5">
-            <img src={logo} alt="logo" className="w-35 sm:w-35 lg:w-40 h-auto" />
+            <img
+              src={logo}
+              alt="logo"
+              className="w-35 sm:w-35 lg:w-40 h-auto"
+            />
           </div>
 
           <h2 className="text-2xl sm:text-[32px] font-extrabold mb-6 text-black text-left">
@@ -115,16 +117,16 @@ function LoginPage() {
             </label>
             <input
               data-test="email"
+              disabled={loading}
               type="email"
               placeholder="example@gmail.com"
-              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] ${
+              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed${
                 formik.touched.email && formik.errors.email
                   ? "border-red-500 focus:border-red-500"
                   : ""
               }`}
               {...formik.getFieldProps("email")}
             />
-
           </div>
 
           <div className="mb-4">
@@ -134,9 +136,10 @@ function LoginPage() {
             <div className="relative">
               <input
                 data-test="password"
+                disabled={loading}
                 type={showPassword ? "text" : "password"}
                 placeholder="รหัสผ่าน"
-                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
+                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
                   formik.touched.password && formik.errors.password
                     ? "border-red-500 focus:border-red-500"
                     : ""
@@ -146,10 +149,10 @@ function LoginPage() {
               <button
                 data-test="show-password"
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-black focus:outline-none"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {formik.touched.password && formik.errors.password && (
@@ -162,14 +165,13 @@ function LoginPage() {
           <div className="flex items-center gap-3 mb-6">
             <input
               data-test="remember-me"
-              id="remember-me" 
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 cursor-pointer accent-green-400"
+              className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
             />
             <label
-            data-test="remember-me-label"
+              data-test="remember-me-label"
               htmlFor="remember-me"
               className="text-gray-800 cursor-pointer select-none"
             >
@@ -187,7 +189,6 @@ function LoginPage() {
           </button>
 
           <div className="flex flex-row justify-between items-center text-[13px] sm:text-sm mt-6 w-full text-gray-600">
-            
             {/* ฝั่งซ้าย */}
             <span
               className="hover:underline cursor-pointer"
@@ -206,9 +207,7 @@ function LoginPage() {
                 สมัครสมาชิก
               </span>
             </div>
-            
           </div>
-
         </form>
       </div>
     </div>
