@@ -1,5 +1,5 @@
 pipeline {
-    
+
     agent any 
 
     environment {
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                    npx sonar-scanner \
+                    sonar-scanner \
                     -Dsonar.projectKey=jeyzdev_store-mate-app \
                     -Dsonar.organization=jeyzdev \
                     -Dsonar.sources=src \
