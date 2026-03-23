@@ -4,7 +4,6 @@ pipeline {
 
     environment {
         VERCEL_HOOK_URL = credentials('vercel-hooks-url')
-        SONAR_TOKEN = credentials('sonar-token')
     }
 
     triggers {
@@ -15,20 +14,16 @@ pipeline {
 
         stage('Install Dependencies') {
             when {
-                expression { 
-                    return env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' 
-                }
+                expression { env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' }
             }
-          steps {
+            steps {
                 sh 'npm install'
-          }
+            }
         }
 
         stage('Build') {
             when {
-                expression { 
-                    return env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' 
-                }
+                expression { env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' }
             }
             steps {
                 sh 'npm run build'
@@ -37,34 +32,49 @@ pipeline {
 
         stage('Sonar') {
             when {
-                expression { 
-                    return env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' 
-                }
+                expression { env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' }
             }
             steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                    sonar-scanner \
-                    -Dsonar.projectKey=jeyzdev_store-mate-app \
-                    -Dsonar.organization=jeyzdev \
-                    -Dsonar.sources=src \
-                    -Dsonar.host.url=https://sonarcloud.io \
-                    -Dsonar.login=$SONAR_TOKEN
-                    '''
+                timeout(time: 10, unit: 'MINUTES') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        set -x
+                        echo "START SONAR"
+
+                        sonar-scanner \
+                          -Dsonar.projectKey=jeyzdev_store-mate-app \
+                          -Dsonar.organization=jeyzdev \
+                          -Dsonar.sources=src \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.login=$SONAR_TOKEN
+
+                        echo "END SONAR"
+                        '''
+                    }
                 }
             }
         }
 
         stage('Deploy') {
             when {
-                expression { 
-                    return env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' 
-                }
+                expression { env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' }
             }
             steps {
-                sh "curl -X POST ${VERCEL_HOOK_URL}"
+                sh '''
+                if [ -z "$VERCEL_HOOK_URL" ]; then
+                  echo "VERCEL_HOOK_URL is empty!"
+                  exit 1
+                fi
+
+                curl -X POST "$VERCEL_HOOK_URL"
+                '''
             }
         }
     }
-    post { always { cleanWs() } }
+
+    post { 
+        always { 
+            cleanWs() 
+        } 
+    }
 }
