@@ -31,24 +31,18 @@ pipeline {
         }
 
         stage('Sonar') {
-            when {
-                expression { env.GIT_BRANCH == 'origin/develop' || env.GIT_BRANCH == 'develop' }
-            }
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                        set -x
-                        echo "START SONAR"
-
                         sonar-scanner \
-                          -Dsonar.projectKey=jeyzdev_store-mate-app \
-                          -Dsonar.organization=jeyzdev \
-                          -Dsonar.sources=src \
-                          -Dsonar.host.url=https://sonarcloud.io \
-                          -Dsonar.login=$SONAR_TOKEN
-
-                        echo "END SONAR"
+                        -Dsonar.projectKey=jeyzdev_store-mate-app \
+                        -Dsonar.organization=jeyzdev \
+                        -Dsonar.sources=src \
+                        -Dsonar.host.url=https://sonarcloud.io \
+                        -Dsonar.token=$SONAR_TOKEN \
+                        -Dsonar.javascript.node.maxspace=512 \
+                        -Dsonar.exclusions=**/node_modules/**,**/dist/**
                         '''
                     }
                 }
