@@ -5,52 +5,50 @@ import { lazyDelay } from "../utils/lazyDelay";
 
 const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
 const ShoppingCartPage = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/ShoppingCart"), 1200)
+  lazyDelay(() => import("../pages/users/carts/ShoppingCart"), 1200),
 );
 const RegisterPage = lazy(() =>
-  lazyDelay(() => import("../pages/auth/RegisterPage"), 1200)
+  lazyDelay(() => import("../pages/auth/RegisterPage"), 1200),
 );
 const LoginPage = lazy(() =>
-  lazyDelay(() => import("../pages/auth/LoginPage"), 1200)
+  lazyDelay(() => import("../pages/auth/LoginPage"), 1200),
 );
 const ForgotPassword = lazy(() =>
-  lazyDelay(() => import("../pages/auth/ForgotPassword"), 1200)
+  lazyDelay(() => import("../pages/auth/ForgotPassword"), 1200),
 );
 const Profile = lazy(() =>
-  lazyDelay(() => import("../pages/users/Profile"), 1200)
+  lazyDelay(() => import("../pages/users/Profile"), 1200),
 );
 const ResetPassword = lazy(() =>
-  lazyDelay(() => import("../pages/auth/ResetPassword"), 1200)
+  lazyDelay(() => import("../pages/auth/ResetPassword"), 1200),
 );
 const ChangePassword = lazy(() =>
-  lazyDelay(() => import("../pages/auth/ChangePassword"), 1200)
+  lazyDelay(() => import("../pages/auth/ChangePassword"), 1200),
 );
 const ProductDetailPage = lazy(() =>
-  lazyDelay(() => import("../pages/ProductDetails"), 1200)
+  lazyDelay(() => import("../pages/ProductDetails"), 1200),
 );
 const PaymentShoping = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/PaymentShoping"), 1200)
+  lazyDelay(() => import("../pages/users/carts/PaymentShoping"), 1200),
 );
 const SearchPage = lazy(() =>
-  lazyDelay(() => import("../pages/SearchPage"), 1200)
+  lazyDelay(() => import("../pages/SearchPage"), 1200),
 );
 const CategoryPage = lazy(() =>
-  lazyDelay(() => import("../pages/users/CategoryPage"), 1200)
+  lazyDelay(() => import("../pages/users/CategoryPage"), 1200),
 );
 const AddressProfile = lazy(() =>
-  lazyDelay(() => import("../pages/users/AddreesProfile"), 1200)
+  lazyDelay(() => import("../pages/users/AddreesProfile"), 1200),
 );
-const AboutUs = lazy(() =>
-  lazyDelay(() => import("../pages/AboutAs"), 1200)
-);
-const Contact = lazy(() =>
-lazyDelay(()=> import("../pages/Contact"))
-)
+const AboutUs = lazy(() => lazyDelay(() => import("../pages/AboutAs"), 1200));
+const Contact = lazy(() => lazyDelay(() => import("../pages/Contact")));
 const MainLayout = lazy(() =>
-  lazyDelay(() => import("../layouts/MainLayout"), 1200)
+  lazyDelay(() => import("../layouts/MainLayout"), 1200),
 );
 
-
+const AddCreditCard = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/AddCreditCard"), 1200),
+);
 
 const router = createBrowserRouter([
   {
@@ -124,8 +122,11 @@ const router = createBrowserRouter([
       {
         path: "contact",
         element: <Contact />,
-      }
-
+      },
+      {
+        path: "add-credit-card",
+        element: <AddCreditCard />,
+      },
     ],
   },
 ]);
