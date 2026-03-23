@@ -2,7 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        VERCEL_HOOK_URL = credentials('vercel-token')
+        VERCEL_HOOK_URL = credentials('vercel-hooks-url')
         SONAR_TOKEN = credentials('sonar-token')
     }
 
