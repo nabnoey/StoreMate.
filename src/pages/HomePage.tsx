@@ -3,7 +3,7 @@ import type { AppDispatch, RootState } from "../redux/store";
 import { Icon } from "@iconify/react";
 import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
-import banner from "../assets/banner2.png";
+import banner from "../assets/banner2.webp";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/user/ProductCard";
 
@@ -51,6 +51,14 @@ function HomePage() {
   const groupedProduct = useSelector(
     (state: RootState) => state.products.groupedProducts,
   );
+
+  const getCategoryProducts = (category) => {
+    return (
+      groupedProduct.find(
+        (group) => group.categoryName.toLowerCase() === category,
+      )?.products || []
+    );
+  };
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -133,13 +141,9 @@ function HomePage() {
             category="promotion"
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
-            {groupedProduct.map(
-              (group) =>
-                group.categoryName.toLowerCase() === "promotion" &&
-                group.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                )),
-            )}
+            {getCategoryProducts("promotion").map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
           {/* </ContentWrapper> */}
 
@@ -175,13 +179,9 @@ function HomePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
-            {groupedProduct.map(
-              (group) =>
-                group.categoryName.toLowerCase() === "soap" &&
-                group.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                )),
-            )}
+            {getCategoryProducts("soap").map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
@@ -216,13 +216,9 @@ function HomePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
-            {groupedProduct.map(
-              (group) =>
-                group.categoryName.toLowerCase() === "drinks" &&
-                group.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                )),
-            )}
+            {getCategoryProducts("drinks").map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
@@ -256,13 +252,9 @@ function HomePage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
-            {groupedProduct.map(
-              (group) =>
-                group.categoryName.toLowerCase() === "shampoo" &&
-                group.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                )),
-            )}
+            {getCategoryProducts("shampoo").map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
