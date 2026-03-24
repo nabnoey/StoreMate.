@@ -52,7 +52,7 @@ function HomePage() {
     (state: RootState) => state.products.groupedProducts,
   );
 
-  const getCategoryProducts = (category) => {
+  const getCategoryProducts = (category:string) => {
     return (
       groupedProduct.find(
         (group) => group.categoryName.toLowerCase() === category,

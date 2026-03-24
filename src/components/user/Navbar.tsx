@@ -2,14 +2,12 @@ import { useState} from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
-import type { AppDispatch } from "../../redux/store";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector,useDispatch } from "react-redux";
 import {search} from "../../redux/products/productReducer";
-import type { RootState } from "../../redux/store";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
-import { useSearchParams } from "react-router-dom";
 
 
 
