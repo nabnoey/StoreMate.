@@ -1,6 +1,10 @@
 import { FaFacebookF, FaInstagram, FaLine } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 
 const Footer: React.FC = () => {
+  
+const navigate = useNavigate()
   return (
     <footer className="bg-[#193220] text-gray-300 font-anuphan block w-full -mt-[1px] relative z-10 p-0 m-0">
       {/* Top Section */}
@@ -24,29 +28,28 @@ const Footer: React.FC = () => {
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">เมนู</h3>
           <ul className="space-y-3 text-xs sm:text-sm">
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <div className="hover:text-white transition-colors" onClick={() => navigate("/")}>
                 หน้าแรก
-              </a>
+              </div>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <div className="hover:text-white transition-colors" onClick={() => navigate("/search")}>
                 สินค้าทั้งหมด
-              </a>
+              </div>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <div className="hover:text-white transition-colors" onClick={() => navigate("/search?keyword=&category=promotion")}>
                 โปรโมชั่น
-              </a>
+              </div>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <div className="hover:text-white transition-colors" onClick={() => navigate("/contact")}>
                 ติดต่อเรา
-              </a>
+              </div>
             </li>
           </ul>
         </div>
 
-        {/* Column 3: Help */}
         <div>
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">ช่วยเหลือ</h3>
           <ul className="space-y-3 text-xs sm:text-sm">
@@ -73,24 +76,24 @@ const Footer: React.FC = () => {
           </ul>
         </div>
 
-        {/* Column 4: Social Media */}
+       
         <div>
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">ติดตามเรา</h3>
           <div className="flex gap-3">
             <a
-              href="#"
+              href="https://www.facebook.com/Padthong636"
               className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaFacebookF className="text-white text-sm" />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/padthongofficial/"
               className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaInstagram className="text-white text-sm" />
             </a>
             <a
-              href="#"
+              href="https://line.me/R/ti/p/@859pkcpt?oat_content=url&ts=05121928"
               className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaLine className="text-white text-sm" />

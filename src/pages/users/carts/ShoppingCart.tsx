@@ -9,7 +9,7 @@ import {
   decrementCartItemThunk,
   fetchCartThunk
 } from "../../../redux/carts/CartReducer";
-// import { fetchProducts } from "../../../redux/products/productReducer";
+
 
 import type { Product } from "../../../types/product";
 import { Icon } from "@iconify/react";

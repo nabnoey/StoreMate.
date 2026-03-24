@@ -95,11 +95,6 @@ const ProductDetailPage: React.FC = () => {
   }, [id]);
 
   const handleIncrease = () => {
-    // const token = TokenService.getAccessToken();
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
@@ -108,11 +103,6 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleDecrease = () => {
-    // const token = TokenService.getToken();
-    // if (!token) {
-    //   navigate("/login");
-    //   return;
-    // }
     if (buyQuantity > 1) {
       setBuyQuantity((prev) => prev - 1);
     }
@@ -247,7 +237,7 @@ const ProductDetailPage: React.FC = () => {
                 className="flex gap-3 overflow-x-auto justify-center w-full"
               >
                 {productDetail.productImages?.map((img) => (
-                  <div
+                  <button
                     key={img.id}
                     onClick={() => setActiveImage(img.imageUrl)}
                     className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${activeImage === img.imageUrl ? "border-b-4 border-gray-800 opacity-100" : ""}`}
@@ -257,7 +247,7 @@ const ProductDetailPage: React.FC = () => {
                       className="w-full h-full object-cover"
                       alt="thumbnail"
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -408,7 +398,7 @@ const ProductDetailPage: React.FC = () => {
 
                           {isLoggedIn &&
                             currentUserId === review.reviewer?.id && (
-                              <div className="relative">
+                              <div className="relatigtive">
                                 <Icon
                                   icon="mdi:dots-vertical"
                                   width="24"

@@ -26,23 +26,20 @@ function CartItem({ item }: Props) {
   const stock = productInStock?.stockQuantity ?? 0;
 
   const handleIncrease = () => {
-    // เช็ค stock ก่อนเพิ่ม
     if (stock > 0) {
-      dispatch(incrementCartItemThunk(item.id)); // เพิ่มจำนวนในตะกร้า
-      dispatch(removeQuantity(item.id));   // ลดจำนวนในสต็อก (ถ้าต้องการ logic นี้)
+      dispatch(incrementCartItemThunk(item.id)); 
+      dispatch(removeQuantity(item.id));   
     }
   };
 
   const handleDecrease = () => {
     if (item.stockQuantity > 1) {
-        dispatch(decrementCartItemThunk(item.id)); // ลดจำนวนในตะกร้า
-        // dispatch(returnQuantity({ id: item.id, quantity: 1 })); // คืนจำนวนเข้าสต็อก
+        dispatch(decrementCartItemThunk(item.id)); 
     }
   };
 
   const handleRemove = () => {
-    dispatch(removeFromCart(item.id)); // ลบสินค้าออกจากตะกร้า
-    // dispatch(returnQuantity({ id: item.id, quantity: item.quantity })); 
+    dispatch(removeFromCart(item.id)); 
   };
 
   return (
@@ -67,7 +64,7 @@ function CartItem({ item }: Props) {
           >
             {item.productName}
           </h3>
-           {/* STATUS */}
+        
   {stock > 0 ? (
     <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs inline-block mt-1">
       พร้อมจำหน่าย

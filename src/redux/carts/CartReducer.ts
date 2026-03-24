@@ -87,7 +87,6 @@ const cartSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-
     // เปลี่ยนการลบให้เป็นแบบนี้ ใน CartReducer.ts
     removeFromCart: (state, action: PayloadAction<number | string>) => {
       // บังคับแปลงทั้งสองฝั่งให้เป็น String ก่อนเช็ค และสร้าง Array ใหม่ด้วย filter
