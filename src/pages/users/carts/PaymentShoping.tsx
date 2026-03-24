@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import type { RootState } from "../../../redux/store";
+import type { RootState, AppDispatch } from "../../../redux/store";
 import type { CartItem } from "../../../types/cartItem";
+import {
+  decrementCartItemThunk,
+  incrementCartItemThunk,
+} from "../../../redux/carts/CartReducer";
 import { toast } from "react-hot-toast";
 
 const PaymentShoping = () => {
-  // สร้าง State จำลองรายการบัตรที่ถูกบันทึกไว้ (ของจริงอาจดึงจาก API/Redux)
+  const dispatch = useDispatch<AppDispatch>();
   const [savedCards, setSavedCards] = useState([
     {
       id: "card_1",
@@ -278,6 +282,27 @@ const PaymentShoping = () => {
                   <div className="hidden lg:flex items-center justify-between w-full md:w-auto gap-4 md:gap-10">
                     <div className="hidden lg:block text-sm font-medium text-black w-16 text-center">
                       ฿ {item.price.toLocaleString()}
+                    </div>
+                    <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 flex-shrink-0">
+                      <button
+                        onClick={() =>
+                          dispatch(decrementCartItemThunk(item.productId))
+                        }
+                        className="px-3 hover:bg-gray-50 text-gray-500 border-r border-gray-300 h-full transition-colors"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 text-xs font-bold min-w-[30px] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          dispatch(incrementCartItemThunk(item.productId))
+                        }
+                        className="px-3 hover:bg-gray-50 text-gray-500 border-l border-gray-300 h-full transition-colors"
+                      >
+                        +
+                      </button>
                     </div>
                     <div className="text-blue-500 font-md text-md w-24 text-right">
                       ฿ {(item.price * item.quantity).toLocaleString()}

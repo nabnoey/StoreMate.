@@ -50,6 +50,11 @@ const AddCreditCard = lazy(() =>
   lazyDelay(() => import("../pages/users/carts/AddCreditCard"), 1200),
 );
 
+const AdminLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/AdminLayout"), 1200),
+);
+import Stock from "../pages/admin/Stock";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -126,6 +131,17 @@ const router = createBrowserRouter([
       {
         path: "add-credit-card",
         element: <AddCreditCard />,
+      },
+    ],
+  },
+
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        path: "stock",
+        element: <Stock />,
       },
     ],
   },

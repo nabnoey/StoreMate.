@@ -1,8 +1,15 @@
 import HeaderAdmin from '../../components/admin/HeaderAdmin';
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi"; // อย่าลืมติดตั้ง react-icons ถ้ายังไม่มี
+// import { useFormik } from 'formik';
 
 function Stock() {
+
+// const initailFrom = {
+//   peoductName:
+// }
+
+
   // ข้อมูลจำลองสำหรับแสดงผลในตารางให้เหมือนภาพตัวอย่าง
   const products = [
     { id: 'PRD-001', name: 'แชมพูสูตรฟื้นฟู', category: 'เครื่องดื่ม', price: 100, stock: 999, status: 'พร้อมจำหน่าย' },

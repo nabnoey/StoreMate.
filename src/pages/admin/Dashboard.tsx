@@ -2,7 +2,7 @@ import HeaderAdmin from '../../components/admin/HeaderAdmin'
 // import { CiSearch } from "react-icons/ci";
 
 
-function Stock() {
+function Dashboard() {
   return (
     <div>
 
@@ -23,4 +23,4 @@ function Stock() {
   )
 }
 
-export default Stock
+export default Dashboard
