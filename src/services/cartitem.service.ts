@@ -13,14 +13,14 @@ const addToCart = async (data: CartItemRequestDTO) => {
 
 const incrementCartItem = async (productId: number) => {
   const res = await api.patch(
-    `${import.meta.env.VITE_CART_API}/${productId}/increment`,
+    `${import.meta.env.VITE_CART_API}/items/${productId}/increment`,
   );
   return res.data;
 };
 
 const decrementCartItem = async (productId: number) => {
   const res = await api.patch(
-    `${import.meta.env.VITE_CART_API}/${productId}/decrement`,
+    `${import.meta.env.VITE_CART_API}/items/${productId}/decrement`,
   );
   return res.data;
 };

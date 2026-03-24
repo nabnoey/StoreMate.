@@ -30,11 +30,7 @@ const ShoppingCart = () => {
   }, [dispatch]);
 
 
-  // useEffect(() => {
-  //   if (groupedProducts.length === 0) {
-  //     dispatch(fetchProducts());
-  //   }
-  // }, [dispatch, groupedProducts.length]);
+
 
   const allFlatProducts = groupedProducts.flatMap((group) => group.products);
 
@@ -75,6 +71,8 @@ const ShoppingCart = () => {
   const selectedCartItems = enrichedCartItems.filter((item) =>
     selectedItems.includes(item.productId),
   );
+
+  //ต้องแก้เป็นลูปเอา จำนวนสินค้าราคาต่อหน่อย ต้องสร้างตัวแปรไว้ 1 ตัว
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0,
