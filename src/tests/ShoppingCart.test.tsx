@@ -68,4 +68,6 @@ describe("ShoppingCart", () => {
     expect(subtotal).toBe(250)
     console.table(selectedItems)
   })
+
+  
 });
