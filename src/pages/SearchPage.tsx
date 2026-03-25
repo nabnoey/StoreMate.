@@ -118,7 +118,8 @@ const SearchPage = () => {
           </button>
         </div>
         <div
-          className={`${openFilter ? "block" : "hidden"} lg:block w-full lg:w-[320px] pt-6 lg:pt-16`}
+          className={`${openFilter ? "block" : "hidden"} lg:block w-full lg:w-[320px] pt-6 lg:pt-16` }
+          data-test="all-filter"
         >
           <div className="flex items-center justify-between mb-4 ">
             <h3 className="text-xl font-bold flex items-center gap-2 text-black">
