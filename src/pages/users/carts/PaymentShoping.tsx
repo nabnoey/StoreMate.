@@ -12,7 +12,7 @@ import { toast } from "react-hot-toast";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const [savedCards, setSavedCards] = useState([
+  const [savedCards] = useState([
     {
       id: "card_1",
       brand: "mastercard",
