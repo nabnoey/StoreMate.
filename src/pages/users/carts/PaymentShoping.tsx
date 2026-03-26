@@ -39,7 +39,7 @@ const PaymentShoping = () => {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shipping = subtotal > 0 ? 14.0 : 0.0;
+  const shipping = subtotal > 0 ? 14 : 0;
   const totalPrice = subtotal + shipping;
 
   const handleConfirmOrder = async () => {
@@ -195,7 +195,7 @@ const PaymentShoping = () => {
           </div>
 
           {/* ที่อยู่ Mobile  */}
-          <div
+          <button
             onClick={() => navigate("/address-profile")}
             className="lg:hidden bg-white p-4 mb-2 flex flex-col gap-2 cursor-pointer shadow-sm relative"
           >
@@ -236,7 +236,7 @@ const PaymentShoping = () => {
                   "repeating-linear-gradient(45deg, #FF6B6B 0, #FF6B6B 15px, transparent 0, transparent 20px, #4D96FF 0, #4D96FF 35px, transparent 0, transparent 40px)",
               }}
             ></div>
-          </div>
+          </button>
 
           <div className="mb-2 lg:mb-12 flex justify-center items-center lg:pb-4 border-b-0 lg:border-b border-[#D1D5DB] bg-white lg:bg-transparent p-4 lg:p-0 shadow-sm lg:shadow-none">
             <div className="flex flex-col w-full lg:w-[1072px] lg:h-[223px] p-0 lg:p-[16px] gap-4 lg:gap-[6px] overflow-y-auto">
@@ -341,7 +341,7 @@ const PaymentShoping = () => {
                     },
                   ].map((method) => (
                     <div key={method.id} className="space-y-2">
-                      <div
+                      <button
                         onClick={() => setPaymentMethod(method.id)}
                         className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-xl cursor-pointer transition-all ${
                           paymentMethod === method.id
@@ -368,13 +368,13 @@ const PaymentShoping = () => {
                             />
                           </div>
                         )}
-                      </div>
+                      </button>
 
                       {method.id === "credit" && paymentMethod === "credit" && (
                         <div className="ml-0 sm:ml-12 mt-3 space-y-3">
                           {/* ลิสต์บัตรที่บันทึกไว้ */}
                           {savedCards.map((card) => (
-                            <div
+                            <button
                               key={card.id}
                               onClick={() => setSelectedCardId(card.id)}
                               className="flex items-center gap-3 cursor-pointer"
@@ -407,11 +407,11 @@ const PaymentShoping = () => {
                               <span className="text-sm text-black font-mono ml-2">
                                 **** {card.last4}
                               </span>
-                            </div>
+                            </button>
                           ))}
 
                           {/* ปุ่มเพิ่มบัตรเครดิต/เดบิต */}
-                          <div
+                          <button
                             data-test="click-add-credit-card"
                             onClick={() => navigate("/add-credit-card")}
                             className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md cursor-pointer hover:bg-gray-50 transition-all bg-white ml-7"
@@ -424,7 +424,7 @@ const PaymentShoping = () => {
                             <p className="font-medium text-xs text-black">
                               เพิ่มบัตรเครดิต/เดบิต
                             </p>
-                          </div>
+                          </button>
                         </div>
                       )}
                     </div>

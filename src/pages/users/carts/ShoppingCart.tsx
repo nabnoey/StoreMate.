@@ -4,12 +4,10 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import {
   removeFromCart,
-
   incrementCartItemThunk,
   decrementCartItemThunk,
-  fetchCartThunk
+  fetchCartThunk,
 } from "../../../redux/carts/CartReducer";
-
 
 import type { Product } from "../../../types/product";
 import { Icon } from "@iconify/react";
@@ -29,9 +27,6 @@ const ShoppingCart = () => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
 
-
-
-
   const allFlatProducts = groupedProducts.flatMap((group) => group.products);
 
   const enrichedCartItems = cartItems
@@ -44,9 +39,10 @@ const ShoppingCart = () => {
         product: matchedProduct,
       };
     })
-    .filter((item) => item.product !== undefined) as (any & {
-    product: Product;
-  })[];
+    .filter(
+      (item): item is typeof item & { product: Product } =>
+        item.product !== undefined,
+    );
 
   const isAllSelected =
     enrichedCartItems.length > 0 &&
@@ -89,7 +85,6 @@ const ShoppingCart = () => {
     setSelectedItems([]);
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
-
 
   if (groupedProducts.length === 0 && cartItems.length > 0) {
     return (
@@ -217,7 +212,9 @@ const ShoppingCart = () => {
                       </span>
                       <button
                         data-test="increase-product"
-                        onClick={()=>dispatch(incrementCartItemThunk(item.productId))}
+                        onClick={() =>
+                          dispatch(incrementCartItemThunk(item.productId))
+                        }
                         disabled={item.quantity >= item.product.stockQuantity}
                         className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                       >
