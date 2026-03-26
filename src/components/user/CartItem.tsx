@@ -13,10 +13,10 @@ import {
 import { GiTrashCan } from "react-icons/gi";
 
 type Props = {
-  item: Product & { stockQuantity: number }; 
+  readonly item: Product & { stockQuantity: number }; 
 };
 
-function CartItem({ item }: Props) {
+function CartItem({  item }: Props) {
   const dispatch = useDispatch<AppDispatch>();   
 
   const productInStock = useSelector((state: RootState) =>
