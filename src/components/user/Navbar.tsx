@@ -61,16 +61,12 @@ const Navbar: React.FC = () => {
     <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
       {/* LOGO */}
       <div className="navbar-start right-5 flex items-center justify-start">
-        <button
-          data-test="logo"
-          onClick={() => navigate("/")}
-          className="cursor-pointer focus:outline-none"
-          aria-label="กลับสู่หน้าหลัก"
-        >
+        <button onClick={() => navigate("/")}>
           <img
             src={logo}
             className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
             alt="Logo"
+            data-test="logo"
           />
         </button>
       </div>
@@ -123,10 +119,10 @@ const Navbar: React.FC = () => {
       {/* RIGHT */}
       <div className="navbar-end flex items-center gap-4">
         {/* SEARCH */}
-        <div className="relative border border-white" data-test="search">
-          <button
-            type="button"
-            className="cursor-pointer focus:outline-none z-50 relative hover:text-black text-black"
+        <button className="relative border border-white" data-test="search">
+          <GoSearch
+            size={22}
+            className="cursor-pointer hover:text-black text-black z-50"
             onClick={() => {
               if (openSearch) {
                 handleSubmitSearch();
@@ -134,9 +130,7 @@ const Navbar: React.FC = () => {
                 setOpenSearch(true);
               }
             }}
-          >
-            <GoSearch size={22} />
-          </button>
+          />
 
           {openSearch && (
             <>
@@ -160,7 +154,6 @@ const Navbar: React.FC = () => {
                 className="absolute  right-8 -top-2 input input-bordered bg-white w-31 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
                 autoFocus
               />
-
               {inputValue && searchResult.length > 0 && (
                 <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
                   {searchResult.map((product) => (
@@ -181,7 +174,7 @@ const Navbar: React.FC = () => {
               )}
             </>
           )}
-        </div>
+        </button>
 
         {isAuthenticated ? (
           <>

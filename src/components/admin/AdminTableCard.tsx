@@ -1,8 +1,8 @@
 import { CiSearch } from "react-icons/ci";
 
 type Props = {
-  title: string;
-  showAddButton?: boolean;
+  readonly title: string;
+  readonly showAddButton?: boolean;
 };
 
 function AdminTableCard({ title, showAddButton }: Readonly<Props>) {
