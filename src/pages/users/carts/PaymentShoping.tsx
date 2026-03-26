@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { useNavigate, Link } from "react-router-dom";
-import type { RootState, AppDispatch } from "../../../redux/store";
-import type { CartItem } from "../../../types/cartItem";
-import {
-  decrementCartItemThunk,
-  incrementCartItemThunk,
-} from "../../../redux/carts/CartReducer";
+import type { RootState } from "../../../redux/store";
 import { toast } from "react-hot-toast";
+import type { CartItem } from "../../../types/cartItem";
 
 const PaymentShoping = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+  const selectedItems: CartItem[] = location.state?.items || [];
+
+
   const [savedCards] = useState([
     {
       id: "card_1",
@@ -19,23 +19,20 @@ const PaymentShoping = () => {
       bankName: "ธนาคารกสิกรไทย",
       last4: "8888",
     },
-    // { id: "card_2", brand: "visa", bankName: "ธนาคารไทยพาณิชย์", last4: "1234" }
+
   ]);
   const [selectedCardId, setSelectedCardId] = useState("card_1");
   const navigate = useNavigate();
-
-  const cartItems = useSelector(
-    (state: RootState) => (state.carts.items as CartItem[]) || [],
-  );
   const addresses = useSelector(
     (state: RootState) => state.address.address || [],
   );
   const defaultAddress =
     addresses.find((addr) => addr.isDefault) || addresses[0];
 
+
   const [paymentMethod, setPaymentMethod] = useState<string>("qr");
 
-  const subtotal = cartItems.reduce(
+  const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
@@ -44,7 +41,8 @@ const PaymentShoping = () => {
 
   const handleConfirmOrder = async () => {
     // Alternate Flow 6.1: ไม่ได้เลือกช่องทางการชำระเงิน (และเช็กเงื่อนไขพื้นฐานอื่นๆ)
-    if (cartItems.length === 0) {
+
+    if (selectedItems.length === 0) {
       toast.error("ไม่มีสินค้าในตะกร้า");
       return;
     }
@@ -63,18 +61,6 @@ const PaymentShoping = () => {
         "กำลังตรวจสอบสต็อกและสร้างคำสั่งซื้อ...",
       );
 
-      // [TODO]: Main Flow 8-9: ยิง API ไปยัง Backend เพื่อ:
-      // 1. ตรวจสอบความถูกต้องของสินค้าและสต็อกล่าสุด
-      // 2. สร้างและบันทึกข้อมูลคำสั่งซื้อ
-      /* const payload = {
-        items: cartItems,
-        addressId: defaultAddress.id,
-        paymentMethod: paymentMethod,
-        totalPrice: totalPrice,
-      };
-      const response = await createOrder(payload).unwrap(); 
-      const newOrderId = response.orderId;
-      */
 
       // สมมติว่าได้ orderId กลับมาจาก API
       const mockOrderId = "ORD-123456789";
@@ -251,7 +237,8 @@ const PaymentShoping = () => {
                 </span>
               </div>
 
-              {cartItems.map((item) => (
+
+              {selectedItems.map((item) => (
                 <div
                   key={item.productId}
                   className="flex flex-row items-start lg:items-center gap-3 lg:gap-6 border-b border-gray-100 lg:border-0 pb-4 lg:pb-0 flex-shrink-0 last:border-0 last:pb-0"
@@ -284,25 +271,12 @@ const PaymentShoping = () => {
                       ฿ {item.price.toLocaleString()}
                     </div>
                     <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 flex-shrink-0">
-                      <button
-                        onClick={() =>
-                          dispatch(decrementCartItemThunk(item.productId))
-                        }
-                        className="px-3 hover:bg-gray-50 text-gray-500 border-r border-gray-300 h-full transition-colors"
-                      >
-                        -
-                      </button>
+
+                   
                       <span className="px-3 text-xs font-bold min-w-[30px] text-center">
                         {item.quantity}
                       </span>
-                      <button
-                        onClick={() =>
-                          dispatch(incrementCartItemThunk(item.productId))
-                        }
-                        className="px-3 hover:bg-gray-50 text-gray-500 border-l border-gray-300 h-full transition-colors"
-                      >
-                        +
-                      </button>
+                   
                     </div>
                     <div className="text-blue-500 font-md text-md w-24 text-right">
                       ฿ {(item.price * item.quantity).toLocaleString()}

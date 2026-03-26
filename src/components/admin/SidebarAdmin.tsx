@@ -21,12 +21,15 @@ function SidebarAdmin() {
         {/* LOGO */}
         <div className="flex items-center gap-3 mb-6 text-center">
           <div className="avatar">
-            <img
-          src={logo}
-          className="w-27 h-27 "
-          onClick={() => navigate("/")}
-          alt="Logo"
-        />
+             <button onClick={() => navigate("/")}>
+          <img
+            src={logo}
+            className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
+            alt="Logo"
+            data-test="logo"
+          />
+        </button>
+        
 
         <h1 className="font-medium   mt-8 text-[30px] leading-none ">Owner</h1>
           </div>
@@ -45,31 +48,31 @@ function SidebarAdmin() {
   </li>
 
  <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/stock")}>
+    <div className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/stock")}>
       <Package size={18}/>
       จัดการสินค้าในคลัง
-    </a>
+    </div>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/orders")}>
+    <div className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/orders")}>
       <ShoppingCart size={18}/>
       จัดการคำสั่งซื้อ
-    </a>
+    </div>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/user-edit")}>
+    <div className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={() => navigate("/admin/user-edit")}>
       <Users size={18}/>
       จัดการผู้ใช้
-    </a>
+    </div>
   </li>
 
   <li>
-    <a className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={()=>navigate("/admin/store-edit")}>
+    <div className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all" onClick={()=>navigate("/admin/store-edit")}>
       <Settings size={18}/>
       ตั้งค่าร้านค้า
-    </a>
+    </div>
   </li>
         </ul>
       </div>
