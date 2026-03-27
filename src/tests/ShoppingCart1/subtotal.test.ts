@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-describe("ShoppingCart", () => {
+describe("Subtotal", () => {
   it("ควรคำนวณราคารวมถูกต้องเมื่อมีหลายสินค้า", () => {
     const selectedCartItems = [
       { product: { price: 100 }, quantity: 2 },
