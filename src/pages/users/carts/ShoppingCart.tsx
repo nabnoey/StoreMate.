@@ -9,41 +9,35 @@ import {
   fetchCartThunk,
 } from "../../../redux/carts/CartReducer";
 
-
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
 import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
 
-
 const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-const { items: cartItems = [], status: cartStatus } = useSelector(
-  (state: RootState) => state.carts
-);
-console.log("cartItems:", cartItems);
+  const { items: cartItems = [], status: cartStatus } = useSelector(
+    (state: RootState) => state.carts,
+  );
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   useEffect(() => {
     dispatch(fetchCartThunk());
-  
   }, [dispatch]);
 
-
-  const enrichedCartItems = cartItems.map((item:CartItem) => ({
-  ...item,
-  product: {
-    id: item.productId,
-    productName: item.productName,
-    price: item.price,
-    imageUrl: item.imageUrl,
-    stockQuantity: item.stockQuantity, 
-  }
-}));
-
+  const enrichedCartItems = cartItems.map((item: CartItem) => ({
+    ...item,
+    product: {
+      id: item.productId,
+      productName: item.productName,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      stockQuantity: item.stockQuantity,
+    },
+  }));
 
   const isAllSelected =
     enrichedCartItems.length > 0 &&
@@ -69,15 +63,55 @@ console.log("cartItems:", cartItems);
     selectedItems.includes(item.productId),
   );
 
-  //ต้องแก้เป็นลูปเอา จำนวนสินค้าราคาต่อหน่อย ต้องสร้างตัวแปรไว้ 1 ตัว
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
 
- 
+  const handleRemoveItem = (productId: number, quantity: number) => {
+    if (quantity === 1) {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-3 items-center p-2">
+            <span className="text-gray-800 font-medium text-base">
+              คุณต้องการลบสินค้านี้ใช่หรือไม่?
+            </span>
 
-  const handleRemoveItem = (productId: number) => {
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+
+                  dispatch(deleteCartItemThunk(productId));
+                  setSelectedItems((prev) =>
+                    prev.filter((id) => id !== productId),
+                  );
+
+                  toast.success("ลบสินค้าแล้ว");
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                ลบ
+              </button>
+
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: Infinity,
+          position: "top-center",
+        },
+      );
+
+      return;
+    }
+
     dispatch(deleteCartItemThunk(productId));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
     toast.success("ลบออกจากตะกร้าแล้ว");
@@ -89,13 +123,13 @@ console.log("cartItems:", cartItems);
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
 
-if (cartStatus === "loading") {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loading />
-    </div>
-  );
-}
+  if (cartStatus === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white py-6 sm:py-12 px-4 font-anuphan">
@@ -150,7 +184,10 @@ if (cartStatus === "loading") {
                     <div className="flex items-center pt-2 md:pt-0">
                       <input
                         type="checkbox"
-                        checked={selectedItems.includes(item.productId)}
+                        checked={selectedItems.includes(
+                          item.productId,
+                          item.stockQuantity,
+                        )}
                         onChange={() => toggleSelect(item.productId)}
                         className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                       />
@@ -158,7 +195,7 @@ if (cartStatus === "loading") {
 
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
                       <img
-                        src={item.product.imageUrl}
+                        src={item.product.imageUrl || ""}
                         alt=""
                         className="w-full h-full object-contain"
                       />
@@ -186,7 +223,9 @@ if (cartStatus === "loading") {
 
                     {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
                     <button
-                      onClick={() => handleRemoveItem(item.productId)}
+                      onClick={() =>
+                        handleRemoveItem(item.productId, item.quantity)
+                      }
                       className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />
@@ -203,9 +242,14 @@ if (cartStatus === "loading") {
                     <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
                       <button
                         data-test="decrease-product"
-                        onClick={() =>
-                          dispatch(decrementCartItemThunk(item.productId))
-                        }
+                        onClick={() => {
+                          if (item.quantity === 1) {
+                            handleRemoveItem(item.productId, item.quantity);
+                            return;
+                          }
+
+                          dispatch(decrementCartItemThunk(item.productId));
+                        }}
                         className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                       >
                         <Icon icon="lucide:minus" width="14" height="14" />
@@ -232,7 +276,9 @@ if (cartStatus === "loading") {
                     {/* ปุ่มลบสำหรับ Desktop */}
                     <button
                       data-test="btn-remove-item"
-                      onClick={() => handleRemoveItem(item.productId)}
+                      onClick={() =>
+                        handleRemoveItem(item.productId, item.quantity)
+                      }
                       className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />
