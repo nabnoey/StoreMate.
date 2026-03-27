@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -15,12 +16,15 @@ import { TokenService } from "../services/token.service";
 import Pagination from "../components/user/Pagination";
 import Loading from "../components/loading/Loading";
 
+import type { CartItemRequestDTO } from "../types/cartItem";
+
 const catagoryTranslator: Record<string, string> = {
   Promotion: "โปรโมชัน",
   Soap: "สบู่",
   Drinks: "เครื่องดื่ม",
   Shampoo: "แชมพู",
 };
+
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
@@ -34,15 +38,13 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const currentStock = productDetail?.quantity || 0;
 
   //จำกัดสิทธิ์
-
   const token = TokenService.getAccessToken();
-
   const isLoggedIn = !!token;
-
   const categoryName = location.state?.categoryName || "สินค้า";
 
   //Pagination
@@ -62,6 +64,7 @@ const ProductDetailPage: React.FC = () => {
   type JwtPayload = {
     userId: number;
   };
+
   const currentUserId = useMemo(() => {
     if (!token) return null;
     try {
@@ -110,6 +113,9 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async (shouldRedirect = false) => {
     const token = TokenService.getAccessToken();
+    if (isAddingToCart) return;
+
+    setIsAddingToCart(true);
 
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
@@ -130,15 +136,13 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    const cartItemPayload = {
-      ...productDetail,
+    const cartItemPayload: CartItemRequestDTO = {
       productId: productDetail.id,
       quantity: buyQuantity,
-      imageUrl: activeImage,
     };
 
     try {
-      await dispatch(addToCartThunk(cartItemPayload as any)).unwrap();
+      await dispatch(addToCartThunk(cartItemPayload)).unwrap();
 
       toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
 
@@ -147,14 +151,20 @@ const ProductDetailPage: React.FC = () => {
       if (shouldRedirect) {
         navigate("/shopping-cart");
       }
-    } catch (error: any) {
-      const backendMessage = error?.message || error?.data?.message;
+    } catch (error: unknown) {
+      let backendMessage = "ไม่สามารถเพิ่มสินค้าได้";
+
+      if (axios.isAxiosError(error)) {
+        backendMessage = error.response?.data?.message || error.message;
+      }
 
       if (backendMessage === "There is insufficient stock.") {
         toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
-        toast.error(backendMessage || "ไม่สามารถเพิ่มสินค้าได้");
+        toast.error(backendMessage);
       }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -292,7 +302,7 @@ const ProductDetailPage: React.FC = () => {
 
               <div
                 id="product-actions"
-                className="w-full max-w-[723px] mx-auto flex flex-col items-center gap-5 mt-auto pt-6"
+                className="w-full max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 mt-auto pt-6"
               >
                 <div className="flex items-center gap-4">
                   <span className="font-bold text-[#2C2221]">จำนวน</span>
@@ -320,36 +330,40 @@ const ProductDetailPage: React.FC = () => {
                       +
                     </button>
                   </div>
-                  <span className="ml-10 text-sm text-[#1F2937]">
+                  <span className="ml-4 md:ml-10 text-sm text-[#1F2937]">
                     มีสินค้าทั้งหมด {currentStock} ชิ้น
                   </span>
                 </div>
 
+                {/* แก้ไข Responsive ปุ่มแบบ Shopee ตรงนี้ */}
                 <div
                   data-test="container-cart-actions"
-                  // รอดู responsive figma อีกที อันนี้เอาแบบ shopee ไปก่อน
-                  // mobile: ติดขอบล่าง (fixed bottom-0), มีเงาบางๆ shadow-[0_-2px_10px_rgba(0,0,0,0.05)], มีระยะห่างจากขอบหน้าจอ 0px, background สีขาว, จัดเรียงปุ่มแบบคอลัมน์, gap ระหว่างปุ่ม 10px
-                  // deasktop (sm ขึ้นไป): กลับไปอยู่ตำแหน่งปกติ, ไม่มีเงา, ระยะปุ่มเท่าเดิม
-                  className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
+                  className="fixed bottom-0 left-0 w-full flex flex-row z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:relative md:w-auto md:bg-transparent md:shadow-none md:gap-[11px] md:z-auto"
                 >
                   <button
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
-                    // mobile กว้าง 50%, พื้นหลังสีฟ้าอ่อน ตัวอักษรสีฟ้า, ขอบเหลี่ยม, สูง 60px
-                    // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
-                    className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
+                    disabled={isAddingToCart}
+                    className={`flex-1 md:flex-none md:w-[151px] h-[60px] md:h-[52px]
+                      flex items-center justify-center gap-[10px] p-[10px]
+                      bg-blue-50 text-blue-600 md:bg-blue-500 md:hover:bg-blue-600 md:text-white
+                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
+                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   >
-                    เพิ่มลงรถเข็น
+                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
 
                   <button
                     data-test="btn-buy-cart"
                     onClick={() => handleAddToCart(true)}
-                    // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
-                    // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
-                    className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
+                    disabled={isAddingToCart}
+                    className={`flex-1 md:flex-none md:w-[115px] h-[60px] md:h-[52px]
+                      flex items-center justify-center gap-[10px] p-[10px]
+                      bg-[#10B981] hover:bg-green-600 text-white
+                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
+                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   >
-                    สั่งซื้อสินค้า
+                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>
                 </div>
               </div>
@@ -398,13 +412,13 @@ const ProductDetailPage: React.FC = () => {
 
                           {isLoggedIn &&
                             currentUserId === review.reviewer?.id && (
-                              <div className="relatigtive">
+                              <div className="relative">
                                 <Icon
                                   icon="mdi:dots-vertical"
                                   width="24"
                                   height="24"
                                   data-test="onclick-toggle-menu"
-                                  className="cursor-pointer text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
+                                  className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
                                   onClick={() => toggleMenu(review.id)}
                                 />
 
@@ -424,7 +438,7 @@ const ProductDetailPage: React.FC = () => {
                                       onClick={() => {
                                         setOpenMenuId(null);
                                       }}
-                                      className="w-full cursor-pointer  text-left px-4 py-2 text-sm text-red-500 transition-colors"
+                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 transition-colors"
                                     >
                                       ลบ
                                     </button>

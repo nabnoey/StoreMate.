@@ -3,7 +3,7 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type { CartItem } from "../../types/cartItem";
+import type { CartItem, CartItemRequestDTO } from "../../types/cartItem";
 import { CartItemService } from "../../services/cartitem.service";
 
 const saveToStorage = (items: any[]) =>
@@ -32,7 +32,7 @@ export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
 
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
-  async (itemData: CartItem, { rejectWithValue }) => {
+  async (itemData: CartItemRequestDTO, { rejectWithValue }) => {
     try {
       const response = await CartItemService.addToCart(itemData);
       return response;
@@ -106,9 +106,12 @@ const cartSlice = createSlice({
         state.items = action.payload;
       })
 
+      .addCase(addToCartThunk.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const newItem = action.meta.arg;
+        const newItem = action.payload;
 
         const existingItem = state.items.find(
           (i) => String(i.productId) === String(newItem.productId),
@@ -122,7 +125,9 @@ const cartSlice = createSlice({
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
         state.status = "failed";
-        state.error = action.payload?.message || "เกิดข้อผิดพลาด";
+
+        const payload = action.payload as { message?: string } | undefined;
+        state.error = payload?.message || "เกิดข้อผิดพลาด";
       })
       .addCase(incrementCartItemThunk.fulfilled, (state, action) => {
         const productId = action.meta.arg;
