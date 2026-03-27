@@ -19,12 +19,14 @@ function SidebarAdmin() {
         {/* LOGO */}
         <div className="flex items-center gap-3 mb-6 text-center">
           <div className="avatar">
-            <img
-              src={logo}
-              className="w-27 h-27 "
-              onClick={() => navigate("/")}
-              alt="Logo"
-            />
+            <button onClick={() => navigate("/")}>
+              <img
+                src={logo}
+                className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
+                alt="Logo"
+                data-test="logo"
+              />
+            </button>
 
             <h1 className="font-medium   mt-8 text-[30px] leading-none ">
               Owner
@@ -35,54 +37,65 @@ function SidebarAdmin() {
         {/* MENU */}
         <ul className="menu rounded-box gap-3">
           <li>
-            <a
-              className="hover:bg-blue-100 
+            <button
+              data-test="dashboard-button"
+              className="cursor-pointer w-full text-left hover:bg-blue-100 
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
               onClick={() => navigate("/admin/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
-            </a>
+            </button>
           </li>
 
           <li>
-            <a
+            <button
+              data-test="stock-button"
+              className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              onClick={() => navigate("/admin/stock")}
+            >
+              <Package size={18} />
+              จัดการสินค้าในคลัง
+            </button>
+          </li>
+          <li>
+            <div
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
-            </a>
+            </div>
           </li>
 
           <li>
-            <a
+            <div
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/orders")}
             >
               <ShoppingCart size={18} />
               จัดการคำสั่งซื้อ
-            </a>
+            </div>
           </li>
 
           <li>
-            <a
+            <div
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/user-edit")}
             >
               <Users size={18} />
               จัดการผู้ใช้
-            </a>
+            </div>
           </li>
 
           <li>
-            <a
+            <div
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/store-edit")}
             >
               <Settings size={18} />
               ตั้งค่าร้านค้า
-            </a>
+            </div>
           </li>
         </ul>
       </div>
@@ -101,7 +114,10 @@ function SidebarAdmin() {
           </div>
         </div>
 
-        <button className="btn btn-ghost hover:bg-blue-100 hover:text-blue-600 w-full justify-start text-gray-600 border-amber-50">
+        <button
+          data-test="logout-button"
+          className=" cursor-pointer btn btn-ghost hover:bg-blue-100 hover:text-blue-600 w-full justify-start text-gray-600 border-amber-50"
+        >
           <LogOut size={18} />
           ออกจากระบบ
         </button>

@@ -35,9 +35,9 @@ pipeline {
                           -Dsonar.sources=src \
                           -Dsonar.host.url=https://sonarcloud.io \
                           -Dsonar.token=$SONAR_TOKEN \
-                          -Dsonar.javascript.node.maxspace=512 \
                           -Dsonar.coverage.exclusions=** \
-                          -Dsonar.exclusions=**/node_modules/**,**/dist/**
+                          -Dsonar.javascript.node.maxspace=2048 \
+                          -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts,**/*.test.ts
                         '''
                     }
                 }

@@ -38,24 +38,21 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-
   const currentStock = productDetail?.quantity || 0;
 
-  //จำกัดสิทธิ์
+  // จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
   const isLoggedIn = !!token;
   const categoryName = location.state?.categoryName || "สินค้า";
 
-  //Pagination
+  // Pagination
   const REVIEWS_PER_PAGE = 3;
   const allReviews = productDetail?.reviews || [];
-
   const calculatedTotalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
-
   const indexOfLastReview = currentPage * REVIEWS_PER_PAGE;
   const indexOfFirstReview = indexOfLastReview - REVIEWS_PER_PAGE;
-
   const currentReviews = allReviews.slice(
     indexOfFirstReview,
     indexOfLastReview,
@@ -79,7 +76,6 @@ const ProductDetailPage: React.FC = () => {
     const fetchDetail = async () => {
       try {
         setLoading(true);
-
         if (id) {
           const data = await ProductService.getProductById(Number(id));
           setProductDetail(data);
@@ -145,7 +141,6 @@ const ProductDetailPage: React.FC = () => {
       await dispatch(addToCartThunk(cartItemPayload)).unwrap();
 
       toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
-
       setBuyQuantity(1);
 
       if (shouldRedirect) {
@@ -170,14 +165,10 @@ const ProductDetailPage: React.FC = () => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    try {
-      return new Date(dateString).toLocaleDateString("th-TH");
-    } catch (e) {
-      return dateString;
-    }
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString("th-TH");
   };
-
-  const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
 
   const toggleMenu = (reviewId: number | string) => {
     setOpenMenuId((prev) => (prev === reviewId ? null : reviewId));
@@ -248,9 +239,14 @@ const ProductDetailPage: React.FC = () => {
               >
                 {productDetail.productImages?.map((img) => (
                   <button
+                    type="button"
                     key={img.id}
                     onClick={() => setActiveImage(img.imageUrl)}
-                    className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${activeImage === img.imageUrl ? "border-b-4 border-gray-800 opacity-100" : ""}`}
+                    className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
+                      activeImage === img.imageUrl
+                        ? "border-b-4 border-gray-800 opacity-100"
+                        : ""
+                    }`}
                   >
                     <img
                       src={img.imageUrl}
@@ -266,22 +262,23 @@ const ProductDetailPage: React.FC = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-[#2C2221] mb-3 leading-tight">
                 {productDetail.productName}
               </h1>
+
               <div className="flex text-[#FFEB55] text-xl mb-6 gap-0.5">
-                {[...Array(5)].map((_, i) =>
-                  i < Math.round(productDetail.RatingScore || 0) ? (
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const isFilled =
+                    i < Math.round(productDetail.RatingScore || 0);
+                  return (
                     <Icon
-                      key={i}
+                      key={`product-star-${i}`}
                       icon="material-symbols:star-rounded"
-                      className="w-5 h-5 text-[#FFEB55] stroke-black stroke-[1.4px]"
+                      className={`w-5 h-5 stroke-black ${
+                        isFilled
+                          ? "text-[#FFEB55] stroke-[1.4px]"
+                          : "text-white stroke-[1.5px]"
+                      }`}
                     />
-                  ) : (
-                    <Icon
-                      key={i}
-                      icon="material-symbols:star-rounded"
-                      className="w-5 h-5 text-white stroke-black stroke-[1.5px]"
-                    />
-                  ),
-                )}
+                  );
+                })}
               </div>
 
               <div className="w-full max-w-[489px] min-h-[69px] py-4 md:py-0 bg-[#F3F4F6] px-4 md:px-6 rounded-md flex flex-wrap justify-between items-center mb-8 gap-2">
@@ -311,18 +308,18 @@ const ProductDetailPage: React.FC = () => {
                     className="flex items-center w-[130px] h-[42px] gap-[10px] p-[10px] border border-gray-200 rounded-[8px] bg-white"
                   >
                     <button
+                      type="button"
                       data-test="btn-decrease"
                       onClick={handleDecrease}
                       className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                     >
                       −
                     </button>
-
                     <div className="flex-1 text-center font-medium text-gray-800 h-full flex items-center justify-center text-sm">
                       {buyQuantity}
                     </div>
-
                     <button
+                      type="button"
                       data-test="btn-increase"
                       onClick={handleIncrease}
                       className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
@@ -341,6 +338,7 @@ const ProductDetailPage: React.FC = () => {
                   className="fixed bottom-0 left-0 w-full flex flex-row z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:relative md:w-auto md:bg-transparent md:shadow-none md:gap-[11px] md:z-auto"
                 >
                   <button
+                    type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
                     disabled={isAddingToCart}
@@ -354,6 +352,7 @@ const ProductDetailPage: React.FC = () => {
                   </button>
 
                   <button
+                    type="button"
                     data-test="btn-buy-cart"
                     onClick={() => handleAddToCart(true)}
                     disabled={isAddingToCart}
@@ -372,7 +371,7 @@ const ProductDetailPage: React.FC = () => {
 
           <hr className="w-full max-w-[744px] ml-auto my-10 border-gray-200" />
 
-          {/* ส่วนรีวิว*/}
+          {/* ส่วนรีวิว */}
           <div className="max-w-4xl mx-auto">
             <div className="space-y-4">
               {currentReviews.length > 0 ? (
@@ -393,21 +392,20 @@ const ProductDetailPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex text-sm">
-                            {[...Array(5)].map((_, i) =>
-                              i < review.reviewScore ? (
+                            {Array.from({ length: 5 }).map((_, i) => {
+                              const isFilled = i < review.reviewScore;
+                              return (
                                 <Icon
-                                  key={i}
+                                  key={`review-${review.id}-star-${i}`}
                                   icon="material-symbols:star-rounded"
-                                  className="w-4 h-4 text-[#FFEB55] stroke-black stroke-[1.4px]"
+                                  className={`w-4 h-4 stroke-black ${
+                                    isFilled
+                                      ? "text-[#FFEB55] stroke-[1.4px]"
+                                      : "text-white stroke-[1.5px]"
+                                  }`}
                                 />
-                              ) : (
-                                <Icon
-                                  key={i}
-                                  icon="material-symbols:star-rounded"
-                                  className="w-4 h-4 text-white stroke-black stroke-[1.5px]"
-                                />
-                              ),
-                            )}
+                              );
+                            })}
                           </div>
 
                           {isLoggedIn &&
@@ -418,27 +416,25 @@ const ProductDetailPage: React.FC = () => {
                                   width="24"
                                   height="24"
                                   data-test="onclick-toggle-menu"
-                                  className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
+                                  className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                                   onClick={() => toggleMenu(review.id)}
                                 />
 
                                 {openMenuId === review.id && (
                                   <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-100 rounded-md shadow-lg z-10 py-1 overflow-hidden">
                                     <button
+                                      type="button"
                                       data-test="edit-review"
-                                      onClick={() => {
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 transition-colors"
+                                      onClick={() => setOpenMenuId(null)}
+                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-50 transition-colors"
                                     >
                                       แก้ไข
                                     </button>
                                     <button
+                                      type="button"
                                       data-test="delete-review"
-                                      onClick={() => {
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 transition-colors"
+                                      onClick={() => setOpenMenuId(null)}
+                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
                                     >
                                       ลบ
                                     </button>

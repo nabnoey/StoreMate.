@@ -83,6 +83,15 @@ export const decrementCartItemThunk = createAsyncThunk(
   },
 );
 
+export const deleteCartItemThunk = createAsyncThunk(
+  "cart/deleteCartItemThunk",
+  async (productId: number) => {
+    const response = await CartItemService.removeCartItem(productId);
+    return response;
+  },
+);
+
+
 const cartSlice = createSlice({
   name: "carts",
   initialState,
@@ -151,6 +160,15 @@ const cartSlice = createSlice({
           item.quantity -= 1;
           saveToStorage(state.items);
         }
+
+      })
+      .addCase(deleteCartItemThunk.fulfilled, (state, action) => {
+        const productId = action.meta.arg;
+
+        state.items = state.items.filter(
+          (item) => item.productId !== productId,
+        );
+
       });
   },
 });

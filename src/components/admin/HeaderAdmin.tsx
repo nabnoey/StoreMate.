@@ -1,8 +1,8 @@
 
 
 type Props = {
-  title: string;
-  subtitle?: string;
+  readonly title: string;
+  readonly subtitle?: string;
 };
 
 //OMGGGG 

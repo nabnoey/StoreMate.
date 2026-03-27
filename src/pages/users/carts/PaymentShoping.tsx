@@ -1,50 +1,48 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { useNavigate, Link } from "react-router-dom";
-import type { RootState, AppDispatch } from "../../../redux/store";
-import type { CartItem } from "../../../types/cartItem";
-import {
-  decrementCartItemThunk,
-  incrementCartItemThunk,
-} from "../../../redux/carts/CartReducer";
+import type { RootState } from "../../../redux/store";
 import { toast } from "react-hot-toast";
+import type { CartItem } from "../../../types/cartItem";
 
 const PaymentShoping = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const [savedCards, setSavedCards] = useState([
+  const location = useLocation();
+  const selectedItems: CartItem[] = location.state?.items || [];
+
+
+  const [savedCards] = useState([
     {
       id: "card_1",
       brand: "mastercard",
       bankName: "ธนาคารกสิกรไทย",
       last4: "8888",
     },
-    // { id: "card_2", brand: "visa", bankName: "ธนาคารไทยพาณิชย์", last4: "1234" }
+
   ]);
   const [selectedCardId, setSelectedCardId] = useState("card_1");
   const navigate = useNavigate();
-
-  const cartItems = useSelector(
-    (state: RootState) => (state.carts.items as CartItem[]) || [],
-  );
   const addresses = useSelector(
     (state: RootState) => state.address.address || [],
   );
   const defaultAddress =
     addresses.find((addr) => addr.isDefault) || addresses[0];
 
+
   const [paymentMethod, setPaymentMethod] = useState<string>("qr");
 
-  const subtotal = cartItems.reduce(
+  const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shipping = subtotal > 0 ? 14.0 : 0.0;
+  const shipping = subtotal > 0 ? 14 : 0;
   const totalPrice = subtotal + shipping;
 
   const handleConfirmOrder = async () => {
     // Alternate Flow 6.1: ไม่ได้เลือกช่องทางการชำระเงิน (และเช็กเงื่อนไขพื้นฐานอื่นๆ)
-    if (cartItems.length === 0) {
+
+    if (selectedItems.length === 0) {
       toast.error("ไม่มีสินค้าในตะกร้า");
       return;
     }
@@ -63,18 +61,6 @@ const PaymentShoping = () => {
         "กำลังตรวจสอบสต็อกและสร้างคำสั่งซื้อ...",
       );
 
-      // [TODO]: Main Flow 8-9: ยิง API ไปยัง Backend เพื่อ:
-      // 1. ตรวจสอบความถูกต้องของสินค้าและสต็อกล่าสุด
-      // 2. สร้างและบันทึกข้อมูลคำสั่งซื้อ
-      /* const payload = {
-        items: cartItems,
-        addressId: defaultAddress.id,
-        paymentMethod: paymentMethod,
-        totalPrice: totalPrice,
-      };
-      const response = await createOrder(payload).unwrap(); 
-      const newOrderId = response.orderId;
-      */
 
       // สมมติว่าได้ orderId กลับมาจาก API
       const mockOrderId = "ORD-123456789";
@@ -195,7 +181,7 @@ const PaymentShoping = () => {
           </div>
 
           {/* ที่อยู่ Mobile  */}
-          <div
+          <button
             onClick={() => navigate("/address-profile")}
             className="lg:hidden bg-white p-4 mb-2 flex flex-col gap-2 cursor-pointer shadow-sm relative"
           >
@@ -236,7 +222,7 @@ const PaymentShoping = () => {
                   "repeating-linear-gradient(45deg, #FF6B6B 0, #FF6B6B 15px, transparent 0, transparent 20px, #4D96FF 0, #4D96FF 35px, transparent 0, transparent 40px)",
               }}
             ></div>
-          </div>
+          </button>
 
           <div className="mb-2 lg:mb-12 flex justify-center items-center lg:pb-4 border-b-0 lg:border-b border-[#D1D5DB] bg-white lg:bg-transparent p-4 lg:p-0 shadow-sm lg:shadow-none">
             <div className="flex flex-col w-full lg:w-[1072px] lg:h-[223px] p-0 lg:p-[16px] gap-4 lg:gap-[6px] overflow-y-auto">
@@ -251,7 +237,8 @@ const PaymentShoping = () => {
                 </span>
               </div>
 
-              {cartItems.map((item) => (
+
+              {selectedItems.map((item) => (
                 <div
                   key={item.productId}
                   className="flex flex-row items-start lg:items-center gap-3 lg:gap-6 border-b border-gray-100 lg:border-0 pb-4 lg:pb-0 flex-shrink-0 last:border-0 last:pb-0"
@@ -284,25 +271,12 @@ const PaymentShoping = () => {
                       ฿ {item.price.toLocaleString()}
                     </div>
                     <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden h-8 flex-shrink-0">
-                      <button
-                        onClick={() =>
-                          dispatch(decrementCartItemThunk(item.productId))
-                        }
-                        className="px-3 hover:bg-gray-50 text-gray-500 border-r border-gray-300 h-full transition-colors"
-                      >
-                        -
-                      </button>
+
+                   
                       <span className="px-3 text-xs font-bold min-w-[30px] text-center">
                         {item.quantity}
                       </span>
-                      <button
-                        onClick={() =>
-                          dispatch(incrementCartItemThunk(item.productId))
-                        }
-                        className="px-3 hover:bg-gray-50 text-gray-500 border-l border-gray-300 h-full transition-colors"
-                      >
-                        +
-                      </button>
+                   
                     </div>
                     <div className="text-blue-500 font-md text-md w-24 text-right">
                       ฿ {(item.price * item.quantity).toLocaleString()}
@@ -341,7 +315,7 @@ const PaymentShoping = () => {
                     },
                   ].map((method) => (
                     <div key={method.id} className="space-y-2">
-                      <div
+                      <button
                         onClick={() => setPaymentMethod(method.id)}
                         className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-xl cursor-pointer transition-all ${
                           paymentMethod === method.id
@@ -368,13 +342,13 @@ const PaymentShoping = () => {
                             />
                           </div>
                         )}
-                      </div>
+                      </button>
 
                       {method.id === "credit" && paymentMethod === "credit" && (
                         <div className="ml-0 sm:ml-12 mt-3 space-y-3">
                           {/* ลิสต์บัตรที่บันทึกไว้ */}
                           {savedCards.map((card) => (
-                            <div
+                            <button
                               key={card.id}
                               onClick={() => setSelectedCardId(card.id)}
                               className="flex items-center gap-3 cursor-pointer"
@@ -407,11 +381,11 @@ const PaymentShoping = () => {
                               <span className="text-sm text-black font-mono ml-2">
                                 **** {card.last4}
                               </span>
-                            </div>
+                            </button>
                           ))}
 
                           {/* ปุ่มเพิ่มบัตรเครดิต/เดบิต */}
-                          <div
+                          <button
                             data-test="click-add-credit-card"
                             onClick={() => navigate("/add-credit-card")}
                             className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md cursor-pointer hover:bg-gray-50 transition-all bg-white ml-7"
@@ -424,7 +398,7 @@ const PaymentShoping = () => {
                             <p className="font-medium text-xs text-black">
                               เพิ่มบัตรเครดิต/เดบิต
                             </p>
-                          </div>
+                          </button>
                         </div>
                       )}
                     </div>

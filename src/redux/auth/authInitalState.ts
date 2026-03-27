@@ -16,16 +16,14 @@ export interface AuthState {
   user: Profile; // มีข้อมูล User เสมอ (ตาม InitialState)
 }
 
-const auth =
-  localStorage.getItem("auth") ||
-  sessionStorage.getItem("auth");
+const auth = localStorage.getItem("auth") || sessionStorage.getItem("auth");
 
 const authData = auth ? JSON.parse(auth) : null;
 
 // 3. ค่าเริ่มต้น
 export const authInitialState: AuthState = {
-token: authData?.token || "",
-isAuthenticated: authData ? true : false,
+  token: authData?.token || "",
+  isAuthenticated: Boolean(authData),
   user: {
     firstName: "บุญรักษา",
     lastName: "วินานนท์",
@@ -34,5 +32,5 @@ isAuthenticated: authData ? true : false,
     address: "123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กทม. 10110",
     joinDate: "13/2/2026",
     image: null,
-  } 
+  },
 };
