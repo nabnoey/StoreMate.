@@ -3,12 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import {
-<<<<<<< HEAD
-  removeFromCart,
-=======
   deleteCartItemThunk,
-
->>>>>>> Cart
   incrementCartItemThunk,
   decrementCartItemThunk,
   fetchCartThunk,
