@@ -25,15 +25,10 @@ const initialState: CartState = {
   error: null,
 };
 
-
-export const fetchCartThunk = createAsyncThunk(
-  "cart/fetchCart", async () => {
-    const response = await CartItemService.getCart();
-    return response;
-  }
-)
-
-
+export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
+  const response = await CartItemService.getCart();
+  return response;
+});
 
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
@@ -53,7 +48,7 @@ export const addToCartThunk = createAsyncThunk(
 );
 
 export const incrementCartItemThunk = createAsyncThunk(
-  'cart/incrementCartItem',
+  "cart/incrementCartItem",
   async (productId: number, { rejectWithValue }) => {
     try {
       const response = await CartItemService.incrementCartItem(productId);
@@ -67,11 +62,11 @@ export const incrementCartItemThunk = createAsyncThunk(
 
       return rejectWithValue({ message: errorMessage });
     }
-  }
+  },
 );
 
 export const decrementCartItemThunk = createAsyncThunk(
-  'cart/decrementCartItem',
+  "cart/decrementCartItem",
   async (productId: number, { rejectWithValue }) => {
     try {
       const response = await CartItemService.decrementCartItem(productId);
@@ -85,15 +80,21 @@ export const decrementCartItemThunk = createAsyncThunk(
 
       return rejectWithValue({ message: errorMessage });
     }
-  }
+  },
 );
 
+export const deleteCartItemThunk = createAsyncThunk(
+  "cart/deleteCartItemThunk",
+  async (productId: number) => {
+    const response = await CartItemService.removeCartItem(productId);
+    return response;
+  },
+);
 
 const cartSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-   
     // เปลี่ยนการลบให้เป็นแบบนี้ ใน CartReducer.ts
     removeFromCart: (state, action: PayloadAction<number | string>) => {
       // บังคับแปลงทั้งสองฝั่งให้เป็น String ก่อนเช็ค และสร้าง Array ใหม่ด้วย filter
@@ -106,23 +107,20 @@ const cartSlice = createSlice({
     },
   },
 
-
-
-
-   extraReducers: (builder) => {
+  extraReducers: (builder) => {
     builder
 
-.addCase(fetchCartThunk.fulfilled, (state,action) => {
-  state.items = action.payload;
-
-})
-
+      .addCase(fetchCartThunk.fulfilled, (state, action) => {
+        state.items = action.payload;
+      })
 
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         const newItem = action.meta.arg;
-        
-        const existingItem = state.items.find(i => String(i.productId) === String(newItem.productId));
+
+        const existingItem = state.items.find(
+          (i) => String(i.productId) === String(newItem.productId),
+        );
         if (existingItem) {
           existingItem.quantity += newItem.quantity;
         } else {
@@ -131,32 +129,40 @@ const cartSlice = createSlice({
         saveToStorage(state.items);
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
-        state.status = 'failed';
-        state.error = action.payload?.message || 'เกิดข้อผิดพลาด';
+        state.status = "failed";
+        state.error = action.payload?.message || "เกิดข้อผิดพลาด";
       })
-      .addCase(incrementCartItemThunk.fulfilled,(state,action) => {
-        
+      .addCase(incrementCartItemThunk.fulfilled, (state, action) => {
         const productId = action.meta.arg;
 
-        const item = state.items.find(i => String(i.productId) === String(productId))
+        const item = state.items.find(
+          (i) => String(i.productId) === String(productId),
+        );
         if (item) {
           item.quantity += 1;
           saveToStorage(state.items);
         }
-  })
+      })
 
-  .addCase(decrementCartItemThunk.fulfilled,(state,action)=>{
-    const productId = action.meta.arg;
+      .addCase(decrementCartItemThunk.fulfilled, (state, action) => {
+        const productId = action.meta.arg;
 
-    const item = state.items.find(i => String(i.productId) === String(productId))
-    if (item) {
-      item.quantity -= 1;
-      saveToStorage(state.items);
-    }
-  })
-      
-  }
-  
+        const item = state.items.find(
+          (i) => String(i.productId) === String(productId),
+        );
+        if (item) {
+          item.quantity -= 1;
+          saveToStorage(state.items);
+        }
+      })
+      .addCase(deleteCartItemThunk.fulfilled, (state, action) => {
+        const productId = action.meta.arg;
+
+        state.items = state.items.filter(
+          (item) => item.productId !== productId,
+        );
+      });
+  },
 });
 
 export const { removeFromCart } = cartSlice.actions;

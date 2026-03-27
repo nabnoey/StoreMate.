@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import {
-  removeFromCart,
+  deleteCartItemThunk,
 
   incrementCartItemThunk,
   decrementCartItemThunk,
@@ -79,13 +79,13 @@ const ShoppingCart = () => {
   );
 
   const handleRemoveItem = (productId: number) => {
-    dispatch(removeFromCart(productId));
+    dispatch(deleteCartItemThunk(productId));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
     toast.success("ลบออกจากตะกร้าแล้ว");
   };
   const handleRemoveSelected = () => {
     if (selectedItems.length === 0) return;
-    selectedItems.forEach((id) => dispatch(removeFromCart(id)));
+    selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
     setSelectedItems([]);
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
