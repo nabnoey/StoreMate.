@@ -9,40 +9,41 @@ import {
   fetchCartThunk,
 } from "../../../redux/carts/CartReducer";
 
-import type { Product } from "../../../types/product";
+
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
 import Loading from "../../../components/loading/Loading";
+import type { CartItem } from "../../../types/cartItem";
+
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { items: cartItems } = useSelector((state: RootState) => state.carts);
-  const { groupedProducts } = useSelector((state: RootState) => state.products);
+const { items: cartItems = [], status: cartStatus } = useSelector(
+  (state: RootState) => state.carts
+);
+console.log("cartItems:", cartItems);
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   useEffect(() => {
     dispatch(fetchCartThunk());
+  
   }, [dispatch]);
 
-  const allFlatProducts = groupedProducts.flatMap((group) => group.products);
 
-  const enrichedCartItems = cartItems
-    .map((cartItem) => {
-      const matchedProduct = allFlatProducts.find(
-        (p: Product) => Number(p.id) === Number(cartItem.productId),
-      );
-      return {
-        ...cartItem,
-        product: matchedProduct,
-      };
-    })
-    .filter(
-      (item): item is typeof item & { product: Product } =>
-        item.product !== undefined,
-    );
+  const enrichedCartItems = cartItems.map((item:CartItem) => ({
+  ...item,
+  product: {
+    id: item.productId,
+    productName: item.productName,
+    price: item.price,
+    imageUrl: item.imageUrl,
+    stockQuantity: item.stockQuantity, 
+  }
+}));
+
 
   const isAllSelected =
     enrichedCartItems.length > 0 &&
@@ -74,6 +75,8 @@ const ShoppingCart = () => {
     0,
   );
 
+ 
+
   const handleRemoveItem = (productId: number) => {
     dispatch(deleteCartItemThunk(productId));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
@@ -86,13 +89,13 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
   };
 
-  if (groupedProducts.length === 0 && cartItems.length > 0) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <Loading />
-      </div>
-    );
-  }
+if (cartStatus === "loading") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loading />
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-white py-6 sm:py-12 px-4 font-anuphan">

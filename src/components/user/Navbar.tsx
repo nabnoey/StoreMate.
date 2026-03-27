@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
 
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
-  const totalItems = cartItems.length;
+  const totalItems = cartItems?.length;
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   );
