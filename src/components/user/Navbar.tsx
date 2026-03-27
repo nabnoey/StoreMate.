@@ -61,13 +61,14 @@ const Navbar: React.FC = () => {
     <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
       {/* LOGO */}
       <div className="navbar-start right-5 flex items-center justify-start">
-        <img
-          src={logo}
-          className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
-          onClick={() => navigate("/")}
-          alt="Logo"
-          data-test="logo"
-        />
+        <button onClick={() => navigate("/")}>
+          <img
+            src={logo}
+            className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
+            alt="Logo"
+            data-test="logo"
+          />
+        </button>
       </div>
 
       {/* MENU DESKTOP */}
@@ -75,42 +76,41 @@ const Navbar: React.FC = () => {
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
           <li>
-            <a
+            <button
               data-test="list-search"
               className="hover:text-indigo-600 cursor-pointer"
               onClick={() => navigate("/search")}
             >
               สินค้า
-            </a>
+            </button>
           </li>
           <li>
-            <a
-              data-test="list-promo"
+            <button
               className="hover:text-indigo-600 cursor-pointer"
               onClick={() =>
                 navigate(`/search?keyword=${keyword}&category=promotion`)
               }
             >
               โปรโมชั่น
-            </a>
+            </button>
           </li>
           <li>
-            <a
+            <button
               data-test="list-about"
               className="hover:text-indigo-600 cursor-pointer"
               onClick={() => navigate("/about-us")}
             >
               เกี่ยวกับเรา
-            </a>
+            </button>
           </li>
           <li>
-            <a
+            <button
               data-test="list-contact"
               className="hover:text-indigo-600 cursor-pointer"
               onClick={() => navigate("contact")}
             >
               ติดต่อ
-            </a>
+            </button>
           </li>
         </ul>
       </div>
@@ -156,10 +156,10 @@ const Navbar: React.FC = () => {
               {inputValue && searchResult.length > 0 && (
                 <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
                   {searchResult.map((product) => (
-                    <div
+                    <button
                       data-test="click-to-product"
                       key={product.id}
-                      className="p-3 hover:bg-gray-100 cursor-pointer"
+                      className="w-full text-left block p-3 hover:bg-gray-100 cursor-pointer"
                       onClick={() => {
                         navigate(`/product/${product.id}`);
                         setOpenSearch(false);
@@ -167,7 +167,7 @@ const Navbar: React.FC = () => {
                       }}
                     >
                       {product.productName}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -178,9 +178,9 @@ const Navbar: React.FC = () => {
         {isAuthenticated ? (
           <>
             <div className="flex gap-3 lg:gap-4 items-center text-gray-600">
-              <div
+              <button
                 data-test="click-shop-cart"
-                className="relative cursor-pointer p-1 cursor-pointer"
+                className="relative cursor-pointer p-1 "
                 onClick={() => navigate("/shopping-cart")}
               >
                 <FaCartShopping
@@ -194,11 +194,11 @@ const Navbar: React.FC = () => {
                     {totalItems}
                   </span>
                 )}
-              </div>
+              </button>
 
               <BiSolidBell
                 size={22}
-                className="cursor-pointer hover:text-black cursor-pointer"
+                className="cursor-pointer hover:text-black"
               />
             </div>
 
@@ -281,43 +281,43 @@ const Navbar: React.FC = () => {
           )}
 
           <div className="flex flex-col py-2">
-            <a
+            <button
               data-test="list-product"
               onClick={() => {
                 navigate("/search");
                 setOpenMenu(false);
               }}
-              className=" cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               สินค้า
-            </a>
-            <a
+            </button>
+            <button
               data-test="list-promo"
               onClick={() => navigate(`/search?category=promotion`)}
-              className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               โปรโมชั่น
-            </a>
-            <a
+            </button>
+            <button
               data-test="list-about"
               onClick={() => {
-                navigate("/about-as");
+                navigate("/about-us");
                 setOpenMenu(false);
               }}
-              className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               เกี่ยวกับเรา
-            </a>
-            <a
+            </button>
+            <button
               data-test="list-contact"
               onClick={() => {
                 navigate("/contact");
                 setOpenMenu(false);
               }}
-              className="cursor-pointer px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              className="cursor-pointer w-full text-left not-first:px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               ติดต่อ
-            </a>
+            </button>
           </div>
         </div>
       )}

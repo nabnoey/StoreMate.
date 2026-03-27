@@ -1,14 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginService, registerService } from "../../services/auth.service";
-import { TokenService } from '../../services/token.service';
+import { TokenService } from "../../services/token.service";
 import { jwtDecode } from "jwt-decode";
-
 
 interface AuthState {
   token: string;
   isAuthenticated: boolean;
   loading: boolean;
-  user: any | null; 
+  user: any;
   error: string | null;
 }
 
@@ -36,7 +35,7 @@ const initialState: AuthState = {
   isAuthenticated: !!currentToken && !!currentUser, // จะเป็น true ก็ต่อเมื่อมี Token และถอดรหัสสำเร็จ
   loading: false,
   user: currentUser,
-  error: null
+  error: null,
 };
 
 export const register = createAsyncThunk(
@@ -46,41 +45,46 @@ export const register = createAsyncThunk(
       const response = await registerService(data);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "สมัครสมาชิกไม่สำเร็จ");
+      return rejectWithValue(
+        error.response?.data?.message || "สมัครสมาชิกไม่สำเร็จ",
+      );
     }
-  }
+  },
 );
-
 
 export const login = createAsyncThunk(
   "auth/login",
   async (data: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await loginService(data); 
-      
-      const token = response.token; 
+      const response = await loginService(data);
+
+      const token = response.token;
       TokenService.setToken(token);
 
-      return token; 
+      return token;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "เข้าสู่ระบบไม่สำเร็จ");
+      return rejectWithValue(
+        error.response?.data?.message || "เข้าสู่ระบบไม่สำเร็จ",
+      );
     }
-  }
+  },
 );
 
 export const updateProfile = createAsyncThunk(
-  'auth/updateProfile',
+  "auth/updateProfile",
   async (data: any, { rejectWithValue }) => {
     try {
       // 💡 ข้อแนะนำ: ตรงนี้ในอนาคตคุณควรเรียก API อัปเดตโปรไฟล์ เช่น
       // const response = await updateProfileService(data);
-      
+
       // เมื่อ Backend อัปเดตสำเร็จ เราก็ส่ง data กลับไปทับใน Redux State
-      return data; 
+      return data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "อัปเดตโปรไฟล์ไม่สำเร็จ");
+      return rejectWithValue(
+        error.response?.data?.message || "อัปเดตโปรไฟล์ไม่สำเร็จ",
+      );
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
@@ -90,13 +94,12 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = "";
       state.isAuthenticated = false;
-      state.user = null; 
+      state.user = null;
       state.error = null;
-      TokenService.removeToken(); 
-    }
+      TokenService.removeToken();
+    },
   },
   extraReducers: (builder) => {
-
     builder.addCase(login.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -119,7 +122,7 @@ const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       }
     });
-  }
+  },
 });
 
 export const { logout } = authSlice.actions;

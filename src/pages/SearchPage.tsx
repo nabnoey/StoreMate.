@@ -1,11 +1,10 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
 import { search } from "../../src/redux/products/productReducer";
 import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
 
 const categoryMap: Record<string, number> = {
   promotion: 1,
@@ -33,7 +32,8 @@ const SearchPage = () => {
   const handleClearFilter = () => {
     setMaxPriceInput("");
     setMinPriceInput("");
-    setSearchParams();
+    //คลิกที่ล้างค่า path url ข้างบนจะหายตามจะมีแค่ /search
+    setSearchParams({});
     setInputValue("");
   };
 
@@ -51,9 +51,6 @@ const SearchPage = () => {
     );
   }, [keyword, category, minPriceParam, maxPriceParam, dispatch]);
 
-
-
-  
   const handleApplyPrice = () => {
     const params: any = {};
     if (keyword !== "") params.keyword = keyword;
@@ -119,6 +116,7 @@ const SearchPage = () => {
         </div>
         <div
           className={`${openFilter ? "block" : "hidden"} lg:block w-full lg:w-[320px] pt-6 lg:pt-16`}
+          data-test="all-filter"
         >
           <div className="flex items-center justify-between mb-4 ">
             <h3 className="text-xl font-bold flex items-center gap-2 text-black">
@@ -145,11 +143,11 @@ const SearchPage = () => {
             </button>
           </div>
           <div className="border-b border-gray-300 my-4"></div>
-          <p className="text-black text-[16px]">หมวดหมู่</p>
+          <p className="text-black text-[16px] font-medium">หมวดหมู่</p>
 
-
-          <div className="space-y-2 mt-2 indent-3">
-            <p
+          <div className="flex flex-col gap-3 mt-4 pl-3 items-start">
+            <button
+              type="button"
               data-test="category-all"
               onClick={() => {
                 setSearchParams({
@@ -159,16 +157,17 @@ const SearchPage = () => {
                   // category: "",
                 });
               }}
-              className={`cursor-pointer ${
+              className={`cursor-pointer bg-transparent border-none p-0 text-left transition-colors hover:text-black ${
                 category === ""
                   ? "text-black font-medium"
-                  : "text-gray-400 text-[16px] "
+                  : "text-gray-400 text-[16px]"
               }`}
             >
               ทั้งหมด
-            </p>
+            </button>
 
-            <p
+            <button
+              type="button"
               data-test="category-soap"
               onClick={() => {
                 setSearchParams({
@@ -178,16 +177,17 @@ const SearchPage = () => {
                   maxPrice: maxPriceParam,
                 });
               }}
-              className={`cursor-pointer ${
+              className={`cursor-pointer bg-transparent border-none p-0 text-left transition-colors hover:text-black ${
                 category === "soap"
-                  ? "text-black font-medium"
-                  : "text-gray-400  text-[14px]"
+                  ? "text-black font-medium text-[16px]"
+                  : "text-gray-400 text-[14px]"
               }`}
             >
               สบู่
-            </p>
+            </button>
 
-            <p
+            <button
+              type="button"
               data-test="category-shampoo"
               onClick={() => {
                 setSearchParams({
@@ -197,16 +197,17 @@ const SearchPage = () => {
                   maxPrice: maxPriceParam,
                 });
               }}
-              className={`cursor-pointer ${
+              className={`cursor-pointer bg-transparent border-none p-0 text-left transition-colors hover:text-black ${
                 category === "shampoo"
-                  ? "text-black font-medium"
-                  : "text-gray-400  text-[14px]"
+                  ? "text-black font-medium text-[16px]"
+                  : "text-gray-400 text-[14px]"
               }`}
             >
               แชมพู
-            </p>
+            </button>
 
-            <p
+            <button
+              type="button"
               data-test="category-drink"
               onClick={() => {
                 setSearchParams({
@@ -216,16 +217,15 @@ const SearchPage = () => {
                   maxPrice: maxPriceParam,
                 });
               }}
-              className={`cursor-pointer ${
+              className={`cursor-pointer bg-transparent border-none p-0 text-left transition-colors hover:text-black ${
                 category === "drinks"
-                  ? "text-black font-medium"
-                  : "text-gray-400  text-[14px]"
+                  ? "text-black font-medium text-[16px]"
+                  : "text-gray-400 text-[14px]"
               }`}
             >
               เครื่องดื่ม
-            </p>
+            </button>
           </div>
-
           <div className="border-b border-gray-300 my-4"></div>
 
           <p className="text-[16px] text-black">ช่วงราคา (฿)</p>
@@ -255,7 +255,7 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-15 md:py -mt-10 lg:mt-0">
+      <div className="flex-1 px-5 py-16 md:py-8 -mt-10 lg:mt-0">
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {searchResult.length} รายการ</p>
 
@@ -269,7 +269,7 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justif-center pl-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
             {searchResult.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}

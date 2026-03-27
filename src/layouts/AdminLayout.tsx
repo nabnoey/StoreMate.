@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import SidebarAdmin from "../components/admin/SidebarAamin";
+import SidebarAdmin from "../components/admin/SidebarAdmin";
 
 
 

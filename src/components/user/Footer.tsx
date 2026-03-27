@@ -1,10 +1,8 @@
 import { FaFacebookF, FaInstagram, FaLine } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-
 const Footer: React.FC = () => {
-  
-const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <footer className="bg-[#193220] text-gray-300 font-anuphan block w-full -mt-[1px] relative z-10 p-0 m-0">
       {/* Top Section */}
@@ -28,24 +26,40 @@ const navigate = useNavigate()
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">เมนู</h3>
           <ul className="space-y-3 text-xs sm:text-sm">
             <li>
-              <div className="hover:text-white transition-colors" onClick={() => navigate("/")}>
+              <button
+                data-test="home-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/")}
+              >
                 หน้าแรก
-              </div>
+              </button>
             </li>
             <li>
-              <div className="hover:text-white transition-colors" onClick={() => navigate("/search")}>
+              <button
+                data-test="all-products-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/search")}
+              >
                 สินค้าทั้งหมด
-              </div>
+              </button>
             </li>
             <li>
-              <div className="hover:text-white transition-colors" onClick={() => navigate("/search?keyword=&category=promotion")}>
+              <button
+                data-test="promotions-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/search?keyword=&category=promotion")}
+              >
                 โปรโมชั่น
-              </div>
+              </button>
             </li>
             <li>
-              <div className="hover:text-white transition-colors" onClick={() => navigate("/contact")}>
+              <button
+                data-test="contact-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/contact")}
+              >
                 ติดต่อเรา
-              </div>
+              </button>
             </li>
           </ul>
         </div>
@@ -54,47 +68,74 @@ const navigate = useNavigate()
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">ช่วยเหลือ</h3>
           <ul className="space-y-3 text-xs sm:text-sm">
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <button
+                data-test="how-to-order-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/")}
+              >
                 วิธีการสั่งซื้อ
-              </a>
+              </button>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <button
+                data-test="payment-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/")}
+              >
                 แจ้งชำระเงิน
-              </a>
+              </button>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <button
+                data-test="shipping-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/")}
+              >
                 การจัดส่งสินค้า
-              </a>
+              </button>
             </li>
             <li>
-              <a href="#" className="hover:text-white transition-colors">
+              <button
+                data-test="privacy-policy-button"
+                className="cursor-pointer hover:text-white transition-colors"
+                onClick={() => navigate("/")}
+              >
                 นโยบายความเป็นส่วนตัว
-              </a>
+              </button>
             </li>
           </ul>
         </div>
 
-       
         <div>
           <h3 className="text-[#EAB308] font-bold text-sm mb-4">ติดตามเรา</h3>
           <div className="flex gap-3">
             <a
+              data-test="facebook-button"
               href="https://www.facebook.com/Padthong636"
-              className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
+              target="_blank" // เปิดแท็บใหม่
+              rel="noopener noreferrer" // เพื่อความปลอดภัยเวลาเปิดแท็บใหม่
+              aria-label="ไปที่ Facebook ของพัดทอง" // สำหรับ Accessibility
+              className="cursor-pointer w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaFacebookF className="text-white text-sm" />
             </a>
             <a
+              data-test="instagram-button"
               href="https://www.instagram.com/padthongofficial/"
-              className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ไปที่ Instagram ของพัดทอง"
+              className="cursor-pointer w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaInstagram className="text-white text-sm" />
             </a>
             <a
+              data-test="line-button"
               href="https://line.me/R/ti/p/@859pkcpt?oat_content=url&ts=05121928"
-              className="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ติดต่อเราผ่าน Line"
+              className="cursor-pointerw-8 h-8 rounded-full bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors"
             >
               <FaLine className="text-white text-sm" />
             </a>
@@ -104,7 +145,7 @@ const navigate = useNavigate()
 
       {/* Bottom Section (Copyright) */}
       <div className="border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-6 py-5 text-center text-xs text-gray-400 font-light">
+        <div className=" max-w-[1200px] mx-auto px-6 py-5 text-center text-xs text-gray-400 font-light">
           © 2023 Phadthong Store. สงวนลิขสิทธิ์.
         </div>
       </div>
