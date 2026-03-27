@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 
-//test
 describe("Subtotal", () => {
   it("ควรคำนวณราคารวมถูกต้องเมื่อมีหลายสินค้า", () => {
     const selectedCartItems = [
@@ -66,4 +65,6 @@ it("คำนวณเฉพาะสินค้าที่ถูกเลื�
   expect(subtotal).toBe(250);
   console.table(selectedItems);
 });
+
 })
+

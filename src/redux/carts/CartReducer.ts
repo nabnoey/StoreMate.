@@ -21,6 +21,7 @@ interface CartState {
 
 const initialState: CartState = {
   items: loadFromStorage(),
+  
   status: "idle",
   error: null,
 };
@@ -29,6 +30,7 @@ export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
   const response = await CartItemService.getCart();
   return response;
 });
+
 
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
@@ -111,9 +113,7 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      .addCase(fetchCartThunk.fulfilled, (state, action) => {
-        state.items = action.payload;
-      })
+    
 
       .addCase(addToCartThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
@@ -164,8 +164,21 @@ const cartSlice = createSlice({
           (item) => item.productId !== productId,
         );
 
-      });
-  },
+      })
+.addCase(fetchCartThunk.pending, (state) => {
+  state.status = "loading";
+})
+.addCase(fetchCartThunk.fulfilled, (state, action) => {
+  state.status = "succeeded";
+  state.items = action.payload;
+})
+.addCase(fetchCartThunk.rejected, (state, action) => {
+  state.status = "failed";
+  state.error = action.payload as string;
+});
+
+      
+  }
 });
 
 export const { removeFromCart } = cartSlice.actions;
