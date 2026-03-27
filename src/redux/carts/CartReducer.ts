@@ -6,12 +6,6 @@ import {
 import type { CartItem } from "../../types/cartItem";
 import { CartItemService } from "../../services/cartitem.service";
 
-// const saveToStorage = (items: any[]) =>
-//   localStorage.setItem("cart", JSON.stringify(items));
-// const loadFromStorage = () => {
-//   const data = localStorage.getItem("cart");
-//   return data ? JSON.parse(data) : [];
-// };
 
 interface CartState {
   items: CartItem[];
@@ -105,8 +99,7 @@ const cartSlice = createSlice({
         (item) => String(item.productId) !== String(action.payload),
       );
 
-      // เซฟทับลง LocalStorage
-      // saveToStorage(state.items);
+  
     },
   },
 
@@ -127,7 +120,6 @@ const cartSlice = createSlice({
         } else {
           state.items.push(newItem);
         }
-        // saveToStorage(state.items);
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
         state.status = "failed";
@@ -141,7 +133,6 @@ const cartSlice = createSlice({
         );
         if (item) {
           item.quantity += 1;
-          // saveToStorage(state.items);
         }
       })
 
@@ -153,7 +144,6 @@ const cartSlice = createSlice({
         );
         if (item) {
           item.quantity -= 1;
-          // saveToStorage(state.items);
         }
 
       })
