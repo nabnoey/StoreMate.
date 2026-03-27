@@ -20,7 +20,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  items: loadFromStorage(),
+  items: [],
   
   status: "idle",
   error: null,

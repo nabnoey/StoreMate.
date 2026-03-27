@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
+  
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
