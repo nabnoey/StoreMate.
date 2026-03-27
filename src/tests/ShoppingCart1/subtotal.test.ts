@@ -1,10 +1,19 @@
 import { describe, it, expect } from "vitest";
 
+<<<<<<< HEAD:src/tests/ShoppingCart.test.tsx
 it("ควรคำนวณราคารวมถูกต้องเมื่อมีหลายสินค้า", () => {
   const selectedCartItems = [
     { product: { price: 100 }, quantity: 2 },
     { product: { price: 50 }, quantity: 1 },
   ];
+=======
+describe("Subtotal", () => {
+  it("ควรคำนวณราคารวมถูกต้องเมื่อมีหลายสินค้า", () => {
+    const selectedCartItems = [
+      { product: { price: 100 }, quantity: 2 },
+      { product: { price: 50 }, quantity: 1 },
+    ];
+>>>>>>> Cart:src/tests/ShoppingCart1/subtotal.test.ts
 
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
