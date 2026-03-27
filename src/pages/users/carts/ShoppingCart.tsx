@@ -87,7 +87,9 @@ const ShoppingCart = () => {
                     prev.filter((id) => id !== productId),
                   );
 
-                  toast.success("ลบสินค้าแล้ว");
+                  toast.success("ลบสินค้าแล้ว",{
+                    duration:1500,
+                  });
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg"
               >
