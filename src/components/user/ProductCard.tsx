@@ -4,7 +4,6 @@ import type { Product } from "../../types/product";
 type Props = { product: Product };
 
 function ProductCard({ product }: Readonly<Props>) {
-  console.log("มาไหม", product.description);
   return (
     <Link
       to={`/product/${product.id}`}

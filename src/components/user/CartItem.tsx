@@ -37,7 +37,8 @@ function CartItem({ item }: Props) {
   };
 
   const handleRemove = () => {
-    dispatch(deleteCartItemThunk(item.id));
+
+    dispatch(deleteCartItemThunk(item.id)); 
   };
 
   return (

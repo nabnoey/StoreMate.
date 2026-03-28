@@ -31,6 +31,12 @@ const Navbar: React.FC = () => {
     }
   }, [dispatch, isAuthentication]);
 
+  useEffect(() => {
+    if (isAuthentication) {
+      dispatch(fetchCartThunk());
+    }
+  }, [dispatch, isAuthentication]);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);

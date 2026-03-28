@@ -14,7 +14,6 @@ interface CartState {
 
 const initialState: CartState = {
   items: [],
-
   status: "idle",
   error: null,
 };
@@ -99,15 +98,12 @@ const cartSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
       .addCase(addToCartThunk.pending, (state) => {
         state.status = "loading";
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-
         const requestData = action.meta.arg;
-
         const existingItem = state.items.find(
           (i) => String(i.productId) === String(requestData.productId),
         );

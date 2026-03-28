@@ -39,7 +39,7 @@ const ProductDetailPage: React.FC = () => {
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
-  // const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const currentStock = productDetail?.quantity || 0;
 
   // จำกัดสิทธิ์
@@ -109,9 +109,9 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async (shouldRedirect = false) => {
     const token = TokenService.getAccessToken();
-    // if (isAddingToCart) return;
+    if (isAddingToCart) return;
 
-    // setIsAddingToCart(true);
+    setIsAddingToCart(true);
 
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
@@ -146,14 +146,20 @@ const ProductDetailPage: React.FC = () => {
       if (shouldRedirect) {
         navigate("/shopping-cart");
       }
-    } catch (error: any) {
-      const backendMessage = error?.message || "ไม่สามารถเพิ่มสินค้าได้";
+    } catch (error: unknown) {
+      let backendMessage = "ไม่สามารถเพิ่มสินค้าได้";
+
+      if (axios.isAxiosError(error)) {
+        backendMessage = error.response?.data?.message || error.message;
+      }
 
       if (backendMessage === "There is insufficient stock.") {
         toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
         toast.error(backendMessage);
       }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -367,7 +373,7 @@ const ProductDetailPage: React.FC = () => {
                     // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
                     className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
                   >
-                    เพิ่มลงรถเข็น
+                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
 
                   <button
@@ -378,7 +384,7 @@ const ProductDetailPage: React.FC = () => {
                     // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
                     className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
                   >
-                    สั่งซื้อสินค้า
+                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>
                 </div>
               </div>
