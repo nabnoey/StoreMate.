@@ -116,7 +116,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             className="cursor-pointer flex items-center gap-3 py-3 w-full text-left"
           >
             <IoSettingsOutline size={22} className="text-gray-600" />
-            <span className="font-medium">แก้ไขโปรไฟล์</span>
+            <span className="font-medium text-gray-700">แก้ไขโปรไฟล์</span>
           </button>
         </li>
 

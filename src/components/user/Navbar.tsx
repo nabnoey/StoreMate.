@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { search } from "../../redux/products/productReducer";
+import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
 
@@ -18,8 +19,16 @@ const Navbar: React.FC = () => {
   const searchResult = useSelector(
     (state: RootState) => state.products.searchResult,
   );
+  const isAuthentication = useSelector((state:RootState) => state.auth.isAuthenticated)
+
 
   const [inputValue, setInputValue] = useState("");
+  
+  useEffect(()=>{
+    if (isAuthentication) {
+      dispatch(fetchCartThunk())
+    }
+  },[dispatch,isAuthentication])
   
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

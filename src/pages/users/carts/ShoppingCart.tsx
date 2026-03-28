@@ -59,6 +59,7 @@ const ShoppingCart = () => {
     }
   };
 
+
   const selectedCartItems = enrichedCartItems.filter((item) =>
     selectedItems.includes(item.productId),
   );
@@ -118,12 +119,44 @@ const ShoppingCart = () => {
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
     toast.success("ลบออกจากตะกร้าแล้ว");
   };
-  const handleRemoveSelected = () => {
-    if (selectedItems.length === 0) return;
-    selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
-    setSelectedItems([]);
-    toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
-  };
+
+
+ const handleRemoveSelected = () => {
+  if (selectedItems.length === 0) return;
+
+  toast((t) => (
+    <div>
+      <p>ต้องการลบสินค้าที่เลือกใช่ไหม?</p>
+
+      <div className="flex gap-2 mt-2 justify-center">
+        <button
+          onClick={() => {
+            selectedItems.forEach((id) =>
+              dispatch(deleteCartItemThunk(id))
+            );
+            setSelectedItems([]);         
+            toast.dismiss(t.id);
+            toast.success("ลบสินค้าสำเร็จ");
+          
+          }}
+          className="bg-red-500 text-white px-3 py-1 rounded"
+        >
+          ยืนยัน
+        </button>
+
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="bg-gray-300 px-3 py-1 rounded"
+        >
+          ยกเลิก
+        </button>
+        
+      </div>
+      
+    </div>
+    
+  ));
+};
 
   if (cartStatus === "loading") {
     return (
@@ -168,12 +201,15 @@ const ShoppingCart = () => {
                   สินค้าในตะกร้า
                 </span>
                 <button
-                  onClick={handleRemoveSelected}
-                  disabled={selectedItems.length === 0}
+                  onClick={() =>
+                        handleRemoveSelected()
+                      }
+                  // disabled={selectedItems.length === 0}
                   className="text-md text-black hover:text-red-500 transition-colors"
                 >
                   ลบออกทั้งหมด
                 </button>
+
               </div>
 
               {enrichedCartItems.map((item) => (
@@ -188,7 +224,7 @@ const ShoppingCart = () => {
                         type="checkbox"
                         checked={selectedItems.includes(
                           item.productId,
-                          item.stockQuantity,
+                          
                         )}
                         onChange={() => toggleSelect(item.productId)}
                         className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
