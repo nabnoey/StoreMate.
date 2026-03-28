@@ -29,6 +29,7 @@ const ShoppingCart = () => {
   useEffect(() => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
+  
 
   const enrichedCartItems = cartItems.map((item: CartItem) => ({
     ...item,
