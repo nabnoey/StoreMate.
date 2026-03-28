@@ -9,17 +9,18 @@ import {
   fetchCartThunk,
 } from "../../../redux/carts/CartReducer";
 
-import type { Product } from "../../../types/product";
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
 import Loading from "../../../components/loading/Loading";
+import type { CartItem } from "../../../types/cartItem";
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { items: cartItems } = useSelector((state: RootState) => state.carts);
-  const { groupedProducts } = useSelector((state: RootState) => state.products);
+  const { items: cartItems = [], status: cartStatus } = useSelector(
+    (state: RootState) => state.carts,
+  );
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
@@ -27,22 +28,16 @@ const ShoppingCart = () => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
 
-  const allFlatProducts = groupedProducts.flatMap((group) => group.products);
-
-  const enrichedCartItems = cartItems
-    .map((cartItem) => {
-      const matchedProduct = allFlatProducts.find(
-        (p: Product) => Number(p.id) === Number(cartItem.productId),
-      );
-      return {
-        ...cartItem,
-        product: matchedProduct,
-      };
-    })
-    .filter(
-      (item): item is typeof item & { product: Product } =>
-        item.product !== undefined,
-    );
+  const enrichedCartItems = cartItems.map((item: CartItem) => ({
+    ...item,
+    product: {
+      id: item.productId,
+      productName: item.productName,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      stockQuantity: item.stockQuantity,
+    },
+  }));
 
   const isAllSelected =
     enrichedCartItems.length > 0 &&
@@ -68,27 +63,96 @@ const ShoppingCart = () => {
     selectedItems.includes(item.productId),
   );
 
-  //ต้องแก้เป็นลูปเอา จำนวนสินค้าราคาต่อหน่อย ต้องสร้างตัวแปรไว้ 1 ตัว
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
 
-  const handleRemoveItem = (productId: number) => {
+  const handleRemoveItem = (productId: number, quantity: number) => {
+    if (quantity === 1) {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-3 items-center p-2">
+            <span className="text-gray-800 font-medium text-base">
+              คุณต้องการลบสินค้านี้ใช่หรือไม่?
+            </span>
+
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+
+                  dispatch(deleteCartItemThunk(productId));
+                  setSelectedItems((prev) =>
+                    prev.filter((id) => id !== productId),
+                  );
+
+                  toast.success("ลบสินค้าแล้ว", {
+                    duration: 1500,
+                  });
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                ลบ
+              </button>
+
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: Infinity,
+          position: "top-center",
+        },
+      );
+
+      return;
+    }
+
     dispatch(deleteCartItemThunk(productId));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
     toast.success("ลบออกจากตะกร้าแล้ว");
   };
+
   const handleRemoveSelected = () => {
     if (selectedItems.length === 0) return;
-    selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
-    setSelectedItems([]);
-    toast.success("ลบสินค้าที่เลือกออกจากตะกร้าแล้ว");
+
+    toast((t) => (
+      <div>
+        <p>ต้องการลบสินค้าที่เลือกใช่ไหม?</p>
+
+        <div className="flex gap-2 mt-2 justify-center">
+          <button
+            onClick={() => {
+              selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
+              setSelectedItems([]);
+              toast.dismiss(t.id);
+              toast.success("ลบสินค้าสำเร็จ");
+            }}
+            className="bg-red-500 text-white px-3 py-1 rounded"
+          >
+            ยืนยัน
+          </button>
+
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-300 px-3 py-1 rounded"
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+    ));
   };
 
-  if (groupedProducts.length === 0 && cartItems.length > 0) {
+  if (cartStatus === "loading") {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen flex items-center justify-center">
         <Loading />
       </div>
     );
@@ -129,8 +193,8 @@ const ShoppingCart = () => {
                   สินค้าในตะกร้า
                 </span>
                 <button
-                  onClick={handleRemoveSelected}
-                  disabled={selectedItems.length === 0}
+                  onClick={() => handleRemoveSelected()}
+                  // disabled={selectedItems.length === 0}
                   className="text-md text-black hover:text-red-500 transition-colors"
                 >
                   ลบออกทั้งหมด
@@ -155,7 +219,7 @@ const ShoppingCart = () => {
 
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
                       <img
-                        src={item.product.imageUrl}
+                        src={item.product.imageUrl || ""}
                         alt=""
                         className="w-full h-full object-contain"
                       />
@@ -183,7 +247,9 @@ const ShoppingCart = () => {
 
                     {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
                     <button
-                      onClick={() => handleRemoveItem(item.productId)}
+                      onClick={() =>
+                        handleRemoveItem(item.productId, item.quantity)
+                      }
                       className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />
@@ -200,9 +266,14 @@ const ShoppingCart = () => {
                     <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
                       <button
                         data-test="decrease-product"
-                        onClick={() =>
-                          dispatch(decrementCartItemThunk(item.productId))
-                        }
+                        onClick={() => {
+                          if (item.quantity === 1) {
+                            handleRemoveItem(item.productId, item.quantity);
+                            return;
+                          }
+
+                          dispatch(decrementCartItemThunk(item.productId));
+                        }}
                         className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                       >
                         <Icon icon="lucide:minus" width="14" height="14" />
@@ -229,7 +300,9 @@ const ShoppingCart = () => {
                     {/* ปุ่มลบสำหรับ Desktop */}
                     <button
                       data-test="btn-remove-item"
-                      onClick={() => handleRemoveItem(item.productId)}
+                      onClick={() =>
+                        handleRemoveItem(item.productId, item.quantity)
+                      }
                       className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />

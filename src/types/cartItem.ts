@@ -1,14 +1,12 @@
-import type { Product } from "./product";
-
 export type CartItem = {
-  productId: Product["id"];
-  productName: Product["productName"];
+  productId: number;
+  productName: string;
   imageUrl: string | null;
-  price: Product["price"];
+  price: number;
   quantity: number;
   subTotal: number;
-  stockQuantity: Product["stockQuantity"];
-  productStatus: Product["status"];
+  stockQuantity: number;
+  productStatus: string;
 };
 
 export type CartItemRequestDTO = Pick<CartItem, "productId" | "quantity">;
