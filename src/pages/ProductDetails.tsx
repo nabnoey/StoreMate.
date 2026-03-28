@@ -337,7 +337,7 @@ const ProductDetailPage: React.FC = () => {
                   data-test="container-cart-actions"
                   className="fixed bottom-0 left-0 w-full flex flex-row z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:relative md:w-auto md:bg-transparent md:shadow-none md:gap-[11px] md:z-auto"
                 >
-                  <button
+                  {/* <button
                     type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
@@ -349,9 +349,9 @@ const ProductDetailPage: React.FC = () => {
                       ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
-                  </button>
+                  </button> */}
 
-                  <button
+                  {/* <button
                     type="button"
                     data-test="btn-buy-cart"
                     onClick={() => handleAddToCart(true)}
@@ -361,6 +361,28 @@ const ProductDetailPage: React.FC = () => {
                       bg-[#10B981] hover:bg-green-600 text-white
                       rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
                       ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
+                  </button> */}
+
+                  <button
+                    type="button"
+                    data-test="btn-add-to-cart"
+                    onClick={() => handleAddToCart(false)}
+                    // mobile กว้าง 50%, พื้นหลังสีฟ้าอ่อน ตัวอักษรสีฟ้า, ขอบเหลี่ยม, สูง 60px
+                    // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
+                    className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
+                  >
+                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
+                  </button>
+
+                  <button
+                    type="button"
+                    data-test="btn-buy-cart"
+                    onClick={() => handleAddToCart(true)}
+                    // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
+                    // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
+                    className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
                   >
                     {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>

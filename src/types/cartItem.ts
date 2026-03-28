@@ -1,5 +1,3 @@
-
-
 export type CartItem = {
   productId: number;
   productName: string;

@@ -60,7 +60,6 @@ const ShoppingCart = () => {
     }
   };
 
-
   const selectedCartItems = enrichedCartItems.filter((item) =>
     selectedItems.includes(item.productId),
   );
@@ -70,6 +69,52 @@ const ShoppingCart = () => {
     0,
   );
 
+
+  const handleRemoveItem = (productId: number, quantity: number) => {
+    if (quantity === 1) {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-3 items-center p-2">
+            <span className="text-gray-800 font-medium text-base">
+              คุณต้องการลบสินค้านี้ใช่หรือไม่?
+            </span>
+
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+
+                  dispatch(deleteCartItemThunk(productId));
+                  setSelectedItems((prev) =>
+                    prev.filter((id) => id !== productId),
+                  );
+
+                  toast.success("ลบสินค้าแล้ว", {
+                    duration: 1500,
+                  });
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                ลบ
+              </button>
+
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: Infinity,
+          position: "top-center",
+        },
+      );
+
+      return;
+    }
   const handleRemoveItem = (productId: number) => {
   toast(
     (t) => (
@@ -115,43 +160,36 @@ const ShoppingCart = () => {
 };
 
 
+  const handleRemoveSelected = () => {
+    if (selectedItems.length === 0) return;
 
- const handleRemoveSelected = () => {
-  if (selectedItems.length === 0) return;
+    toast((t) => (
+      <div>
+        <p>ต้องการลบสินค้าที่เลือกใช่ไหม?</p>
 
-  toast((t) => (
-    <div>
-      <p>ต้องการลบสินค้าที่เลือกใช่ไหม?</p>
+        <div className="flex gap-2 mt-2 justify-center">
+          <button
+            onClick={() => {
+              selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
+              setSelectedItems([]);
+              toast.dismiss(t.id);
+              toast.success("ลบสินค้าสำเร็จ");
+            }}
+            className="bg-red-600 text-white px-3 py-1 rounded"
+          >
+            ยืนยัน
+          </button>
 
-      <div className="flex gap-2 mt-2 justify-center">
-        <button
-          onClick={() => {
-            selectedItems.forEach((id) =>
-              dispatch(deleteCartItemThunk(id))
-            );
-            setSelectedItems([]);         
-            toast.dismiss(t.id);
-            toast.success("ลบสินค้าสำเร็จ");
-          
-          }}
-          className="bg-red-500 text-white px-3 py-1 rounded"
-        >
-          ยืนยัน
-        </button>
-
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="bg-gray-300 px-3 py-1 rounded"
-        >
-          ยกเลิก
-        </button>
-        
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-300 px-3 py-1 rounded"
+          >
+            ยกเลิก
+          </button>
+        </div>
       </div>
-      
-    </div>
-    
-  ));
-};
+    ));
+  };
 
   if (cartStatus === "loading") {
     return (
@@ -196,15 +234,12 @@ const ShoppingCart = () => {
                   สินค้าในตะกร้า
                 </span>
                 <button
-                  onClick={() =>
-                        handleRemoveSelected()
-                      }
+                  onClick={() => handleRemoveSelected()}
                   // disabled={selectedItems.length === 0}
                   className="text-md text-black hover:text-red-500 transition-colors"
                 >
                   ลบออกทั้งหมด
                 </button>
-
               </div>
 
               {enrichedCartItems.map((item) => (
@@ -217,10 +252,7 @@ const ShoppingCart = () => {
                     <div className="flex items-center pt-2 md:pt-0">
                       <input
                         type="checkbox"
-                        checked={selectedItems.includes(
-                          item.productId,
-                          
-                        )}
+                        checked={selectedItems.includes(item.productId)}
                         onChange={() => toggleSelect(item.productId)}
                         className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                       />

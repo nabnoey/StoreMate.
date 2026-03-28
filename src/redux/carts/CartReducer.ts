@@ -6,7 +6,6 @@ import {
 import type { CartItem, CartItemRequestDTO } from "../../types/cartItem";
 import { CartItemService } from "../../services/cartitem.service";
 
-
 interface CartState {
   items: CartItem[];
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -15,7 +14,6 @@ interface CartState {
 
 const initialState: CartState = {
   items: [],
-  
   status: "idle",
   error: null,
 };
@@ -25,12 +23,12 @@ export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
   return response;
 });
 
-
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
-  async (itemData: CartItemRequestDTO, { rejectWithValue }) => {
+  async (itemData: CartItemRequestDTO, { dispatch, rejectWithValue }) => {
     try {
       const response = await CartItemService.addToCart(itemData);
+      dispatch(fetchCartThunk());
       return response;
     } catch (error: any) {
       const errorMessage =
@@ -87,41 +85,35 @@ export const deleteCartItemThunk = createAsyncThunk(
   },
 );
 
-
 const cartSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-    // เปลี่ยนการลบให้เป็นแบบนี้ ใน CartReducer.ts
     removeFromCart: (state, action: PayloadAction<number | string>) => {
-      // บังคับแปลงทั้งสองฝั่งให้เป็น String ก่อนเช็ค และสร้าง Array ใหม่ด้วย filter
       state.items = state.items.filter(
         (item) => String(item.productId) !== String(action.payload),
       );
-
-  
     },
   },
 
   extraReducers: (builder) => {
     builder
-
-    
-
       .addCase(addToCartThunk.pending, (state) => {
         state.status = "loading";
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const newItem = action.payload;
-
+        const requestData = action.meta.arg;
         const existingItem = state.items.find(
-          (i) => String(i.productId) === String(newItem.productId),
+          (i) => String(i.productId) === String(requestData.productId),
         );
+
         if (existingItem) {
-          existingItem.quantity += newItem.quantity;
+          existingItem.quantity += requestData.quantity;
         } else {
-          state.items.push(newItem);
+          if (typeof action.payload === "object" && action.payload !== null) {
+            state.items.push(action.payload);
+          }
         }
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
@@ -150,7 +142,6 @@ const cartSlice = createSlice({
         if (item) {
           item.quantity -= 1;
         }
-
       })
       .addCase(deleteCartItemThunk.fulfilled, (state, action) => {
         const productId = action.meta.arg;
@@ -158,22 +149,19 @@ const cartSlice = createSlice({
         state.items = state.items.filter(
           (item) => item.productId !== productId,
         );
-
       })
-.addCase(fetchCartThunk.pending, (state) => {
-  state.status = "loading";
-})
-.addCase(fetchCartThunk.fulfilled, (state, action) => {
-  state.status = "succeeded";
-  state.items = action.payload;
-})
-.addCase(fetchCartThunk.rejected, (state, action) => {
-  state.status = "failed";
-  state.error = action.payload as string;
-});
-
-      
-  }
+      .addCase(fetchCartThunk.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchCartThunk.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.items = action.payload;
+      })
+      .addCase(fetchCartThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      });
+  },
 });
 
 export const { removeFromCart } = cartSlice.actions;

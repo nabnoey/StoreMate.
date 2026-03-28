@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
@@ -19,17 +19,23 @@ const Navbar: React.FC = () => {
   const searchResult = useSelector(
     (state: RootState) => state.products.searchResult,
   );
-  const isAuthentication = useSelector((state:RootState) => state.auth.isAuthenticated)
-
+  const isAuthentication = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
 
   const [inputValue, setInputValue] = useState("");
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (isAuthentication) {
-      dispatch(fetchCartThunk())
+      dispatch(fetchCartThunk());
     }
-  },[dispatch,isAuthentication])
-  
+  }, [dispatch, isAuthentication]);
+
+  useEffect(() => {
+    if (isAuthentication) {
+      dispatch(fetchCartThunk());
+    }
+  }, [dispatch, isAuthentication]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
