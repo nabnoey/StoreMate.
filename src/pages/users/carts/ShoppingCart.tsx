@@ -134,7 +134,7 @@ const ShoppingCart = () => {
               toast.dismiss(t.id);
               toast.success("ลบสินค้าสำเร็จ");
             }}
-            className="bg-red-500 text-white px-3 py-1 rounded"
+            className="bg-red-600 text-white px-3 py-1 rounded"
           >
             ยืนยัน
           </button>
