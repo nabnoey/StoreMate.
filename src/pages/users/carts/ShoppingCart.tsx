@@ -23,6 +23,7 @@ const ShoppingCart = () => {
   );
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [isBlocking, setIsBlocking] = useState(false);
   
 
   useEffect(() => {
@@ -71,6 +72,7 @@ const ShoppingCart = () => {
   );
 
   const handleRemoveItem = (productId: number) => {
+     setIsBlocking(true); 
   toast(
     (t) => (
       <div className="flex flex-col gap-3 items-center p-2 overlay">
@@ -82,6 +84,7 @@ const ShoppingCart = () => {
           <button
             onClick={() => {
               toast.dismiss(t.id);
+              setIsBlocking(false);
               dispatch(deleteCartItemThunk(productId));
               setSelectedItems((prev) =>
                 prev.filter((id) => id !== productId),
@@ -97,7 +100,10 @@ const ShoppingCart = () => {
           </button>
 
           <button
-            onClick={() => toast.dismiss(t.id)}
+          onClick={() => {
+  toast.dismiss(t.id);
+  setIsBlocking(false);
+}}
             className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
           >
             ยกเลิก
@@ -199,7 +205,6 @@ const ShoppingCart = () => {
                   onClick={() =>
                         handleRemoveSelected()
                       }
-                  // disabled={selectedItems.length === 0}
                   className="text-md text-black hover:text-red-500 transition-colors"
                 >
                   ลบออกทั้งหมด
@@ -379,6 +384,9 @@ const ShoppingCart = () => {
           )}
         </div>
       </div>
+      {isBlocking && (
+      <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
+    )}
     </div>
   );
 };
