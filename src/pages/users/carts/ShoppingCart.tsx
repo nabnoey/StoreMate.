@@ -84,6 +84,7 @@ const ShoppingCart = () => {
           <button
             onClick={() => {
               toast.dismiss(t.id);
+               setIsBlocking(false);
               setIsBlocking(false);
               dispatch(deleteCartItemThunk(productId));
               setSelectedItems((prev) =>
@@ -122,41 +123,55 @@ const ShoppingCart = () => {
 
 
 
- const handleRemoveSelected = () => {
-  if (selectedItems.length === 0) return;
+const handleRemoveSelected = () => {
+  if (selectedItems.length === 0) {
+    toast.error("กรุณาเลือกสินค้าก่อน");
+    return;
+  }
 
-  toast((t) => (
-    <div>
-      <p>ต้องการลบสินค้าที่เลือกใช่ไหม?</p>
+  setIsBlocking(true); 
 
-      <div className="flex gap-2 mt-2 justify-center">
-        <button
-          onClick={() => {
-            selectedItems.forEach((id) =>
-              dispatch(deleteCartItemThunk(id))
-            );
-            setSelectedItems([]);         
-            toast.dismiss(t.id);
-            toast.success("ลบสินค้าสำเร็จ");
-          
-          }}
-          className="bg-red-500 text-white px-3 py-1 rounded"
-        >
-          ยืนยัน
-        </button>
+  toast(
+    (t) => (
+      <div>
+        <p>คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?</p>
 
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="bg-gray-300 px-3 py-1 rounded"
-        >
-          ยกเลิก
-        </button>
-        
+        <div className="flex gap-2 mt-2 justify-center">
+          <button
+            onClick={() => {
+              selectedItems.forEach((id) =>
+                dispatch(deleteCartItemThunk(id))
+              );
+
+              setSelectedItems([]);
+              toast.dismiss(t.id);
+              setIsBlocking(false); 
+              toast.success("ลบสินค้าสำเร็จ",{
+                duration: 1500, 
+              });
+            }}
+            className="bg-red-500 text-white px-3 py-1 rounded"
+          >
+            ยืนยัน
+          </button>
+
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              setIsBlocking(false); 
+            }}
+            className="bg-gray-300 px-3 py-1 rounded"
+          >
+            ยกเลิก
+          </button>
+        </div>
       </div>
-      
-    </div>
-    
-  ));
+    ),
+    {
+      duration: Infinity, 
+      position: "top-center",
+    }
+  );
 };
 
   if (cartStatus === "loading") {
@@ -270,9 +285,9 @@ const ShoppingCart = () => {
                     </button>
                   </div>
 
-                  {/* โซนขวา: ราคา + ปุ่มเพิ่มลด + ราคารวม */}
+                
                   <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
-                    {/* ราคาต่อชิ้น (ซ่อนในมือถือ หรือจัดวางใหม่) */}
+                    
                     <div className="hidden md:block text-md font-medium text-black w-20 text-center">
                       ฿ {item.product.price}
                     </div>
