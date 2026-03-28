@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
-import type { Product } from '../../types/product';
+import type { Product } from "../../types/product";
 import type { AppDispatch, RootState } from "../../redux/store";
 import {
   decrementCartItemThunk,
   incrementCartItemThunk,
-  removeFromCart,
+  deleteCartItemThunk,
 } from "../../redux/carts/CartReducer";
 import {
   removeQuantity
@@ -39,7 +39,7 @@ function CartItem({  item }: Props) {
   };
 
   const handleRemove = () => {
-    dispatch(removeFromCart(item.id)); 
+    dispatch(deleteCartItemThunk(item.id)); 
   };
 
   return (
