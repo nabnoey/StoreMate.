@@ -23,6 +23,7 @@ const ShoppingCart = () => {
   );
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  
 
   useEffect(() => {
     dispatch(fetchCartThunk());
@@ -69,56 +70,50 @@ const ShoppingCart = () => {
     0,
   );
 
-  const handleRemoveItem = (productId: number, quantity: number) => {
-    if (quantity === 1) {
-      toast(
-        (t) => (
-          <div className="flex flex-col gap-3 items-center p-2">
-            <span className="text-gray-800 font-medium text-base">
-              คุณต้องการลบสินค้านี้ใช่หรือไม่?
-            </span>
+  const handleRemoveItem = (productId: number) => {
+  toast(
+    (t) => (
+      <div className="flex flex-col gap-3 items-center p-2 overlay">
+        <span className="text-gray-800 font-medium text-base">
+          คุณต้องการลบสินค้านี้ใช่หรือไม่?
+        </span>
 
-            <div className="flex gap-3 mt-2">
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              dispatch(deleteCartItemThunk(productId));
+              setSelectedItems((prev) =>
+                prev.filter((id) => id !== productId),
+              );
 
-                  dispatch(deleteCartItemThunk(productId));
-                  setSelectedItems((prev) =>
-                    prev.filter((id) => id !== productId),
-                  );
+              toast.success("ลบสินค้าแล้ว", {
+                duration: 1500, 
+              });
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
+          >
+            ลบ
+          </button>
 
-                  toast.success("ลบสินค้าแล้ว",{
-                    duration:1500,
-                  });
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-              >
-                ลบ
-              </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
+          >
+            ยกเลิก
+          </button>
+        </div>
+      </div>
+    ),
+    {
+      duration: Infinity,
+      position: "top-center",
+    },
+  );
+  
+  
+};
 
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                className="px-4 py-2 bg-gray-200 rounded-lg"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: Infinity,
-          position: "top-center",
-        },
-      );
-
-      return;
-    }
-
-    dispatch(deleteCartItemThunk(productId));
-    setSelectedItems((prev) => prev.filter((id) => id !== productId));
-    toast.success("ลบออกจากตะกร้าแล้ว");
-  };
 
 
  const handleRemoveSelected = () => {
@@ -262,7 +257,7 @@ const ShoppingCart = () => {
                     {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
                     <button
                       onClick={() =>
-                        handleRemoveItem(item.productId, item.quantity)
+                        handleRemoveItem(item.productId)
                       }
                       className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
                     >
@@ -282,7 +277,7 @@ const ShoppingCart = () => {
                         data-test="decrease-product"
                         onClick={() => {
                           if (item.quantity === 1) {
-                            handleRemoveItem(item.productId, item.quantity);
+                            handleRemoveItem(item.productId);
                             return;
                           }
 
@@ -315,7 +310,7 @@ const ShoppingCart = () => {
                     <button
                       data-test="btn-remove-item"
                       onClick={() =>
-                        handleRemoveItem(item.productId, item.quantity)
+                        handleRemoveItem(item.productId)
                       }
                       className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
                     >
