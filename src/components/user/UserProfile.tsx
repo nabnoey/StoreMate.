@@ -36,6 +36,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
                 toast.dismiss(t.id);
                 TokenService.removeToken();
                 dispatch(logout());
+                toast.dismiss();
                 toast.success("ออกจากระบบสำเร็จ");
                 navigate("/login");
               }}

@@ -1,71 +1,84 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
-const AddCreditCard = () => {
+// 1. เพิ่มการ Import loadStripe และ Elements
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  useStripe,
+  useElements,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
+} from "@stripe/react-stripe-js";
+
+// เอามาจากหน้า Dashboard ของ stripe
+// https://dashboard.stripe.com/
+
+const stripePromise = loadStripe(
+  "pk_test_51TGJM01LdTq9hIE6IpTN6YHOPKAv7paMkrrTXkQTWbxJaDizkz4TE4yhmfu3omsrBXDrwtnV60bKKIbGzgtl6vrY00sgNkAORv",
+);
+
+const AddCreditCardForm = () => {
   const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvc, setCvc] = useState("");
 
-  const cardTypeDisplay = useMemo(() => {
-    if (cardNumber.startsWith("4")) return "VISA";
-    if (cardNumber.startsWith("5")) return "Mastercard";
-    return "VISA";
-  }, [cardNumber]);
-
-  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replaceAll(/\D/g, "");
-    if (value.length > 16) value = value.slice(0, 16);
-    const formattedValue = value.replace(/(.{4})/g, "$1 ").trim();
-    setCardNumber(formattedValue);
-  };
-
-  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replaceAll(/\D/g, "");
-    if (value.length > 4) value = value.slice(0, 4);
-    if (value.length >= 2) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
-    }
-    setExpiry(value);
-  };
-
-  const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replaceAll(/\D/g, "").slice(0, 3);
-    setCvc(value);
+  const elementOptions = {
+    style: {
+      base: {
+        fontSize: "16px",
+        color: "#424770",
+        "::placeholder": { color: "#aab7c4" },
+        fontFamily: "Anuphan, sans-serif",
+      },
+      invalid: { color: "#9e2146" },
+    },
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      cardNumber.length < 19 ||
-      !cardName ||
-      expiry.length < 5 ||
-      cvc.length < 3
-    ) {
-      toast.error("กรุณากรอกข้อมูลบัตรให้ครบถ้วนและถูกต้อง");
+
+    if (!stripe || !elements) {
       return;
     }
 
-    try {
-      // Simulate API Call
-      console.log("Saving card:", { cardName, cardNumber, expiry });
+    if (!cardName) {
+      toast.error("กรุณากรอกชื่อบนบัตร");
+      return;
+    }
 
+    toast.loading("กำลังตรวจสอบข้อมูลบัตร...");
+
+    const cardElement = elements.getElement(CardNumberElement);
+
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: "card",
+      card: cardElement!,
+      billing_details: {
+        name: cardName,
+      },
+    });
+
+    toast.dismiss();
+
+    if (error) {
+      toast.error(error.message || "ข้อมูลบัตรไม่ถูกต้อง");
+    } else {
+      console.log("บันทึกบัตรสำเร็จ ได้ Token:", paymentMethod);
       toast.success("เพิ่มบัตรสำเร็จ!");
 
       navigate("/payment", {
         state: {
           newCardAdded: true,
-          last4: cardNumber.slice(-4),
-          cardType: cardNumber.startsWith("4") ? "Visa" : "Mastercard",
+          last4: paymentMethod.card?.last4,
+          cardType: paymentMethod.card?.brand,
         },
       });
-    } catch (error) {
-      console.error("Failed to save card:", error);
-      toast.error("ไม่สามารถบันทึกข้อมูลบัตรได้");
     }
   };
 
@@ -118,12 +131,12 @@ const AddCreditCard = () => {
           <div className="w-[340px] h-[210px] bg-[#0B1A3A] rounded-2xl p-6 text-white shadow-xl relative flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div className="w-12 h-9 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-md opacity-90"></div>
-              <div className="font-bold text-xl italic">{cardTypeDisplay}</div>
+              <div className="font-bold text-xl italic opacity-50">CARD</div>
             </div>
 
             <div>
               <div className="font-mono text-xl tracking-widest mb-4">
-                {cardNumber || "0000 0000 0000 0000"}
+                **** **** **** ****
               </div>
               <div className="flex justify-between text-xs font-mono">
                 <div>
@@ -134,7 +147,7 @@ const AddCreditCard = () => {
                 </div>
                 <div className="text-right">
                   <div className="opacity-70 text-[10px]">Expires</div>
-                  <div className="tracking-widest">{expiry || "MM/YY"}</div>
+                  <div className="tracking-widest">**/**</div>
                 </div>
               </div>
             </div>
@@ -155,7 +168,6 @@ const AddCreditCard = () => {
             </label>
             <input
               id="cardName"
-              data-test="input-card-name"
               type="text"
               placeholder="ชื่อบนบัตร"
               value={cardName}
@@ -165,78 +177,49 @@ const AddCreditCard = () => {
           </div>
 
           <div>
-            <label
-              htmlFor="cardNumber"
-              className="block text-sm font-bold text-gray-900 mb-1"
-            >
+            <label className="block text-sm font-bold text-gray-900 mb-1">
               หมายเลขบัตร
             </label>
-            <input
-              id="cardNumber"
-              data-test="input-card-number"
-              type="text"
-              placeholder="0000 0000 0000 0000"
-              value={cardNumber}
-              onChange={handleCardNumberChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
-            />
+            <div className="w-full border border-gray-300 rounded-lg px-4 py-3 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 bg-white">
+              <CardNumberElement options={elementOptions} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="expiry"
-                className="block text-sm font-bold text-gray-900 mb-1"
-              >
+              <label className="block text-sm font-bold text-gray-900 mb-1">
                 วันหมดอายุ
               </label>
-              <input
-                id="expiry"
-                data-test="input-expiry"
-                type="text"
-                placeholder="MM/YY"
-                value={expiry}
-                onChange={handleExpiryChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono"
-              />
+              <div className="w-full border border-gray-300 rounded-lg px-4 py-3 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 bg-white">
+                <CardExpiryElement options={elementOptions} />
+              </div>
             </div>
+
             <div>
-              <label
-                htmlFor="cvc"
-                className="block text-sm font-bold text-gray-900 mb-1"
-              >
+              <label className="block text-sm font-bold text-gray-900 mb-1">
                 CVC
               </label>
-              <input
-                id="cvc"
-                data-test="input-cvc"
-                type="password"
-                placeholder="xxx"
-                value={cvc}
-                onChange={handleCvcChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono tracking-widest"
-              />
+              <div className="w-full border border-gray-300 rounded-lg px-4 py-3 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 bg-white">
+                <CardCvcElement options={elementOptions} />
+              </div>
             </div>
           </div>
 
           <button
-            data-test="submit-add-card"
             type="submit"
-            className="cursor-pointer w-full bg-black text-white font-bold py-3 rounded-lg mt-6 hover:bg-gray-800 transition-colors shadow-md"
+            disabled={!stripe}
+            className="cursor-pointer w-full bg-black text-white font-bold py-3 rounded-lg mt-6 hover:bg-gray-800 transition-colors shadow-md disabled:bg-gray-400"
           >
             ยืนยันการเพิ่มบัตร
           </button>
         </form>
 
-        {/* Security Alert Box */}
-        {/* Security Alert Box */}
         <div className="max-w-[500px] mx-auto mt-8 bg-gray-50 border border-gray-100 rounded-lg p-4 flex gap-3 text-xs text-gray-500">
           <Icon
             icon="lucide:shield-check"
             className="w-5 h-5 flex-shrink-0 text-gray-600"
           />
           <div className="flex flex-col">
-            {/* จัดให้ strong และ p อยู่ใน Flex Column เพื่อควบคุมระยะห่างด้วย Gap หรือ Margin แทนการพึ่งพาช่องว่างจาก Text */}
             <strong className="text-gray-700 font-bold mb-1 text-[13px]">
               การรับรองความปลอดภัย
             </strong>
@@ -249,6 +232,16 @@ const AddCreditCard = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// สร้าง Wrapper Component ออกไปให้ระบบเรียกใช้
+const AddCreditCard = () => {
+  return (
+    // ห่อหุ้มฟอร์มด้วย Elements ของ Stripe
+    <Elements stripe={stripePromise}>
+      <AddCreditCardForm />
+    </Elements>
   );
 };
 

@@ -24,12 +24,10 @@ const ShoppingCart = () => {
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [isBlocking, setIsBlocking] = useState(false);
-  
 
   useEffect(() => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
-  
 
   const enrichedCartItems = cartItems.map((item: CartItem) => ({
     ...item,
@@ -62,7 +60,6 @@ const ShoppingCart = () => {
     }
   };
 
-
   const selectedCartItems = enrichedCartItems.filter((item) =>
     selectedItems.includes(item.productId),
   );
@@ -73,107 +70,103 @@ const ShoppingCart = () => {
   );
 
   const handleRemoveItem = (productId: number) => {
-     setIsBlocking(true); 
-  toast(
-    (t) => (
-      <div className="flex flex-col gap-3 items-center p-2 overlay">
-        <span className="text-gray-800 font-medium text-base">
-          คุณต้องการลบสินค้านี้ใช่หรือไม่?
-        </span>
+    setIsBlocking(true);
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-2 overlay">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการลบสินค้านี้ใช่หรือไม่?
+          </span>
 
-        <div className="flex gap-3 mt-2">
-          <button
-            onClick={() => {
-              toast.dismiss(t.id);
-               setIsBlocking(false);
-              setIsBlocking(false);
-              dispatch(deleteCartItemThunk(productId));
-              setSelectedItems((prev) =>
-                prev.filter((id) => id !== productId),
-              );
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+                setIsBlocking(false);
+                dispatch(deleteCartItemThunk(productId));
+                setSelectedItems((prev) =>
+                  prev.filter((id) => id !== productId),
+                );
 
-              toast.success("ลบสินค้าแล้ว", {
-                duration: 1500, 
-              });
-            }}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
-          >
-            ลบ
-          </button>
+                toast.success("ลบสินค้าแล้ว", {
+                  duration: 1500,
+                });
+              }}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
+            >
+              ลบ
+            </button>
 
-          <button
-          onClick={() => {
-  toast.dismiss(t.id);
-  setIsBlocking(false);
-}}
-            className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
-          >
-            ยกเลิก
-          </button>
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+              }}
+              className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
+            >
+              ยกเลิก
+            </button>
+          </div>
         </div>
-      </div>
-    ),
-    {
-      duration: Infinity,
-      position: "top-center",
-    },
-  );
-  
-  
-};
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+      },
+    );
+  };
 
-
-
-const handleRemoveSelected = () => {
-  if (selectedItems.length === 0) {
-    toast.error("กรุณาเลือกสินค้าก่อน");
-    return;
-  }
-
-  setIsBlocking(true); 
-
-  toast(
-    (t) => (
-      <div>
-        <p>คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?</p>
-
-        <div className="flex gap-2 mt-2 justify-center">
-          <button
-            onClick={() => {
-              selectedItems.forEach((id) =>
-                dispatch(deleteCartItemThunk(id))
-              );
-
-              setSelectedItems([]);
-              toast.dismiss(t.id);
-              setIsBlocking(false); 
-              toast.success("ลบสินค้าสำเร็จ",{
-                duration: 1500, 
-              });
-            }}
-            className="bg-red-500 text-white px-3 py-1 rounded"
-          >
-            ยืนยัน
-          </button>
-
-          <button
-            onClick={() => {
-              toast.dismiss(t.id);
-              setIsBlocking(false); 
-            }}
-            className="bg-gray-300 px-3 py-1 rounded"
-          >
-            ยกเลิก
-          </button>
-        </div>
-      </div>
-    ),
-    {
-      duration: Infinity, 
-      position: "top-center",
+  const handleRemoveSelected = () => {
+    if (selectedItems.length === 0) {
+      toast.error("กรุณาเลือกสินค้าก่อน");
+      return;
     }
-  );
-};
+
+    setIsBlocking(true);
+
+    toast(
+      (t) => (
+        <div>
+          <p>คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?</p>
+
+          <div className="flex gap-2 mt-2 justify-center">
+            <button
+              onClick={() => {
+                selectedItems.forEach((id) =>
+                  dispatch(deleteCartItemThunk(id)),
+                );
+
+                setSelectedItems([]);
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+                toast.success("ลบสินค้าสำเร็จ", {
+                  duration: 1500,
+                });
+              }}
+              className="bg-red-500 text-white px-3 py-1 rounded"
+            >
+              ยืนยัน
+            </button>
+
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+              }}
+              className="bg-gray-300 px-3 py-1 rounded"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+      },
+    );
+  };
 
   if (cartStatus === "loading") {
     return (
@@ -218,14 +211,11 @@ const handleRemoveSelected = () => {
                   สินค้าในตะกร้า
                 </span>
                 <button
-                  onClick={() =>
-                        handleRemoveSelected()
-                      }
+                  onClick={() => handleRemoveSelected()}
                   className="text-md text-black hover:text-red-500 transition-colors cursor-pointer"
                 >
                   ลบออกทั้งหมด
                 </button>
-
               </div>
 
               {enrichedCartItems.map((item) => (
@@ -238,10 +228,7 @@ const handleRemoveSelected = () => {
                     <div className="flex items-center pt-2 md:pt-0">
                       <input
                         type="checkbox"
-                        checked={selectedItems.includes(
-                          item.productId,
-                          
-                        )}
+                        checked={selectedItems.includes(item.productId)}
                         onChange={() => toggleSelect(item.productId)}
                         className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                       />
@@ -277,18 +264,14 @@ const handleRemoveSelected = () => {
 
                     {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
                     <button
-                      onClick={() =>
-                        handleRemoveItem(item.productId)
-                      }
+                      onClick={() => handleRemoveItem(item.productId)}
                       className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />
                     </button>
                   </div>
 
-                
                   <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
-                    
                     <div className="hidden md:block text-md font-medium text-black w-20 text-center">
                       ฿ {item.product.price}
                     </div>
@@ -330,9 +313,7 @@ const handleRemoveSelected = () => {
                     {/* ปุ่มลบสำหรับ Desktop */}
                     <button
                       data-test="btn-remove-item"
-                      onClick={() =>
-                        handleRemoveItem(item.productId)
-                      }
+                      onClick={() => handleRemoveItem(item.productId)}
                       className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
                     >
                       <Icon icon="lucide:trash-2" width="18" height="18" />
@@ -401,8 +382,8 @@ const handleRemoveSelected = () => {
         </div>
       </div>
       {isBlocking && (
-      <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
-    )}
+        <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
+      )}
     </div>
   );
 };
