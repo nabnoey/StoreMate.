@@ -224,7 +224,7 @@ const PaymentShoping = () => {
             ></div>
           </button>
 
-          <div className="mb-2 lg:mb-12 flex justify-center items-center lg:pb-4 border-b-0 lg:border-b border-[#D1D5DB] bg-white lg:bg-transparent p-4 lg:p-0 shadow-sm lg:shadow-none">
+     <div className="mb-2 lg:mb-12 flex justify-center items-center pb-4 border-b border-[#D1D5DB] bg-white lg:bg-transparent p-4 lg:p-0 shadow-sm lg:shadow-none">
             <div className="flex flex-col w-full lg:w-[1072px] lg:h-[223px] p-0 lg:p-[16px] gap-4 lg:gap-[6px] overflow-y-auto">
               {/* Header สินค้าบนมือถือ (Shopee style) */}
               <div className="lg:hidden flex items-center gap-2 pb-2 border-b border-gray-100">

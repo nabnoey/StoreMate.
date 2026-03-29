@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
+import ProtectedRout from "./ProtectedRout";
 import { lazyDelay } from "../utils/lazyDelay";
 
 const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
@@ -70,7 +71,11 @@ const router = createBrowserRouter([
       },
       {
         path: "payment",
-        element: <PaymentShoping />,
+        element: (
+          <ProtectedRout>
+            <PaymentShoping />
+          </ProtectedRout>
+        ),
       },
       {
         path: "register",
