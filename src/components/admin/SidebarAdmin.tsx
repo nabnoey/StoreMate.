@@ -59,43 +59,43 @@ function SidebarAdmin() {
             </button>
           </li>
           <li>
-            <div
+            <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
-            </div>
+            </button>
           </li>
 
           <li>
-            <div
+            <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/orders")}
             >
               <ShoppingCart size={18} />
               จัดการคำสั่งซื้อ
-            </div>
+            </button>
           </li>
 
           <li>
-            <div
+            <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/user-edit")}
             >
               <Users size={18} />
               จัดการผู้ใช้
-            </div>
+            </button>
           </li>
 
           <li>
-            <div
+            <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/admin/store-edit")}
             >
               <Settings size={18} />
               ตั้งค่าร้านค้า
-            </div>
+            </button>
           </li>
         </ul>
       </div>

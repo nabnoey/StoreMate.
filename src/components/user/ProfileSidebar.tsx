@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Edit3, ChevronDown, ChevronUp } from "lucide-react";
+import { User, Edit3, ChevronDown, ChevronUp, ShoppingBag } from "lucide-react";
 import type { RootState } from "../../redux/store";
 
 const ProfileSidebar = () => {
@@ -9,83 +9,96 @@ const ProfileSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDesktopProfileOpen, setIsDesktopProfileOpen] = useState(true);
 
-  const getMenuClass = (path: string) => {
-    return location.pathname === path
-      ? "text-[#4285F4] font-medium transition-colors block text-left w-full"
-      : "text-gray-600 hover:text-blue-500 transition-colors block text-left w-full";
+  // ฟังก์ชันเช็คว่าหน้าปัจจุบันตรงกับ URL นี้ไหม
+  const isActive = (path: string) => location.pathname === path;
+
+  // สไตล์สำหรับเมนู Desktop (มีไฮไลท์สีฟ้าเมื่อเลือก)
+  const getDesktopMenuClass = (path: string) => {
+    return isActive(path)
+      ? "flex items-center gap-2 px-4 py-2 bg-blue-50 text-[#4285F4] font-medium transition-all rounded-md w-full text-left"
+      : "flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#4285F4] transition-all rounded-md w-full text-left";
+  };
+
+  // สไตล์สำหรับเมนู Mobile แบบปุ่ม Pill
+  const getMobileTabClass = (path: string) => {
+    return isActive(path)
+      ? "flex-shrink-0 px-5 py-2 bg-[#4285F4] text-white text-sm font-medium rounded-full shadow-sm transition-all"
+      : "flex-shrink-0 px-5 py-2 bg-white text-gray-600 text-sm font-medium rounded-full shadow-sm border border-gray-100 hover:text-[#4285F4] transition-all";
   };
 
   return (
-    <>
-      <div className="md:hidden flex gap-2 relative z-20 mb-4">
-        <div className="flex-1 bg-white rounded shadow-sm border border-white p-2.5 flex items-center justify-center gap-2">
-          <User className="w-5 h-5 text-black" />
-          <span className="text-sm font-bold text-black truncate">
-            {user?.name || "กำลังโหลด..."}
-          </span>
-          <button onClick={() => navigate("/profile")}>
-            <Edit3 className="w-3.5 h-3.5 text-black hover:text-blue-500" />
-          </button>
+    <div className="flex flex-col gap-4">
+      {/* ================= MOBILE VIEW ================= */}
+      <div className="md:hidden flex flex-col gap-3 relative z-20 mb-2">
+        {/* Mobile Profile Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="w-11 h-11 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center shrink-0">
+              <User className="w-6 h-6 text-blue-500" />
+            </div>
+            <div className="truncate">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {user?.name || "กำลังโหลด..."}
+              </p>
+              <button
+                onClick={() => navigate("/profile")}
+                className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 mt-0.5"
+              >
+                <Edit3 className="w-3 h-3" /> แก้ไขโปรไฟล์
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="flex-[1.2] flex bg-white rounded shadow-sm border border-gray-100 text-xs font-bold relative  ">
+        {/* Mobile Horizontal Menu (Scrollable Pills) */}
+        {/* ใช้ [&::-webkit-scrollbar]:hidden เพื่อซ่อน scrollbar แต่ยังปัดซ้ายขวาได้ */}
+        <div className="flex overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
-            className={`flex-1 flex items-center justify-center gap-1 rounded-l transition-colors cursor-pointer ${isMobileMenuOpen ? "bg-gray-200" : "bg-gray-100"}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={getMobileTabClass("/profile")}
+            onClick={() => navigate("/profile")}
           >
-            โปรไฟล์ของฉัน{" "}
-            <span className="text-[10px] font-black cursor-pointer">≡</span>
+            โปรไฟล์
           </button>
           <button
-            className="flex-1 flex items-center justify-center text-black hover:text-blue-500 rounded-r "
+            className={getMobileTabClass("/address-profile")}
+            onClick={() => navigate("/address-profile")}
+          >
+            จัดการที่อยู่
+          </button>
+          <button
+            className={getMobileTabClass("/change-password")}
+            onClick={() => navigate("/change-password")}
+          >
+            รหัสผ่าน
+          </button>
+          <button
+            className={getMobileTabClass("/history-shop")}
             onClick={() => navigate("/history-shop")}
           >
             การซื้อของฉัน
           </button>
-
-          {isMobileMenuOpen && (
-            <div className="absolute top-[110%] left-0 w-[140px] bg-white shadow-xl rounded border border-gray-200 py-1.5 z-50">
-              <button
-                className="block w-full text-left px-4 py-2 text-xs text-black hover:text-blue-500"
-                onClick={() => navigate("/profile")}
-              >
-                โปรไฟล์
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 text-xs text-black hover:text-blue-500"
-                onClick={() => navigate("/address-profile")}
-              >
-                จัดการที่อยู่
-              </button>
-              <button
-                className="block w-full text-left px-4 py-2 text-xs text-black hover:text-blue-500"
-                onClick={() => navigate("/change-password")}
-              >
-                เปลี่ยนรหัสผ่าน
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
-      <aside className="hidden md:block w-[250px] flex-shrink-0 space-y-4">
-        <div className="bg-white rounded shadow-sm p-4 flex items-center gap-4">
-          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-            <User className="w-6 h-6 text-gray-300" />
+      {/* ================= DESKTOP VIEW ================= */}
+      <aside className="hidden md:flex flex-col w-[260px] flex-shrink-0 gap-4">
+        {/* Desktop Profile Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+          <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center shrink-0">
+            <User className="w-7 h-7 text-[#4285F4]" />
           </div>
-          <div className="overflow-hidden">
+          <div className="overflow-hidden flex-1">
             <p
               id="sidebar-text-fullname"
-              className="font-bold text-black text-sm truncate mb-1"
+              className="font-bold text-gray-900 text-base truncate mb-1"
             >
               {user?.name || "กำลังโหลด..."}
             </p>
             <button
               id="sidebar-btn-edit-profile"
-              className="text-black text-xs flex items-center gap-1.5 hover:text-blue-500 transition-colors"
+              className="text-gray-500 text-xs flex items-center gap-1.5 hover:text-[#4285F4] transition-colors font-medium"
               onClick={() => navigate("/profile")}
             >
               <Edit3 className="w-3.5 h-3.5" /> แก้ไขโปรไฟล์
@@ -93,26 +106,29 @@ const ProfileSidebar = () => {
           </div>
         </div>
 
-        {/* Card 2: Menu */}
-        <div className="bg-white rounded shadow-sm py-4">
-          <div className="px-5 mb-4">
+        {/* Desktop Menu */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+          <div className="mb-2">
             <button
-              className="w-full flex items-center justify-between font-bold text-black text-sm mb-3 hover:text-blue-500 transition-colors"
+              className="w-full flex items-center justify-between font-bold text-gray-800 text-sm p-3 rounded-lg hover:bg-gray-50 transition-colors"
               onClick={() => setIsDesktopProfileOpen(!isDesktopProfileOpen)}
             >
-              <span>โปรไฟล์ของฉัน</span>
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-gray-500" />
+                <span>บัญชีของฉัน</span>
+              </div>
               {isDesktopProfileOpen ? (
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="w-4 h-4 text-gray-400" />
               ) : (
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4 text-gray-400" />
               )}
             </button>
 
             {isDesktopProfileOpen && (
-              <ul className="space-y-3 pl-4 text-sm animate-in slide-in-from-top-2 fade-in duration-200">
+              <ul className="space-y-1 mt-1 pl-6 pr-2 text-sm animate-in slide-in-from-top-2 fade-in duration-200">
                 <li>
                   <button
-                    className={getMenuClass("/profile")}
+                    className={getDesktopMenuClass("/profile")}
                     onClick={() => navigate("/profile")}
                   >
                     โปรไฟล์
@@ -120,7 +136,7 @@ const ProfileSidebar = () => {
                 </li>
                 <li>
                   <button
-                    className={getMenuClass("/address-profile")}
+                    className={getDesktopMenuClass("/address-profile")}
                     onClick={() => navigate("/address-profile")}
                   >
                     จัดการที่อยู่
@@ -128,7 +144,7 @@ const ProfileSidebar = () => {
                 </li>
                 <li>
                   <button
-                    className={getMenuClass("/change-password")}
+                    className={getDesktopMenuClass("/change-password")}
                     onClick={() => navigate("/change-password")}
                   >
                     เปลี่ยนรหัสผ่าน
@@ -138,18 +154,25 @@ const ProfileSidebar = () => {
             )}
           </div>
 
-          <div className="px-5 pt-4 border-t border-gray-100">
+          <div className="pt-2 mt-2 border-t border-gray-100">
             <button
               data-test="click-history-shop"
-              className="font-bold text-black hover:text-blue-500 cursor-pointer text-sm"
+              className={`w-full flex items-center gap-2 font-bold text-sm p-3 rounded-lg transition-colors ${
+                isActive("/history-shop")
+                  ? "bg-blue-50 text-[#4285F4]"
+                  : "text-gray-800 hover:bg-gray-50 hover:text-[#4285F4]"
+              }`}
               onClick={() => navigate("/history-shop")}
             >
-              การซื้อของฉัน
+              <ShoppingBag
+                className={`w-4 h-4 ${isActive("/history-shop") ? "text-[#4285F4]" : "text-gray-500"}`}
+              />
+              <span>การซื้อของฉัน</span>
             </button>
           </div>
         </div>
       </aside>
-    </>
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { GoSearch } from "react-icons/go";
 import { BiSolidBell } from "react-icons/bi";
 import { FaCartShopping } from "react-icons/fa6";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { search } from "../../redux/products/productReducer";
@@ -24,12 +24,6 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
-
-  useEffect(() => {
-    if (isAuthentication) {
-      dispatch(fetchCartThunk());
-    }
-  }, [dispatch, isAuthentication]);
 
   useEffect(() => {
     if (isAuthentication) {
@@ -92,41 +86,39 @@ const Navbar: React.FC = () => {
       <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
         <ul className="menu menu-horizontal gap-7 text-[16px]  ">
           <li>
-            <button
+            <Link
               data-test="list-search"
               className="hover:text-indigo-600 cursor-pointer"
-              onClick={() => navigate("/search")}
+              to="/search"
             >
               สินค้า
-            </button>
+            </Link>
           </li>
           <li>
-            <button
+            <Link
               className="hover:text-indigo-600 cursor-pointer"
-              onClick={() =>
-                navigate(`/search?keyword=${keyword}&category=promotion`)
-              }
+              to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
-            </button>
+            </Link>
           </li>
           <li>
-            <button
+            <Link
               data-test="list-about"
               className="hover:text-indigo-600 cursor-pointer"
-              onClick={() => navigate("/about-us")}
+              to="/about-us"
             >
               เกี่ยวกับเรา
-            </button>
+            </Link>
           </li>
           <li>
-            <button
+            <Link
               data-test="list-contact"
               className="hover:text-indigo-600 cursor-pointer"
-              onClick={() => navigate("contact")}
+              to="contact"
             >
               ติดต่อ
-            </button>
+            </Link>
           </li>
         </ul>
       </div>
@@ -134,7 +126,7 @@ const Navbar: React.FC = () => {
       {/* RIGHT */}
       <div className="navbar-end flex items-center gap-4">
         {/* SEARCH */}
-        <button className="relative border border-white" data-test="search">
+        <div className="relative border border-white" data-test="search">
           <GoSearch
             size={22}
             className="cursor-pointer hover:text-black text-black z-50"
@@ -189,7 +181,7 @@ const Navbar: React.FC = () => {
               )}
             </>
           )}
-        </button>
+        </div>
 
         {isAuthenticated ? (
           <>
@@ -297,43 +289,34 @@ const Navbar: React.FC = () => {
           )}
 
           <div className="flex flex-col py-2">
-            <button
+            <Link
               data-test="list-product"
-              onClick={() => {
-                navigate("/search");
-                setOpenMenu(false);
-              }}
+              to="/search"
               className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               สินค้า
-            </button>
-            <button
+            </Link>
+            <Link
               data-test="list-promo"
-              onClick={() => navigate(`/search?category=promotion`)}
+              to={`/search?category=promotion`}
               className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               โปรโมชั่น
-            </button>
-            <button
+            </Link>
+            <Link
               data-test="list-about"
-              onClick={() => {
-                navigate("/about-us");
-                setOpenMenu(false);
-              }}
+              to="/about-us"
               className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               เกี่ยวกับเรา
-            </button>
-            <button
+            </Link>
+            <Link
               data-test="list-contact"
-              onClick={() => {
-                navigate("/contact");
-                setOpenMenu(false);
-              }}
-              className="cursor-pointer w-full text-left not-first:px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              to="/contact"
+              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
             >
               ติดต่อ
-            </button>
+            </Link>
           </div>
         </div>
       )}

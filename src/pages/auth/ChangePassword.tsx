@@ -138,11 +138,7 @@ function ChangePassword() {
 
           {/* รหัสผ่านใหม่ */}
           <div className="flex flex-col gap-1">
-            <label
-              htmlFor="new-password"
-              alt-text="new-password"
-              className="text-sm"
-            >
+            <label htmlFor="new-password" className="text-sm">
               รหัสผ่านใหม่
             </label>
             <div className="relative">

@@ -36,6 +36,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
                 toast.dismiss(t.id);
                 TokenService.removeToken();
                 dispatch(logout());
+                toast.dismiss();
                 toast.success("ออกจากระบบสำเร็จ");
                 navigate("/login");
               }}
@@ -99,16 +100,13 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
       className="dropdown dropdown-end lg:block hidden"
       id="user-profile-dropdown"
     >
-      <div role="button" tabIndex={0} className="cursor-pointer outline-none">
+      <button type="button" className="cursor-pointer outline-none">
         <div className="cursor-pointer w-11 h-11 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
           <FaRegUser size={20} />
         </div>
-      </div>
+      </button>
 
-      <ul
-        tabIndex={0}
-        className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50"
-      >
+      <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50">
         <li>
           <button
             type="button"

@@ -1,13 +1,9 @@
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
-import { FiEdit } from "react-icons/fi"; // อย่าลืมติดตั้ง react-icons ถ้ายังไม่มี
+import { FiEdit } from "react-icons/fi";
 // import { useFormik } from 'formik';
 
 function Stock() {
-  // const initialForm = {
-  //   productName: ""
-  // }
-
   // ข้อมูลจำลองสำหรับแสดงผลในตารางให้เหมือนภาพตัวอย่าง
   const products = [
     {

@@ -166,7 +166,7 @@ const ProductDetailPage: React.FC = () => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
+    if (Number.isNaN(date.getTime())) return dateString;
     return date.toLocaleDateString("th-TH");
   };
 
@@ -269,7 +269,6 @@ const ProductDetailPage: React.FC = () => {
                     i < Math.round(productDetail.RatingScore || 0);
                   return (
                     <Icon
-                      key={`product-star-${i}`}
                       icon="material-symbols:star-rounded"
                       className={`w-5 h-5 stroke-black ${
                         isFilled
@@ -335,7 +334,7 @@ const ProductDetailPage: React.FC = () => {
                 {/* แก้ไข Responsive ปุ่มแบบ Shopee ตรงนี้ */}
                 <div
                   data-test="container-cart-actions"
-                  className="fixed bottom-0 left-0 w-full flex flex-row z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:relative md:w-auto md:bg-transparent md:shadow-none md:gap-[11px] md:z-auto"
+                  className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
                 >
                   {/* <button
                     type="button"

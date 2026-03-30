@@ -59,7 +59,7 @@ function LoginPage() {
         } else {
           sessionStorage.setItem("auth", JSON.stringify(authData));
         }
-
+        toast.dismiss();
         toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
 
         setTimeout(() => {

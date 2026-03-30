@@ -183,7 +183,7 @@ const ProfilePage = () => {
               </div>
 
               <input
-                id="input-file-image"
+                data-test="input-file-image"
                 type="file"
                 ref={fileInputRef}
                 onChange={handleImageChange}
@@ -192,7 +192,7 @@ const ProfilePage = () => {
               />
 
               <button
-                id="btn-upload-image"
+                data-test="btn-upload-image"
                 onClick={handleImageClick}
                 className="border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-3"
               >
@@ -215,7 +215,10 @@ const ProfilePage = () => {
             <div className="flex-1 space-y-5 sm:space-y-7 order-3 md:order-1">
               {/* Row: Name */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-black font-medium text-sm md:w-40 md:text-right">
+                <label
+                  htmlFor="first-last-name"
+                  className="text-black font-medium text-sm md:w-40 md:text-right"
+                >
                   ชื่อ - นามสกุล
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
@@ -234,7 +237,10 @@ const ProfilePage = () => {
 
               {/* Row: Email */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-black font-medium text-sm md:w-40 md:text-right">
+                <label
+                  htmlFor="email-input"
+                  className="text-black font-medium text-sm md:w-40 md:text-right"
+                >
                   อีเมล
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
@@ -253,7 +259,10 @@ const ProfilePage = () => {
 
               {/* Row: Phone */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-black font-medium text-sm md:w-40 md:text-right">
+                <label
+                  htmlFor="phone-input"
+                  className="text-black font-medium text-sm md:w-40 md:text-right"
+                >
                   หมายเลขโทรศัพท์
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
@@ -274,7 +283,10 @@ const ProfilePage = () => {
 
               {/* Row: Date */}
               <div className="flex justify-between md:justify-start items-center md:gap-6">
-                <label className="text-black font-medium text-sm md:w-40 md:text-right">
+                <label
+                  htmlFor="date"
+                  className="text-black font-medium text-sm md:w-40 md:text-right"
+                >
                   วันที่สมัคร
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">

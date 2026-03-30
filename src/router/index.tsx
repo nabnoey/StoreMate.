@@ -54,6 +54,18 @@ const AddCreditCard = lazy(() =>
 const AdminLayout = lazy(() =>
   lazyDelay(() => import("../layouts/AdminLayout"), 1200),
 );
+
+const PaymentQR = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentQR"), 1200),
+);
+
+const PaymentSuccess = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentSuccess"), 1200),
+);
+
+const PaymentCancel = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentCancel"), 1200),
+);
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
@@ -67,9 +79,11 @@ const router = createBrowserRouter([
       },
       {
         path: "shopping-cart",
-        element:(<ProtectedRout>
-          <ShoppingCartPage />
-          </ProtectedRout>) ,
+        element: (
+          <ProtectedRout>
+            <ShoppingCartPage />
+          </ProtectedRout>
+        ),
       },
       {
         path: "payment",
@@ -97,27 +111,35 @@ const router = createBrowserRouter([
       },
       {
         path: "forgot-password",
-        element: (<GuestRoute>
-          <ForgotPassword />
-          </GuestRoute>),
+        element: (
+          <GuestRoute>
+            <ForgotPassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "reset-password",
-        element: (<GuestRoute>
-          <ResetPassword />
-          </GuestRoute>),
+        element: (
+          <GuestRoute>
+            <ResetPassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "change-password",
-        element: (<GuestRoute>
-          <ChangePassword />
-          </GuestRoute>),
+        element: (
+          <GuestRoute>
+            <ChangePassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "profile",
-        element: (<ProtectedRout>
-          <Profile />
-        </ProtectedRout>),
+        element: (
+          <ProtectedRout>
+            <Profile />
+          </ProtectedRout>
+        ),
       },
       {
         path: "product/:id",
@@ -146,6 +168,18 @@ const router = createBrowserRouter([
       {
         path: "add-credit-card",
         element: <AddCreditCard />,
+      },
+      {
+        path: "/payment-qr/:id",
+        element: <PaymentQR />,
+      },
+      {
+        path: "/payment/success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment/cancel",
+        element: <PaymentCancel />,
       },
     ],
   },
