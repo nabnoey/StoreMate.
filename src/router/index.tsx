@@ -78,14 +78,6 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "shopping-cart",
-        element: (
-          <ProtectedRout>
-            <ShoppingCartPage />
-          </ProtectedRout>
-        ),
-      },
-      {
         path: "payment",
         element: (
           <ProtectedRout>

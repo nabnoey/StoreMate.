@@ -310,8 +310,7 @@ const ShoppingCart = () => {
                       </div>
 
                       <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
-                        ฿{" "}
-                        {(item.product.price * item.quantity).toLocaleString()}
+                        ฿{(item.product.price * item.quantity).toLocaleString()}
                       </div>
 
                       {/* ปุ่มลบสำหรับ Desktop */}
