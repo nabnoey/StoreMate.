@@ -1,3 +1,4 @@
+import type { Product } from './../types/product';
 import api from "./api";
 
  const getAllCategories = async () => {
@@ -33,11 +34,16 @@ const searchProducts = async (
     return res.data
 }
 
+const addProduct = async (product: Product) => {
+    const res = await api.post(`${import.meta.env.VITE_MOD_API}/products` , product)
+    return res.data
+}
 
 export const ProductService = {
     getAllCategories,
     getProductById,
-    searchProducts
+    searchProducts,
+    addProduct
 
 }
 

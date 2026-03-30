@@ -32,7 +32,6 @@ const SearchPage = () => {
   const handleClearFilter = () => {
     setMaxPriceInput("");
     setMinPriceInput("");
-    //คลิกที่ล้างค่า path url ข้างบนจะหายตามจะมีแค่ /search
     setSearchParams({});
     setInputValue("");
   };

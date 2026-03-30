@@ -35,6 +35,19 @@ export const search = createAsyncThunk(
   }
 );
 
+export const addProductThunk = createAsyncThunk(
+  "products/add",
+  async(product: Product , {dispatch, rejectWithValue}) => {
+    try{
+      const response = await ProductService.addProduct(product)
+      dispatch(fetchProducts())
+      return response
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+)
+
 const productsSlice = createSlice({
   name: "products",
   initialState,
@@ -43,13 +56,13 @@ const productsSlice = createSlice({
    
 
     // เพิ่มสินค้าใหม่
-  addProduct: (state, action: PayloadAction<Product>) => {
-    const newProduct = {
-      ...action.payload,
-      id: Date.now() 
-    };
-    state.items.unshift(newProduct);
-  },
+  // addProduct: (state, action: PayloadAction<Product>) => {
+  //   const newProduct = {
+  //     ...action.payload,
+  //     id: Date.now() 
+  //   };
+  //   state.items.unshift(newProduct);
+  // },
 
     // เพิ่มจำนวนสินค้าตอนกด +
     addQuantity: (state, action: PayloadAction<number>) => {
@@ -111,6 +124,10 @@ const productsSlice = createSlice({
     
     
   })
+
+  builder.addCase(addProductThunk.fulfilled, (state, action) => {
+      state.items.unshift(action.payload)
+  })
   
 }
 });
@@ -120,7 +137,7 @@ const productsSlice = createSlice({
 
 
 export const {
-  addProduct,
+
   addQuantity,
   removeQuantity,
   returnQuantity
