@@ -67,7 +67,9 @@ const router = createBrowserRouter([
       },
       {
         path: "shopping-cart",
-        element: <ShoppingCartPage />,
+        element:(<ProtectedRout>
+          <ShoppingCartPage />
+          </ProtectedRout>) ,
       },
       {
         path: "payment",
@@ -95,19 +97,27 @@ const router = createBrowserRouter([
       },
       {
         path: "forgot-password",
-        element: <ForgotPassword />,
+        element: (<GuestRoute>
+          <ForgotPassword />
+          </GuestRoute>),
       },
       {
         path: "reset-password",
-        element: <ResetPassword />,
+        element: (<GuestRoute>
+          <ResetPassword />
+          </GuestRoute>),
       },
       {
         path: "change-password",
-        element: <ChangePassword />,
+        element: (<GuestRoute>
+          <ChangePassword />
+          </GuestRoute>),
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: (<ProtectedRout>
+          <Profile />
+        </ProtectedRout>),
       },
       {
         path: "product/:id",

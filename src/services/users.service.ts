@@ -1,0 +1,68 @@
+import api from "./api";
+import type { User } from "../types/user";
+
+//ดูหน้าโปรไฟล์ผู้ใช้
+const getProfile = async() => {
+    const res = await api.get(`${import.meta.env.VITE_USERS_API}/profile`)
+    return res.data
+}
+
+//แก้ไขโปรไฟล์ผู้ใช้
+const updateProfile = async (data: Partial<User>) => {
+    const res = await api.put(`${import.meta.env.VITE_USERS_API}/overview`, data)
+    return res.data
+}
+
+//ดึงข้อมูลที่อยู่ตาม ID
+const fetchAddressUserId = async(id:number) => {
+    const res = await api.get(`${import.meta.env.VITE_USERS_API}/address/${id}`)
+    return res.data
+}
+
+//แก้ไขที่อยู่ผู้ใช้งาน
+const updateAddress = async (id:number, data: Partial<User>) => {
+    const res = await api.put(`${import.meta.env.VITE_USERS_API}/address/${id}`, data)
+    return res.data
+}
+
+//ลบที่อยู่ผู้ใช้งาน
+const deleteAddress = async (id:number) => {
+    const res = await api.delete(`${import.meta.env.VITE_USERS_API}/address/${id}`)
+    return res.data
+}
+
+//ตั้งค่าที่อยู่เป็นค่าเริ่มต้น
+const setDefaultAddress = async (id:number) => {
+    const res = await api.patch(`${import.meta.env.VITE_USERS_API}/address/${id}`)
+    return res.data
+}
+
+//ดึงรายการที่อยู่ทั้งหมดของผู้ใช้
+const fetchAllAddresses = async() => {
+    const res = await api.get(`${import.meta.env.VITE_USERS_API}/address`)
+    return res.data
+}
+
+//เพิ่มที่อยู่ใหม่
+const addAddress = async (data: Partial<User>) => {
+    const res = await api.post(`${import.meta.env.VITE_USERS_API}/address`, data)
+    return res.data
+}
+
+//ดึงที่อยู่เริ่มต้นของผู้ใช้
+const fetchDefaultAddress = async() => {
+    const res = await api.get(`${import.meta.env.VITE_USERS_API}/address/default`)
+    return res.data
+}
+
+export const UserService = {
+    getProfile,
+    updateProfile,
+    fetchAddressUserId,
+    updateAddress,
+    deleteAddress,
+    setDefaultAddress,
+    fetchAllAddresses,
+    addAddress,
+    fetchDefaultAddress
+}
