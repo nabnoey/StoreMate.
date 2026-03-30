@@ -51,12 +51,20 @@ const AddCreditCard = lazy(() =>
   lazyDelay(() => import("../pages/users/carts/AddCreditCard"), 1200),
 );
 
+const AdminLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/AdminLayout"), 1200),
+);
+
 const PaymentQR = lazy(() =>
   lazyDelay(() => import("../pages/users/carts/PaymentQR"), 1200),
 );
 
-const AdminLayout = lazy(() =>
-  lazyDelay(() => import("../layouts/AdminLayout"), 1200),
+const PaymentSuccess = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentSuccess"), 1200),
+);
+
+const PaymentCancel = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentCancel"), 1200),
 );
 import Stock from "../pages/admin/Stock";
 
@@ -148,6 +156,14 @@ const router = createBrowserRouter([
       {
         path: "/payment-qr/:id",
         element: <PaymentQR />,
+      },
+      {
+        path: "/payment/success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment/cancel",
+        element: <PaymentCancel />,
       },
     ],
   },

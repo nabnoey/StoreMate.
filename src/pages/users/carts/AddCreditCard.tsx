@@ -15,11 +15,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 // เอามาจากหน้า Dashboard ของ stripe
-// https://dashboard.stripe.com/
-
-const stripePromise = loadStripe(
-  "pk_test_51TGJM01LdTq9hIE6IpTN6YHOPKAv7paMkrrTXkQTWbxJaDizkz4TE4yhmfu3omsrBXDrwtnV60bKKIbGzgtl6vrY00sgNkAORv",
-);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const AddCreditCardForm = () => {
   const navigate = useNavigate();
@@ -72,13 +68,30 @@ const AddCreditCardForm = () => {
       console.log("บันทึกบัตรสำเร็จ ได้ Token:", paymentMethod);
       toast.success("เพิ่มบัตรสำเร็จ!");
 
-      navigate("/payment", {
-        state: {
-          newCardAdded: true,
-          last4: paymentMethod.card?.last4,
-          cardType: paymentMethod.card?.brand,
-        },
-      });
+      // ดึงบัตรเดิมที่มีอยู่ในระบบมาเตรียมไว้
+      const localCards = localStorage.getItem("mockSavedCards");
+      const existingCards = localCards ? JSON.parse(localCards) : [];
+
+      //  สร้างข้อมูลบัตรใบใหม่
+      const newCard = {
+        id: paymentMethod.id,
+        brand: paymentMethod.card?.brand || "visa",
+        last4: paymentMethod.card?.last4 || "0000",
+        bankName: cardName || "บัตรที่บันทึกใหม่",
+      };
+
+      // บันทึกรวมของเก่า+ของใหม่ ลงใน LocalStorage
+      // ตัวอย่างข้อมูลที่ถูกบันทึกจะมีโครงสร้างแบบนี้: {id: "pm_1TGfNa1LdTq9hIE60VBNwh1M", brand: "mastercard", last4: "1395", bankName: "N JAMRATPHUM"}
+      // บัตรเครดิตที่ถูกเข้ารหัสแล้ว (Token) จะถูกเก็บไว้ใน LocalStorage เพื่อใช้แสดงในหน้าสรุปคำสั่งซื้อ และใช้ในการชำระเงิน
+      localStorage.setItem(
+        "mockSavedCards",
+        JSON.stringify([...existingCards, newCard]),
+      );
+
+      // หน่วงเวลา 1 วินาทีให้เห็นข้อความสำเร็จก่อน
+      setTimeout(() => {
+        navigate(-1);
+      }, 1000);
     }
   };
 

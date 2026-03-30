@@ -69,8 +69,25 @@ const ShoppingCart = () => {
     0,
   );
 
+  // 1. ฟังก์ชันลบสินค้าทีละชิ้น
   const handleRemoveItem = (productId: number) => {
     setIsBlocking(true);
+
+    // แยกฟังก์ชันยืนยันการลบออกมา
+    const confirmDelete = (toastId: string) => {
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+      dispatch(deleteCartItemThunk(productId));
+      setSelectedItems((prev) => prev.filter((id) => id !== productId));
+      toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+    };
+
+    // แยกฟังก์ชันยกเลิกออกมา
+    const cancelDelete = (toastId: string) => {
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+    };
+
     toast(
       (t) => (
         <div className="flex flex-col gap-3 items-center p-2 overlay">
@@ -80,29 +97,14 @@ const ShoppingCart = () => {
 
           <div className="flex gap-3 mt-2">
             <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                setIsBlocking(false);
-                setIsBlocking(false);
-                dispatch(deleteCartItemThunk(productId));
-                setSelectedItems((prev) =>
-                  prev.filter((id) => id !== productId),
-                );
-
-                toast.success("ลบสินค้าแล้ว", {
-                  duration: 1500,
-                });
-              }}
+              onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
             >
               ลบ
             </button>
 
             <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                setIsBlocking(false);
-              }}
+              onClick={() => cancelDelete(t.id)}
               className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
             >
               ยกเลิก
@@ -125,36 +127,37 @@ const ShoppingCart = () => {
 
     setIsBlocking(true);
 
+    const confirmDeleteAll = (toastId: string) => {
+      selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
+      setSelectedItems([]);
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+      toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
+    };
+
+    const cancelDeleteAll = (toastId: string) => {
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+    };
+
     toast(
       (t) => (
         <div>
-          <p>คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?</p>
+          <p className="text-gray-800 font-medium text-base">
+            คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?
+          </p>
 
-          <div className="flex gap-2 mt-2 justify-center">
+          <div className="flex gap-3 mt-4 justify-center">
             <button
-              onClick={() => {
-                selectedItems.forEach((id) =>
-                  dispatch(deleteCartItemThunk(id)),
-                );
-
-                setSelectedItems([]);
-                toast.dismiss(t.id);
-                setIsBlocking(false);
-                toast.success("ลบสินค้าสำเร็จ", {
-                  duration: 1500,
-                });
-              }}
-              className="bg-red-500 text-white px-3 py-1 rounded"
+              onClick={() => confirmDeleteAll(t.id)}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
             >
               ยืนยัน
             </button>
 
             <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                setIsBlocking(false);
-              }}
-              className="bg-gray-300 px-3 py-1 rounded"
+              onClick={() => cancelDeleteAll(t.id)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 cursor-pointer"
             >
               ยกเลิก
             </button>
@@ -217,110 +220,112 @@ const ShoppingCart = () => {
                   ลบออกทั้งหมด
                 </button>
               </div>
+              <div className="max-h-[250px] overflow-y-auto mb-10 pr-2 ">
+                {enrichedCartItems.map((item) => (
+                  <div
+                    key={item.productId}
+                    className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-gray-50 last:border-0"
+                  >
+                    {/* โซนซ้าย: Checkbox + รูปภาพ + ชื่อสินค้า */}
+                    <div className="flex items-start md:items-center gap-3 w-full md:w-auto md:flex-1">
+                      <div className="flex items-center pt-2 md:pt-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(item.productId)}
+                          onChange={() => toggleSelect(item.productId)}
+                          className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
+                        />
+                      </div>
 
-              {enrichedCartItems.map((item) => (
-                <div
-                  key={item.productId}
-                  className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-gray-50 last:border-0"
-                >
-                  {/* โซนซ้าย: Checkbox + รูปภาพ + ชื่อสินค้า */}
-                  <div className="flex items-start md:items-center gap-3 w-full md:w-auto md:flex-1">
-                    <div className="flex items-center pt-2 md:pt-0">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item.productId)}
-                        onChange={() => toggleSelect(item.productId)}
-                        className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
-                      />
-                    </div>
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
+                        <img
+                          src={item.product.imageUrl || ""}
+                          alt=""
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
 
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
-                      <img
-                        src={item.product.imageUrl || ""}
-                        alt=""
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                      <div className="flex-1 min-w-0 px-2">
+                        <h3 className="text-md font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
+                          {item.product.productName}
+                        </h3>
 
-                    <div className="flex-1 min-w-0 px-2">
-                      <h3 className="text-md font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
-                        {item.product.productName}
-                      </h3>
-
-                      <span
-                        className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
-                          Number(item.product.stockQuantity) > 0 ||
+                        <span
+                          className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
+                            Number(item.product.stockQuantity) > 0 ||
+                            item.quantity > 0
+                              ? "bg-green-50 text-green-500"
+                              : "bg-red-50 text-red-500"
+                          }`}
+                        >
+                          {Number(item.product.stockQuantity) > 0 ||
                           item.quantity > 0
-                            ? "bg-green-50 text-green-500"
-                            : "bg-red-50 text-red-500"
-                        }`}
-                      >
-                        {Number(item.product.stockQuantity) > 0 ||
-                        item.quantity > 0
-                          ? "พร้อมจำหน่าย"
-                          : "ไม่พร้อมจำหน่าย"}
-                      </span>
-                    </div>
+                            ? "พร้อมจำหน่าย"
+                            : "ไม่พร้อมจำหน่าย"}
+                        </span>
+                      </div>
 
-                    {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
-                    <button
-                      onClick={() => handleRemoveItem(item.productId)}
-                      className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
-                    >
-                      <Icon icon="lucide:trash-2" width="18" height="18" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
-                    <div className="hidden md:block text-md font-medium text-black w-20 text-center">
-                      ฿ {item.product.price}
-                    </div>
-
-                    <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
+                      {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
                       <button
-                        data-test="decrease-product"
-                        onClick={() => {
-                          if (item.quantity === 1) {
-                            handleRemoveItem(item.productId);
-                            return;
+                        onClick={() => handleRemoveItem(item.productId)}
+                        className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
+                      >
+                        <Icon icon="lucide:trash-2" width="18" height="18" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
+                      <div className="hidden md:block text-md font-medium text-black w-20 text-center">
+                        ฿ {item.product.price}
+                      </div>
+
+                      <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
+                        <button
+                          data-test="decrease-product"
+                          onClick={() => {
+                            if (item.quantity === 1) {
+                              handleRemoveItem(item.productId);
+                              return;
+                            }
+
+                            dispatch(decrementCartItemThunk(item.productId));
+                          }}
+                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
+                        >
+                          <Icon icon="lucide:minus" width="14" height="14" />
+                        </button>
+                        <span className="w-8 text-center text-sm font-bold text-black">
+                          {item.quantity}
+                        </span>
+                        <button
+                          data-test="increase-product"
+                          onClick={() =>
+                            dispatch(incrementCartItemThunk(item.productId))
                           }
+                          disabled={item.quantity >= item.product.stockQuantity}
+                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
+                        >
+                          <Icon icon="lucide:plus" width="14" height="14" />
+                        </button>
+                      </div>
 
-                          dispatch(decrementCartItemThunk(item.productId));
-                        }}
-                        className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
-                      >
-                        <Icon icon="lucide:minus" width="14" height="14" />
-                      </button>
-                      <span className="w-8 text-center text-sm font-bold text-black">
-                        {item.quantity}
-                      </span>
+                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
+                        ฿{" "}
+                        {(item.product.price * item.quantity).toLocaleString()}
+                      </div>
+
+                      {/* ปุ่มลบสำหรับ Desktop */}
                       <button
-                        data-test="increase-product"
-                        onClick={() =>
-                          dispatch(incrementCartItemThunk(item.productId))
-                        }
-                        disabled={item.quantity >= item.product.stockQuantity}
-                        className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
+                        data-test="btn-remove-item"
+                        onClick={() => handleRemoveItem(item.productId)}
+                        className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
                       >
-                        <Icon icon="lucide:plus" width="14" height="14" />
+                        <Icon icon="lucide:trash-2" width="18" height="18" />
                       </button>
                     </div>
-
-                    <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
-                      ฿ {(item.product.price * item.quantity).toLocaleString()}
-                    </div>
-
-                    {/* ปุ่มลบสำหรับ Desktop */}
-                    <button
-                      data-test="btn-remove-item"
-                      onClick={() => handleRemoveItem(item.productId)}
-                      className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
-                    >
-                      <Icon icon="lucide:trash-2" width="18" height="18" />
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {/* ส่วนสรุปยอดและสั่งซื้อ */}
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center pt-8 border-t border-gray-300 gap-6">

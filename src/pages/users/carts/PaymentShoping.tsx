@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // เพิ่ม useEffect
+import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -31,7 +31,7 @@ const PaymentShoping = () => {
 
   const [paymentMethod, setPaymentMethod] = useState<string>("qr");
 
-  // --- เพิ่ม useEffect เพื่อดึงบัตรใหม่ที่ถูกส่งมาจาก AddCreditCard ---
+  // เพิ่ม useEffect เพื่อดึงบัตรใหม่ที่ถูกส่งมาจาก AddCreditCard
   useEffect(() => {
     const newCard = location.state?.newCard;
     if (newCard) {
@@ -54,7 +54,6 @@ const PaymentShoping = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-  // ---------------------------------------------------------
 
   const selectedItems: CartItem[] = location.state?.items || [];
   const navigate = useNavigate();
@@ -140,7 +139,7 @@ const PaymentShoping = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-24 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
-        <nav className="flex items-center mt-20 text-md text-black mb-4 font-medium py-1">
+        <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
           <Link to="/" className="hover:text-blue-500">
             หน้าหลัก
           </Link>

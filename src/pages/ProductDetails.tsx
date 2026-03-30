@@ -166,7 +166,7 @@ const ProductDetailPage: React.FC = () => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
+    if (Number.isNaN(date.getTime())) return dateString;
     return date.toLocaleDateString("th-TH");
   };
 
@@ -269,7 +269,6 @@ const ProductDetailPage: React.FC = () => {
                     i < Math.round(productDetail.RatingScore || 0);
                   return (
                     <Icon
-                      key={`product-star-${i}`}
                       icon="material-symbols:star-rounded"
                       className={`w-5 h-5 stroke-black ${
                         isFilled
