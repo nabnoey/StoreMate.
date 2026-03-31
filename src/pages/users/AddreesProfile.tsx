@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { toast } from "react-hot-toast";
 
-
 const AddressProfile = () => {
-
-  
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -20,7 +16,6 @@ const AddressProfile = () => {
     zipcode: "",
   });
 
- 
   useEffect(() => {
     if (isModalOpen || isDeleteModalOpen) {
       document.body.style.overflow = "hidden";
@@ -102,9 +97,11 @@ const AddressProfile = () => {
 
           <div className="flex flex-col">
             {/* {addresses.length === 0 ? ( */}
-              <div className="p-20 text-center text-gray-400 text-sm">
-                ยังไม่มีข้อมูลที่อยู่
-              </div>
+
+            <div className="p-20 text-center text-gray-400 text-sm">
+              ยังไม่มีข้อมูลที่อยู่
+            </div>
+
             {/* ) : (
               addresses.map((address: AddressItem) => (
                 <div
