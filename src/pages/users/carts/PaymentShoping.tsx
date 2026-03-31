@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useNavigate, Link } from "react-router-dom";
 import type { RootState } from "../../../redux/store";
@@ -8,8 +8,11 @@ import { toast } from "react-hot-toast";
 import type { CartItem } from "../../../types/cartItem";
 import type { SavedCard } from "../../../types/payment";
 import { PaymentService } from "../../../services/payment.service";
+import type { AppDispatch } from "../../../redux/store";
+import { fetchAllAddresses } from "../../../redux/address/addressReducer";
 
 const PaymentShoping = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
     const localCards = localStorage.getItem("mockSavedCards");
@@ -24,6 +27,10 @@ const PaymentShoping = () => {
       },
     ];
   });
+
+  useEffect(() => {
+    dispatch(fetchAllAddresses());
+  }, [dispatch]);
 
   const [selectedCardId, setSelectedCardId] = useState(
     savedCards[0]?.id || "card_1",
@@ -50,11 +57,14 @@ const PaymentShoping = () => {
 
   const selectedItems: CartItem[] = location.state?.items || [];
   const navigate = useNavigate();
-  const addresses = useSelector(
-    (state: RootState) => state.address.address || [],
+
+  // const addresses = useSelector(
+  //   (state: RootState) => state.address.addresses || [],
+  // );
+  const defaultAddress = useSelector(
+    (state: RootState) =>
+      state.address.defaultAddress || state.address.addresses[0],
   );
-  const defaultAddress =
-    addresses.find((addr) => addr.isDefault) || addresses[0];
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -191,11 +201,9 @@ const PaymentShoping = () => {
                 {defaultAddress ? (
                   <span className="flex items-center gap-2">
                     <strong className="text-black">
-                      {defaultAddress.fullName}
+                      {defaultAddress.receiverName}
                     </strong>
-                    {defaultAddress.addressLine} ต.{defaultAddress.subDistrict}{" "}
-                    อ.{defaultAddress.district} จ.{defaultAddress.province}{" "}
-                    {defaultAddress.zipcode}
+                    {defaultAddress.fullAddress}
                   </span>
                 ) : (
                   <span className="text-red-500">ยังไม่มีข้อมูลที่อยู่</span>
@@ -395,12 +403,11 @@ const PaymentShoping = () => {
                       ที่อยู่ในการจัดส่ง
                     </p>
                     <p className="text-gray-800 mt-1">
-                      {defaultAddress.fullName} | {defaultAddress.phone}
+                      {defaultAddress.receiverName} |
+                      {defaultAddress.receiverPhone}
                     </p>
                     <p className="text-gray-500 mt-0.5 line-clamp-2 leading-relaxed text-[13px]">
-                      {defaultAddress.addressLine} ต.
-                      {defaultAddress.subDistrict} อ.{defaultAddress.district}{" "}
-                      จ.{defaultAddress.province} {defaultAddress.zipcode}
+                      {defaultAddress.fullAddress}
                     </p>
                   </>
                 ) : (

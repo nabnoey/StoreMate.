@@ -177,14 +177,12 @@ const ProfilePage = () => {
       processFile(e.dataTransfer.files[0]);
     }
   };
-
   const onCropComplete = useCallback(
-    (croppedArea: any, croppedAreaPixels: any) => {
+    (_croppedArea: any, croppedAreaPixels: any) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
     [],
   );
-
   const handleSaveCrop = async () => {
     try {
       if (rawImageSrc && croppedAreaPixels) {
