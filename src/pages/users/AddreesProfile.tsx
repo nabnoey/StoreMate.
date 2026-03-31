@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../../redux/store";
-import {
-  addAddress,
-  deleteAddress,
-  setDefaultAddress,
-} from "../../redux/address/action";
+
 import type { AddressItem } from "../../redux/address/addressInitialState";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { toast } from "react-hot-toast";
 
 const AddressProfile = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const addresses = useSelector((state: RootState) => state.address.address);
-  const user = useSelector((state: RootState) => state.auth.user);
+  // const user = useSelector((state: RootState) => state.auth.user);
 
   // States สำหรับ Modal และข้อมูล
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,21 +74,21 @@ const AddressProfile = () => {
 
     if (isEditMode && targetAddressId) {
       toast.success("แก้ไขที่อยู่สำเร็จ");
-    } else {
-      const newId = Date.now().toString();
-      const newAddress: AddressItem = {
-        id: newId,
-        fullName: `${user.firstName} ${user.lastName}`,
-        phone: user.phone,
-        addressLine,
-        subDistrict,
-        district,
-        province,
-        zipcode,
-        isDefault: addresses.length === 0,
-        isPickup: true,
-      };
-      dispatch(addAddress(newAddress));
+    // } else {
+    //   const newId = Date.now().toString();
+    //   const newAddress: AddressItem = {
+    //     id: newId,
+    //     fullName: `${user.firstName} ${user.lastName}`,
+    //     phone: user.phone,
+    //     addressLine,
+    //     subDistrict,
+    //     district,
+    //     province,
+    //     zipcode,
+    //     isDefault: addresses.length === 0,
+    //     isPickup: true,
+    //   };
+      // dispatch(addAddress(newAddress));
       toast.success("เพิ่มที่อยู่สำเร็จ");
     }
 
@@ -101,7 +97,7 @@ const AddressProfile = () => {
 
   const confirmDelete = () => {
     if (targetAddressId) {
-      dispatch(deleteAddress(targetAddressId));
+      // dispatch(deleteAddress(targetAddressId));
       toast.success("ลบที่อยู่สำเร็จ");
     }
     setIsDeleteModalOpen(false);
@@ -181,7 +177,7 @@ const AddressProfile = () => {
                       </button>
                     </div>
                     <button
-                      onClick={() => dispatch(setDefaultAddress(address.id))}
+                      // onClick={() => dispatch(setDefaultAddress(address.id))}
                       disabled={address.isDefault}
                       className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors ${
                         address.isDefault

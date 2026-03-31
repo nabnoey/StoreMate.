@@ -128,9 +128,9 @@ const router = createBrowserRouter([
       {
         path: "change-password",
         element: (
-          <GuestRoute>
+          <ProtectedRout>
             <ChangePassword />
-          </GuestRoute>
+          </ProtectedRout>
         ),
       },
       {

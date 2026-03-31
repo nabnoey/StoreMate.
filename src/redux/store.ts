@@ -2,17 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authReducer";
 import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
-import addressReducer from "./address/addressReducer";
 import reviewsReducer from "./reviews/reviewsReducer"
-
+import addressReducer from "./address/addressReducer";
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
         carts: cartReducer,
         products: productsReducer,
-        address: addressReducer,
         reviews: reviewsReducer,
+        address: addressReducer
     },
 devTools: true
 

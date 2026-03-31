@@ -1,5 +1,6 @@
 import api from "./api";
 import type { User } from "../types/user";
+import type { Address } from "../types/address";
 
 //ดูหน้าโปรไฟล์ผู้ใช้
 const getProfile = async() => {
@@ -8,7 +9,7 @@ const getProfile = async() => {
 }
 
 //แก้ไขโปรไฟล์ผู้ใช้
-const updateProfile = async (data: Partial<User>) => {
+const updateProfile = async (data: Partial<Address>) => {
     const res = await api.put(`${import.meta.env.VITE_USERS_API}/overview`, data)
     return res.data
 }
@@ -44,7 +45,7 @@ const fetchAllAddresses = async() => {
 }
 
 //เพิ่มที่อยู่ใหม่
-const addAddress = async (data: Partial<User>) => {
+const addAddress = async (data: Partial<Address>) => {
     const res = await api.post(`${import.meta.env.VITE_USERS_API}/address`, data)
     return res.data
 }
