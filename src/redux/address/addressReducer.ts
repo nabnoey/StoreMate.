@@ -1,17 +1,20 @@
-import {createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { Address } from "../../types/address";
-
-
-export const addAddress = createAsyncThunk(
+import type { AddressRequest, AddressResponse } from "../../types/address";
+export const addAddress = createAsyncThunk<
+  AddressResponse,
+  AddressRequest
+>(
   "address/addAddress",
-  async (data: Partial<Address>) => {
+  async (data) => {
     const response = await UserService.addAddress(data);
     return response;
   }
 );
 
-export const fetchAllAddresses = createAsyncThunk(
+export const fetchAllAddresses = createAsyncThunk<
+  AddressResponse[]
+>(
   "address/fetchAllAddresses",
   async () => {
     const response = await UserService.fetchAllAddresses();
@@ -22,17 +25,20 @@ export const fetchAllAddresses = createAsyncThunk(
 const addressSlice = createSlice({
   name: "address",
   initialState: {
-    addresses: [] as Address[],
-    defaultAddress: null as Address | null,
+    addresses: [] as AddressResponse[],
+    defaultAddress: null as AddressResponse | null,
   },
   reducers: {},
+
+  extraReducers: (builder) => {
+    builder.addCase(addAddress.fulfilled, (state, action) => {
+      state.addresses.push(action.payload);
+    });
+
+    builder.addCase(fetchAllAddresses.fulfilled, (state, action) => {
+      state.addresses = action.payload;
+    });
+  },
 });
 
-
 export default addressSlice.reducer;
-
-
-
-
-
-

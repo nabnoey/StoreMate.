@@ -1,107 +1,115 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";
+import { useState, useEffect } from "react";
+import {
+  getProvinces,
+  getDistricts,
+  getSubDistricts,
+  getZipcode,
+} from "../../utils/addressHelper";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../../redux/store";
+import {
+  addAddress,
+  fetchAllAddresses,
 
-import type { AddressItem } from "../../redux/address/addressInitialState";
+} from "../../redux/address/addressReducer";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
-import { toast } from "react-hot-toast";
+import { useFormik } from "formik";
+import type { AddressRequest, AddressResponse } from "../../types/address";
+import toast from "react-hot-toast";
+
 
 const AddressProfile = () => {
-  // const dispatch = useDispatch();
-  const addresses = useSelector((state: RootState) => state.address.address);
-  // const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const addresses = useSelector((state: RootState) => state.address.addresses);
 
-  // States สำหรับ Modal และข้อมูล
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [targetAddressId, setTargetAddressId] = useState<string | null>(null);
+  const [targetAddressId, setTargetAddressId] = useState<number | null>(null);
+  const [provinces, setProvinces] = useState<string[]>([]);
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [subDistricts, setSubDistricts] = useState<string[]>([]);
 
-  const [formData, setFormData] = useState({
-    addressLine: "",
-    subDistrict: "",
-    district: "",
-    province: "",
-    zipcode: "",
-  });
+  
 
-  // จัดการ Scroll Lock เมื่อเปิด Modal
   useEffect(() => {
-    if (isModalOpen || isDeleteModalOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [isModalOpen, isDeleteModalOpen]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    dispatch(fetchAllAddresses());
+    setProvinces(getProvinces());
+   
+  }, [dispatch]);
 
   const openAddModal = () => {
-    setIsEditMode(false);
-    setFormData({
+    formik.resetForm();
+    setIsModalOpen(true);
+  };
+
+  const formik = useFormik({
+    initialValues: {
       addressLine: "",
-      subDistrict: "",
-      district: "",
       province: "",
+      district: "",
+      subDistrict: "",
       zipcode: "",
-    });
-    setIsModalOpen(true);
+      isDefault: false,
+    },
+    onSubmit: (values) => {
+      // รวมข้อมูลเป็น string เดียวเพื่อส่งให้ API ตาม Swagger
+      const combinedStreetAddress = `${values.addressLine} ต.${values.subDistrict} อ.${values.district} จ.${values.province}`;
+
+      const payload: AddressRequest = {
+        streetAddress: combinedStreetAddress,
+        zipcodeId: Number(values.zipcode),
+        isDefault: values.isDefault,
+      };
+
+      dispatch(addAddress(payload))
+        .unwrap()
+        .then(() => {
+          toast.success("เพิ่มที่อยู่สำเร็จ");
+          setIsModalOpen(false);
+          formik.resetForm();
+        })
+        .catch(() => {
+          toast.error("เพิ่มที่อยู่ไม่สำเร็จ");
+        });
+    },
+  });
+
+  const handleProvinceChange = (value: string) => {
+    formik.setFieldValue("province", value);
+
+    const d = getDistricts(value);
+    setDistricts(d);
+
+    setSubDistricts([]);
+    formik.setFieldValue("district", "");
+    formik.setFieldValue("subDistrict", "");
   };
 
-  const openEditModal = (address: AddressItem) => {
-    setIsEditMode(true);
-    setTargetAddressId(address.id);
-    setFormData({
-      addressLine: address.addressLine,
-      subDistrict: address.subDistrict,
-      district: address.district,
-      province: address.province,
-      zipcode: address.zipcode,
-    });
-    setIsModalOpen(true);
+  const handleDistrictChange = (value: string) => {
+    formik.setFieldValue("district", value);
+
+    const s = getSubDistricts(formik.values.province, value);
+    setSubDistricts(s);
+
+    formik.setFieldValue("subDistrict", "");
   };
 
-  const handleSaveAddress = () => {
-    const { addressLine, subDistrict, district, province, zipcode } = formData;
-    if (!addressLine || !subDistrict || !district || !province || !zipcode) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
+  const handleSubDistrictChange = (value: string) => {
+    formik.setFieldValue("subDistrict", value);
 
-    if (isEditMode && targetAddressId) {
-      toast.success("แก้ไขที่อยู่สำเร็จ");
-    // } else {
-    //   const newId = Date.now().toString();
-    //   const newAddress: AddressItem = {
-    //     id: newId,
-    //     fullName: `${user.firstName} ${user.lastName}`,
-    //     phone: user.phone,
-    //     addressLine,
-    //     subDistrict,
-    //     district,
-    //     province,
-    //     zipcode,
-    //     isDefault: addresses.length === 0,
-    //     isPickup: true,
-    //   };
-      // dispatch(addAddress(newAddress));
-      toast.success("เพิ่มที่อยู่สำเร็จ");
-    }
+    const zip = getZipcode(
+      formik.values.province,
+      formik.values.district,
+      value,
+    );
 
-    setIsModalOpen(false);
+    formik.setFieldValue("zipcode", zip);
   };
 
   const confirmDelete = () => {
-    if (targetAddressId) {
-      // dispatch(deleteAddress(targetAddressId));
-      toast.success("ลบที่อยู่สำเร็จ");
-    }
+    // ใส่ logic ลบที่อยู่ตรงนี้ (ถ้ามี reducer ลบ)
+    console.log("Delete ID:", targetAddressId);
     setIsDeleteModalOpen(false);
-    setTargetAddressId(null);
   };
 
   return (
@@ -126,7 +134,7 @@ const AddressProfile = () => {
                 ยังไม่มีข้อมูลที่อยู่
               </div>
             ) : (
-              addresses.map((address: AddressItem) => (
+              addresses.map((address: AddressResponse) => (
                 <div
                   key={address.id}
                   className="p-5 sm:p-6 flex flex-col sm:flex-row justify-between border-b border-gray-50 last:border-0 gap-4"
@@ -134,14 +142,15 @@ const AddressProfile = () => {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 text-sm sm:text-base">
                       <span className="font-medium text-black">
-                        {address.fullName}
+                        {address.receiverName}
                       </span>
                       <span className="text-gray-300">|</span>
-                      <span className="text-gray-500">{address.phone}</span>
+                      <span className="text-gray-500">
+                        {address.receiverPhone}
+                      </span>
                     </div>
                     <div className="text-sm text-gray-500 leading-relaxed">
-                      {address.addressLine} ต.{address.subDistrict} อ.
-                      {address.district} จ.{address.province} {address.zipcode}
+                      {address.fullAddress}
                     </div>
                     <div className="flex flex-wrap gap-2 pt-1">
                       {address.isDefault && (
@@ -149,20 +158,12 @@ const AddressProfile = () => {
                           ค่าเริ่มต้น
                         </span>
                       )}
-                      {address.isPickup && (
-                        <span className="px-2 py-0.5 border border-gray-300 text-gray-400 text-[11px] rounded-[3px]">
-                          ที่อยู่ในการรับสินค้า
-                        </span>
-                      )}
                     </div>
                   </div>
 
                   <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between min-w-[120px]">
                     <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
-                      <button
-                        onClick={() => openEditModal(address)}
-                        className="text-[#4285F4] hover:underline"
-                      >
+                      <button className="text-[#4285F4] hover:underline">
                         แก้ไข
                       </button>
                       <span className="text-gray-300">|</span>
@@ -177,7 +178,6 @@ const AddressProfile = () => {
                       </button>
                     </div>
                     <button
-                      // onClick={() => dispatch(setDefaultAddress(address.id))}
                       disabled={address.isDefault}
                       className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors ${
                         address.isDefault
@@ -197,100 +197,105 @@ const AddressProfile = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 z-[100] flex justify-center items-center p-4 backdrop-blur-[1px]">
-          <div className="bg-white rounded-lg w-full max-w-[650px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white rounded-lg w-full max-w-[550px] shadow-2xl overflow-hidden">
             <div className="p-6 border-b border-gray-100">
-              <h2 className="text-2xl font-bold">
-                {isEditMode ? "แก้ไขที่อยู่" : "ที่อยู่ใหม่"}
-              </h2>
+              <h2 className="text-xl font-bold">ที่อยู่ใหม่</h2>
             </div>
 
             <div className="p-6 space-y-4">
               <div className="space-y-1">
-                <label htmlFor="addressLine" className="text-sm text-gray-500">
-                  ที่อยู่ (บ้านเลขที่ / ถนน / ซอย)
-                </label>
-                <textarea
-                  id="addressLine"
+                <label className="text-sm text-gray-600">ที่อยู่</label>
+                <input
                   name="addressLine"
-                  value={formData.addressLine}
-                  onChange={handleInputChange}
-                  placeholder="กรอกรายละเอียดที่อยู่"
-                  className="w-full border border-gray-300 rounded-[4px] p-3 text-sm focus:border-[#4285F4] outline-none h-20 resize-none transition-colors"
+                  value={formik.values.addressLine}
+                  onChange={formik.handleChange}
+                  placeholder="บ้านเลขที่ / ถนน / ซอย"
+                  className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label htmlFor="province" className="text-sm text-gray-500">
-                    จังหวัด
-                  </label>
-                  <input
-                    id="province"
+                  <label className="text-sm text-gray-600">จังหวัด</label>
+                  <select
                     name="province"
-                    value={formData.province}
-                    onChange={handleInputChange}
-                    placeholder="จังหวัด"
-                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm focus:border-[#4285F4] outline-none"
-                  />
+                    value={formik.values.province}
+                    onChange={(e) => handleProvinceChange(e.target.value)}
+                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm outline-none focus:border-blue-500"
+                  >
+                    <option value="">เลือกจังหวัด</option>
+                    {provinces.map((province) => (
+                      <option key={province} value={province}>
+                        {province}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor="district" className="text-sm text-gray-500">
-                    อำเภอ
-                  </label>
-                  <input
-                    id="district"
+                  <label className="text-sm text-gray-600">อำเภอ</label>
+
+                  <select
                     name="district"
-                    value={formData.district}
-                    onChange={handleInputChange}
-                    placeholder="อำเภอ"
-                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm focus:border-[#4285F4] outline-none"
-                  />
+                    value={formik.values.district}
+                    onChange={(e) => handleDistrictChange(e.target.value)}
+                    disabled={!formik.values.province}
+                    className="w-full border border-gray-300  rounded-[4px] p-2.5 text-sm outline-none focus:border-blue-500"
+                  >
+                    <option value="">เลือกอำเภอ</option>
+                    {districts.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label
-                    htmlFor="subDistrict"
-                    className="text-sm text-gray-500"
-                  >
-                    ตำบล
-                  </label>
-                  <input
-                    id="subDistrict"
-                    name="subDistrict"
-                    value={formData.subDistrict}
-                    onChange={handleInputChange}
-                    placeholder="ตำบล"
-                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm focus:border-[#4285F4] outline-none"
-                  />
-                </div>
+  <label className="text-sm text-gray-600">ตำบล</label>
+
+  <select
+    name="subDistrict"
+    value={formik.values.subDistrict}
+    onChange={(e) => handleSubDistrictChange(e.target.value)}
+    disabled={!formik.values.district}
+    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm outline-none focus:border-blue-500"
+  >
+    <option value="">เลือกตำบล</option>
+
+    {subDistricts.map((subDistrict) => (
+      <option key={subDistrict} value={subDistrict}>
+        {subDistrict}
+      </option>
+    ))}
+  </select>
+</div>
                 <div className="space-y-1">
-                  <label htmlFor="zipcode" className="text-sm text-gray-500">
-                    รหัสไปรษณีย์
-                  </label>
+                  <label className="text-sm text-gray-600">รหัสไปรษณีย์</label>
                   <input
-                    id="zipcode"
                     name="zipcode"
-                    value={formData.zipcode}
-                    onChange={handleInputChange}
-                    placeholder="รหัสไปรษณีย์"
-                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm focus:border-[#4285F4] outline-none"
+                    value={formik.values.zipcode}
+                    readOnly
+                    placeholder="xxxxx"
+                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="p-6 pt-2 flex flex-col sm:flex-row gap-3">
+            <div className="p-6 pt-2 flex gap-3">
               <button
-                onClick={handleSaveAddress}
-                className="flex-1 bg-[#4285F4] hover:bg-blue-600 text-white py-2.5 rounded-[4px] text-sm font-medium transition-colors"
+                type="button"
+                onClick={() => formik.handleSubmit()}
+                className="flex-1 bg-[#4285F4] hover:bg-blue-600 text-white py-2.5 rounded-[4px] text-sm font-medium"
               >
-                {isEditMode ? "ยืนยันการแก้ไข" : "บันทึกที่อยู่"}
+                บันทึกที่อยู่
               </button>
+
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1 border border-gray-300 text-gray-600 py-2.5 rounded-[4px] text-sm font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 border border-gray-300 text-gray-600 py-2.5 rounded-[4px] text-sm font-medium hover:bg-gray-50"
               >
                 ยกเลิก
               </button>
