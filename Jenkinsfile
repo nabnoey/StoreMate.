@@ -91,6 +91,8 @@ pipeline {
                 sh 'echo ${DOCKER_HUB_PSW} | docker login -u ${DOCKER_HUB_USR} --password-stdin'
                 sh 'docker build -t ${REGISTRY_USER}/${IMAGE_NAME}:latest .'
                 sh 'docker push ${REGISTRY_USER}/${IMAGE_NAME}:latest'
+                sh 'docker rmi ${REGISTRY_USER}/${IMAGE_NAME}:latest'
+                sh 'docker logout'
             }
         }
 
