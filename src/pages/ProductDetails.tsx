@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -15,12 +16,15 @@ import { TokenService } from "../services/token.service";
 import Pagination from "../components/user/Pagination";
 import Loading from "../components/loading/Loading";
 
+import type { CartItemRequestDTO } from "../types/cartItem";
+
 const catagoryTranslator: Record<string, string> = {
   Promotion: "โปรโมชัน",
   Soap: "สบู่",
   Drinks: "เครื่องดื่ม",
   Shampoo: "แชมพู",
 };
+
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
@@ -34,26 +38,21 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const currentStock = productDetail?.quantity || 0;
 
-  //จำกัดสิทธิ์
-
+  // จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
-
   const isLoggedIn = !!token;
-
   const categoryName = location.state?.categoryName || "สินค้า";
 
-  //Pagination
+  // Pagination
   const REVIEWS_PER_PAGE = 3;
   const allReviews = productDetail?.reviews || [];
-
   const calculatedTotalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
-
   const indexOfLastReview = currentPage * REVIEWS_PER_PAGE;
   const indexOfFirstReview = indexOfLastReview - REVIEWS_PER_PAGE;
-
   const currentReviews = allReviews.slice(
     indexOfFirstReview,
     indexOfLastReview,
@@ -62,6 +61,7 @@ const ProductDetailPage: React.FC = () => {
   type JwtPayload = {
     userId: number;
   };
+
   const currentUserId = useMemo(() => {
     if (!token) return null;
     try {
@@ -76,7 +76,6 @@ const ProductDetailPage: React.FC = () => {
     const fetchDetail = async () => {
       try {
         setLoading(true);
-
         if (id) {
           const data = await ProductService.getProductById(Number(id));
           setProductDetail(data);
@@ -110,6 +109,9 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async (shouldRedirect = false) => {
     const token = TokenService.getAccessToken();
+    if (isAddingToCart) return;
+
+    setIsAddingToCart(true);
 
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
@@ -130,44 +132,43 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    const cartItemPayload = {
-      ...productDetail,
+    const cartItemPayload: CartItemRequestDTO = {
       productId: productDetail.id,
       quantity: buyQuantity,
-      imageUrl: activeImage,
     };
 
     try {
-      await dispatch(addToCartThunk(cartItemPayload as any)).unwrap();
+      await dispatch(addToCartThunk(cartItemPayload)).unwrap();
 
       toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
-
       setBuyQuantity(1);
 
       if (shouldRedirect) {
         navigate("/shopping-cart");
       }
-    } catch (error: any) {
-      const backendMessage = error?.message || error?.data?.message;
+    } catch (error: unknown) {
+      let backendMessage = "ไม่สามารถเพิ่มสินค้าได้";
+
+      if (axios.isAxiosError(error)) {
+        backendMessage = error.response?.data?.message || error.message;
+      }
 
       if (backendMessage === "There is insufficient stock.") {
         toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
-        toast.error(backendMessage || "ไม่สามารถเพิ่มสินค้าได้");
+        toast.error(backendMessage);
       }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
-    try {
-      return new Date(dateString).toLocaleDateString("th-TH");
-    } catch (e) {
-      return dateString;
-    }
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString("th-TH");
   };
-
-  const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
 
   const toggleMenu = (reviewId: number | string) => {
     setOpenMenuId((prev) => (prev === reviewId ? null : reviewId));
@@ -238,9 +239,14 @@ const ProductDetailPage: React.FC = () => {
               >
                 {productDetail.productImages?.map((img) => (
                   <button
+                    type="button"
                     key={img.id}
                     onClick={() => setActiveImage(img.imageUrl)}
-                    className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${activeImage === img.imageUrl ? "border-b-4 border-gray-800 opacity-100" : ""}`}
+                    className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
+                      activeImage === img.imageUrl
+                        ? "border-b-4 border-gray-800 opacity-100"
+                        : ""
+                    }`}
                   >
                     <img
                       src={img.imageUrl}
@@ -256,22 +262,22 @@ const ProductDetailPage: React.FC = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-[#2C2221] mb-3 leading-tight">
                 {productDetail.productName}
               </h1>
+
               <div className="flex text-[#FFEB55] text-xl mb-6 gap-0.5">
-                {[...Array(5)].map((_, i) =>
-                  i < Math.round(productDetail.RatingScore || 0) ? (
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const isFilled =
+                    i < Math.round(productDetail.RatingScore || 0);
+                  return (
                     <Icon
-                      key={i}
                       icon="material-symbols:star-rounded"
-                      className="w-5 h-5 text-[#FFEB55] stroke-black stroke-[1.4px]"
+                      className={`w-5 h-5 stroke-black ${
+                        isFilled
+                          ? "text-[#FFEB55] stroke-[1.4px]"
+                          : "text-white stroke-[1.5px]"
+                      }`}
                     />
-                  ) : (
-                    <Icon
-                      key={i}
-                      icon="material-symbols:star-rounded"
-                      className="w-5 h-5 text-white stroke-black stroke-[1.5px]"
-                    />
-                  ),
-                )}
+                  );
+                })}
               </div>
 
               <div className="w-full max-w-[489px] min-h-[69px] py-4 md:py-0 bg-[#F3F4F6] px-4 md:px-6 rounded-md flex flex-wrap justify-between items-center mb-8 gap-2">
@@ -292,7 +298,7 @@ const ProductDetailPage: React.FC = () => {
 
               <div
                 id="product-actions"
-                className="w-full max-w-[723px] mx-auto flex flex-col items-center gap-5 mt-auto pt-6"
+                className="w-full max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 mt-auto pt-6"
               >
                 <div className="flex items-center gap-4">
                   <span className="font-bold text-[#2C2221]">จำนวน</span>
@@ -301,18 +307,18 @@ const ProductDetailPage: React.FC = () => {
                     className="flex items-center w-[130px] h-[42px] gap-[10px] p-[10px] border border-gray-200 rounded-[8px] bg-white"
                   >
                     <button
+                      type="button"
                       data-test="btn-decrease"
                       onClick={handleDecrease}
                       className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                     >
                       −
                     </button>
-
                     <div className="flex-1 text-center font-medium text-gray-800 h-full flex items-center justify-center text-sm">
                       {buyQuantity}
                     </div>
-
                     <button
+                      type="button"
                       data-test="btn-increase"
                       onClick={handleIncrease}
                       className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
@@ -320,36 +326,64 @@ const ProductDetailPage: React.FC = () => {
                       +
                     </button>
                   </div>
-                  <span className="ml-10 text-sm text-[#1F2937]">
+                  <span className="ml-4 md:ml-10 text-sm text-[#1F2937]">
                     มีสินค้าทั้งหมด {currentStock} ชิ้น
                   </span>
                 </div>
 
+                {/* แก้ไข Responsive ปุ่มแบบ Shopee ตรงนี้ */}
                 <div
                   data-test="container-cart-actions"
-                  // รอดู responsive figma อีกที อันนี้เอาแบบ shopee ไปก่อน
-                  // mobile: ติดขอบล่าง (fixed bottom-0), มีเงาบางๆ shadow-[0_-2px_10px_rgba(0,0,0,0.05)], มีระยะห่างจากขอบหน้าจอ 0px, background สีขาว, จัดเรียงปุ่มแบบคอลัมน์, gap ระหว่างปุ่ม 10px
-                  // deasktop (sm ขึ้นไป): กลับไปอยู่ตำแหน่งปกติ, ไม่มีเงา, ระยะปุ่มเท่าเดิม
                   className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
                 >
+                  {/* <button
+                    type="button"
+                    data-test="btn-add-to-cart"
+                    onClick={() => handleAddToCart(false)}
+                    disabled={isAddingToCart}
+                    className={`flex-1 md:flex-none md:w-[151px] h-[60px] md:h-[52px]
+                      flex items-center justify-center gap-[10px] p-[10px]
+                      bg-blue-50 text-blue-600 md:bg-blue-500 md:hover:bg-blue-600 md:text-white
+                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
+                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
+                  </button> */}
+
+                  {/* <button
+                    type="button"
+                    data-test="btn-buy-cart"
+                    onClick={() => handleAddToCart(true)}
+                    disabled={isAddingToCart}
+                    className={`flex-1 md:flex-none md:w-[115px] h-[60px] md:h-[52px]
+                      flex items-center justify-center gap-[10px] p-[10px]
+                      bg-[#10B981] hover:bg-green-600 text-white
+                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
+                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
+                  </button> */}
+
                   <button
+                    type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
                     // mobile กว้าง 50%, พื้นหลังสีฟ้าอ่อน ตัวอักษรสีฟ้า, ขอบเหลี่ยม, สูง 60px
                     // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
                     className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
                   >
-                    เพิ่มลงรถเข็น
+                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
 
                   <button
+                    type="button"
                     data-test="btn-buy-cart"
                     onClick={() => handleAddToCart(true)}
                     // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
                     // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
                     className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
                   >
-                    สั่งซื้อสินค้า
+                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>
                 </div>
               </div>
@@ -358,7 +392,7 @@ const ProductDetailPage: React.FC = () => {
 
           <hr className="w-full max-w-[744px] ml-auto my-10 border-gray-200" />
 
-          {/* ส่วนรีวิว*/}
+          {/* ส่วนรีวิว */}
           <div className="max-w-4xl mx-auto">
             <div className="space-y-4">
               {currentReviews.length > 0 ? (
@@ -379,52 +413,49 @@ const ProductDetailPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex text-sm">
-                            {[...Array(5)].map((_, i) =>
-                              i < review.reviewScore ? (
+                            {Array.from({ length: 5 }).map((_, i) => {
+                              const isFilled = i < review.reviewScore;
+                              return (
                                 <Icon
-                                  key={i}
+                                  key={`review-${review.id}-star-${i}`}
                                   icon="material-symbols:star-rounded"
-                                  className="w-4 h-4 text-[#FFEB55] stroke-black stroke-[1.4px]"
+                                  className={`w-4 h-4 stroke-black ${
+                                    isFilled
+                                      ? "text-[#FFEB55] stroke-[1.4px]"
+                                      : "text-white stroke-[1.5px]"
+                                  }`}
                                 />
-                              ) : (
-                                <Icon
-                                  key={i}
-                                  icon="material-symbols:star-rounded"
-                                  className="w-4 h-4 text-white stroke-black stroke-[1.5px]"
-                                />
-                              ),
-                            )}
+                              );
+                            })}
                           </div>
 
                           {isLoggedIn &&
                             currentUserId === review.reviewer?.id && (
-                              <div className="relatigtive">
+                              <div className="relative">
                                 <Icon
                                   icon="mdi:dots-vertical"
                                   width="24"
                                   height="24"
                                   data-test="onclick-toggle-menu"
-                                  className="cursor-pointer text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"
+                                  className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
                                   onClick={() => toggleMenu(review.id)}
                                 />
 
                                 {openMenuId === review.id && (
                                   <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-100 rounded-md shadow-lg z-10 py-1 overflow-hidden">
                                     <button
+                                      type="button"
                                       data-test="edit-review"
-                                      onClick={() => {
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 transition-colors"
+                                      onClick={() => setOpenMenuId(null)}
+                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-50 transition-colors"
                                     >
                                       แก้ไข
                                     </button>
                                     <button
+                                      type="button"
                                       data-test="delete-review"
-                                      onClick={() => {
-                                        setOpenMenuId(null);
-                                      }}
-                                      className="w-full cursor-pointer  text-left px-4 py-2 text-sm text-red-500 transition-colors"
+                                      onClick={() => setOpenMenuId(null)}
+                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
                                     >
                                       ลบ
                                     </button>

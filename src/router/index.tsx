@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
+import ProtectedRout from "./ProtectedRout";
 import { lazyDelay } from "../utils/lazyDelay";
 
 const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
@@ -53,6 +54,18 @@ const AddCreditCard = lazy(() =>
 const AdminLayout = lazy(() =>
   lazyDelay(() => import("../layouts/AdminLayout"), 1200),
 );
+
+const PaymentQR = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentQR"), 1200),
+);
+
+const PaymentSuccess = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentSuccess"), 1200),
+);
+
+const PaymentCancel = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/PaymentCancel"), 1200),
+);
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
@@ -66,11 +79,19 @@ const router = createBrowserRouter([
       },
       {
         path: "shopping-cart",
-        element: <ShoppingCartPage />,
+        element: (
+          <ProtectedRout>
+            <ShoppingCartPage />
+          </ProtectedRout>
+        ),
       },
       {
         path: "payment",
-        element: <PaymentShoping />,
+        element: (
+          <ProtectedRout>
+            <PaymentShoping />
+          </ProtectedRout>
+        ),
       },
       {
         path: "register",
@@ -90,19 +111,35 @@ const router = createBrowserRouter([
       },
       {
         path: "forgot-password",
-        element: <ForgotPassword />,
+        element: (
+          <GuestRoute>
+            <ForgotPassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "reset-password",
-        element: <ResetPassword />,
+        element: (
+          <GuestRoute>
+            <ResetPassword />
+          </GuestRoute>
+        ),
       },
       {
         path: "change-password",
-        element: <ChangePassword />,
+        element: (
+          <ProtectedRout>
+            <ChangePassword />
+          </ProtectedRout>
+        ),
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: (
+          <ProtectedRout>
+            <Profile />
+          </ProtectedRout>
+        ),
       },
       {
         path: "product/:id",
@@ -131,6 +168,18 @@ const router = createBrowserRouter([
       {
         path: "add-credit-card",
         element: <AddCreditCard />,
+      },
+      {
+        path: "/payment-qr/:id",
+        element: <PaymentQR />,
+      },
+      {
+        path: "/payment/success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment/cancel",
+        element: <PaymentCancel />,
       },
     ],
   },

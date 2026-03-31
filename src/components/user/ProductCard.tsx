@@ -3,8 +3,7 @@ import type { Product } from "../../types/product";
 
 type Props = { product: Product };
 
-function ProductCard({ product }: Props) {
-  console.log("มาไหม",product.description)
+function ProductCard({ product }: Readonly<Props>) {
   return (
     <Link
       to={`/product/${product.id}`}
@@ -12,24 +11,17 @@ function ProductCard({ product }: Props) {
       className="block group"
       data-test="product-card"
     >
-
-      
       <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
         <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
           <img
-            src={
-              product.imageUrl 
-            }
-           
+            src={product.imageUrl}
+            alt="สินค้า"
             className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-110"
           />
         </figure>
         <div className="card-body p-4 flex flex-col justify-between">
-    
           <div>
-        
-            <h2
-              className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <h2 className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors">
               {product.productName}
             </h2>
             <p className="text-sm text-gray-500 line-clamp-2 mt-2">
@@ -38,9 +30,7 @@ function ProductCard({ product }: Props) {
           </div>
         </div>
         <div className="px-4 pb-4 mt-auto">
-         
           <div className="flex justify-between items-center">
-            
             <p className="font-extrabold text-lg text-blue-500">
               ฿{product.price}
             </p>

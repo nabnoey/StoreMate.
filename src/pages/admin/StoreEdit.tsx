@@ -1,26 +1,14 @@
-import HeaderAdmin from '../../components/admin/HeaderAdmin'
-// import { CiSearch } from "react-icons/ci";
-
+import HeaderAdmin from "../../components/admin/HeaderAdmin";
 
 function Stock() {
   return (
     <div>
-
       <HeaderAdmin
         title="ตั้งค่าร้านค้า"
         subtitle="จัดการข้อมูลและรูปลักษณ์ของร้านค้าของคุณ"
       />
-
-    
-    
-            
-   
-
-      
-      </div>
-
-   
-  )
+    </div>
+  );
 }
 
-export default Stock
+export default Stock;

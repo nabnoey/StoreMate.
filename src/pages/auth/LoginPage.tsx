@@ -29,7 +29,7 @@ function LoginPage() {
       .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
       .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
       .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
-      .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
+      .matches(/\d/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
         "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
@@ -59,7 +59,7 @@ function LoginPage() {
         } else {
           sessionStorage.setItem("auth", JSON.stringify(authData));
         }
-
+        toast.dismiss();
         toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
 
         setTimeout(() => {
@@ -190,22 +190,22 @@ function LoginPage() {
 
           <div className="flex flex-row justify-between items-center text-[13px] sm:text-sm mt-6 w-full text-gray-600">
             {/* ฝั่งซ้าย */}
-            <span
+            <button
               className="hover:underline cursor-pointer"
               onClick={() => navigate("/forgot-password")}
             >
               ลืมรหัสผ่าน
-            </span>
+            </button>
 
             {/* ฝั่งขวา */}
             <div className="flex items-center gap-1">
               <span>ถ้ายังไม่มีบัญชี ?</span>
-              <span
+              <button
                 className="text-blue-500 hover:underline cursor-pointer font-medium"
                 onClick={() => navigate("/register")}
               >
                 สมัครสมาชิก
-              </span>
+              </button>
             </div>
           </div>
         </form>

@@ -14,8 +14,7 @@ function ChangePassword() {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
-  
-  // State สำหรับเปิด-ปิดรหัสผ่านแต่ละช่อง
+
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -27,10 +26,10 @@ function ChangePassword() {
       .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
       .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
       .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
-      .matches(/[0-9]/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
+      .matches(/\d/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค"
+        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค",
       )
       .required("กรุณากรอกรหัสผ่านใหม่"),
     confirmPassword: Yup.string()
@@ -52,7 +51,7 @@ function ChangePassword() {
         await changePasswordService(
           values.oldPassword,
           values.newPassword,
-          values.confirmPassword
+          values.confirmPassword,
         );
 
         toast.success("เปลี่ยนรหัสผ่านสำเร็จ");
@@ -79,7 +78,9 @@ function ChangePassword() {
           ) {
             toast.error("รหัสผ่านเก่าไม่ถูกต้อง");
           } else {
-            toast.error(error.response?.data?.message || "เปลี่ยนรหัสผ่านไม่สำเร็จ");
+            toast.error(
+              error.response?.data?.message || "เปลี่ยนรหัสผ่านไม่สำเร็จ",
+            );
           }
         } else {
           toast.error("เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน");
@@ -97,25 +98,30 @@ function ChangePassword() {
           เปลี่ยนรหัสผ่าน
         </h2>
 
-        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4 text-black">
-          
-          {/* รหัสผ่านเดิม */}
+        <form
+          onSubmit={formik.handleSubmit}
+          className="flex flex-col gap-4 text-black"
+        >
+          {/* 1. รหัสผ่านเดิม */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm">รหัสผ่านเดิม</label>
+            <label htmlFor="old-password" className="text-sm">
+              รหัสผ่านเดิม
+            </label>
             <div className="relative">
               <input
+                id="old-password"
                 type={showOldPassword ? "text" : "password"}
                 data-test="old-password"
                 placeholder="อย่างน้อย 8 ตัว"
                 className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
                   formik.touched.oldPassword && formik.errors.oldPassword
-                    ? "border-red-500 focus:border-red-500"
+                    ? "border-red-500"
                     : "border-gray-300"
                 }`}
                 {...formik.getFieldProps("oldPassword")}
               />
               <button
-              data-test="toggle-old-password"
+                data-test="toggle-old-password"
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 onClick={() => setShowOldPassword(!showOldPassword)}
@@ -124,27 +130,32 @@ function ChangePassword() {
               </button>
             </div>
             {formik.touched.oldPassword && formik.errors.oldPassword && (
-              <div className="text-red-500 text-xs mt-1">{formik.errors.oldPassword}</div>
+              <div className="text-red-500 text-xs mt-1">
+                {formik.errors.oldPassword}
+              </div>
             )}
           </div>
 
           {/* รหัสผ่านใหม่ */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm">รหัสผ่านใหม่</label>
+            <label htmlFor="new-password" className="text-sm">
+              รหัสผ่านใหม่
+            </label>
             <div className="relative">
               <input
+                id="new-password"
                 type={showNewPassword ? "text" : "password"}
                 data-test="new-password"
                 placeholder="อย่างน้อย 8 ตัว"
                 className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
                   formik.touched.newPassword && formik.errors.newPassword
-                    ? "border-red-500 focus:border-red-500"
+                    ? "border-red-500  focus:border-red-500"
                     : "border-gray-300"
                 }`}
                 {...formik.getFieldProps("newPassword")}
               />
               <button
-              data-test="toggle-new-password" 
+                data-test="toggle-new-password"
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 onClick={() => setShowNewPassword(!showNewPassword)}
@@ -153,27 +164,33 @@ function ChangePassword() {
               </button>
             </div>
             {formik.touched.newPassword && formik.errors.newPassword && (
-              <div className="text-red-500 text-xs mt-1 whitespace-pre-line">{formik.errors.newPassword}</div>
+              <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
+                {formik.errors.newPassword}
+              </div>
             )}
           </div>
 
           {/* ยืนยันรหัสผ่านใหม่ */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm">ยืนยันรหัสผ่านใหม่</label>
+            <label htmlFor="confirm-password" className="text-sm">
+              ยืนยันรหัสผ่านใหม่
+            </label>
             <div className="relative">
               <input
+                id="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
                 data-test="confirm-password"
                 placeholder="อย่างน้อย 8 ตัว"
                 className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
-                  formik.touched.confirmPassword && formik.errors.confirmPassword
-                    ? "border-red-500 focus:border-red-500"
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                    ? "border-red-500"
                     : "border-gray-300"
                 }`}
                 {...formik.getFieldProps("confirmPassword")}
               />
               <button
-                data-test ="show-confirm-password"
+                data-test="show-confirm-password"
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -181,9 +198,12 @@ function ChangePassword() {
                 {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
               </button>
             </div>
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <div className="text-red-500 text-xs mt-1">{formik.errors.confirmPassword}</div>
-            )}
+            {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword && (
+                <div className="text-red-500 text-xs mt-1">
+                  {formik.errors.confirmPassword}
+                </div>
+              )}
           </div>
 
           <button

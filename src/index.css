@@ -8,5 +8,8 @@ body {
    font-family: 'Anuphan', sans-serif;
 }
 @media (max-width:575.98px) {
-  
+   .my-element {
+    display: block;
+    width: 100%;
+  }
 }
