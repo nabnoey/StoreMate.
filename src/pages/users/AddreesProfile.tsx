@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";
-
-import type { AddressItem } from "../../redux/address/addressInitialState";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { toast } from "react-hot-toast";
 
-const AddressProfile = () => {
-  // const dispatch = useDispatch();
-  const addresses = useSelector((state: RootState) => state.address.address);
-  // const user = useSelector((state: RootState) => state.auth.user);
 
-  // States สำหรับ Modal และข้อมูล
+const AddressProfile = () => {
+
+  
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -25,7 +20,7 @@ const AddressProfile = () => {
     zipcode: "",
   });
 
-  // จัดการ Scroll Lock เมื่อเปิด Modal
+ 
   useEffect(() => {
     if (isModalOpen || isDeleteModalOpen) {
       document.body.style.overflow = "hidden";
@@ -52,18 +47,18 @@ const AddressProfile = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (address: AddressItem) => {
-    setIsEditMode(true);
-    setTargetAddressId(address.id);
-    setFormData({
-      addressLine: address.addressLine,
-      subDistrict: address.subDistrict,
-      district: address.district,
-      province: address.province,
-      zipcode: address.zipcode,
-    });
-    setIsModalOpen(true);
-  };
+  // const openEditModal = (address: AddressItem) => {
+  //   setIsEditMode(true);
+  //   setTargetAddressId(address.id);
+  //   setFormData({
+  //     addressLine: address.addressLine,
+  //     subDistrict: address.subDistrict,
+  //     district: address.district,
+  //     province: address.province,
+  //     zipcode: address.zipcode,
+  //   });
+  //   setIsModalOpen(true);
+  // };
 
   const handleSaveAddress = () => {
     const { addressLine, subDistrict, district, province, zipcode } = formData;
@@ -74,21 +69,7 @@ const AddressProfile = () => {
 
     if (isEditMode && targetAddressId) {
       toast.success("แก้ไขที่อยู่สำเร็จ");
-    // } else {
-    //   const newId = Date.now().toString();
-    //   const newAddress: AddressItem = {
-    //     id: newId,
-    //     fullName: `${user.firstName} ${user.lastName}`,
-    //     phone: user.phone,
-    //     addressLine,
-    //     subDistrict,
-    //     district,
-    //     province,
-    //     zipcode,
-    //     isDefault: addresses.length === 0,
-    //     isPickup: true,
-    //   };
-      // dispatch(addAddress(newAddress));
+
       toast.success("เพิ่มที่อยู่สำเร็จ");
     }
 
@@ -97,7 +78,6 @@ const AddressProfile = () => {
 
   const confirmDelete = () => {
     if (targetAddressId) {
-      // dispatch(deleteAddress(targetAddressId));
       toast.success("ลบที่อยู่สำเร็จ");
     }
     setIsDeleteModalOpen(false);
@@ -121,11 +101,11 @@ const AddressProfile = () => {
           </div>
 
           <div className="flex flex-col">
-            {addresses.length === 0 ? (
+            {/* {addresses.length === 0 ? ( */}
               <div className="p-20 text-center text-gray-400 text-sm">
                 ยังไม่มีข้อมูลที่อยู่
               </div>
-            ) : (
+            {/* ) : (
               addresses.map((address: AddressItem) => (
                 <div
                   key={address.id}
@@ -177,7 +157,6 @@ const AddressProfile = () => {
                       </button>
                     </div>
                     <button
-                      // onClick={() => dispatch(setDefaultAddress(address.id))}
                       disabled={address.isDefault}
                       className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors ${
                         address.isDefault
@@ -190,7 +169,7 @@ const AddressProfile = () => {
                   </div>
                 </div>
               ))
-            )}
+            )} */}
           </div>
         </main>
       </div>

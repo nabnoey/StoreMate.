@@ -1,6 +1,9 @@
+import type { Address } from './../../types/address';
 import {createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { Address } from "../../types/address";
+
+
+
 
 
 export const addAddress = createAsyncThunk(
@@ -8,8 +11,12 @@ export const addAddress = createAsyncThunk(
   async (data: Partial<Address>) => {
     const response = await UserService.addAddress(data);
     return response;
+
+    
   }
 );
+
+
 
 export const fetchAllAddresses = createAsyncThunk(
   "address/fetchAllAddresses",
