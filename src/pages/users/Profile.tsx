@@ -194,7 +194,7 @@ const ProfilePage = () => {
               <button
                 data-test="btn-upload-image"
                 onClick={handleImageClick}
-                className="border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-3"
+                className="border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-3 cursor-pointer"
               >
                 เลือกรูป
               </button>
@@ -226,9 +226,9 @@ const ProfilePage = () => {
                     {tempData.firstName} {tempData.lastName}
                   </span>
                   <button
-                    id="btn-edit-name"
+                    data-test="btn-edit-name"
                     onClick={() => openModal("name")}
-                    className="text-blue-500 transition-colors text-sm font-medium hover:underline"
+                    className="text-blue-500 transition-colors text-sm font-medium hover:underline cursor-pointer"
                   >
                     เปลี่ยน
                   </button>
@@ -248,9 +248,9 @@ const ProfilePage = () => {
                     {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
                   </span>
                   <button
-                    id="btn-edit-email"
+                    data-test="btn-edit-email"
                     onClick={() => openModal("email")}
-                    className="text-blue-500 transition-colors text-sm font-medium hover:underline"
+                    className="text-blue-500 transition-colors text-sm font-medium hover:underline cursor-pointer"
                   >
                     เปลี่ยน
                   </button>
@@ -272,9 +272,9 @@ const ProfilePage = () => {
                       : "-"}
                   </span>
                   <button
-                    id="btn-edit-phone"
+                    data-test="btn-edit-phone"
                     onClick={() => openModal("phone")}
-                    className="text-blue-500 transition-colors text-sm font-medium hover:underline"
+                    className="text-blue-500 transition-colors text-sm font-medium hover:underline cursor-pointer"
                   >
                     เปลี่ยน
                   </button>
@@ -301,9 +301,9 @@ const ProfilePage = () => {
                 <div className="hidden md:block md:w-40 md:mr-6"></div>
                 <div className="w-full flex justify-center md:justify-start">
                   <button
-                    id="btn-main-save"
+                    data-test="btn-save-profile"
                     onClick={handleSave}
-                    className="w-full md:w-auto md:min-w-[150px] bg-green-500 hover:bg-green-600 transition-colors text-white px-8 py-3 md:py-2.5 rounded text-sm md:text-base shadow-sm font-medium"
+                    className="w-full md:w-auto md:min-w-[150px] bg-green-500 hover:bg-green-600 transition-colors text-white px-8 py-3 md:py-2.5 rounded text-sm md:text-base shadow-sm font-medium cursor-pointer"
                   >
                     บันทึกข้อมูล
                   </button>
