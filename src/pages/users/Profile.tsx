@@ -4,8 +4,8 @@ import { User, Upload } from "lucide-react";
 // 🌟 เปลี่ยนจาก Swal เป็น toast
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import { updateProfile } from "../../redux/auth/authReducer";
-import type { RootState } from "../../redux/store";
+import { getProfile, updateProfile } from "../../redux/auth/authReducer";
+import type { RootState, AppDispatch } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 
 // --- Utility Function สำหรับการ Crop รูปภาพ ---
@@ -105,8 +105,7 @@ const ProfilePage = () => {
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [tempData, setTempData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
     image: "",
@@ -129,16 +128,18 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
       setTempData({
-        firstName: nameParts[0] || "",
-        lastName: nameParts.slice(1).join(" ") || "",
+        name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
-        image: user.image || "",
+        image: user.image_url || user.image || "",
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    dispatch(getProfile() as any);
+  }, [dispatch]);
 
   const openModal = (type: string) => setActiveModal(type);
 
@@ -219,15 +220,12 @@ const ProfilePage = () => {
 
     try {
       const formData = new FormData();
-      formData.append(
-        "name",
-        `${tempData.firstName.trim()} ${tempData.lastName.trim()}`,
-      );
+      formData.append("name", tempData.name.trim());
       formData.append("email", tempData.email);
       formData.append("phone", tempData.phone);
 
       if (imageFileForUpload) {
-        formData.append("image", imageFileForUpload, "profile.jpg");
+        formData.append("image_url", imageFileForUpload, "profile.jpg");
       }
 
       await dispatch(updateProfile(formData) as any);
@@ -301,9 +299,7 @@ const ProfilePage = () => {
                   ชื่อ - นามสกุล
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
-                  <span className="mr-3 md:mr-4 truncate">
-                    {tempData.firstName} {tempData.lastName}
-                  </span>
+                  <span className="mr-3 md:mr-4 truncate">{tempData.name}</span>
                   <button
                     onClick={() => openModal("name")}
                     className="text-[#4285F4] text-sm font-medium hover:underline"
@@ -352,7 +348,9 @@ const ProfilePage = () => {
                 </label>
                 <div className="flex-1 text-black font-normal text-sm flex items-center justify-end md:justify-start">
                   <span className="md:mr-4 truncate">
-                    {user.joinDate || "-"}
+                    {user.createdAt && user.createdAt !== "null"
+                      ? user.createdAt
+                      : "-"}
                   </span>
                 </div>
               </div>
@@ -474,27 +472,14 @@ const ProfilePage = () => {
         <div className="space-y-4">
           <div>
             <label className="text-sm text-gray-600 font-medium mb-1.5 block">
-              ชื่อ
+              ชื่อ - นามสกุล
             </label>
             <input
               type="text"
               className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-              value={tempData.firstName}
+              value={tempData.name}
               onChange={(e) =>
-                setTempData({ ...tempData, firstName: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="text-sm text-gray-600 font-medium mb-1.5 block">
-              นามสกุล
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-              value={tempData.lastName}
-              onChange={(e) =>
-                setTempData({ ...tempData, lastName: e.target.value })
+                setTempData({ ...tempData, name: e.target.value })
               }
             />
           </div>

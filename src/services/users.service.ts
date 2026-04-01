@@ -4,12 +4,12 @@ import type { Address } from "../types/address";
 
 //ดูหน้าโปรไฟล์ผู้ใช้
 const getProfile = async () => {
-  const res = await api.get(`${import.meta.env.VITE_USERS_API}/profile`);
+  const res = await api.get(`${import.meta.env.VITE_USERS_API}/overview`);
   return res.data;
 };
 
 //แก้ไขโปรไฟล์ผู้ใช้
-const updateProfile = async (data: Partial<Address>) => {
+const updateProfile = async (data: Partial<User> | FormData) => {
   const res = await api.put(`${import.meta.env.VITE_USERS_API}/overview`, data);
   return res.data;
 };
