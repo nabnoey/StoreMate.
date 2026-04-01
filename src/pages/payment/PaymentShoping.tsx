@@ -3,13 +3,13 @@ import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useNavigate, Link } from "react-router-dom";
-import type { RootState } from "../../../redux/store";
+import type { RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
-import type { CartItem } from "../../../types/cartItem";
-import type { SavedCard } from "../../../types/payment";
-import { PaymentService } from "../../../services/payment.service";
-import type { AppDispatch } from "../../../redux/store";
-import { fetchAllAddresses } from "../../../redux/address/addressReducer";
+import type { CartItem } from "../../types/cartItem";
+import type { SavedCard } from "../../types/payment";
+import { PaymentService } from "../../services/payment.service";
+import type { AppDispatch } from "../../redux/store";
+import { fetchAllAddresses } from "../../redux/address/addressReducer";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -210,8 +210,9 @@ const PaymentShoping = () => {
                 )}
               </div>
               <button
+                data-test="btn-change-address"
                 onClick={() => navigate("/address-profile")}
-                className="text-blue-500 text-sm border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
+                className="cursor-pointer text-blue-500 text-sm border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
                 เปลี่ยน
               </button>
@@ -270,8 +271,9 @@ const PaymentShoping = () => {
                 ].map((method) => (
                   <div key={method.id} className="flex flex-col">
                     <div
+                      data-test="btn-select-payment-method"
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`flex items-center gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] cursor-pointer transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
+                      className={`cursor-pointer flex items-center gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
                     >
                       <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
                         <Icon icon={method.icon} className="w-5 h-5" />
@@ -296,7 +298,7 @@ const PaymentShoping = () => {
                     {method.id === "credit" && paymentMethod === "credit" && (
                       <div className="ml-0 sm:ml-12 mt-3 space-y-3">
                         {savedCards.map((card) => (
-                          <div
+                          <button
                             key={card.id}
                             onClick={() => setSelectedCardId(card.id)}
                             className="flex items-center gap-3 cursor-pointer"
@@ -324,11 +326,11 @@ const PaymentShoping = () => {
                             <span className="text-sm text-black font-mono ml-2">
                               **** {card.last4}
                             </span>
-                          </div>
+                          </button>
                         ))}
-                        <div
+                        <Link
                           data-test="click-add-credit-card"
-                          onClick={() => navigate("/add-credit-card")}
+                          to="/add-credit-card"
                           className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
                         >
                           <Icon
@@ -339,7 +341,7 @@ const PaymentShoping = () => {
                           <p className="font-medium text-xs text-black">
                             เพิ่มบัตรเครดิต/เดบิต
                           </p>
-                        </div>
+                        </Link>
                       </div>
                     )}
                   </div>
@@ -360,6 +362,7 @@ const PaymentShoping = () => {
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button
+                      data-tses="btn-confirm-payment"
                       onClick={handleConfirmOrder}
                       className=" cursor-pointer w-[146px] h-[29px] bg-[#4285F4] text-white rounded-[7px] text-[13px] font-medium shadow-md"
                     >

@@ -1,10 +1,10 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaRegUser } from "react-icons/fa6";
 import { IoSettingsOutline } from "react-icons/io5";
 import { MdLogout } from "react-icons/md";
 import { logout } from "../../redux/auth/authReducer";
-import type { AppDispatch } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store"; // อย่าลืม import RootState ถ้าจะใช้ user
 import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 
@@ -17,6 +17,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   variant = "desktop",
   onCloseMenu,
 }) => {
+  // const user = useSelector((state: RootState) => state?.auth?.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -67,12 +68,25 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
     return (
       <div className="flex items-center justify-between p-5 border-b border-gray-50 bg-white">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+          <div
+            data-test="btn-user-profile-mobile"
+            className="cursor-pointer w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
+          >
             <FaRegUser size={24} />
+            {/* {user?.image_url || user?.image ? (
+              <img
+                src={user.image_url || user.image}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FaRegUser className="w-6 h-6 text-gray-500" />
+            )} */}
           </div>
         </div>
         <div className="flex items-center gap-5 text-gray-600">
           <button
+            data-test="btn-edit-profile-mobile"
             type="button"
             onClick={() => {
               navigate("/profile");
@@ -83,9 +97,10 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <IoSettingsOutline size={26} />
           </button>
           <button
+            data-test="btn-logout-mobile"
             type="button"
             onClick={handleLogout}
-            className="hover:text-red-500 transition-colors cursor-pointer"
+            className="cursor-pointer hover:text-red-500 transition-colors"
           >
             <MdLogout size={26} className="rotate-180" />
           </button>
@@ -100,9 +115,22 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
       className="dropdown dropdown-end lg:block hidden"
       id="user-profile-dropdown"
     >
-      <button type="button" className="cursor-pointer outline-none">
-        <div className="cursor-pointer w-11 h-11 rounded-full bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
-          <FaRegUser size={20} />
+      <button
+        data-test="btn-user-profile"
+        type="button"
+        className="cursor-pointer outline-none"
+      >
+        <div className="cursor-pointer w-11 h-11 rounded-full overflow-hidden bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
+          <FaRegUser size={24} />
+          {/* {user?.image_url || user?.image ? (
+            <img
+              src={user.image_url || user.image}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <FaRegUser className="w-7 h-7 text-gray-500" />
+          )} */}
         </div>
       </button>
 
@@ -110,11 +138,17 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         <li>
           <button
             type="button"
-            onClick={() => navigate("/profile")}
+            onClick={() => {
+              navigate("/profile");
+              // ให้ Dropdown ปิดโดยการเอา Focus ออก
+              (document.activeElement as HTMLElement)?.blur();
+            }}
             className="cursor-pointer flex items-center gap-3 py-3 w-full text-left"
           >
             <IoSettingsOutline size={22} className="text-gray-600" />
-            <span className="font-medium text-gray-700">แก้ไขโปรไฟล์</span>
+            <span className=" cursor-pointer font-medium text-gray-700">
+              แก้ไขโปรไฟล์
+            </span>
           </button>
         </li>
 
@@ -122,8 +156,13 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
 
         <li>
           <button
+            data-test="btn-logout"
             type="button"
-            onClick={handleLogout}
+            onClick={() => {
+              // ให้ Dropdown ปิดโดยการเอา Focus ออก
+              (document.activeElement as HTMLElement)?.blur();
+              handleLogout();
+            }}
             className="cursor-pointer flex items-center gap-3 py-3 text-gray-700 hover:text-red-600 w-full text-left"
           >
             <MdLogout size={22} className="rotate-180" />
