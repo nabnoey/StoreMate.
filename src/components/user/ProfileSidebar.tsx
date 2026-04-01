@@ -46,7 +46,9 @@ const ProfileSidebar = () => {
                 onClick={() => navigate("/profile")}
                 className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 mt-0.5"
               >
-                <Edit3 className="w-3 h-3" /> แก้ไขโปรไฟล์
+                <Edit3 className="w-3 h-3"
+                
+                /> แก้ไขโปรไฟล์
               </button>
             </div>
           </div>
@@ -56,6 +58,7 @@ const ProfileSidebar = () => {
         {/* ใช้ [&::-webkit-scrollbar]:hidden เพื่อซ่อน scrollbar แต่ยังปัดซ้ายขวาได้ */}
         <div className="flex overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
+            data-test="btn-profile-tab-profile"
             className={getMobileTabClass("/profile")}
             onClick={() => navigate("/profile")}
           >
@@ -68,12 +71,14 @@ const ProfileSidebar = () => {
             จัดการที่อยู่
           </button>
           <button
+          data-test="btn-profile-tab-password"
             className={getMobileTabClass("/change-password")}
             onClick={() => navigate("/change-password")}
           >
             รหัสผ่าน
           </button>
           <button
+          data-test="btn-profile-tab-history"
             className={getMobileTabClass("/history-shop")}
             onClick={() => navigate("/history-shop")}
           >
@@ -101,7 +106,9 @@ const ProfileSidebar = () => {
               className="text-gray-500 text-xs flex items-center gap-1.5 hover:text-[#4285F4] transition-colors font-medium"
               onClick={() => navigate("/profile")}
             >
-              <Edit3 className="w-3.5 h-3.5" /> แก้ไขโปรไฟล์
+              <Edit3 className="w-3.5 h-3.5 cursor-pointer"
+                data-test="btn-edit-profile"
+              /> แก้ไขโปรไฟล์
             </button>
           </div>
         </div>
@@ -128,7 +135,8 @@ const ProfileSidebar = () => {
               <ul className="space-y-1 mt-1 pl-6 pr-2 text-sm animate-in slide-in-from-top-2 fade-in duration-200">
                 <li>
                   <button
-                    className={getDesktopMenuClass("/profile")}
+                  data-test="btn-profile-menu-profile"
+                    className={`${getDesktopMenuClass("/profile")} cursor-pointer`}
                     onClick={() => navigate("/profile")}
                   >
                     โปรไฟล์
@@ -136,7 +144,8 @@ const ProfileSidebar = () => {
                 </li>
                 <li>
                   <button
-                    className={getDesktopMenuClass("/address-profile")}
+                    data-test="btn-profile-menu-address"
+                    className={`${getDesktopMenuClass("/address-profile")} cursor-pointer`}
                     onClick={() => navigate("/address-profile")}
                   >
                     จัดการที่อยู่
@@ -144,7 +153,8 @@ const ProfileSidebar = () => {
                 </li>
                 <li>
                   <button
-                    className={getDesktopMenuClass("/change-password")}
+                    data-test="btn-profile-menu-password"
+                    className={`${getDesktopMenuClass("/change-password")} cursor-pointer`}
                     onClick={() => navigate("/change-password")}
                   >
                     เปลี่ยนรหัสผ่าน
@@ -165,9 +175,9 @@ const ProfileSidebar = () => {
               onClick={() => navigate("/history-shop")}
             >
               <ShoppingBag
-                className={`w-4 h-4 ${isActive("/history-shop") ? "text-[#4285F4]" : "text-gray-500"}`}
+                className={`w-4 h-4${isActive("/history-shop") ? "text-[#4285F4]" : "text-gray-500"}`}
               />
-              <span>การซื้อของฉัน</span>
+              <span className="cursor-pointer">การซื้อของฉัน</span>
             </button>
           </div>
         </div>

@@ -148,10 +148,11 @@ const AddressProfile = () => {
           <div className="flex justify-between items-center p-5 border-b border-gray-100">
             <h1 className="text-lg font-bold">ที่อยู่ของฉัน</h1>
             <button
+            data-test="btn-add-address"
               onClick={openAddModal}
-              className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm flex items-center gap-1 transition-colors"
+              className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <span className="text-xl leading-none">+</span> เพิ่มที่อยู่
+              <span className="text-xl leading-none ">+</span> เพิ่มที่อยู่
             </button>
           </div>
 
@@ -197,24 +198,27 @@ const AddressProfile = () => {
                   <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between min-w-[120px]">
                     <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
                       <button
+                      data-test={`btn-edit-address-${address.id}`}
                         onClick={() => openEditModal(address)}
-                        className="text-[#4285F4] hover:underline"
+                        className="text-[#4285F4] hover:underline cursor-pointer"
                       >
                         แก้ไข
                       </button>
                       <span className="text-gray-300">|</span>
                       <button
+                      data-test={`btn-delete-address-${address.id}`}
                         onClick={() => handleDeleteAddress(address.id)}
-                        className="text-orange-500 hover:underline"
+                        className="text-orange-500 hover:underline cursor-pointer"
                       >
                         ลบ
                       </button>
                     </div>
                     <button
 
+                    data-test={`btn-set-default-${address.id}`}
                         disabled={address.isDefault}
                         onClick={() => dispatch(addAdressDefault(address.id))}
-                        className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors ${
+                        className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors cursor-pointer ${
                           address.isDefault
                             ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
                             : "border-gray-300 text-gray-600 hover:bg-gray-50"
