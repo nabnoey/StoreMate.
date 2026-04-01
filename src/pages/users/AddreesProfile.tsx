@@ -1,12 +1,27 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { toast } from "react-hot-toast";
+import {
+  fetchAllAddresses,
+  deleteAddress,
+  addAdressDefault,
+  fetchAddressDefault
+} from "../../redux/address/addressReducer";
+import type { Address } from "../../types/address";
 
 const AddressProfile = () => {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const addresses = useSelector((state: RootState) => state.address.addresses);
+
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [targetAddressId, setTargetAddressId] = useState<string | null>(null);
+  const [isBlocking, setIsBlocking] = useState(false);
 
   const [formData, setFormData] = useState({
     addressLine: "",
@@ -15,6 +30,12 @@ const AddressProfile = () => {
     province: "",
     zipcode: "",
   });
+
+
+  useEffect(() => {
+    dispatch(fetchAllAddresses());
+    dispatch(fetchAddressDefault());
+  }, [dispatch]);
 
   useEffect(() => {
     if (isModalOpen || isDeleteModalOpen) {
@@ -30,6 +51,21 @@ const AddressProfile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const openEditModal = (address: Address) => {
+    setIsEditMode(true);
+    setTargetAddressId(String(address.id));
+
+    setFormData({
+      addressLine: address.fullAddress,
+      subDistrict: "",
+      district: "",
+      province: "",
+      zipcode: "",
+    });
+    setIsModalOpen(true);
+  };
+
+
   const openAddModal = () => {
     setIsEditMode(false);
     setFormData({
@@ -42,18 +78,6 @@ const AddressProfile = () => {
     setIsModalOpen(true);
   };
 
-  // const openEditModal = (address: AddressItem) => {
-  //   setIsEditMode(true);
-  //   setTargetAddressId(address.id);
-  //   setFormData({
-  //     addressLine: address.addressLine,
-  //     subDistrict: address.subDistrict,
-  //     district: address.district,
-  //     province: address.province,
-  //     zipcode: address.zipcode,
-  //   });
-  //   setIsModalOpen(true);
-  // };
 
   const handleSaveAddress = () => {
     const { addressLine, subDistrict, district, province, zipcode } = formData;
@@ -71,14 +95,50 @@ const AddressProfile = () => {
     setIsModalOpen(false);
   };
 
-  const confirmDelete = () => {
-    if (targetAddressId) {
-      toast.success("ลบที่อยู่สำเร็จ");
-    }
-    setIsDeleteModalOpen(false);
-    setTargetAddressId(null);
-  };
 
+  //ลบที่อยู่
+  const handleDeleteAddress = (addressId: number) => {
+    setIsBlocking(true);
+
+
+    const confirmDelete = (toastId: string) => {
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+      dispatch(deleteAddress(addressId));
+      setIsDeleteModalOpen(false);
+      toast.success("ลบที่อยู่สำเร็จ", { duration: 1500 });
+    };
+
+    const cancelDelete = (toastId: string) => {
+      toast.dismiss(toastId);
+      setIsBlocking(false);
+    };
+
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-3">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
+          </span>
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={() => confirmDelete(t.id)}
+              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+            >
+              ลบ
+            </button>
+            <button
+              onClick={() => cancelDelete(t.id)}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity, position: "top-center" },
+    );
+  };
   return (
     <div className="min-h-screen bg-[#f5f5f5] pt-4 sm:pt-12 pb-20 font-sans text-gray-800">
       <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-6">
@@ -88,22 +148,22 @@ const AddressProfile = () => {
           <div className="flex justify-between items-center p-5 border-b border-gray-100">
             <h1 className="text-lg font-bold">ที่อยู่ของฉัน</h1>
             <button
+            data-test="btn-add-address"
               onClick={openAddModal}
-              className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm flex items-center gap-1 transition-colors"
+              className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <span className="text-xl leading-none">+</span> เพิ่มที่อยู่
+              <span className="text-xl leading-none ">+</span> เพิ่มที่อยู่
             </button>
           </div>
 
           <div className="flex flex-col">
-            {/* {addresses.length === 0 ? ( */}
 
-            <div className="p-20 text-center text-gray-400 text-sm">
-              ยังไม่มีข้อมูลที่อยู่
-            </div>
-
-            {/* ) : (
-              addresses.map((address: AddressItem) => (
+            {addresses.length === 0 ? (
+              <div className="p-20 text-center text-gray-400 text-sm">
+                ยังไม่มีข้อมูลที่อยู่
+              </div>
+            ) : (
+              addresses.map((address: Address) => (
                 <div
                   key={address.id}
                   className="p-5 sm:p-6 flex flex-col sm:flex-row justify-between border-b border-gray-50 last:border-0 gap-4"
@@ -111,62 +171,66 @@ const AddressProfile = () => {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 text-sm sm:text-base">
                       <span className="font-medium text-black">
-                        {address.fullName}
+                        {address.receiverName}
                       </span>
                       <span className="text-gray-300">|</span>
-                      <span className="text-gray-500">{address.phone}</span>
+                      <span className="text-gray-500">
+                        {address.receiverPhone}
+                      </span>
                     </div>
                     <div className="text-sm text-gray-500 leading-relaxed">
-                      {address.addressLine} ต.{address.subDistrict} อ.
-                      {address.district} จ.{address.province} {address.zipcode}
+                      {address.fullAddress}
                     </div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {address.isDefault && (
-                        <span className="px-2 py-0.5 border border-[#4285F4] text-[#4285F4] text-[11px] rounded-[3px]">
-                          ค่าเริ่มต้น
-                        </span>
-                      )}
-                      {address.isPickup && (
-                        <span className="px-2 py-0.5 border border-gray-300 text-gray-400 text-[11px] rounded-[3px]">
-                          ที่อยู่ในการรับสินค้า
-                        </span>
-                      )}
-                    </div>
+
+                 <div className="flex flex-wrap gap-2 pt-1">
+  {address.isDefault ? (
+    <span className="px-2 py-0.5 text-xs bg-white text-blue-500 rounded border border-blue-500">
+      ค่าเริ่มต้น
+    </span>
+  ) : (
+    <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-500 rounded border border-gray-200">
+      ที่อยู่จัดส่ง
+    </span>
+  )}
+</div>
                   </div>
 
                   <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between min-w-[120px]">
                     <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
                       <button
+                      data-test={`btn-edit-address-${address.id}`}
                         onClick={() => openEditModal(address)}
-                        className="text-[#4285F4] hover:underline"
+                        className="text-[#4285F4] hover:underline cursor-pointer"
                       >
                         แก้ไข
                       </button>
                       <span className="text-gray-300">|</span>
                       <button
-                        onClick={() => {
-                          setTargetAddressId(address.id);
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="text-orange-500 hover:underline"
+                      data-test={`btn-delete-address-${address.id}`}
+                        onClick={() => handleDeleteAddress(address.id)}
+                        className="text-orange-500 hover:underline cursor-pointer"
                       >
                         ลบ
                       </button>
                     </div>
                     <button
-                      disabled={address.isDefault}
-                      className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors ${
-                        address.isDefault
-                          ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                          : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      ตั้งเป็นค่าเริ่มต้น
-                    </button>
+
+                    data-test={`btn-set-default-${address.id}`}
+                        disabled={address.isDefault}
+                        onClick={() => dispatch(addAdressDefault(address.id))}
+                        className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors cursor-pointer ${
+                          address.isDefault
+                            ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
+                            : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        ตั้งเป็นค่าเริ่มต้น
+                      </button>
+
                   </div>
                 </div>
               ))
-            )} */}
+            )} 
           </div>
         </main>
       </div>
@@ -275,28 +339,8 @@ const AddressProfile = () => {
         </div>
       )}
 
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-[100] flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded-lg w-full max-w-[350px] shadow-xl text-center">
-            <p className="text-gray-700 mb-6 font-medium">
-              ยืนยันการลบที่อยู่นี้หรือไม่?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="flex-1 py-2 border border-gray-300 rounded-[4px] text-sm hover:bg-gray-50"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 py-2 bg-orange-500 text-white rounded-[4px] text-sm hover:bg-orange-600"
-              >
-                ลบ
-              </button>
-            </div>
-          </div>
-        </div>
+      {isBlocking && (
+        <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
       )}
     </div>
   );
