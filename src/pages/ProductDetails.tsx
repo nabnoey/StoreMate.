@@ -269,6 +269,7 @@ const ProductDetailPage: React.FC = () => {
                     i < Math.round(productDetail.RatingScore || 0);
                   return (
                     <Icon
+                      key={`star-${i}`}
                       icon="material-symbols:star-rounded"
                       className={`w-5 h-5 stroke-black ${
                         isFilled

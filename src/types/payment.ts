@@ -6,6 +6,11 @@ export type SavedCard = {
 };
 
 export type PaymentIntentRequest = {
-  ids: string[];
-  [key: string]: number | string[];
+  ids: number[];
+  [key: string]: number | number[] | string[];
+};
+
+export type PaymentIntentResponse = {
+  paymentIntentId?: string;
+  clientSecret: string;
 };

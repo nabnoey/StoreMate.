@@ -10,61 +10,28 @@ import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
 import type { AppDispatch } from "../../redux/store";
 import { fetchAllAddresses } from "../../redux/address/addressReducer";
+import { loadStripe } from "@stripe/stripe-js";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const location = useLocation();
-  const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
-    const localCards = localStorage.getItem("mockSavedCards");
-    if (localCards) return JSON.parse(localCards);
 
-    return [
-      {
-        id: "card_1",
-        brand: "mastercard",
-        bankName: "ธนาคารกสิกรไทย",
-        last4: "8888",
-      },
-    ];
-  });
-
-  useEffect(() => {
-    dispatch(fetchAllAddresses());
-  }, [dispatch]);
-
-  const [selectedCardId, setSelectedCardId] = useState(
-    savedCards[0]?.id || "card_1",
-  );
-
-  const [paymentMethod, setPaymentMethod] = useState<string>("qr");
-
-  useEffect(() => {
-    const newCard = location.state?.newCard;
-    if (newCard) {
-      setSavedCards((prev) => {
-        if (prev.some((c) => c.id === newCard.id)) return prev;
-
-        const updatedCards = [...prev, newCard];
-        localStorage.setItem("mockSavedCards", JSON.stringify(updatedCards));
-        return updatedCards;
-      });
-
-      setSelectedCardId(newCard.id);
-      setPaymentMethod("credit");
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<string>("");
 
   const selectedItems: CartItem[] = location.state?.items || [];
-  const navigate = useNavigate();
-
-  // const addresses = useSelector(
-  //   (state: RootState) => state.address.addresses || [],
-  // );
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
   const defaultAddress = useSelector(
     (state: RootState) =>
       state.address.defaultAddress || state.address.addresses[0],
   );
+
+  useEffect(() => {
+    dispatch(fetchAllAddresses());
+  }, [dispatch]);
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -73,75 +40,86 @@ const PaymentShoping = () => {
   const shipping = subtotal > 0 ? 14 : 0;
   const totalPrice = subtotal + shipping;
 
+  const handleAddNewCard = async () => {
+    try {
+      const response = await PaymentService.createSetupIntent();
+      navigate("/add-credit-card", {
+        state: { clientSecret: response.clientSecret },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleConfirmOrder = async () => {
-    if (selectedItems.length === 0) {
-      toast.error("ไม่มีสินค้าในตะกร้า");
-      return;
-    }
     if (!defaultAddress) {
-      toast.error("กรุณาเพิ่มที่อยู่ในการจัดส่ง");
+      toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า");
       return;
     }
+
     if (!paymentMethod) {
       toast.error("กรุณาเลือกช่องทางการชำระเงิน");
       return;
     }
 
+    setLoading(true);
     const loadingToastId = toast.loading("กำลังดำเนินการ...");
 
     try {
-      const cartItemIds = selectedItems.map((item) => String(item.cartItemId));
-
+      const cartItemId = selectedItems.map((item) => String(item.cartItemId));
+      console.log("selectedItems:", selectedItems);
+      console.log(
+        "cartItemIds:",
+        selectedItems.map((item) => item.cartItemId),
+      );
       if (paymentMethod === "credit" || paymentMethod === "qr") {
         const responseData = await PaymentService.createPaymentIntent({
-          ids: cartItemIds,
+          ids: cartItemId.map(Number),
         });
 
         toast.dismiss(loadingToastId);
 
-        if (responseData && responseData.clientSecret) {
-          toast.success("กำลังพาท่านไปหน้าชำระเงิน...");
-          const tempOrderId = `ORD${Date.now()}`;
-
-          if (paymentMethod === "credit") {
-            navigate("/checkout-stripe", {
-              state: {
-                clientSecret: responseData.clientSecret,
-                paymentIntentId: responseData.paymentIntentId,
-                totalPrice: totalPrice,
-              },
-            });
-          } else if (paymentMethod === "qr") {
-            navigate(`/payment-qr/${tempOrderId}`, {
-              state: {
-                clientSecret: responseData.clientSecret,
-                totalPrice: totalPrice,
-              },
-            });
-          }
+        if (paymentMethod === "credit") {
+          navigate("/checkout-stripe", {
+            state: {
+              clientSecret: responseData.clientSecret,
+              totalPrice: totalPrice,
+              items: selectedItems,
+            },
+          });
         } else {
-          toast.error("ไม่สามารถสร้างข้อมูลการชำระเงินได้");
+          navigate(`/payment-qr`, {
+            state: {
+              clientSecret: responseData.clientSecret,
+              totalPrice: totalPrice,
+            },
+          });
         }
       } else if (paymentMethod === "cod") {
         toast.dismiss(loadingToastId);
         toast.success("สั่งซื้อสำเร็จ!");
 
-        const tempOrderId = `ORD${Date.now()}`;
-
-        navigate(`/payment/success?id=${tempOrderId}`, {
-          state: { paymentMethod: "cod" },
-        });
+        navigate("/payment", { state: { status: "success" } });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.dismiss(loadingToastId);
-      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-      console.error("Payment Error:", error);
+
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message === "OUT_OF_STOCK"
+      ) {
+        toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ");
+        navigate("/shopping-cart");
+      } else {
+        toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
-      {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-[1136px] hidden lg:block">
         <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
           <Link to="/" className="hover:text-blue-500">
@@ -172,9 +150,6 @@ const PaymentShoping = () => {
         <span className="text-lg font-bold text-black">ทำการสั่งซื้อ</span>
       </div>
 
-      {/* =========================================
-          DESKTOP VIEW (โครงสร้างเดิมของคุณ)
-      ========================================= */}
       <div
         className="hidden lg:block bg-white border border-gray-200 shadow-sm overflow-hidden mb-19"
         style={{
@@ -242,6 +217,7 @@ const PaymentShoping = () => {
               </div>
             ))}
           </div>
+
           <hr className="border-t border-[#D1D5DB] mb-6" />
           <div className="flex flex-row items-start gap-[60px]">
             <div className="space-y-4">
@@ -338,9 +314,12 @@ const PaymentShoping = () => {
                             className="w-3.5 h-3.5 text-black"
                             style={{ strokeWidth: 3 }}
                           />
-                          <p className="font-medium text-xs text-black">
+                          <button
+                            onClick={handleAddNewCard}
+                            className="font-medium text-xs text-black"
+                          >
                             เพิ่มบัตรเครดิต/เดบิต
-                          </p>
+                          </button>
                         </Link>
                       </div>
                     )}
@@ -362,7 +341,7 @@ const PaymentShoping = () => {
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button
-                      data-tses="btn-confirm-payment"
+                      data-tset="btn-confirm-payment"
                       onClick={handleConfirmOrder}
                       className=" cursor-pointer w-[146px] h-[29px] bg-[#4285F4] text-white rounded-[7px] text-[13px] font-medium shadow-md"
                     >
@@ -376,13 +355,8 @@ const PaymentShoping = () => {
         </div>
       </div>
 
-      {/* =========================================
-          MOBILE VIEW (Shopee Style)
-      ========================================= */}
       <div className="w-full lg:hidden block">
-        {/* 1. Address Section */}
         <div className="bg-white mb-2 pb-3 shadow-sm">
-          {/* แถบสีแดงสลับน้ำเงินขอบซองจดหมาย */}
           <div
             className="h-[3px] w-full mb-3"
             style={{
@@ -424,7 +398,6 @@ const PaymentShoping = () => {
           </div>
         </div>
 
-        {/* 2. Product Section */}
         <div className="bg-white mb-2 shadow-sm">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-100">
             <Icon icon="mdi:storefront" className="w-5 h-5 text-gray-700" />
@@ -457,7 +430,6 @@ const PaymentShoping = () => {
           ))}
         </div>
 
-        {/* 3. Payment Methods */}
         <div className="bg-white mb-2 shadow-sm">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-100">
             <Icon icon="mdi:cash-multiple" className="w-5 h-5 text-blue-500" />
@@ -504,7 +476,6 @@ const PaymentShoping = () => {
                   )}
                 </div>
 
-                {/* Nested Credit Cards for Mobile */}
                 {method.id === "credit" && paymentMethod === "credit" && (
                   <div className="bg-[#fafafa] px-5 py-2 space-y-1">
                     {savedCards.map((card) => (
@@ -537,18 +508,6 @@ const PaymentShoping = () => {
                         </span>
                       </div>
                     ))}
-                    <div
-                      onClick={() => navigate("/add-credit-card")}
-                      className="flex items-center gap-2 py-3 cursor-pointer text-blue-500 pl-8"
-                    >
-                      <Icon
-                        icon="lucide:plus-circle"
-                        className="w-[18px] h-[18px]"
-                      />
-                      <span className="text-[13px] font-medium">
-                        เพิ่มบัตรใหม่
-                      </span>
-                    </div>
                   </div>
                 )}
               </div>
@@ -556,7 +515,6 @@ const PaymentShoping = () => {
           </div>
         </div>
 
-        {/* 4. Order Summary */}
         <div className="bg-white mb-2 p-4 space-y-2.5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Icon
@@ -582,7 +540,6 @@ const PaymentShoping = () => {
         </div>
       </div>
 
-      {/* --- MOBILE FOOTER (Sticky) --- */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-end z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col px-4 text-right justify-center">
           <span className="text-[12px] text-gray-600 mb-0.5">

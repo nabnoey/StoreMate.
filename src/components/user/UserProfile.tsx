@@ -17,7 +17,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   variant = "desktop",
   onCloseMenu,
 }) => {
-  // const user = useSelector((state: RootState) => state?.auth?.user);
+  const user = useSelector((state: RootState) => state?.auth?.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -72,8 +72,8 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             data-test="btn-user-profile-mobile"
             className="cursor-pointer w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
           >
-            <FaRegUser size={24} />
-            {/* {user?.image_url || user?.image ? (
+            {/* <FaRegUser size={24} /> */}
+            {user?.image_url || user?.image ? (
               <img
                 src={user.image_url || user.image}
                 alt="Profile"
@@ -81,7 +81,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               />
             ) : (
               <FaRegUser className="w-6 h-6 text-gray-500" />
-            )} */}
+            )}
           </div>
         </div>
         <div className="flex items-center gap-5 text-gray-600">
@@ -121,8 +121,8 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         className="cursor-pointer outline-none"
       >
         <div className="cursor-pointer w-11 h-11 rounded-full overflow-hidden bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
-          <FaRegUser size={24} />
-          {/* {user?.image_url || user?.image ? (
+          {/* <FaRegUser size={24} /> */}
+          {user?.image_url || user?.image ? (
             <img
               src={user.image_url || user.image}
               alt="Profile"
@@ -130,7 +130,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             />
           ) : (
             <FaRegUser className="w-7 h-7 text-gray-500" />
-          )} */}
+          )}
         </div>
       </button>
 

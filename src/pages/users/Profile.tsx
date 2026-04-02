@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { User, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import { getProfile, updateProfile } from "../../redux/auth/authReducer";
+import {
+  getProfile,
+  updateProfile,
+  logout,
+} from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
@@ -201,7 +204,10 @@ const ProfilePage = () => {
     },
     [],
   );
+
   const handleSaveCrop = async () => {
+    const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
+
     try {
       if (rawImageSrc && croppedAreaPixels) {
         const { url, blob } = await getCroppedImg(
@@ -212,14 +218,34 @@ const ProfilePage = () => {
         setTempData({ ...tempData, image: url });
         setImageFileForUpload(blob);
 
+        const formData = new FormData();
+        const fullName =
+          `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
+        const userData = {
+          name: fullName,
+          email: tempData.email,
+          phone: tempData.phone,
+        };
+
+        formData.append("data", JSON.stringify(userData));
+
+        formData.append("image", blob, "profile.jpeg");
+
+        await dispatch(updateProfile(formData) as any).unwrap();
+        await dispatch(getProfile() as any).unwrap();
+
+        toast.success("อัปเดตรูปโปรไฟล์สำเร็จ!", { id: toastId });
+
         setIsImageModalOpen(false);
         setRawImageSrc(null);
         setImageUploadStep("upload");
         setZoom(1);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("เกิดข้อผิดพลาดในการตัดรูปภาพ");
+      const errorMessage =
+        typeof e === "string" ? e : "เกิดข้อผิดพลาดในการบันทึกรูปภาพ";
+      toast.error(errorMessage, { id: toastId });
     }
   };
 
@@ -236,27 +262,56 @@ const ProfilePage = () => {
     try {
       const fullName =
         `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
-      let uploadedImageUrl = tempData.image;
-      // if (imageFileForUpload) {
-      //     uploadedImageUrl = await uploadImageToServer(imageFileForUpload); // ยิง API อัปโหลด
-      // }
 
-      // ✨ 1. ปั้นข้อมูลเป็น Object (JSON) ธรรมดา
-      const payload = {
+      const userData = {
         name: fullName,
         email: tempData.email,
         phone: tempData.phone,
-        image_url: uploadedImageUrl,
       };
 
-      await dispatch(updateProfile(payload) as any).unwrap();
-      await dispatch(getProfile() as any).unwrap();
+      const formData = new FormData();
 
+      formData.append("data", JSON.stringify(userData));
+
+      if (imageFileForUpload) {
+        // บังคับตั้งชื่อไฟล์ให้มัน Backend จะได้รู้ว่าเป็นไฟล์รูปภาพ
+        formData.append("image", imageFileForUpload, "profile.jpeg");
+      }
+      // formData.append("image", imageFileForUpload || "");
+
+      await dispatch(updateProfile(formData) as any).unwrap();
+
+      if (tempData.email !== user.email) {
+        toast.success("เปลี่ยนอีเมลสำเร็จ กรุณาเข้าสู่ระบบใหม่ด้วยอีเมลใหม่", {
+          id: toastId,
+        });
+        setActiveModal(null);
+
+        // ดีเลย์นิดนึงให้ผู้ใช้อ่านข้อความ แล้วเตะ Logout
+        setTimeout(() => {
+          dispatch(logout());
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
+      // ถ้าไม่ได้เปลี่ยนอีเมล ค่อยดึงข้อมูลตามปกติ
+      await dispatch(getProfile() as any).unwrap();
       toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
       setActiveModal(null);
-    } catch (error) {
+      setImageFileForUpload(null);
+    } catch (error: any) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง", { id: toastId });
+
+      // ดึง error จาก backend มาโชว์ ถ้าไม่มีให้ใช้ข้อความ default (6.4)
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
+
+      toast.error(errorMessage, {
+        id: toastId,
+      });
     }
   };
 
@@ -275,18 +330,13 @@ const ProfilePage = () => {
   };
 
   if (loading) return <Loading />;
-  if (!user)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        ไม่พบผู้ใช้งาน
-      </div>
-    );
+  if (!user) return <Link to="/login" replace />;
 
   return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-4 sm:pt-12 pb-20">
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
       <div className="max-w-[1200px] mx-auto px-4">
         {/* 1. Nav อยู่ด้านบนสุด */}
-        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-8 font-medium">
+        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
           <Link data-test="click-home" to="/" className="transition-colors">
             หน้าหลัก
           </Link>
@@ -402,7 +452,10 @@ const ProfilePage = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 stroke-[1]" />
+                    <Icon
+                      icon="lucide:user"
+                      className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400"
+                    />
                   )}
                 </div>
                 <button
@@ -442,7 +495,8 @@ const ProfilePage = () => {
                     onClick={() => fileInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
                   >
-                    <Upload
+                    <Icon
+                      icon="lucide:upload"
                       data-test="upload-icon"
                       className={`w-10 h-10 mb-3 ${isDragging ? "text-blue-500" : "text-gray-400"}`}
                     />

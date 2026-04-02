@@ -36,7 +36,7 @@ const ProfileSidebar = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-11 h-11 border rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-gray-50">
-              {/* {user?.image_url || user?.image ? (
+              {user?.image_url || user?.image ? (
                 <img
                   src={user.image_url || user.image}
                   alt="Profile"
@@ -44,8 +44,8 @@ const ProfileSidebar = () => {
                 />
               ) : (
                 <User className="w-6 h-6 text-gray-500" />
-              )} */}
-              <User className="w-6 h-6 text-gray-500" />
+              )}
+              {/* <User className="w-6 h-6 text-gray-500" /> */}
             </div>
 
             <div className="truncate">
@@ -106,7 +106,7 @@ const ProfileSidebar = () => {
         {/* Desktop Profile Card */}
         <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4">
           <div className="w-14 h-14 bg-[#F3F4F6] overflow-hidden border border-gray-200 rounded-full flex items-center justify-center shrink-0">
-            {/* {user?.image_url || user?.image ? (
+            {user?.image_url || user?.image ? (
               <img
                 src={user.image_url || user.image}
                 alt="Profile"
@@ -114,8 +114,8 @@ const ProfileSidebar = () => {
               />
             ) : (
               <User className="w-7 h-7 text-gray-500" />
-            )} */}
-            <User className="w-7 h-7 text-gray-500" />
+            )}
+            {/* <User className="w-7 h-7 text-gray-500" /> */}
           </div>
           <div className="overflow-hidden flex-1">
             <p
