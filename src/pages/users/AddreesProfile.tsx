@@ -50,12 +50,13 @@ const AddressProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
+
+console.log("formData", formData)
 
   const openEditModal = (address: Address) => {
     setIsEditMode(true);
@@ -112,15 +113,24 @@ const AddressProfile = () => {
       }),
     ).unwrap();
 
-    const selectedSub = subRes.find((s) => s.name === subDistrictName);
+    const selectedSub = subRes.find((s) => s.name === subDistrictName)?.id || 0
 
     const subDistrict = selectedSub?.id || 0;
-    const zipcode = selectedSub?.zipcode || "";
+
+        const zipRes = await dispatch(
+      addressDropdown({
+        provinceId: province,
+        districtId: district,
+        subdistrictId: selectedSub,
+      }),
+    ).unwrap();
+
+    const zipcode = zipRes[0]?.name || ""
 
     setFormData((prev) => ({
       ...prev,
       subDistrict,
-      zipcode,
+      zipcode
     }));
   };
 
@@ -331,167 +341,155 @@ const AddressProfile = () => {
           </div>
         </main>
       </div>
+{isModalOpen && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+    {/* Overlay พร้อม Blur */}
+    <div 
+      className="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity" 
+      onClick={() => setIsModalOpen(false)}
+    />
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-[100] flex justify-center items-center p-4 backdrop-blur-[1px]">
-          <div className="bg-white rounded-lg w-full max-w-[650px] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-2xl font-bold">
-                {isEditMode ? "แก้ไขที่อยู่" : "ที่อยู่ใหม่"}
-              </h2>
+    {/* Modal Container */}
+    <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+      
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+        <h2 className="text-xl font-bold text-gray-800 text-[36px] stroke-[600px]">
+          {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "เพิ่มที่อยู่ใหม่"}
+        </h2>
+        <button 
+          onClick={() => setIsModalOpen(false)}
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Body: Scrollable area if content is long */}
+      <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="space-y-5">
+          
+          {/* ที่อยู่รายละเอียด */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-gray-700">
+              ที่อยู่ (บ้านเลขที่ / ถนน / ซอย)
+            </label>
+            <textarea
+              id="streetAddress"
+              name="streetAddress"
+              value={formData.streetAddress}
+              onChange={handleInputChange}
+              placeholder="ตัวอย่าง: 123/45 หมู่ 6 ซอยสุขุมวิท..."
+              className="w-full min-h-[100px] border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none transition-all resize-none"
+            />
+          </div>
+
+          {/* แถวที่ 1: จังหวัด & อำเภอ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-700">จังหวัด</label>
+              <select
+                name="province"
+                value={formData.province}
+                onChange={handleProvinceChange}
+                className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white appearance-none cursor-pointer"
+              >
+                <option value={0}>กรุณาเลือกจังหวัด</option>
+                {provinces.map((p: any) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="space-y-1">
-                <label htmlFor="addressLine" className="text-sm text-gray-500">
-                  ที่อยู่ (บ้านเลขที่ / ถนน / ซอย)
-                </label>
-                <textarea
-                  id="streetAddress"
-                  name="streetAddress"
-                  value={formData.streetAddress}
-                  onChange={handleInputChange}
-                  placeholder="กรอกรายละเอียดที่อยู่"
-                  className="w-full border border-gray-300 rounded-[4px] p-3 text-sm focus:border-[#4285F4] outline-none h-20 resize-none transition-colors"
-                />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-700">เขต/อำเภอ</label>
+              <select
+                name="district"
+                value={formData.district}
+                disabled={!formData.province}
+                onChange={async (e) => {
+                  const dId = Number(e.target.value);
+                  setFormData((prev) => ({
+                    ...prev,
+                    district: dId,
+                    subDistrict: 0,
+                    zipcode: "",
+                  }));
+                  await dispatch(addressDropdown({ provinceId: formData.province, districtId: dId, subdistrictId: 0 })).unwrap();
+                }}
+                className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+              >
+                <option value="">กรุณาเลือกอำเภอ</option>
+                {districts.map((d: any) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label htmlFor="province" className="text-sm text-gray-500">
-                    จังหวัด
-                  </label>
-                  <select
-                    name="province"
-                    value={formData.province}
-                    onChange={handleProvinceChange}
-                    className="w-full border p-2"
-                  >
-                    <option value={0}>เลือกจังหวัด</option>
-                    {provinces.map((p: any) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label htmlFor="district" className="text-sm text-gray-500">
-                    อำเภอ
-                  </label>
-                  <select
-                    name="district"
-                    value={formData.district}
-                    onChange={async (e) => {
-                      const dId = Number(e.target.value);
-                      setFormData((prev) => ({
-                        ...prev,
-                        district: dId,
-                        subDistrict: 0,
-                        zipcode: "",
-                      }));
-
-                      const res = await dispatch(
-                        addressDropdown({
-                          provinceId: formData.province,
-                          districtId: dId,
-                          subdistrictId: 0,
-                        }),
-                      ).unwrap();
-                    }}
-                  >
-                    <option value="">เลือกอำเภอ</option>
-                    {districts.map((d: any) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label
-                    htmlFor="subDistrict"
-                    className="text-sm text-gray-500"
-                  >
-                    ตำบล
-                  </label>
-                  <select
-                    name="subDistrict"
-                    value={formData.subDistrict}
-                    onChange={async (e) => {
-                      const sId = Number(e.target.value);
-
-                      // const selected = subdistricts.find((s: any) => s.id === sId);
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        subDistrict: sId,
-                        zipcode: "",
-                      }));
-
-                      const res = await dispatch(
-                        addressDropdown({
-                          provinceId: formData.province,
-                          districtId: formData.district,
-                          subdistrictId: sId,
-                        }),
-                      ).unwrap();
-
-                      setFormData((prev) => ({
-                        ...prev,
-                        zipcode: res?.[0]?.id || "",
-                      }));
-                    }}
-                  >
-                    <option value="">เลือกตำบล</option>
-                    {subdistricts.map((s: any) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label htmlFor="zipcode" className="text-sm text-gray-500">
-                    รหัสไปรษณีย์
-                  </label>
-                  <input
-                    id="zipcode"
-                    name="zipcode"
-                    value={formData.zipcode}
-                    readOnly
-                    onChange={handleInputChange}
-                    placeholder="รหัสไปรษณีย์"
-                    className="w-full border border-gray-300 rounded-[4px] p-2.5 text-sm focus:border-[#4285F4] outline-none"
-                  />
-                </div>
-              </div>
+          {/* แถวที่ 2: ตำบล & รหัสไปรษณีย์ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-700">แขวง/ตำบล</label>
+              <select
+                name="subDistrict"
+                value={formData.subDistrict}
+                disabled={!formData.district}
+                onChange={async (e) => {
+                  const sId = Number(e.target.value);
+                  setFormData((prev) => ({ ...prev, subDistrict: sId, zipcode: "" }));
+                  const res = await dispatch(addressDropdown({ provinceId: formData.province, districtId: formData.district, subdistrictId: sId })).unwrap();
+                  setFormData((prev) => ({ ...prev, zipcode: res?.[0]?.id || "" }));
+                }}
+                className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+              >
+                <option value="">กรุณาเลือกตำบล</option>
+                {subdistricts.map((s: any) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
             </div>
 
-            <div className="p-6 pt-2 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleSaveAddress}
-                className="flex-1 bg-[#4285F4] hover:bg-blue-600 text-white py-2.5 rounded-[4px] text-sm font-medium transition-colors"
-              >
-                {isEditMode ? "ยืนยันการแก้ไข" : "บันทึกที่อยู่"}
-              </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 border border-gray-300 text-gray-600 py-2.5 rounded-[4px] text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                ยกเลิก
-              </button>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-700">รหัสไปรษณีย์</label>
+              <input
+                id="zipcode"
+                name="zipcode"
+                value={formData.zipcode}
+                readOnly
+                placeholder="อัตโนมัติ"
+                className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm bg-gray-50 text-gray-500 outline-none cursor-not-allowed"
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {isBlocking && (
-        <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
-      )}
+      {/* Footer Actions */}
+      <div className="px-6 py-5 bg-gray-50 flex flex-col-reverse sm:flex-row gap-3 border-t border-gray-100">
+        <button
+          onClick={() => setIsModalOpen(false)}
+          className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all active:scale-95"
+        >
+          ยกเลิก
+        </button>
+        <button
+          onClick={handleSaveAddress}
+          className="flex-[2] px-4 py-2.5 bg-[#4285F4] hover:bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-200 transition-all active:scale-95"
+        >
+          {isEditMode ? "บันทึกการเปลี่ยนแปลง" : "เพิ่มที่อยู่นี้"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Blocking Overlay สำหรับตอนโหลดข้อมูล */}
+{isBlocking && (
+  <div className="fixed inset-0 bg-white/20 z-[999] cursor-wait backdrop-blur-[1px]" />
+)}
     </div>
   );
 };
