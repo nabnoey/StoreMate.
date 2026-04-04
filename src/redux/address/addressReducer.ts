@@ -1,12 +1,21 @@
-import type { Address } from './../../types/address';
 import {createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
+import type { AddressState , Address} from "../../types/address";
+
+const initialState: AddressState = {
+  addresses: [],
+  defaultAddress: null,
+  provinces: [],
+  districts: [],
+  subdistricts: [],
+  zipcodeId: [],
+};
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
   async (data: Partial<Address>) => {
     const response = await UserService.addAddress(data);
-    return response;   
+   return response; 
   }
 );
 
@@ -24,7 +33,7 @@ export const fetchAllAddresses = createAsyncThunk(
 export const updateAddress = createAsyncThunk(
   "address/updateAddress",
   async ({ id, data }: { id: number; data: Partial<Address> }) => {
-    const response = await UserService.updateAddress(id, data as any);
+    const response = await UserService.updateAddress(id, data );
     return response;
   },
 );
@@ -61,18 +70,21 @@ export const fetchAddressDefault = createAsyncThunk(
   "address/fetchAddressDefault",
   async () => {
     const response = await UserService.fetchAllAddresses();
-    // const defaultAddress = response.find((addr: Address) => addr.isDefault);
+    return response
+  }
+)
+
+export const addressDropdown = createAsyncThunk(
+  "address/addressDropdown",
+  async ({ provinceId, districtId, subdistrictId }: { provinceId: number; districtId: number; subdistrictId: number }) => {
+    const response = await UserService.addressDropdown(provinceId, districtId, subdistrictId);
     return response
   }
 )
 
 const addressSlice = createSlice({
   name: "address",
-  initialState: {
-    addresses: [] as Address[],
-    defaultAddress: null as Address | null,
-    loading: false,
-  },
+ initialState,
   reducers: {},
 
 
@@ -86,6 +98,7 @@ const addressSlice = createSlice({
       state.addresses.push(action.payload);
       if (action.payload.isDefault) {
         state.defaultAddress = action.payload;
+        
       }
     });
 
@@ -110,6 +123,30 @@ const addressSlice = createSlice({
   builder.addCase(fetchAddressDefault.fulfilled, (state, action) => {
     state.defaultAddress = action.payload;
   });
+
+
+builder.addCase(addressDropdown.fulfilled, (state, action) => {
+  const raw = action.payload;
+  const data = Array.isArray(raw) ? raw : raw.data;
+
+  const { provinceId, districtId, subdistrictId } = action.meta.arg;
+
+  if (Array.isArray(data)) {
+    if (!provinceId || provinceId === 0) {
+      state.provinces = data;
+      state.districts = [];
+      state.subdistricts = [];
+    } 
+    else if (provinceId > 0 && (!districtId || districtId === 0)) {
+      state.districts = data;
+      state.subdistricts = [];
+    } 
+    else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
+      state.subdistricts = data;
+    }
+
+  }
+});
   }
 
 });
