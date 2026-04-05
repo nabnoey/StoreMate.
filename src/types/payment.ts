@@ -10,7 +10,7 @@ export type PaymentIntentRequest = {
   [key: string]: number | number[] | string[];
 };
 
-export type PaymentIntentResponse = {
-  paymentIntentId?: string;
-  clientSecret: string;
-};
+// export type PaymentIntentResponse = {
+//   paymentIntentId?: string;
+//   clientSecret: string;
+// };

@@ -2,9 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { useStripe } from "@stripe/react-stripe-js";
+import { useStripe, Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { UserService } from "../../services/users.service";
 
-const PaymentQR = () => {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const PaymentQRInner = () => {
   const stripe = useStripe();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -28,14 +32,30 @@ const PaymentQR = () => {
       setIsGenerating(true);
 
       try {
-        const { error, paymentIntent } =
-          await stripe.confirmPromptPayPayment(clientSecret);
+        const userProfile = await UserService.getProfile();
+        const userEmail = userProfile?.email || "guest@yourstore.com";
+        const userName = userProfile?.name || "Guest";
+
+        const { error, paymentIntent } = await stripe.confirmPromptPayPayment(
+          clientSecret,
+          {
+            payment_method: {
+              billing_details: {
+                email: userEmail,
+                name: userName,
+              },
+            },
+          },
+          { handleActions: false },
+        );
 
         if (error) {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
         } else {
           const nextAction: any = paymentIntent?.next_action;
-          const qrData = nextAction?.promptpay_display_qr_code?.image_data;
+          const qrData =
+            nextAction?.promptpay_display_qr_code?.image_url_svg ||
+            nextAction?.promptpay_display_qr_code?.image_url_png;
           if (qrData) {
             setQrImage(qrData);
           } else {
@@ -61,7 +81,8 @@ const PaymentQR = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
-        navigate(`/payment/cancel?id=${id}&reason=timeout`);
+        // navigate(`/payment/cancel?id=${id}&reason=timeout`);
+        navigate(`/payment/cancel`);
         return;
       }
       const timerId = setInterval(() => {
@@ -81,13 +102,15 @@ const PaymentQR = () => {
 
   const handleConfirmPaid = () => {
     toast.success("ส่งข้อมูลยืนยันการชำระเงินเรียบร้อย");
-    navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
+    // navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
+    navigate(`/payment/success`);
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+      {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
-        <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
+        <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
           <Link to="/" className="hover:text-[#4285F4] transition-colors">
             หน้าหลัก
           </Link>
@@ -115,10 +138,11 @@ const PaymentQR = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <span className="text-black font-bold">ชำระเงินผ่าน QR Code</span>
+          <span className="text-black font-bold">ชำระเงินด้วย QR Code</span>
         </nav>
       </div>
 
+      {/* --- MOBILE HEADER --- */}
       <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
           icon="lucide:arrow-left"
@@ -130,10 +154,22 @@ const PaymentQR = () => {
         </span>
       </div>
 
+      {/* กล่องเนื้อหาหลัก */}
       <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm p-4 sm:p-10 lg:mt-6 lg:mb-10">
-        {/* เติมเวลานับถอยหลังและราคา */}
+        {/* Title (Desktop Only) */}
+        <button
+          className="hidden lg:flex items-center gap-2 mb-6 cursor-pointer w-full border-b border-gray-200 pb-6 hover:text-[#4285F4] transition-colors"
+          onClick={() => navigate(-1)}
+        >
+          <Icon icon="lucide:arrow-left" className="w-6 h-6" />
+          <span className="font-bold text-xl text-black">
+            ข้อมูลการชำระเงิน
+          </span>
+        </button>
+
+        {/* ส่วนแสดงราคาและเวลา */}
         <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 border-b border-gray-100 lg:border-none pb-4">
-          <div className="flex justify-between w-full max-w-[400px] items-center px-4">
+          <div className="flex justify-between w-full max-w-[400px] items-center  px-4 ">
             <span className="text-black font-bold text-[15px] sm:text-base">
               ยอดชำระเงินทั้งหมด
             </span>
@@ -152,6 +188,7 @@ const PaymentQR = () => {
         </div>
 
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* QR Code Slip (Responsive) */}
           <div className="flex justify-center mb-8 px-2 sm:px-0">
             <div className="w-full max-w-[380px] border border-gray-200 rounded-xl overflow-hidden shadow-md">
               <div className="bg-[#113566] h-[50px] sm:h-[60px] w-full flex justify-center items-center">
@@ -168,7 +205,7 @@ const PaymentQR = () => {
                     </div>
                   ) : qrImage ? (
                     <img
-                      src={`data:image/png;base64,${qrImage}`}
+                      src={qrImage}
                       alt="PromptPay QR Code"
                       className="w-full h-full object-contain"
                     />
@@ -180,7 +217,6 @@ const PaymentQR = () => {
                     </span>
                   )}
                 </div>
-
                 <span className="text-blue-500 font-bold text-xl mb-3">
                   ฿ {totalPrice.toLocaleString()}
                 </span>
@@ -199,13 +235,66 @@ const PaymentQR = () => {
             </div>
           </div>
 
-          {/* เติมข้อกำหนดนะจ้ะ */}
+          {/* ข้อแนะนำในการโอน */}
+          <div className="max-w-[500px] mx-auto mb-8 bg-white px-2 sm:px-5 font-anuphan">
+            <h4 className="font-bold text-gray-900 mb-5 text-base sm:text-lg border-b border-gray-100 pb-3">
+              ขั้นตอนการชำระเงิน
+            </h4>
+
+            <div className="flex flex-col gap-5">
+              {[
+                { text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ' },
+                { text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน" },
+                {
+                  text: "คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ หรือภายใน 24 ชั่วโมง ในกรณีที่มีธุรกรรมจำนวนมาก",
+                },
+                {
+                  text: 'เลือกไปที่ปุ่ม "สแกน" หรือ "QR Code" และกดที่ "รูปภาพ" เลือกรูปภาพที่ท่านแคปไว้และทำการชำระเงิน โดยกรุณาเช็คชื่อบัญชีผู้รับคือ "บริษัท สโตร์เมท จำกัด"',
+                  boldWords: ['"บริษัท สโตร์เมท จำกัด"'],
+                },
+                {
+                  text: "QR สามารถสแกนได้ 1 ครั้งต่อ 1 การชำระเงินเท่านั้น หากต้องการสแกนใหม่ โปรดรีเฟรช QR อีกครั้ง",
+                },
+              ].map((item, index) => {
+                const icons = [
+                  "ph:number-circle-one-fill",
+                  "ph:number-circle-two-fill",
+                  "ph:number-circle-three-fill",
+                  "ph:number-circle-four-fill",
+                  "ph:number-circle-five-fill",
+                ];
+                return (
+                  <div key={index} className="flex gap-4 items-start">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <Icon
+                        icon={icons[index]}
+                        className="w-7 h-7 sm:w-8 sm:h-8 text-black opacity-80"
+                      />
+                    </div>
+                    <p className="text-gray-700 text-[13.5px] sm:text-[15px] leading-relaxed">
+                      {item.boldWords ? (
+                        <>
+                          {item.text.split(item.boldWords[0])[0]}
+                          <strong className="text-black font-bold">
+                            {item.boldWords[0]}
+                          </strong>
+                        </>
+                      ) : (
+                        item.text
+                      )}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ปุ่มยืนยัน */}
           <div className="flex justify-center mt-4 lg:mt-8 px-4 lg:px-0">
             <button
               data-test="confirm-paid-btn"
               onClick={handleConfirmPaid}
-              disabled={isGenerating || !qrImage}
-              className="disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full max-w-[400px] bg-black text-white font-bold py-3.5 sm:py-4 rounded-xl hover:bg-[#3367d6] transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
+              className="cursor-pointer w-full max-w-[400px] bg-black text-white font-bold py-3.5 sm:py-4 rounded-xl hover:bg-[#3367d6] transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
             >
               ยืนยัน
             </button>
@@ -213,6 +302,14 @@ const PaymentQR = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const PaymentQR = () => {
+  return (
+    <Elements stripe={stripePromise}>
+      <PaymentQRInner />
+    </Elements>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { User, Edit3, ChevronDown, ChevronUp } from "lucide-react";
+import { Icon } from "@iconify/react";
 import type { RootState } from "../../redux/store";
 
 const ProfileSidebar = () => {
@@ -43,9 +43,13 @@ const ProfileSidebar = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="w-6 h-6 text-gray-500" />
+                <Icon
+                  icon="ph:user"
+                  width="24"
+                  height="24"
+                  className="text-gray-500"
+                />
               )}
-              {/* <User className="w-6 h-6 text-gray-500" /> */}
             </div>
 
             <div className="truncate">
@@ -55,12 +59,15 @@ const ProfileSidebar = () => {
               <button
                 data-test="btn-edit-profile-mobile"
                 onClick={() => navigate("/profile")}
-                className="cursor-pointer text-md text-gray-500 flex items-center gap-1 mt-0.5"
+                className="cursor-pointer text-md text-black flex items-center gap-1 mt-0.5"
               >
-                <Edit3
+                <Icon
+                  icon="ph:pencil-simple"
+                  width="12"
+                  height="12"
                   data-test="btn-edit-profile-mobile-icon"
-                  className="cursor-pointer w-3 h-3"
-                />{" "}
+                  className="cursor-pointer"
+                />
                 แก้ไขโปรไฟล์
               </button>
             </div>
@@ -113,9 +120,13 @@ const ProfileSidebar = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <User className="w-7 h-7 text-gray-500" />
+              <Icon
+                icon="ph:user"
+                width="28"
+                height="28"
+                className="text-gray-500"
+              />
             )}
-            {/* <User className="w-7 h-7 text-gray-500" /> */}
           </div>
           <div className="overflow-hidden flex-1">
             <p
@@ -125,8 +136,11 @@ const ProfileSidebar = () => {
               {user?.name || "กำลังโหลด..."}
             </p>
             <div className="flex items-center gap-1">
-              <Edit3
-                className="w-3.5 h-3.5 cursor-pointer"
+              <Icon
+                icon="ph:pencil-simple"
+                width="14"
+                height="14"
+                className="cursor-pointer"
                 data-test="btn-edit-profile"
               />
               <button
@@ -154,9 +168,19 @@ const ProfileSidebar = () => {
                 <span>โปรไฟล์ของฉัน</span>
               </div>
               {isDesktopProfileOpen ? (
-                <ChevronUp className="w-4 h-4 text-black cursor-pointer" />
+                <Icon
+                  icon="ph:chevron-up"
+                  width="16"
+                  height="16"
+                  className="text-black cursor-pointer"
+                />
               ) : (
-                <ChevronDown className="w-4 h-4 text-black cursor-pointer" />
+                <Icon
+                  icon="ph:chevron-down"
+                  width="16"
+                  height="16"
+                  className="text-black cursor-pointer"
+                />
               )}
             </button>
 

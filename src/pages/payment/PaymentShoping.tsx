@@ -10,20 +10,17 @@ import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
 import type { AppDispatch } from "../../redux/store";
 import { fetchAllAddresses } from "../../redux/address/addressReducer";
-import { loadStripe } from "@stripe/stripe-js";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [loading, setLoading] = useState<boolean>(false);
+  // const [loading, setLoading] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [savedCards] = useState<SavedCard[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<string>("");
 
   const selectedItems: CartItem[] = location.state?.items || [];
-  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
   const defaultAddress = useSelector(
     (state: RootState) =>
       state.address.defaultAddress || state.address.addresses[0],
@@ -39,12 +36,14 @@ const PaymentShoping = () => {
   );
   const shipping = subtotal > 0 ? 14 : 0;
   const totalPrice = subtotal + shipping;
-
   const handleAddNewCard = async () => {
     try {
       const response = await PaymentService.createSetupIntent();
+
       navigate("/add-credit-card", {
-        state: { clientSecret: response.clientSecret },
+        state: {
+          clientSecret: response.clientSecret,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -62,16 +61,11 @@ const PaymentShoping = () => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
     const loadingToastId = toast.loading("กำลังดำเนินการ...");
 
     try {
       const cartItemId = selectedItems.map((item) => String(item.cartItemId));
-      console.log("selectedItems:", selectedItems);
-      console.log(
-        "cartItemIds:",
-        selectedItems.map((item) => item.cartItemId),
-      );
       if (paymentMethod === "credit" || paymentMethod === "qr") {
         const responseData = await PaymentService.createPaymentIntent({
           ids: cartItemId.map(Number),
@@ -97,7 +91,7 @@ const PaymentShoping = () => {
         }
       } else if (paymentMethod === "cod") {
         toast.dismiss(loadingToastId);
-        toast.success("สั่งซื้อสำเร็จ!");
+        toast.success("ชำระเงินสำเร็จ");
 
         navigate("/payment", { state: { status: "success" } });
       }
@@ -114,7 +108,7 @@ const PaymentShoping = () => {
         toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
       }
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -304,9 +298,8 @@ const PaymentShoping = () => {
                             </span>
                           </button>
                         ))}
-                        <Link
+                        <div
                           data-test="click-add-credit-card"
-                          to="/add-credit-card"
                           className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
                         >
                           <Icon
@@ -320,7 +313,7 @@ const PaymentShoping = () => {
                           >
                             เพิ่มบัตรเครดิต/เดบิต
                           </button>
-                        </Link>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -337,7 +330,7 @@ const PaymentShoping = () => {
                   </span>
                   <span className="text-sm font-medium">ยอดชำระทั้งหมด</span>
                   <span className="text-md font-medium text-right">
-                    ฿ {totalPrice.toLocaleString()}
+                    ฿ {subtotal.toLocaleString()}
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button

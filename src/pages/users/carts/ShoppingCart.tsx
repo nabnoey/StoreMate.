@@ -13,13 +13,10 @@ import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
 import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
-import { PaymentService } from "../../../services/payment.service";
-import type { PaymentIntentRequest } from "../../../types/payment";
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [isCreatingIntent, setIsCreatingIntent] = useState(false);
 
   const { items: cartItems = [], status: cartStatus } = useSelector(
     (state: RootState) => state.carts,
@@ -71,52 +68,6 @@ const ShoppingCart = () => {
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   );
-
-  const handleCheckout = async () => {
-    if (selectedItems.length === 0) {
-      toast.error("กรุณาเลือกสินค้าก่อน");
-      return;
-    }
-
-    setIsCreatingIntent(true);
-    try {
-      // 1. สร้าง Payload โดยใช้ productId (ที่เป็น number อยู่แล้ว)
-      const payload: PaymentIntentRequest = {
-        ids: selectedCartItems.map((item) => item.cartItemId),
-      };
-
-      // 2. ใส่ cartItemId เป็น Key และ quantity เป็น Value
-      selectedCartItems.forEach((item) => {
-        // แม้ Key ของ Object ต้องเป็น string แต่ TypeScript จะยอมรับ String(number)
-        // เพื่อส่งค่า quantity (number) ไปให้ Backend
-        payload[String(item.cartItemId)] = item.quantity;
-      });
-
-      /* ผลลัพธ์ที่ส่งไปจริง (JSON):
-    {
-      "ids": [208],
-      "45": 1
-    }
-    */
-
-      const response = await PaymentService.createPaymentIntent(payload);
-
-      // ส่ง clientSecret และข้อมูลที่ได้ไปหน้า payment
-      navigate("/payment", {
-        state: {
-          paymentIntentId: response.paymentIntentId,
-          clientSecret: response.clientSecret,
-          items: selectedCartItems,
-          total: subtotal,
-        },
-      });
-    } catch (error: any) {
-      console.error("Checkout Error:", error);
-      toast.error("ไม่สามารถดำเนินการสั่งซื้อได้");
-    } finally {
-      setIsCreatingIntent(false);
-    }
-  };
 
   const handleRemoveItem = (productId: number) => {
     setIsBlocking(true);
@@ -398,13 +349,14 @@ const ShoppingCart = () => {
                   </div>
                   <button
                     data-test="btn-payment"
-                    disabled={selectedItems.length === 0 || isCreatingIntent}
-                    onClick={handleCheckout}
+                    disabled={selectedItems.length === 0}
+                    onClick={() =>
+                      navigate("/payment", {
+                        state: { items: selectedCartItems, total: subtotal },
+                      })
+                    }
                     className="w-full sm:w-auto bg-[#4a89f3] text-white px-8 py-3 sm:py-2.5 rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-200 transition-all shadow-sm cursor-pointer"
                   >
-                    {isCreatingIntent && (
-                      <Icon icon="line-md:loading-twotone-loop" />
-                    )}
                     สั่งซื้อสินค้า
                   </button>
                 </div>

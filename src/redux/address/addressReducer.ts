@@ -1,16 +1,14 @@
-import type { Address } from './../../types/address';
-import {createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { Address } from "./../../types/address";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
   async (data: Partial<Address>) => {
     const response = await UserService.addAddress(data);
-    return response;   
-  }
+    return response;
+  },
 );
-
-
 
 export const fetchAllAddresses = createAsyncThunk(
   "address/fetchAllAddresses",
@@ -29,8 +27,6 @@ export const updateAddress = createAsyncThunk(
   },
 );
 
-
-
 // ตั้งค่าที่อยู่เริ่มต้น (เพิ่มใหม่)
 export const setDefaultAddressThunk = createAsyncThunk(
   "address/setDefaultAddress",
@@ -40,31 +36,30 @@ export const setDefaultAddressThunk = createAsyncThunk(
   },
 );
 
-
 export const deleteAddress = createAsyncThunk(
   "address/deleteAddress",
   async (id: number) => {
     const response = await UserService.deleteAddress(id);
     return response;
-  }
-)
+  },
+);
 
 export const addAdressDefault = createAsyncThunk(
   "address/addAddressDefault",
   async (id: number) => {
     const response = await UserService.setDefaultAddress(id);
     return response;
-  }
-)
+  },
+);
 
 export const fetchAddressDefault = createAsyncThunk(
   "address/fetchAddressDefault",
   async () => {
     const response = await UserService.fetchAllAddresses();
-    // const defaultAddress = response.find((addr: Address) => addr.isDefault);
-    return response
-  }
-)
+    const defaultAddress = response.find((addr: Address) => addr.isDefault);
+    return defaultAddress;
+  },
+);
 
 const addressSlice = createSlice({
   name: "address",
@@ -75,11 +70,11 @@ const addressSlice = createSlice({
   },
   reducers: {},
 
-
   extraReducers: (builder) => {
     builder.addCase(fetchAllAddresses.fulfilled, (state, action) => {
       state.addresses = action.payload;
-      state.defaultAddress = action.payload.find((addr: Address) => addr.isDefault) || null;
+      state.defaultAddress =
+        action.payload.find((addr: Address) => addr.isDefault) || null;
     });
 
     builder.addCase(addAddress.fulfilled, (state, action) => {
@@ -90,30 +85,28 @@ const addressSlice = createSlice({
     });
 
     builder.addCase(deleteAddress.fulfilled, (state, action) => {
-      state.addresses = state.addresses.filter(addr => addr.id !== action.meta.arg);
+      state.addresses = state.addresses.filter(
+        (addr) => addr.id !== action.meta.arg,
+      );
       if (state.defaultAddress?.id === action.meta.arg) {
         state.defaultAddress = null;
       }
     });
 
- builder.addCase(addAdressDefault.fulfilled, (state, action) => {
-  const defaultId = action.payload.id; 
+    builder.addCase(addAdressDefault.fulfilled, (state, action) => {
+      const defaultId = action.payload.id;
 
+      state.addresses = state.addresses.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === defaultId,
+      }));
+      state.defaultAddress = action.payload;
+    });
 
-  state.addresses = state.addresses.map(addr => ({
-    ...addr,
-    isDefault: addr.id === defaultId,
-  }));
-  state.defaultAddress = action.payload;
+    builder.addCase(fetchAddressDefault.fulfilled, (state, action) => {
+      state.defaultAddress = action.payload;
+    });
+  },
 });
-  
-  builder.addCase(fetchAddressDefault.fulfilled, (state, action) => {
-    state.defaultAddress = action.payload;
-  });
-  }
-
-});
-
-
 
 export default addressSlice.reducer;

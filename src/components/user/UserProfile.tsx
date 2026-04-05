@@ -1,10 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FaRegUser } from "react-icons/fa6";
-import { IoSettingsOutline } from "react-icons/io5";
-import { MdLogout } from "react-icons/md";
+import { Icon } from "@iconify/react";
 import { logout } from "../../redux/auth/authReducer";
-import type { AppDispatch, RootState } from "../../redux/store"; // อย่าลืม import RootState ถ้าจะใช้ user
+import type { AppDispatch, RootState } from "../../redux/store";
 import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 
@@ -72,7 +70,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             data-test="btn-user-profile-mobile"
             className="cursor-pointer w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
           >
-            {/* <FaRegUser size={24} /> */}
             {user?.image_url || user?.image ? (
               <img
                 src={user.image_url || user.image}
@@ -80,11 +77,16 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <FaRegUser className="w-6 h-6 text-gray-500" />
+              <Icon
+                icon="ph:user"
+                width="24"
+                height="24"
+                className="text-black"
+              />
             )}
           </div>
         </div>
-        <div className="flex items-center gap-5 text-gray-600">
+        <div className="flex items-center gap-5 text-black">
           <button
             data-test="btn-edit-profile-mobile"
             type="button"
@@ -94,7 +96,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             }}
             className="hover:text-[#0A157A] transition-colors cursor-pointer"
           >
-            <IoSettingsOutline size={26} />
+            <Icon icon="ph:gear" width="26" height="26" />
           </button>
           <button
             data-test="btn-logout-mobile"
@@ -102,7 +104,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             onClick={handleLogout}
             className="cursor-pointer hover:text-red-500 transition-colors"
           >
-            <MdLogout size={26} className="rotate-180" />
+            <Icon
+              icon="ph:sign-out"
+              width="26"
+              height="26"
+              className="rotate-180"
+            />
           </button>
         </div>
       </div>
@@ -113,7 +120,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   return (
     <div
       className="dropdown dropdown-end lg:block hidden"
-      id="user-profile-dropdown"
+      data-test="user-profile-dropdown"
     >
       <button
         data-test="btn-user-profile"
@@ -121,7 +128,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         className="cursor-pointer outline-none"
       >
         <div className="cursor-pointer w-11 h-11 rounded-full overflow-hidden bg-gray-50 text-gray-500 flex items-center justify-center border border-gray-100 shadow-sm hover:bg-gray-100 transition-all">
-          {/* <FaRegUser size={24} /> */}
           {user?.image_url || user?.image ? (
             <img
               src={user.image_url || user.image}
@@ -129,7 +135,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               className="w-full h-full object-cover"
             />
           ) : (
-            <FaRegUser className="w-7 h-7 text-gray-500" />
+            <Icon
+              icon="ph:user"
+              width="28"
+              height="28"
+              className="text-black"
+            />
           )}
         </div>
       </button>
@@ -140,13 +151,17 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             type="button"
             onClick={() => {
               navigate("/profile");
-              // ให้ Dropdown ปิดโดยการเอา Focus ออก
               (document.activeElement as HTMLElement)?.blur();
             }}
             className="cursor-pointer flex items-center gap-3 py-3 w-full text-left"
           >
-            <IoSettingsOutline size={22} className="text-gray-600" />
-            <span className=" cursor-pointer font-medium text-gray-700">
+            <Icon
+              icon="ph:gear"
+              width="22"
+              height="22"
+              className="text-black"
+            />
+            <span className=" cursor-pointer font-medium text-black">
               แก้ไขโปรไฟล์
             </span>
           </button>
@@ -159,13 +174,17 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             data-test="btn-logout"
             type="button"
             onClick={() => {
-              // ให้ Dropdown ปิดโดยการเอา Focus ออก
               (document.activeElement as HTMLElement)?.blur();
               handleLogout();
             }}
-            className="cursor-pointer flex items-center gap-3 py-3 text-gray-700 hover:text-red-600 w-full text-left"
+            className="cursor-pointer flex items-center gap-3 py-3 text-black hover:text-red-600 w-full text-left"
           >
-            <MdLogout size={22} className="rotate-180" />
+            <Icon
+              icon="ph:sign-out"
+              width="22"
+              height="22"
+              className="rotate-180"
+            />
             <span className="font-medium">ลงชื่อออกจากระบบ</span>
           </button>
         </li>

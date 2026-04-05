@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // เพิ่ม useState
+import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -11,16 +11,20 @@ import {
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
+import { UserService } from "../../services/users.service";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const AddCreditCardForm = () => {
+const AddCreditCardFormInner = () => {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
   const location = useLocation();
   const clientSecret = location.state?.clientSecret;
+  const cartItems = location.state?.cartItems;
+
   const [cardName, setCardName] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const elementOptions = {
     style: {
@@ -42,18 +46,34 @@ const AddCreditCardForm = () => {
       return;
     }
 
-    const { error, setupIntent } = await stripe.confirmCardSetup(clientSecret, {
-      payment_method: {
-        card: cardNumberElement,
-        billing_details: { name: cardName },
-      },
-    });
+    setIsProcessing(true);
 
-    if (error) {
-      toast.error(error.message || "เกิดข้อผิดพลาด");
-    } else {
-      toast.success("เพิ่มบัตรสำเร็จ!");
-      navigate("/payment");
+    try {
+      const userProfile = await UserService.getProfile();
+      const userEmail = userProfile?.email || "guest@yourstore.com";
+
+      const { error, setupIntent: _setupIntent } =
+        await stripe.confirmCardSetup(clientSecret, {
+          payment_method: {
+            card: cardNumberElement,
+            billing_details: {
+              email: userEmail,
+              name: cardName || userProfile?.name || "Guest",
+            },
+          },
+        });
+
+      if (error) {
+        toast.error(error.message || "เกิดข้อผิดพลาด");
+      } else {
+        toast.success("เพิ่มบัตรสำเร็จ!");
+        navigate("/payment", { state: { cartItems: cartItems } });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -203,10 +223,10 @@ const AddCreditCardForm = () => {
           <button
             data-test="confirm-add-card-btn"
             type="submit"
-            disabled={!stripe}
+            disabled={!stripe || isProcessing}
             className="cursor-pointer w-full bg-black text-white font-bold py-3.5 rounded-lg mt-8  transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            ยืนยันการเพิ่มบัตร
+            {isProcessing ? "กำลังประมวลผล..." : "ยืนยันการเพิ่มบัตร"}
           </button>
         </form>
 
@@ -231,12 +251,12 @@ const AddCreditCardForm = () => {
   );
 };
 
-const AddCreditCard = () => {
+const AddCreditCardForm = () => {
   return (
     <Elements stripe={stripePromise}>
-      <AddCreditCardForm />
+      <AddCreditCardFormInner />
     </Elements>
   );
 };
 
-export default AddCreditCard;
+export default AddCreditCardForm;
