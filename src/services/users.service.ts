@@ -70,6 +70,23 @@ const fetchDefaultAddress = async () => {
   return res.data;
 };
 
+const addressDropdown = async (
+  provinceId: number, 
+  districtId: number,
+  subdistrictId: number
+) => {
+  const res = await api.get(
+    `${import.meta.env.VITE_USERS_API}/address-dropdown`, {
+      params: {
+        provinceId: provinceId || null, 
+        districtId: districtId || null,
+        subdistrictId: subdistrictId || null
+      }
+    });
+  return res.data;
+};
+
+
 export const UserService = {
   getProfile,
   updateProfile,
@@ -80,4 +97,5 @@ export const UserService = {
   fetchAllAddresses,
   addAddress,
   fetchDefaultAddress,
+  addressDropdown,
 };
