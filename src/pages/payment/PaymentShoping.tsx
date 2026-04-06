@@ -1,21 +1,18 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-import { useNavigate, Link } from "react-router-dom";
-import type { RootState } from "../../redux/store";
+import { useLocation,useNavigate, Link } from "react-router-dom";
+import type { RootState,AppDispatch } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import type { CartItem } from "../../types/cartItem";
 import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
-import type { AppDispatch } from "../../redux/store";
 import { fetchAllAddresses } from "../../redux/address/addressReducer";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  // const [loading, setLoading] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [savedCards] = useState<SavedCard[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<string>("");

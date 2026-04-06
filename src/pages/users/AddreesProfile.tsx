@@ -68,20 +68,21 @@ const AddressProfile = () => {
   };
 
   const fillAddressData = async (address: Address) => {
-
-    const streetAddress = address.streetAddress
-    const subDistrictName = address.subdistrict
-    const districtName = address.district
-    const provinceName = address.province
+    const streetAddress = address.streetAddress;
+    const subDistrictName = address.subdistrict;
+    const districtName = address.district;
+    const provinceName = address.province;
 
     // จังหวัด
     const provinceRes = await dispatch(
       addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }),
     ).unwrap();
 
-const province = provinceRes.find(
-    (p: { id: number; name: string }) => String(p.name).trim() === String(provinceName).trim()
-  )?.id || 0;
+    const province =
+      provinceRes.find(
+        (p: { id: number; name: string }) =>
+          String(p.name).trim() === String(provinceName).trim(),
+      )?.id || 0;
 
     setFormData((prev) => ({
       ...prev,
@@ -100,7 +101,8 @@ const province = provinceRes.find(
 
     const district =
       districtRes.find(
-        (d: { id: number; name: string }) => String(d.name).trim() === String(districtName).trim()
+        (d: { id: number; name: string }) =>
+          String(d.name).trim() === String(districtName).trim(),
       )?.id || 0;
 
     setFormData((prev) => ({
@@ -118,7 +120,8 @@ const province = provinceRes.find(
     ).unwrap();
 
     const selectedSub = subRes.find(
-      (s: { id: number; name: string }) => String(s.name).trim() === String(subDistrictName).trim()
+      (s: { id: number; name: string }) =>
+        String(s.name).trim() === String(subDistrictName).trim(),
     );
 
     const subDistrict = selectedSub?.id || 0;
@@ -175,7 +178,7 @@ const province = provinceRes.find(
   };
 
   const handleSaveAddress = async () => {
-    const { streetAddress, subDistrict, district, province, zipcode} =
+    const { streetAddress, subDistrict, district, province, zipcode } =
       formData;
     if (!streetAddress || !subDistrict || !district || !province || !zipcode) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
@@ -296,7 +299,8 @@ const province = provinceRes.find(
                       </span>
                     </div>
                     <div className="text-sm text-gray-500 leading-relaxed">
-                     {address.streetAddress} ต.{address.subdistrict} อ.{address.district} จ.{address.province} {address.zipcode}
+                      {address.streetAddress} ต.{address.subdistrict} อ.
+                      {address.district} จ.{address.province} {address.zipcode}
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-1">

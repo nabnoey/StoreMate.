@@ -63,6 +63,7 @@ const PaymentQRInner = () => {
           }
         }
       } catch (err) {
+        console.error(err);
         toast.error("ไม่สามารถเชื่อมต่อระบบชำระเงินได้");
       } finally {
         setIsGenerating(false);

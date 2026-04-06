@@ -105,7 +105,7 @@ function SidebarAdmin() {
         <div className="flex items-center gap-3 mb-3">
           <div className="avatar">
             <div className="w-10 rounded-full">
-              <img src="https://i.pravatar.cc/100" />
+              <img src="https://i.pravatar.cc/100" alt="bottom user" />
             </div>
           </div>
           <div>
