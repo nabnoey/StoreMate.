@@ -4,6 +4,8 @@ import type { Order } from "../../types/orders";
 import type { Product } from "../../types/product";
 
 
+
+
 const TABS = [
   "ทั้งหมด",
   "รอการชำระเงิน",
@@ -136,7 +138,7 @@ const HistoryShop = () => {
                 {item.productDetail?.imageUrl && (
                   <img
                     src={item.productDetail.imageUrl}
-                    alt={item.productDetail.sammary}
+                    alt={item.productDetail.productName}
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -144,7 +146,7 @@ const HistoryShop = () => {
 
               <div className="flex-1 flex flex-col justify-between">
                 <h3 className="text-sm text-gray-800 line-clamp-2 leading-snug">
-                  {item.productDetail?.description || "กำลังโหลด..."}
+                  {item.productDetail?.productName || "กำลังโหลด..."}
                 </h3>
                 <div className="flex flex-col items-end w-full">
                   <span className="text-gray-500 text-xs sm:text-sm">
