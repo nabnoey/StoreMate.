@@ -89,8 +89,10 @@ const addressSlice = createSlice({
     builder.addCase(fetchAllAddresses.fulfilled, (state, action) => {
       state.addresses = action.payload;
       state.defaultAddress =
-        action.payload.find((addr: Address) => addr.isDefault) || null;
+        action.payload.find((addr: Address) => addr.isDefault);
     });
+
+
 
     builder.addCase(addAddress.fulfilled, (state, action) => {
       state.addresses.push(action.payload);

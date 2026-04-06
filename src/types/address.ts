@@ -1,15 +1,13 @@
  interface Address {
-    id: number;
-    streetAddress: string;
-    provinceId: number;
-    districtId: number;
-    subdistrictId: number;
-    receiverName: string;
-    receiverPhone: string;
-    fullAddress: string;
-    zipcodeId: string;
-    isDefault: boolean;
-
+  id: number;
+  receiverName: string;
+  receiverPhone: string;
+  streetAddress: string;   
+  subdistrict: string;     
+  district: string;      
+  zipcode:string 
+  province: string;      
+  isDefault: boolean;
 }
 
 type DropdownItem = {
