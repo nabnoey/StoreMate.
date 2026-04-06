@@ -163,6 +163,60 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  const handleBuyNow = async () => {
+    const token = TokenService.getAccessToken();
+    if (isAddingToCart) return;
+
+    setIsAddingToCart(true);
+
+    if (!token) {
+      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+      navigate("/login");
+      return;
+    }
+
+    if (!productDetail) return;
+
+    if (currentStock <= 0) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
+      setIsAddingToCart(false);
+      return;
+    }
+
+    if (buyQuantity > currentStock) {
+      toast.error(
+        `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+      );
+      setIsAddingToCart(false);
+      return;
+    }
+
+    const cartItemPayload: CartItemRequestDTO = {
+      productId: productDetail.id,
+      quantity: buyQuantity,
+    };
+
+    try {
+      await dispatch(addToCartThunk(cartItemPayload)).unwrap();
+
+      navigate("/payment");
+    } catch (error: unknown) {
+      let backendMessage = "ไม่สามารถสั่งซื้อสินค้าได้";
+
+      if (axios.isAxiosError(error)) {
+        backendMessage = error.response?.data?.message || error.message;
+      }
+
+      if (backendMessage === "There is insufficient stock.") {
+        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+      } else {
+        toast.error(backendMessage);
+      }
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -269,6 +323,7 @@ const ProductDetailPage: React.FC = () => {
                     i < Math.round(productDetail.RatingScore || 0);
                   return (
                     <Icon
+                      key={`star-${i}`}
                       icon="material-symbols:star-rounded"
                       className={`w-5 h-5 stroke-black ${
                         isFilled
@@ -378,7 +433,7 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     data-test="btn-buy-cart"
-                    onClick={() => handleAddToCart(true)}
+                    onClick={handleBuyNow}
                     // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
                     // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
                     className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"

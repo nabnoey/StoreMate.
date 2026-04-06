@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
-import { User, Edit3, ChevronDown, ChevronUp, ShoppingBag } from "lucide-react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import type { RootState } from "../../redux/store";
 
 const ProfileSidebar = () => {
@@ -17,15 +17,15 @@ const ProfileSidebar = () => {
   // สไตล์สำหรับเมนู Desktop (มีไฮไลท์สีฟ้าเมื่อเลือก)
   const getDesktopMenuClass = (path: string) => {
     return isActive(path)
-      ? "flex items-center gap-2 px-4 py-2 bg-blue-50 text-[#4285F4] font-medium transition-all rounded-md w-full text-left"
-      : "flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#4285F4] transition-all rounded-md w-full text-left";
+      ? "flex items-center gap-2 px-4 py-2  text-blue-500 font-medium transition-all rounded-md w-full text-left"
+      : "flex items-center gap-2 px-4 py-2 text-black font-medium hover:text-blue-500 transition-all rounded-md w-full text-left";
   };
 
   // สไตล์สำหรับเมนู Mobile แบบปุ่ม Pill
   const getMobileTabClass = (path: string) => {
     return isActive(path)
-      ? "flex-shrink-0 px-5 py-2 bg-[#4285F4] text-white text-sm font-medium rounded-full shadow-sm transition-all"
-      : "flex-shrink-0 px-5 py-2 bg-white text-gray-600 text-sm font-medium rounded-full shadow-sm border border-gray-100 hover:text-[#4285F4] transition-all";
+      ? "flex-shrink-0 px-5 py-2 bg-blue-500 text-white text-sm font-medium rounded-full shadow-sm transition-all"
+      : "flex-shrink-0 px-5 py-2 bg-white text-black text-sm font-medium rounded-full shadow-sm border border-gray-100 hover:text-blue-500 transition-all";
   };
 
   return (
@@ -35,20 +35,40 @@ const ProfileSidebar = () => {
         {/* Mobile Profile Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-11 h-11 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center shrink-0">
-              <User className="w-6 h-6 text-blue-500" />
+            <div className="w-11 h-11 border rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-gray-50">
+              {user?.image_url || user?.image ? (
+                <img
+                  src={user.image_url || user.image}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Icon
+                  icon="ph:user"
+                  width="24"
+                  height="24"
+                  className="text-gray-500"
+                />
+              )}
             </div>
+
             <div className="truncate">
               <p className="text-sm font-bold text-gray-900 truncate">
                 {user?.name || "กำลังโหลด..."}
               </p>
               <button
+                data-test="btn-edit-profile-mobile"
                 onClick={() => navigate("/profile")}
-                className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1 mt-0.5"
+                className="cursor-pointer text-md text-black flex items-center gap-1 mt-0.5"
               >
-                <Edit3 className="w-3 h-3"
-                
-                /> แก้ไขโปรไฟล์
+                <Icon
+                  icon="ph:pencil-simple"
+                  width="12"
+                  height="12"
+                  data-test="btn-edit-profile-mobile-icon"
+                  className="cursor-pointer"
+                />
+                แก้ไขโปรไฟล์
               </button>
             </div>
           </div>
@@ -65,20 +85,21 @@ const ProfileSidebar = () => {
             โปรไฟล์
           </button>
           <button
+            data-test="btn-profile-tab-address"
             className={getMobileTabClass("/address-profile")}
             onClick={() => navigate("/address-profile")}
           >
             จัดการที่อยู่
           </button>
           <button
-          data-test="btn-profile-tab-password"
+            data-test="btn-profile-tab-password"
             className={getMobileTabClass("/change-password")}
             onClick={() => navigate("/change-password")}
           >
             รหัสผ่าน
           </button>
           <button
-          data-test="btn-profile-tab-history"
+            data-test="btn-profile-tab-history"
             className={getMobileTabClass("/history-shop")}
             onClick={() => navigate("/history-shop")}
           >
@@ -90,44 +111,76 @@ const ProfileSidebar = () => {
       {/* ================= DESKTOP VIEW ================= */}
       <aside className="hidden md:flex flex-col w-[260px] flex-shrink-0 gap-4">
         {/* Desktop Profile Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-          <div className="w-14 h-14 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center shrink-0">
-            <User className="w-7 h-7 text-[#4285F4]" />
+        <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4">
+          <div className="w-14 h-14 bg-[#F3F4F6] overflow-hidden border border-gray-200 rounded-full flex items-center justify-center shrink-0">
+            {user?.image_url || user?.image ? (
+              <img
+                src={user.image_url || user.image}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Icon
+                icon="ph:user"
+                width="28"
+                height="28"
+                className="text-gray-500"
+              />
+            )}
           </div>
           <div className="overflow-hidden flex-1">
             <p
-              id="sidebar-text-fullname"
-              className="font-bold text-gray-900 text-base truncate mb-1"
+              id="sidebar-text-name"
+              className="font-medium text-black text-base truncate mb-1"
             >
               {user?.name || "กำลังโหลด..."}
             </p>
-            <button
-              id="sidebar-btn-edit-profile"
-              className="text-gray-500 text-xs flex items-center gap-1.5 hover:text-[#4285F4] transition-colors font-medium"
-              onClick={() => navigate("/profile")}
-            >
-              <Edit3 className="w-3.5 h-3.5 cursor-pointer"
+            <div className="flex items-center gap-1">
+              <Icon
+                icon="ph:pencil-simple"
+                width="14"
+                height="14"
+                className="cursor-pointer"
                 data-test="btn-edit-profile"
-              /> แก้ไขโปรไฟล์
-            </button>
+              />
+              <button
+                data-test="btn-edit-profile-mobile"
+                className="cursor-pointer text-black text-xs flex items-center gap-1.5  transition-colors font-medium"
+                onClick={() => navigate("/profile")}
+              >
+                แก้ไขโปรไฟล์
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Desktop Menu */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+        <div className="bg-[#F3F4F6] rounded-xl shadow-md  border border-gray-100 p-3">
           <div className="mb-2">
             <button
-              className="w-full flex items-center justify-between font-bold text-gray-800 text-sm p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between font-medium text-black text-medium p-3 rounded-lg hover:text-blue-500 transition-colors"
               onClick={() => setIsDesktopProfileOpen(!isDesktopProfileOpen)}
             >
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-gray-500" />
-                <span>บัญชีของฉัน</span>
+              <div
+                data-test="btn-profile-menu-toggle"
+                className="cursor-pointer flex items-center gap-2"
+              >
+                <span>โปรไฟล์ของฉัน</span>
               </div>
               {isDesktopProfileOpen ? (
-                <ChevronUp className="w-4 h-4 text-gray-400" />
+                <Icon
+                  icon="ph:chevron-up"
+                  width="16"
+                  height="16"
+                  className="text-black cursor-pointer"
+                />
               ) : (
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <Icon
+                  icon="ph:chevron-down"
+                  width="16"
+                  height="16"
+                  className="text-black cursor-pointer"
+                />
               )}
             </button>
 
@@ -135,7 +188,7 @@ const ProfileSidebar = () => {
               <ul className="space-y-1 mt-1 pl-6 pr-2 text-sm animate-in slide-in-from-top-2 fade-in duration-200">
                 <li>
                   <button
-                  data-test="btn-profile-menu-profile"
+                    data-test="btn-profile-menu-profile"
                     className={`${getDesktopMenuClass("/profile")} cursor-pointer`}
                     onClick={() => navigate("/profile")}
                   >
@@ -164,21 +217,14 @@ const ProfileSidebar = () => {
             )}
           </div>
 
-          <div className="pt-2 mt-2 border-t border-gray-100">
-            <button
-              data-test="click-history-shop"
-              className={`w-full flex items-center gap-2 font-bold text-sm p-3 rounded-lg transition-colors ${
-                isActive("/history-shop")
-                  ? "bg-blue-50 text-[#4285F4]"
-                  : "text-gray-800 hover:bg-gray-50 hover:text-[#4285F4]"
-              }`}
-              onClick={() => navigate("/history-shop")}
+          <div className="pt-2 mt-2">
+            <Link
+              data-test="btn-profile-menu-history"
+              to="/history-shop"
+              className="cursor-pointer w-full flex items-center gap-2 font-medium text-medium p-3  transition-colors hover:text-[#4285F4]"
             >
-              <ShoppingBag
-                className={`w-4 h-4${isActive("/history-shop") ? "text-[#4285F4]" : "text-gray-500"}`}
-              />
-              <span className="cursor-pointer">การซื้อของฉัน</span>
-            </button>
+              การซื้อของฉัน
+            </Link>
           </div>
         </div>
       </aside>

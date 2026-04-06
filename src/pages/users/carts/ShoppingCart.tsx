@@ -69,11 +69,9 @@ const ShoppingCart = () => {
     0,
   );
 
-  // 1. ฟังก์ชันลบสินค้าทีละชิ้น
   const handleRemoveItem = (productId: number) => {
     setIsBlocking(true);
 
-    // แยกฟังก์ชันยืนยันการลบออกมา
     const confirmDelete = (toastId: string) => {
       toast.dismiss(toastId);
       setIsBlocking(false);
@@ -82,7 +80,6 @@ const ShoppingCart = () => {
       toast.success("ลบสินค้าแล้ว", { duration: 1500 });
     };
 
-    // แยกฟังก์ชันยกเลิกออกมา
     const cancelDelete = (toastId: string) => {
       toast.dismiss(toastId);
       setIsBlocking(false);

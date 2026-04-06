@@ -30,7 +30,7 @@ const ProductDetailPage = lazy(() =>
   lazyDelay(() => import("../pages/ProductDetails"), 1200),
 );
 const PaymentShoping = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/PaymentShoping"), 1200),
+  lazyDelay(() => import("../pages/payment/PaymentShoping"), 1200),
 );
 const SearchPage = lazy(() =>
   lazyDelay(() => import("../pages/SearchPage"), 1200),
@@ -48,7 +48,7 @@ const MainLayout = lazy(() =>
 );
 
 const AddCreditCard = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/AddCreditCard"), 1200),
+  lazyDelay(() => import("../pages/payment/AddCreditCard"), 1200),
 );
 
 const AdminLayout = lazy(() =>
@@ -56,15 +56,15 @@ const AdminLayout = lazy(() =>
 );
 
 const PaymentQR = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/PaymentQR"), 1200),
+  lazyDelay(() => import("../pages/payment/PaymentQR"), 1200),
 );
 
 const PaymentSuccess = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/PaymentSuccess"), 1200),
+  lazyDelay(() => import("../pages/payment/PaymentSuccess"), 1200),
 );
 
 const PaymentCancel = lazy(() =>
-  lazyDelay(() => import("../pages/users/carts/PaymentCancel"), 1200),
+  lazyDelay(() => import("../pages/payment/PaymentCancel"), 1200),
 );
 import Stock from "../pages/admin/Stock";
 
@@ -170,7 +170,7 @@ const router = createBrowserRouter([
         element: <AddCreditCard />,
       },
       {
-        path: "/payment-qr/:id",
+        path: "/payment-qr",
         element: <PaymentQR />,
       },
       {

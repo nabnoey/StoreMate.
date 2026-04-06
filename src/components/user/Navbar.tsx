@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import { GoSearch } from "react-icons/go";
-import { BiSolidBell } from "react-icons/bi";
-import { FaCartShopping } from "react-icons/fa6";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,6 +6,7 @@ import { search } from "../../redux/products/productReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
+import { Icon } from "@iconify/react";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -68,13 +66,13 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
+    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative w-full">
       {/* LOGO */}
-      <div className="navbar-start right-5 flex items-center justify-start">
-        <button onClick={() => navigate("/")}>
+      <div className="flex items-center flex-shrink-0 lg:w-1/4">
+        <button onClick={() => navigate("/")} className="flex items-center">
           <img
             src={logo}
-            className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
+            className="w-24 lg:w-32 cursor-pointer object-contain"
             alt="Logo"
             data-test="logo"
           />
@@ -82,13 +80,12 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* MENU DESKTOP */}
-
-      <div className="navbar-center hidden lg:flex  font-Anuphan text-lg text-black ">
-        <ul className="menu menu-horizontal gap-7 text-[16px]  ">
+      <div className="hidden lg:flex flex-1 justify-center font-Anuphan text-black">
+        <ul className="flex items-center gap-6 xl:gap-10 text-[16px]">
           <li>
             <Link
               data-test="list-search"
-              className="hover:text-indigo-600 cursor-pointer"
+              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
               to="/search"
             >
               สินค้า
@@ -96,7 +93,7 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             <Link
-              className="hover:text-indigo-600 cursor-pointer"
+              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
               to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
@@ -105,7 +102,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-about"
-              className="hover:text-indigo-600 cursor-pointer"
+              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
               to="/about-us"
             >
               เกี่ยวกับเรา
@@ -114,7 +111,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-contact"
-              className="hover:text-indigo-600 cursor-pointer"
+              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
               to="contact"
             >
               ติดต่อ
@@ -124,12 +121,14 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* RIGHT */}
-      <div className="navbar-end flex items-center gap-4">
+      <div className="flex items-center justify-end gap-3 lg:gap-5 flex-shrink-0 lg:w-1/4">
         {/* SEARCH */}
-        <div className="relative border border-white" data-test="search">
-          <GoSearch
-            size={22}
-            className="cursor-pointer hover:text-black text-black z-50"
+        <div className="relative flex items-center" data-test="search">
+          <Icon
+            icon="ph:magnifying-glass"
+            width="24"
+            height="24"
+            className="cursor-pointer text-black hover:text-indigo-600 transition-colors z-50"
             onClick={() => {
               if (openSearch) {
                 handleSubmitSearch();
@@ -158,16 +157,16 @@ const Navbar: React.FC = () => {
                     handleSubmitSearch();
                   }
                 }}
-                className="absolute  right-8 -top-2 input input-bordered bg-white w-31 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
+                className="absolute right-8 top-1/2 -translate-y-1/2 input input-bordered bg-white w-[180px] sm:w-[220px] md:w-[250px] h-10 text-[#74768f] z-50 focus:outline-none"
                 autoFocus
               />
               {inputValue && searchResult.length > 0 && (
-                <div className="absolute right-8 top-10 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
+                <div className="absolute right-8 top-12 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
                   {searchResult.map((product) => (
                     <button
                       data-test="click-to-product"
                       key={product.id}
-                      className="w-full text-left block p-3 hover:bg-gray-100 cursor-pointer"
+                      className="w-full text-left block p-3 hover:bg-gray-100 cursor-pointer text-sm"
                       onClick={() => {
                         navigate(`/product/${product.id}`);
                         setOpenSearch(false);
@@ -185,28 +184,32 @@ const Navbar: React.FC = () => {
 
         {isAuthenticated ? (
           <>
-            <div className="flex gap-3 lg:gap-4 items-center text-gray-600">
+            <div className="flex items-center gap-3 lg:gap-4 text-black">
               <button
                 data-test="click-shop-cart"
-                className="relative cursor-pointer p-1 "
+                className="relative cursor-pointer p-1"
                 onClick={() => navigate("/shopping-cart")}
               >
-                <FaCartShopping
-                  size={22}
+                <Icon
+                  icon="ph:shopping-cart"
+                  width="24"
+                  height="24"
                   data-test="cart-shopping"
-                  className="hover:text-black cursor-pointer"
+                  className="hover:text-indigo-600 transition-colors cursor-pointer"
                 />
 
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
                     {totalItems}
                   </span>
                 )}
               </button>
 
-              <BiSolidBell
-                size={22}
-                className="cursor-pointer hover:text-black"
+              <Icon
+                icon="ph:bell"
+                width="24"
+                height="24"
+                className="cursor-pointer hover:text-indigo-600 transition-colors"
               />
             </div>
 
@@ -216,7 +219,7 @@ const Navbar: React.FC = () => {
           <div className="hidden lg:flex items-center gap-3">
             <button
               data-test="login-btn"
-              className="bg-[#073A8D] text-white w-24 h-11 rounded-[10px] cursor-pointer"
+              className="bg-[#073A8D] hover:bg-[#052b6b] text-white w-24 h-10 rounded-[10px] text-sm transition-colors cursor-pointer"
               onClick={() => navigate("/login")}
             >
               เข้าสู่ระบบ
@@ -224,7 +227,7 @@ const Navbar: React.FC = () => {
 
             <button
               data-test="register-btn"
-              className="btn btn-outline text-[#073A8D] text-[#0A157A] w-30 h-11 rounded-[10px] cursor-pointer"
+              className="border border-[#073A8D] text-[#073A8D] hover:bg-gray-50 w-28 h-10 rounded-[10px] text-sm transition-colors cursor-pointer"
               onClick={() => navigate("/register")}
             >
               สมัครสมาชิก
@@ -232,38 +235,32 @@ const Navbar: React.FC = () => {
           </div>
         )}
 
-        <div className="flex-none lg:hidden">
+        <div className="flex-none lg:hidden ml-1">
           <button
             data-test="btn-open-menu"
-            className="btn btn-square btn-ghost"
+            className="p-1 cursor-pointer"
             onClick={() => setOpenMenu(!openMenu)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 w-6 stroke-current text-gray-700"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <Icon
+              icon="ph:list"
+              width="26"
+              height="26"
+              className="text-gray-800"
+            />
           </button>
         </div>
       </div>
 
+      {/* MOBILE MENU DROPDOWN */}
       {openMenu && (
-        <div className="absolute top-[60px] right-4 w-[300px] bg-white z-30 lg:hidden rounded-none overflow-hidden animate-in fade-in zoom-in origin-top-right">
+        <div className="absolute top-[60px] right-4 w-[280px] sm:w-[320px] bg-white shadow-xl z-50 lg:hidden rounded-lg overflow-hidden border border-gray-100 animate-in fade-in zoom-in origin-top-right">
           {isAuthenticated ? (
             <UserProfile
               variant="mobile"
               onCloseMenu={() => setOpenMenu(false)}
             />
           ) : (
-            <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-50">
+            <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-100">
               <button
                 data-test="btn-login"
                 className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer"
@@ -277,7 +274,7 @@ const Navbar: React.FC = () => {
 
               <button
                 data-test="btn-register"
-                className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2 rounded-xl font-bold text-sm cursor-pointer"
+                className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2.5 rounded-xl font-bold text-sm cursor-pointer"
                 onClick={() => {
                   navigate("/register");
                   setOpenMenu(false);
@@ -292,28 +289,32 @@ const Navbar: React.FC = () => {
             <Link
               data-test="list-product"
               to="/search"
-              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              onClick={() => setOpenMenu(false)}
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
             >
               สินค้า
             </Link>
             <Link
               data-test="list-promo"
               to={`/search?category=promotion`}
-              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              onClick={() => setOpenMenu(false)}
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
             >
               โปรโมชั่น
             </Link>
             <Link
               data-test="list-about"
               to="/about-us"
-              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              onClick={() => setOpenMenu(false)}
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
             >
               เกี่ยวกับเรา
             </Link>
             <Link
               data-test="list-contact"
               to="/contact"
-              className="cursor-pointer w-full text-left px-6 py-4 text-gray-700 font-medium hover:bg-blue-50"
+              onClick={() => setOpenMenu(false)}
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
             >
               ติดต่อ
             </Link>

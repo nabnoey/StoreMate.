@@ -1,9 +1,4 @@
-import { useState } from "react";
-import { Icon } from "@iconify/react";
-import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-hot-toast";
-
-// 1. เพิ่มการ Import loadStripe และ Elements
+import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -13,89 +8,77 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Icon } from "@iconify/react";
+import { toast } from "react-hot-toast";
+import { UserService } from "../../services/users.service";
 
-// เอามาจากหน้า Dashboard ของ stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const AddCreditCardForm = () => {
-  const navigate = useNavigate();
+const AddCreditCardFormInner = () => {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const clientSecret = location.state?.clientSecret;
+  const cartItems = location.state?.cartItems;
 
   const [cardName, setCardName] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const elementOptions = {
     style: {
       base: {
         fontSize: "16px",
-        color: "#111827", // สีเทาเข้มเกือบดำ (text-gray-900)
-        "::placeholder": { color: "#9CA3AF" }, // สีเทาอ่อน (text-gray-400)
-        fontFamily: "Anuphan, sans-serif",
+        color: "#1f2937",
+        "::placeholder": { color: "#9ca3af" },
       },
-      invalid: { color: "#EF4444" }, // สีแดงเมื่อกรอกผิด
     },
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!stripe || !elements) return;
 
-    if (!stripe || !elements) {
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    if (!cardNumberElement || !clientSecret) {
+      toast.error("เซสชันไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
       return;
     }
 
-    if (!cardName) {
-      toast.error("กรุณากรอกชื่อบนบัตร");
-      return;
-    }
+    setIsProcessing(true);
 
-    toast.loading("กำลังตรวจสอบข้อมูลบัตร...");
+    try {
+      const userProfile = await UserService.getProfile();
+      const userEmail = userProfile?.email || "guest@yourstore.com";
 
-    const cardElement = elements.getElement(CardNumberElement);
+      const { error, setupIntent: _setupIntent } =
+        await stripe.confirmCardSetup(clientSecret, {
+          payment_method: {
+            card: cardNumberElement,
+            billing_details: {
+              email: userEmail,
+              name: cardName || userProfile?.name || "Guest",
+            },
+          },
+        });
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement!,
-      billing_details: {
-        name: cardName,
-      },
-    });
-
-    toast.dismiss();
-
-    if (error) {
-      toast.error(error.message || "ข้อมูลบัตรไม่ถูกต้อง");
-    } else {
-      console.log("บันทึกบัตรสำเร็จ ได้ Token:", paymentMethod);
-      toast.success("เพิ่มบัตรสำเร็จ!");
-
-      // ดึงบัตรเดิมที่มีอยู่ในระบบมาเตรียมไว้
-      const localCards = localStorage.getItem("mockSavedCards");
-      const existingCards = localCards ? JSON.parse(localCards) : [];
-
-      // สร้างข้อมูลบัตรใบใหม่
-      const newCard = {
-        id: paymentMethod.id,
-        brand: paymentMethod.card?.brand || "visa",
-        last4: paymentMethod.card?.last4 || "0000",
-        bankName: cardName || "บัตรที่บันทึกใหม่",
-      };
-
-      // บันทึกรวมของเก่า+ของใหม่ ลงใน LocalStorage
-      localStorage.setItem(
-        "mockSavedCards",
-        JSON.stringify([...existingCards, newCard]),
-      );
-
-      // หน่วงเวลา 1 วินาทีให้เห็นข้อความสำเร็จก่อน
-      setTimeout(() => {
-        navigate(-1);
-      }, 1000);
+      if (error) {
+        toast.error(error.message || "เกิดข้อผิดพลาด");
+      } else {
+        toast.success("เพิ่มบัตรสำเร็จ!");
+        navigate("/payment", { state: { cartItems: cartItems } });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-10 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
-      {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block">
         <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
           <Link to="/" className="hover:text-[#4285F4] transition-colors">
@@ -129,7 +112,6 @@ const AddCreditCardForm = () => {
         </nav>
       </div>
 
-      {/* --- MOBILE HEADER --- */}
       <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
           icon="lucide:arrow-left"
@@ -140,7 +122,6 @@ const AddCreditCardForm = () => {
       </div>
 
       <div className="w-full max-w-[700px] mx-auto bg-white lg:rounded-xl lg:shadow-sm lg:border border-gray-200 overflow-hidden p-4 sm:p-6 lg:p-10 lg:mb-10 lg:mt-6">
-        {/* Header (Desktop Only) */}
         <div className="hidden lg:flex items-start gap-4 mb-8 border-b pb-4">
           <button type="button" onClick={() => navigate(-1)}>
             <Icon
@@ -156,7 +137,6 @@ const AddCreditCardForm = () => {
           </div>
         </div>
 
-        {/* บัตรจำลอง (Mockup Card) Responsive */}
         <div className="flex justify-center mb-8 lg:mb-10 mt-4 lg:mt-0 px-2 sm:px-0">
           <div className="w-full max-w-[340px] aspect-[1.58] bg-[#0B1A3A] rounded-2xl p-5 sm:p-6 text-white shadow-xl relative flex flex-col justify-between">
             <div className="flex justify-between items-start">
@@ -190,7 +170,6 @@ const AddCreditCardForm = () => {
           </div>
         </div>
 
-        {/* ฟอร์มกรอกข้อมูล */}
         <form
           onSubmit={handleSubmit}
           className="space-y-5 max-w-[500px] mx-auto px-1 sm:px-0"
@@ -242,15 +221,15 @@ const AddCreditCardForm = () => {
           </div>
 
           <button
+            data-test="confirm-add-card-btn"
             type="submit"
-            disabled={!stripe}
+            disabled={!stripe || isProcessing}
             className="cursor-pointer w-full bg-black text-white font-bold py-3.5 rounded-lg mt-8  transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            ยืนยันการเพิ่มบัตร
+            {isProcessing ? "กำลังประมวลผล..." : "ยืนยันการเพิ่มบัตร"}
           </button>
         </form>
 
-        {/* Security Alert */}
         <div className="max-w-[500px] mx-auto mt-8 bg-[#f4f7fd] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mx-1 sm:mx-auto">
           <Icon
             icon="lucide:shield-check"
@@ -272,13 +251,12 @@ const AddCreditCardForm = () => {
   );
 };
 
-// สร้าง Wrapper Component ออกไปให้ระบบเรียกใช้
-const AddCreditCard = () => {
+const AddCreditCardForm = () => {
   return (
     <Elements stripe={stripePromise}>
-      <AddCreditCardForm />
+      <AddCreditCardFormInner />
     </Elements>
   );
 };
 
-export default AddCreditCard;
+export default AddCreditCardForm;

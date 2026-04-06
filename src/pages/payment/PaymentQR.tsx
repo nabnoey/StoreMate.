@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import paymentQR from "../../../assets/qr-promtpay.png";
+import { useStripe, Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { UserService } from "../../services/users.service";
 
-const PaymentQR = () => {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const PaymentQRInner = () => {
+  const stripe = useStripe();
   const navigate = useNavigate();
-  // ดึง id จาก URL (เช่น /payment-qr/ORD-12345)
   const { id } = useParams();
   const location = useLocation();
 
@@ -14,24 +18,71 @@ const PaymentQR = () => {
   const totalPrice = location.state?.totalPrice || 0;
 
   const [showQR] = useState(true);
-  // const [isLoading, setIsLoading] = useState(false);
-
-  // ตั้งเวลา 15 นาที
   const [timeLeft, setTimeLeft] = useState(15 * 60);
 
+  const [qrImage, setQrImage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(true);
+  const hasRequestedQR = useRef(false);
+
   useEffect(() => {
-    // 1. ตรวจสอบข้อมูลเบื้องต้น ถ้าไม่มี clientSecret หรือราคา ให้กลับไปหน้าตะกร้า
+    if (!stripe || !clientSecret || hasRequestedQR.current) return;
+
+    const generateQR = async () => {
+      hasRequestedQR.current = true;
+      setIsGenerating(true);
+
+      try {
+        const userProfile = await UserService.getProfile();
+        const userEmail = userProfile?.email || "guest@yourstore.com";
+        const userName = userProfile?.name || "Guest";
+
+        const { error, paymentIntent } = await stripe.confirmPromptPayPayment(
+          clientSecret,
+          {
+            payment_method: {
+              billing_details: {
+                email: userEmail,
+                name: userName,
+              },
+            },
+          },
+          { handleActions: false },
+        );
+
+        if (error) {
+          toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
+        } else {
+          const nextAction: any = paymentIntent?.next_action;
+          const qrData =
+            nextAction?.promptpay_display_qr_code?.image_url_svg ||
+            nextAction?.promptpay_display_qr_code?.image_url_png;
+          if (qrData) {
+            setQrImage(qrData);
+          } else {
+            toast.error("ไม่พบข้อมูล QR Code จากระบบ");
+          }
+        }
+      } catch (err) {
+        toast.error("ไม่สามารถเชื่อมต่อระบบชำระเงินได้");
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    generateQR();
+  }, [stripe, clientSecret]);
+
+  useEffect(() => {
     if (!clientSecret || !totalPrice) {
       toast.error("ข้อมูลการชำระเงินไม่ครบถ้วน");
       navigate("/shopping-cart");
       return;
     }
 
-    // 2. ถ้ายอมให้โชว์ QR แล้ว ให้เริ่มนับเวลาถอยหลัง
     if (showQR) {
       if (timeLeft <= 0) {
-        // หมดเวลา
-        navigate(`/payment/cancel?id=${id}&reason=timeout`);
+        // navigate(`/payment/cancel?id=${id}&reason=timeout`);
+        navigate(`/payment/cancel`);
         return;
       }
       const timerId = setInterval(() => {
@@ -50,9 +101,9 @@ const PaymentQR = () => {
   };
 
   const handleConfirmPaid = () => {
-    // นำทางไปหน้า Success พร้อมส่ง id ไปด้วย
     toast.success("ส่งข้อมูลยืนยันการชำระเงินเรียบร้อย");
-    navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
+    // navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
+    navigate(`/payment/success`);
   };
 
   return (
@@ -146,12 +197,25 @@ const PaymentQR = () => {
                 </span>
               </div>
               <div className="p-6 flex flex-col items-center bg-white">
-                <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] bg-white flex items-center justify-center border-2 border-[#113566] mb-5 p-2 rounded-xl shadow-sm">
-                  <img
-                    src={paymentQR}
-                    alt="QR Code"
-                    className="w-full h-full object-contain"
-                  />
+                <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] bg-white flex items-center justify-center border-2 border-[#113566] mb-5 p-2 rounded-xl shadow-sm relative">
+                  {isGenerating ? (
+                    <div className="flex flex-col items-center text-gray-500">
+                      <Icon icon="eos-icons:loading" className="w-8 h-8 mb-2" />
+                      <span className="text-xs">กำลังสร้าง QR...</span>
+                    </div>
+                  ) : qrImage ? (
+                    <img
+                      src={qrImage}
+                      alt="PromptPay QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs text-red-500 text-center">
+                      โหลด QR ไม่สำเร็จ
+                      <br />
+                      โปรดลองใหม่อีกครั้ง
+                    </span>
+                  )}
                 </div>
                 <span className="text-blue-500 font-bold text-xl mb-3">
                   ฿ {totalPrice.toLocaleString()}
@@ -238,6 +302,14 @@ const PaymentQR = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const PaymentQR = () => {
+  return (
+    <Elements stripe={stripePromise}>
+      <PaymentQRInner />
+    </Elements>
   );
 };
 

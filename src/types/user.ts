@@ -9,7 +9,7 @@ export interface User {
   email: string;
   phone: string;
   accessToken: string;
-  imageURL: string;
+  image_url: string;
   roles: Role[];
   joinDate?: string;
 }

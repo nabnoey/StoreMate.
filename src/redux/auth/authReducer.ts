@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginService, registerService } from "../../services/auth.service";
 import { TokenService } from "../../services/token.service";
 import { jwtDecode } from "jwt-decode";
+import { UserService } from "../../services/users.service";
+import type { User } from "../../types/user";
 
 interface AuthState {
   token: string;
@@ -70,18 +72,29 @@ export const login = createAsyncThunk(
   },
 );
 
-export const updateProfile = createAsyncThunk(
-  "auth/updateProfile",
-  async (data: any, { rejectWithValue }) => {
+export const getProfile = createAsyncThunk(
+  "auth/getProfile",
+  async (_, { rejectWithValue }) => {
     try {
-      // 💡 ข้อแนะนำ: ตรงนี้ในอนาคตคุณควรเรียก API อัปเดตโปรไฟล์ เช่น
-      // const response = await updateProfileService(data);
-
-      // เมื่อ Backend อัปเดตสำเร็จ เราก็ส่ง data กลับไปทับใน Redux State
-      return data;
+      const response = await UserService.getProfile();
+      return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "อัปเดตโปรไฟล์ไม่สำเร็จ",
+        error.response?.data?.message || "ไม่สามารถดึงข้อมูลโปรไฟล์ได้",
+      );
+    }
+  },
+);
+
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (data: Partial<User> | FormData, { rejectWithValue }) => {
+    try {
+      const response = await UserService.updateProfile(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "ไม่สามารถอัปเดตโปรไฟล์ได้",
       );
     }
   },
@@ -108,13 +121,16 @@ const authSlice = createSlice({
       state.loading = false;
       const newToken = action.payload;
       state.token = newToken;
-      state.user = getUserFromToken(newToken); //ถอดToken เพื่อดึง userId, email
+      state.user = getUserFromToken(newToken);
       state.isAuthenticated = true;
       state.error = null;
     });
     builder.addCase(login.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
+    });
+    builder.addCase(getProfile.fulfilled, (state, action) => {
+      state.user = { ...state.user, ...action.payload };
     });
 
     builder.addCase(updateProfile.fulfilled, (state, action) => {
