@@ -1,28 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
+import type { Order } from "../../types/orders";
+import type { Product } from "../../types/product";
 
-// --- Types ---
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-}
-
-interface OrderItem {
-  productId: string;
-  quantity: number;
-  productDetail?: Product;
-}
-
-interface Order {
-  id: string;
-  shopName: string;
-  statusDelivery: string;
-  statusPayment: string;
-  items: OrderItem[];
-  totalPrice: number;
-}
 
 const TABS = [
   "ทั้งหมด",
@@ -54,16 +34,22 @@ const HistoryShop = () => {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const fetchMockProduct = async (productId: string): Promise<Product> => {
-    // จำลอง API delay 500ms
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return {
-      id: productId,
-      name: "น้ำมะม่วงหาวมะนาวโห่ สูตรไม่มีน้ำตาล 50 ขวด สกัดจากผลที่แก่จัด วิตามินซี เสริมภูมิคุ้มกันร่างกาย",
-      image: "https://www.nanagarden.com/picture/product/400/338965.jpg",
-      price: 90,
-    };
+ const fetchMockProduct = async (productId: string): Promise<Product> => {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  return {
+    id: Number(productId), // ✅ แปลงเป็น number
+    productName: "น้ำมะม่วงหาวมะนาวโห่ สูตรไม่มีน้ำตาล 50 ขวด สกัดจากผลที่แก่จัด วิตามินซี เสริมภูมิคุ้มกันร่างกาย",
+    imageUrl: "https://www.nanagarden.com/picture/product/400/338965.jpg",
+    price: 90,
+    categoryName: "",
+    sammary: "",
+    description: "",
+    status: "",
+    createAt: "",
+    stockQuantity: 0,
   };
+};
 
   const updateOrderDetails = async (order: Order): Promise<Order> => {
     const updatedItems = await Promise.all(
@@ -147,10 +133,10 @@ const HistoryShop = () => {
             >
               {/* Product Image */}
               <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-50 border border-gray-100 rounded overflow-hidden">
-                {item.productDetail?.image && (
+                {item.productDetail?.imageUrl && (
                   <img
-                    src={item.productDetail.image}
-                    alt={item.productDetail.name}
+                    src={item.productDetail.imageUrl}
+                    alt={item.productDetail.sammary}
                     className="w-full h-full object-cover"
                   />
                 )}
@@ -158,7 +144,7 @@ const HistoryShop = () => {
 
               <div className="flex-1 flex flex-col justify-between">
                 <h3 className="text-sm text-gray-800 line-clamp-2 leading-snug">
-                  {item.productDetail?.name || "กำลังโหลด..."}
+                  {item.productDetail?.description || "กำลังโหลด..."}
                 </h3>
                 <div className="flex flex-col items-end w-full">
                   <span className="text-gray-500 text-xs sm:text-sm">
