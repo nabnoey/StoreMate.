@@ -1,7 +1,6 @@
-
-import {createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { AddressState , Address} from "../../types/address";
+import type { AddressState, Address } from "../../types/address";
 
 const initialState: AddressState = {
   addresses: [],
@@ -16,8 +15,8 @@ export const addAddress = createAsyncThunk(
   "address/addAddress",
   async (data: Partial<Address>) => {
     const response = await UserService.addAddress(data);
-   return response; 
-  }
+    return response;
+  },
 );
 
 export const fetchAllAddresses = createAsyncThunk(
@@ -32,7 +31,7 @@ export const fetchAllAddresses = createAsyncThunk(
 export const updateAddress = createAsyncThunk(
   "address/updateAddress",
   async ({ id, data }: { id: number; data: Partial<Address> }) => {
-    const response = await UserService.updateAddress(id, data );
+    const response = await UserService.updateAddress(id, data);
     return response;
   },
 );
@@ -65,24 +64,34 @@ export const addAdressDefault = createAsyncThunk(
 export const fetchAddressDefault = createAsyncThunk(
   "address/fetchAddressDefault",
   async () => {
-    const response = await UserService.fetchAllAddresses();
-    return response
-  }
-)
-
+    const response = await UserService.fetchDefaultAddress();
+    return response;
+  },
+);
 
 export const addressDropdown = createAsyncThunk(
   "address/addressDropdown",
-  async ({ provinceId, districtId, subdistrictId }: { provinceId: number; districtId: number; subdistrictId: number }) => {
-    const response = await UserService.addressDropdown(provinceId, districtId, subdistrictId);
-    return response
-  }
-)
-
+  async ({
+    provinceId,
+    districtId,
+    subdistrictId,
+  }: {
+    provinceId: number;
+    districtId: number;
+    subdistrictId: number;
+  }) => {
+    const response = await UserService.addressDropdown(
+      provinceId,
+      districtId,
+      subdistrictId,
+    );
+    return response;
+  },
+);
 
 const addressSlice = createSlice({
   name: "address",
- initialState,
+  initialState,
   reducers: {},
 
   extraReducers: (builder) => {
@@ -96,7 +105,6 @@ const addressSlice = createSlice({
       state.addresses.push(action.payload);
       if (action.payload.isDefault) {
         state.defaultAddress = action.payload;
-        
       }
     });
 
@@ -118,37 +126,31 @@ const addressSlice = createSlice({
       }));
       state.defaultAddress = action.payload;
     });
-  
-  builder.addCase(fetchAddressDefault.fulfilled, (state, action) => {
-    state.defaultAddress = action.payload;
-  });
 
+    builder.addCase(fetchAddressDefault.fulfilled, (state, action) => {
+      state.defaultAddress = action.payload;
+    });
 
-builder.addCase(addressDropdown.fulfilled, (state, action) => {
-  const raw = action.payload;
-  const data = Array.isArray(raw) ? raw : raw.data;
+    builder.addCase(addressDropdown.fulfilled, (state, action) => {
+      const raw = action.payload;
+      const data = Array.isArray(raw) ? raw : raw.data;
 
-  const { provinceId, districtId, subdistrictId } = action.meta.arg;
+      const { provinceId, districtId, subdistrictId } = action.meta.arg;
 
-  if (Array.isArray(data)) {
-    if (!provinceId || provinceId === 0) {
-      state.provinces = data;
-      state.districts = [];
-      state.subdistricts = [];
-    } 
-    else if (provinceId > 0 && (!districtId || districtId === 0)) {
-      state.districts = data;
-      state.subdistricts = [];
-    } 
-    else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
-      state.subdistricts = data;
-    }
-
-  }
+      if (Array.isArray(data)) {
+        if (!provinceId || provinceId === 0) {
+          state.provinces = data;
+          state.districts = [];
+          state.subdistricts = [];
+        } else if (provinceId > 0 && (!districtId || districtId === 0)) {
+          state.districts = data;
+          state.subdistricts = [];
+        } else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
+          state.subdistricts = data;
+        }
+      }
+    });
+  },
 });
-  }
-
-});
-
 
 export default addressSlice.reducer;

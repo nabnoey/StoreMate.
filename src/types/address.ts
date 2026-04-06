@@ -1,15 +1,19 @@
- interface Address {
-    id: number;
-    streetAddress: string;
-    provinceId: number;
-    districtId: number;
-    subdistrictId: number;
-    receiverName: string;
-    receiverPhone: string;
-    fullAddress: string;
-    zipcodeId: string;
-    isDefault: boolean;
+interface Address {
+  id: number;
+  streetAddress: string;
+  provinceId: number;
+  districtId: number;
+  subdistrictId: number;
+  receiverName: string;
+  receiverPhone: string;
+  fullAddress: string;
+  zipcodeId: string;
+  isDefault: boolean;
 
+  province: string;
+  district: string;
+  subdistrict: string;
+  zipcode: string;
 }
 
 type DropdownItem = {
@@ -17,13 +21,13 @@ type DropdownItem = {
   name: string;
 };
 
- type AddressState = {
+type AddressState = {
   addresses: Address[];
   defaultAddress: Address | null;
   provinces: DropdownItem[];
   districts: DropdownItem[];
   subdistricts: DropdownItem[];
-  zipcodeId: DropdownItem[]
+  zipcodeId: DropdownItem[];
 };
 
 export type { Address, DropdownItem, AddressState };

@@ -3,23 +3,20 @@ import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useNavigate, Link } from "react-router-dom";
-import type { RootState } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import type { CartItem } from "../../types/cartItem";
 import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
-import type { AppDispatch } from "../../redux/store";
-import { fetchAllAddresses } from "../../redux/address/addressReducer";
+import { fetchAddressDefault } from "../../redux/address/addressReducer";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  // const [loading, setLoading] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [savedCards] = useState<SavedCard[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<string>("");
-
+  const [savedCards] = useState<SavedCard[]>([]);
   const selectedItems: CartItem[] = location.state?.items || [];
   const defaultAddress = useSelector(
     (state: RootState) =>
@@ -27,30 +24,41 @@ const PaymentShoping = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchAllAddresses());
+    dispatch(fetchAddressDefault());
+    // เพิ่มการดึงข้อมูลบัตรเครดิตที่นี่ เช่น
+    // fetchSavedCards().then(data => setSavedCards(data));
   }, [dispatch]);
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shipping = subtotal > 0 ? 14 : 0;
-  const totalPrice = subtotal + shipping;
-  const handleAddNewCard = async () => {
-    try {
-      const response = await PaymentService.createSetupIntent();
 
-      navigate("/add-credit-card", {
-        state: {
-          clientSecret: response.clientSecret,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const shipping = subtotal > 0 ? 14 : 0;
+
+  // const totalPrice = subtotal + shipping;
+
+  // const handleAddNewCard = async () => {
+  //   try {
+  //     const response = await PaymentService.createSetupIntent();
+
+  //     navigate("/add-credit-card", {
+  //       state: {
+  //         clientSecret: response.clientSecret,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleConfirmOrder = async () => {
+    if (!selectedItems || selectedItems.length === 0) {
+      toast.error("ไม่พบสินค้าในคำสั่งซื้อ");
+      navigate("/shopping-cart");
+      return;
+    }
+
     if (!defaultAddress) {
       toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า");
       return;
@@ -61,15 +69,25 @@ const PaymentShoping = () => {
       return;
     }
 
-    // setLoading(true);
     const loadingToastId = toast.loading("กำลังดำเนินการ...");
 
     try {
-      const cartItemId = selectedItems.map((item) => String(item.cartItemId));
+      const isBuyNow = location.state?.isBuyNow || false;
+
       if (paymentMethod === "credit" || paymentMethod === "qr") {
-        const responseData = await PaymentService.createPaymentIntent({
-          ids: cartItemId.map(Number),
-        });
+        const requestPayload: any = {
+          ids: selectedItems.map((item) =>
+            isBuyNow ? Number(item.productId) : Number(item.cartItemId),
+          ),
+          isBuyNow: isBuyNow,
+        };
+
+        if (paymentMethod === "credit" && selectedCardId) {
+          requestPayload.cardId = selectedCardId;
+        }
+
+        const responseData =
+          await PaymentService.createPaymentIntent(requestPayload);
 
         toast.dismiss(loadingToastId);
 
@@ -77,7 +95,8 @@ const PaymentShoping = () => {
           navigate("/checkout-stripe", {
             state: {
               clientSecret: responseData.clientSecret,
-              totalPrice: totalPrice,
+              referenceId: responseData.paymentIntentId,
+              totalPrice: subtotal,
               items: selectedItems,
             },
           });
@@ -85,7 +104,7 @@ const PaymentShoping = () => {
           navigate(`/payment-qr`, {
             state: {
               clientSecret: responseData.clientSecret,
-              totalPrice: totalPrice,
+              totalPrice: subtotal,
             },
           });
         }
@@ -107,8 +126,6 @@ const PaymentShoping = () => {
       } else {
         toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
       }
-    } finally {
-      // setLoading(false);
     }
   };
 
@@ -155,10 +172,7 @@ const PaymentShoping = () => {
       >
         <div className="p-8">
           <div className="flex items-center gap-3 mb-2 pb-4">
-            <Icon
-              icon="fa7-solid:shopping-cart"
-              className="w-8 h-8 text-black"
-            />
+            <Icon icon="ph:shopping-cart" className="w-8 h-8 text-black" />
             <h1 className="text-2xl font-bold text-black">สรุปคำสั่งซื้อ</h1>
           </div>
           <div className="mb-10">
@@ -172,7 +186,7 @@ const PaymentShoping = () => {
                     <strong className="text-black">
                       {defaultAddress.receiverName}
                     </strong>
-                    {defaultAddress.fullAddress}
+                    {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
                   </span>
                 ) : (
                   <span className="text-red-500">ยังไม่มีข้อมูลที่อยู่</span>
@@ -240,7 +254,7 @@ const PaymentShoping = () => {
                   },
                 ].map((method) => (
                   <div key={method.id} className="flex flex-col">
-                    <div
+                    <button
                       data-test="btn-select-payment-method"
                       onClick={() => setPaymentMethod(method.id)}
                       className={`cursor-pointer flex items-center gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
@@ -264,7 +278,7 @@ const PaymentShoping = () => {
                           />
                         </div>
                       )}
-                    </div>
+                    </button>
                     {method.id === "credit" && paymentMethod === "credit" && (
                       <div className="ml-0 sm:ml-12 mt-3 space-y-3">
                         {savedCards.map((card) => (
@@ -298,8 +312,9 @@ const PaymentShoping = () => {
                             </span>
                           </button>
                         ))}
-                        <div
+                        <button
                           data-test="click-add-credit-card"
+                          // onClick={handleAddNewCard}
                           className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
                         >
                           <Icon
@@ -307,13 +322,10 @@ const PaymentShoping = () => {
                             className="w-3.5 h-3.5 text-black"
                             style={{ strokeWidth: 3 }}
                           />
-                          <button
-                            onClick={handleAddNewCard}
-                            className="font-medium text-xs text-black"
-                          >
+                          <span className="font-medium text-xs text-black">
                             เพิ่มบัตรเครดิต/เดบิต
-                          </button>
-                        </div>
+                          </span>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -334,7 +346,7 @@ const PaymentShoping = () => {
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button
-                      data-tset="btn-confirm-payment"
+                      data-test="btn-confirm-payment"
                       onClick={handleConfirmOrder}
                       className=" cursor-pointer w-[146px] h-[29px] bg-[#4285F4] text-white rounded-[7px] text-[13px] font-medium shadow-md"
                     >
@@ -357,7 +369,8 @@ const PaymentShoping = () => {
                 "repeating-linear-gradient(45deg, #FF6B6B 0, #FF6B6B 12px, transparent 12px, transparent 16px, #4DABF7 16px, #4DABF7 28px, transparent 28px, transparent 32px)",
             }}
           ></div>
-          <div
+          <button
+            data-test="btn-confirm-payment-mobile"
             className="px-4 flex items-center justify-between cursor-pointer"
             onClick={() => navigate("/address-profile")}
           >
@@ -377,7 +390,7 @@ const PaymentShoping = () => {
                       {defaultAddress.receiverPhone}
                     </p>
                     <p className="text-gray-500 mt-0.5 line-clamp-2 leading-relaxed text-[13px]">
-                      {defaultAddress.fullAddress}
+                      {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
                     </p>
                   </>
                 ) : (
@@ -388,7 +401,7 @@ const PaymentShoping = () => {
               </div>
             </div>
             <Icon icon="mdi:chevron-right" className="w-6 h-6 text-gray-400" />
-          </div>
+          </button>
         </div>
 
         <div className="bg-white mb-2 shadow-sm">
@@ -446,7 +459,8 @@ const PaymentShoping = () => {
                 key={method.id}
                 className="border-b border-gray-100 last:border-none"
               >
-                <div
+                <button
+                  data-test="btn-select-payment-method-mobile"
                   className="px-4 py-3 flex items-center justify-between cursor-pointer"
                   onClick={() => setPaymentMethod(method.id)}
                 >
@@ -467,12 +481,13 @@ const PaymentShoping = () => {
                   ) : (
                     <div className="w-[20px] h-[20px] rounded-full border-2 border-gray-300"></div>
                   )}
-                </div>
+                </button>
 
                 {method.id === "credit" && paymentMethod === "credit" && (
                   <div className="bg-[#fafafa] px-5 py-2 space-y-1">
                     {savedCards.map((card) => (
-                      <div
+                      <button
+                        data-test="btn-select-saved-card-mobile"
                         key={card.id}
                         onClick={() => setSelectedCardId(card.id)}
                         className="flex items-center gap-3 py-2 cursor-pointer"
@@ -499,7 +514,7 @@ const PaymentShoping = () => {
                         <span className="text-[13px] text-gray-700">
                           {card.bankName} (****{card.last4})
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -522,12 +537,12 @@ const PaymentShoping = () => {
           </div>
           <div className="flex justify-between text-[13px] text-gray-500">
             <span>ค่าจัดส่ง</span>
-            <span>฿{shipping.toLocaleString()}</span>
+            <span>฿{subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center text-sm pt-3 mt-2 border-t border-gray-100">
             <span className="font-semibold text-gray-800">ยอดชำระทั้งหมด</span>
             <span className="text-lg font-bold text-blue-500">
-              ฿{totalPrice.toLocaleString()}
+              ฿{subtotal.toLocaleString()}
             </span>
           </div>
         </div>
@@ -539,7 +554,7 @@ const PaymentShoping = () => {
             ยอดชำระทั้งหมด
           </span>
           <span className="text-[18px] font-bold text-blue-500 leading-none">
-            ฿{totalPrice.toLocaleString()}
+            ฿{subtotal.toLocaleString()}
           </span>
         </div>
         <button

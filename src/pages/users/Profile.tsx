@@ -18,8 +18,13 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener("load", () => resolve(image));
-    image.addEventListener("error", (error) => reject(error));
-    image.setAttribute("crossOrigin", "anonymous");
+
+    // เปลี่ยนมา reject ด้วย new Error แทน
+    image.addEventListener("error", () =>
+      reject(new Error(`Failed to load image at URL: ${url}`)),
+    );
+
+    // (อย่าลืมกำหนด src ให้รูปภาพด้วยนะครับ เผื่อในโค้ดจริงตกหล่นไป)
     image.src = url;
   });
 
@@ -372,7 +377,10 @@ const ProfilePage = () => {
             <div className="flex flex-col md:flex-row md:justify-between items-stretch">
               <div className="flex-1 space-y-6 order-2 md:order-1 mt-10 md:mt-10 md:pr-26 lg:pr-16">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label className="text-black font-normal text-medium sm:w-36 shrink-0 text-center">
+                  <label
+                    htmlFor="name"
+                    className="text-black font-normal text-medium sm:w-36 shrink-0 text-center"
+                  >
                     ชื่อ - นามสกุล
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
@@ -390,7 +398,10 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label className="text-black font-normal text-md sm:w-36 shrink-0 text-center">
+                  <label
+                    htmlFor="email"
+                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
+                  >
                     อีเมล
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
@@ -408,7 +419,10 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label className="text-black font-normal text-md sm:w-36 shrink-0 text-center">
+                  <label
+                    htmlFor="phone"
+                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
+                  >
                     หมายเลขโทรศัพท์
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
@@ -428,7 +442,10 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label className="text-black font-normal text-md sm:w-36 shrink-0 text-center">
+                  <label
+                    htmlFor="createdAt"
+                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
+                  >
                     วันที่สมัคร
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
@@ -487,7 +504,7 @@ const ProfilePage = () => {
               </div>
               <div className="p-6">
                 {imageUploadStep === "upload" ? (
-                  <div
+                  <button
                     data-test="image-upload-area"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -514,7 +531,7 @@ const ProfilePage = () => {
                       accept=".jpg, .jpeg, .png, .gif"
                       className="hidden"
                     />
-                  </div>
+                  </button>
                 ) : (
                   <div className="flex flex-col items-center">
                     <div

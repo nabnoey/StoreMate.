@@ -9,8 +9,3 @@ export type PaymentIntentRequest = {
   ids: number[];
   [key: string]: number | number[] | string[];
 };
-
-// export type PaymentIntentResponse = {
-//   paymentIntentId?: string;
-//   clientSecret: string;
-// };

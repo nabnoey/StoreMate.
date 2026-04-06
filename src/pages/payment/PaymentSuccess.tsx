@@ -12,11 +12,11 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     // ลอจิกการแยกและแปลงวันที่จากรหัส ORD
-    if (orderId && orderId.startsWith("ORD")) {
+    if (orderId?.startsWith("ORD")) {
       const timeString = orderId.replace("ORD", "");
-      const timestamp = parseInt(timeString, 10);
+      const timestamp = Number.parseInt(timeString, 10);
 
-      if (!isNaN(timestamp)) {
+      if (!Number.isNaN(timestamp)) {
         const date = new Date(timestamp);
         const formattedDate = date.toLocaleString("th-TH", {
           year: "numeric",

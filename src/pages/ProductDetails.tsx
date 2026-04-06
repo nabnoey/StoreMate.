@@ -107,6 +107,7 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  //ไปที่หน้าตะน้าสินค้า
   const handleAddToCart = async (shouldRedirect = false) => {
     const token = TokenService.getAccessToken();
     if (isAddingToCart) return;
@@ -163,11 +164,9 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
+  //สั่งซื้อเลย
   const handleBuyNow = async () => {
     const token = TokenService.getAccessToken();
-    if (isAddingToCart) return;
-
-    setIsAddingToCart(true);
 
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
@@ -179,7 +178,6 @@ const ProductDetailPage: React.FC = () => {
 
     if (currentStock <= 0) {
       toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
-      setIsAddingToCart(false);
       return;
     }
 
@@ -187,34 +185,26 @@ const ProductDetailPage: React.FC = () => {
       toast.error(
         `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
       );
-      setIsAddingToCart(false);
       return;
     }
 
-    const cartItemPayload: CartItemRequestDTO = {
-      productId: productDetail.id,
-      quantity: buyQuantity,
+    const checkoutData = {
+      isBuyNow: true,
+      items: [
+        {
+          productId: productDetail.id,
+          cartItemId: null,
+          productName: productDetail.productName,
+          imageUrl: activeImage || productDetail.productImages?.[0]?.imageUrl,
+          price: productDetail.price,
+          quantity: buyQuantity,
+          totalPrice: productDetail.price * buyQuantity,
+        },
+      ],
+      total: productDetail.price * buyQuantity,
     };
 
-    try {
-      await dispatch(addToCartThunk(cartItemPayload)).unwrap();
-
-      navigate("/payment");
-    } catch (error: unknown) {
-      let backendMessage = "ไม่สามารถสั่งซื้อสินค้าได้";
-
-      if (axios.isAxiosError(error)) {
-        backendMessage = error.response?.data?.message || error.message;
-      }
-
-      if (backendMessage === "There is insufficient stock.") {
-        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
-      } else {
-        toast.error(backendMessage);
-      }
-    } finally {
-      setIsAddingToCart(false);
-    }
+    navigate("/payment", { state: checkoutData });
   };
 
   const formatDate = (dateString?: string) => {
@@ -323,7 +313,7 @@ const ProductDetailPage: React.FC = () => {
                     i < Math.round(productDetail.RatingScore || 0);
                   return (
                     <Icon
-                      key={`star-${i}`}
+                      key={`star-${productDetail.id}-${i}`}
                       icon="material-symbols:star-rounded"
                       className={`w-5 h-5 stroke-black ${
                         isFilled
