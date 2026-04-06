@@ -55,6 +55,10 @@ const AdminLayout = lazy(() =>
   lazyDelay(() => import("../layouts/AdminLayout"), 1200),
 );
 import Stock from "../pages/admin/Stock";
+import Dashboard from "../pages/admin/Dashboard";
+import Orders from "../pages/admin/Orders";
+import StoreEdit from "../pages/admin/StoreEdit";
+import UserEdit from "../pages/admin/UserEdit"
 
 const router = createBrowserRouter([
   {
@@ -148,6 +152,22 @@ const router = createBrowserRouter([
         path: "stock",
         element: <Stock />,
       },
+      {
+        path:"dashboard",
+        element:<Dashboard/>
+      },
+      {
+        path:"orders",
+        element:<Orders/>
+      },
+      {
+        path:"store-edit",
+        element:<StoreEdit/>
+      },
+      {
+        path:"user-edit",
+        element:<UserEdit/>
+      }
     ],
   },
 ]);

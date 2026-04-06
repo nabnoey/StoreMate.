@@ -1,7 +1,7 @@
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import AdminTableCard from "../../components/admin/AdminTableCard";
 
-function Stock() {
+function UserEdit() {
   return (
     <div>
       <HeaderAdmin
@@ -19,4 +19,4 @@ function Stock() {
   );
 }
 
-export default Stock;
+export default UserEdit;

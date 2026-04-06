@@ -1,6 +1,6 @@
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 
-function Stock() {
+function StoreEdit() {
   return (
     <div>
       <HeaderAdmin
@@ -11,4 +11,4 @@ function Stock() {
   );
 }
 
-export default Stock;
+export default StoreEdit;

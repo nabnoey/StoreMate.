@@ -18,24 +18,20 @@ function SidebarAdmin() {
       <div>
         {/* LOGO */}
         <div className="flex items-center gap-3 mb-6 text-center">
-          <div className="avatar">
-            <button onClick={() => navigate("/")}>
-              <img
-                src={logo}
-                className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
-                alt="Logo"
-                data-test="logo"
-              />
-            </button>
-
-            <h1 className="font-medium   mt-8 text-[30px] leading-none ">
-              Owner
-            </h1>
-          </div>
+          <div className="flex flex-col items-center justify-center w-full mb-6 text-center">
+  <button onClick={() => navigate("/")}>
+    <img
+      src={logo}
+      className="w-[81px] lg:w-38 mt-5 lg:mt-2 cursor-pointer"
+      alt="Logo"
+      data-test="logo"
+    />
+  </button>
+</div>
         </div>
 
         {/* MENU */}
-        <ul className="menu rounded-box gap-3">
+        <ul className="menu rounded-box gap-3 -mt-10">
           <li>
             <button
               data-test="dashboard-button"
@@ -48,6 +44,16 @@ function SidebarAdmin() {
             </button>
           </li>
 
+            <li>
+            <div
+              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              onClick={() => navigate("/admin/stock")}
+            >
+              <Package size={18} />
+              รายงานยอดขาย
+            </div>
+          </li>
+
           <li>
             <button
               data-test="stock-button"
@@ -58,15 +64,7 @@ function SidebarAdmin() {
               จัดการสินค้าในคลัง
             </button>
           </li>
-          <li>
-            <div
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/stock")}
-            >
-              <Package size={18} />
-              จัดการสินค้าในคลัง
-            </div>
-          </li>
+      
 
           <li>
             <div
@@ -105,7 +103,7 @@ function SidebarAdmin() {
         <div className="flex items-center gap-3 mb-3">
           <div className="avatar">
             <div className="w-10 rounded-full">
-              <img src="https://i.pravatar.cc/100" />
+              <img src="https://i.pinimg.com/736x/48/ba/96/48ba960bbe24be9b33a363629dda7ee1.jpg" />
             </div>
           </div>
           <div>
