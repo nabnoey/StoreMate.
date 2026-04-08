@@ -192,7 +192,10 @@ const AddCreditCardFormInner = () => {
           </div>
 
           <div>
-            <label className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5">
+            <label
+              htmlFor="cardNumber"
+              className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+            >
               หมายเลขบัตร
             </label>
             <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
@@ -202,7 +205,10 @@ const AddCreditCardFormInner = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5">
+              <label
+                htmlFor="cardExpiry"
+                className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+              >
                 วันหมดอายุ
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
@@ -211,7 +217,10 @@ const AddCreditCardFormInner = () => {
             </div>
 
             <div>
-              <label className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5">
+              <label
+                htmlFor="cardCvc"
+                className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+              >
                 CVC
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
@@ -233,7 +242,7 @@ const AddCreditCardFormInner = () => {
         <div className="max-w-[500px] mx-auto mt-8 bg-[#f4f7fd] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mx-1 sm:mx-auto">
           <Icon
             icon="lucide:shield-check"
-            className="w-5 h-5 flex-shrink-0 text-[#4285F4] mt-0.5"
+            className="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5"
           />
           <div className="flex flex-col">
             <strong className="text-gray-900 font-bold mb-1 text-[13px]">

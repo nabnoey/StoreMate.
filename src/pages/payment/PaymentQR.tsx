@@ -16,11 +16,13 @@ const PaymentQRInner = () => {
 
   const clientSecret = location.state?.clientSecret;
   const totalPrice = location.state?.totalPrice || 0;
+  // const orderRef = location.state?.orderRef || "N/A";
 
   const [showQR] = useState(true);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
 
   const [qrImage, setQrImage] = useState<string | null>(null);
+  const [refId, setRefId] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(true);
   const hasRequestedQR = useRef(false);
 
@@ -52,6 +54,12 @@ const PaymentQRInner = () => {
         if (error) {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
         } else {
+          if (paymentIntent?.id) {
+            // ดึง 6 ตัวอักษรสุดท้ายจาก pi_... มาทำเป็นตัวพิมพ์ใหญ่
+            const shortRef = paymentIntent.id.slice(-6).toUpperCase();
+            setRefId(shortRef);
+          }
+
           const nextAction: any = paymentIntent?.next_action;
           const qrData =
             nextAction?.promptpay_display_qr_code?.image_url_svg ||
@@ -100,11 +108,11 @@ const PaymentQRInner = () => {
     return `${m}:${s}`;
   };
 
-  const handleConfirmPaid = () => {
-    toast.success("ส่งข้อมูลยืนยันการชำระเงินเรียบร้อย");
-    // navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
-    navigate(`/payment/success`);
-  };
+  // const handleConfirmPaid = () => {
+  //   toast.success("ส่งข้อมูลยืนยันการชำระเงินเรียบร้อย");
+  //   // navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
+  //   navigate(`/payment/success`);
+  // };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
@@ -220,15 +228,15 @@ const PaymentQRInner = () => {
                 <span className="text-blue-500 font-bold text-xl mb-3">
                   ฿ {totalPrice.toLocaleString()}
                 </span>
-                <span className="text-[13px] sm:text-sm font-bold text-black mb-1">
+                <span className="text-[13px] sm:text-md font-bold text-black mb-1">
                   บริษัท สโตร์เมท จำกัด
                 </span>
-                <span className="text-[11px] sm:text-xs font-medium text-gray-500 mb-3">
+                <span className="text-[11px] px-5 sm:text-md font-medium text-gray-500 mb-2">
                   STOREMATE CO.,LTD.
                 </span>
-                <div className="bg-gray-100 px-3 py-1.5 rounded-md w-full text-center">
-                  <span className="text-[11px] sm:text-xs text-gray-600 font-bold font-mono">
-                    Ref: {id}
+                <div className="px-2 py-0.5 rounded-md w-full text-center">
+                  <span className="text-[11px] sm:text-md text-[#94A3B8] font-bold">
+                    รหัสอ้างอิง: {refId || "กำลังโหลด..."}
                   </span>
                 </div>
               </div>
@@ -289,7 +297,7 @@ const PaymentQRInner = () => {
             </div>
           </div>
 
-          {/* ปุ่มยืนยัน */}
+          {/* ปุ่มยืนยัน
           <div className="flex justify-center mt-4 lg:mt-8 px-4 lg:px-0">
             <button
               data-test="confirm-paid-btn"
@@ -298,7 +306,7 @@ const PaymentQRInner = () => {
             >
               ยืนยัน
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

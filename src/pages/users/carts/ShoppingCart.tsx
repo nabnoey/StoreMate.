@@ -60,9 +60,12 @@ const ShoppingCart = () => {
     }
   };
 
-  const selectedCartItems = enrichedCartItems.filter((item) =>
-    selectedItems.includes(item.productId),
-  );
+  const selectedCartItems = enrichedCartItems
+    .filter((item) => selectedItems.includes(item.productId))
+    .map((item) => ({
+      ...item,
+      cartItemId: item.cartItemId,
+    }));
 
   const subtotal = selectedCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -375,7 +378,7 @@ const ShoppingCart = () => {
                 onClick={() => navigate("/")}
                 className="bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
               >
-                เลือกซื้อสินค้า{" "}
+                เลือกซื้อสินค้า
                 <Icon icon="lucide:arrow-right" className="w-4 h-4" />
               </button>
             </div>

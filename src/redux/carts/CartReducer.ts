@@ -110,10 +110,11 @@ const cartSlice = createSlice({
 
         if (existingItem) {
           existingItem.quantity += requestData.quantity;
-        } else {
-          if (typeof action.payload === "object" && action.payload !== null) {
-            state.items.push(action.payload);
-          }
+        } else if (
+          typeof action.payload === "object" &&
+          action.payload !== null
+        ) {
+          state.items.push(action.payload);
         }
       })
       .addCase(addToCartThunk.rejected, (state, action: any) => {
