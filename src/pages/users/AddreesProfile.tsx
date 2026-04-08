@@ -58,8 +58,6 @@ const AddressProfile = () => {
     }));
   };
 
-  console.log("formData", formData);
-
   const openEditModal = (address: Address) => {
     setIsEditMode(true);
     setTargetAddressId(String(address.id));
@@ -70,12 +68,10 @@ const AddressProfile = () => {
   };
 
   const fillAddressData = async (address: Address) => {
-    const full = address.fullAddress;
-
-    const streetAddress = full.split(" ต.")[0] || "";
-    const subDistrictName = full.split("ต.")[1]?.split(" ")[0] || "";
-    const districtName = full.split("อ.")[1]?.split(" ")[0] || "";
-    const provinceName = full.split("จ.")[1]?.split(" ")[0] || "";
+    const streetAddress = address.streetAddress;
+    const subDistrictName = address.subdistrict;
+    const districtName = address.district;
+    const provinceName = address.province;
 
     // จังหวัด
     const provinceRes = await dispatch(
@@ -84,7 +80,8 @@ const AddressProfile = () => {
 
     const province =
       provinceRes.find(
-        (p: { id: number; name: string }) => p.name === provinceName,
+        (p: { id: number; name: string }) =>
+          String(p.name).trim() === String(provinceName).trim(),
       )?.id || 0;
 
     setFormData((prev) => ({
@@ -104,7 +101,8 @@ const AddressProfile = () => {
 
     const district =
       districtRes.find(
-        (d: { id: number; name: string }) => d.name === districtName,
+        (d: { id: number; name: string }) =>
+          String(d.name).trim() === String(districtName).trim(),
       )?.id || 0;
 
     setFormData((prev) => ({
@@ -122,7 +120,8 @@ const AddressProfile = () => {
     ).unwrap();
 
     const selectedSub = subRes.find(
-      (s: { id: number; name: string }) => s.name === subDistrictName,
+      (s: { id: number; name: string }) =>
+        String(s.name).trim() === String(subDistrictName).trim(),
     );
 
     const subDistrict = selectedSub?.id || 0;
@@ -135,7 +134,7 @@ const AddressProfile = () => {
       }),
     ).unwrap();
 
-    const zipcode = zipRes[0]?.id || "";
+    const zipcode = zipRes[0]?.name || "";
 
     setFormData((prev) => ({
       ...prev,
@@ -198,7 +197,7 @@ const AddressProfile = () => {
           id: Number(targetAddressId),
           data: {
             streetAddress: streetAddress,
-            zipcodeId: zipcode || currentAddress?.zipcodeId,
+            zipcode: zipcode || currentAddress?.zipcode,
             isDefault: currentAddress?.isDefault || false,
           },
         }),
@@ -209,7 +208,7 @@ const AddressProfile = () => {
       await dispatch(
         addAddress({
           streetAddress: streetAddress,
-          zipcodeId: zipcode,
+          zipcode: zipcode,
           isDefault: false,
         }),
       );
@@ -300,7 +299,8 @@ const AddressProfile = () => {
                       </span>
                     </div>
                     <div className="text-sm text-gray-500 leading-relaxed">
-                      {address.fullAddress}
+                      {address.streetAddress} ต.{address.subdistrict} อ.
+                      {address.district} จ.{address.province} {address.zipcode}
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-1">
@@ -493,7 +493,7 @@ const AddressProfile = () => {
                         ).unwrap();
                         setFormData((prev) => ({
                           ...prev,
-                          zipcode: res?.[0]?.id || "",
+                          zipcode: res?.[0]?.name || "",
                         }));
                       }}
                       className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
