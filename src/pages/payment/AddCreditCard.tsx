@@ -36,13 +36,17 @@ const AddCreditCardFormInner = () => {
     },
   };
 
+  if (!clientSecret) {
+    return <div>Invalid session</div>;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement || !clientSecret) {
-      toast.error("เซสชันไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+    if (!cardNumberElement) {
+      toast.error("กรุณากรอกข้อมูลบัตรให้ครบถ้วน");
       return;
     }
 
@@ -52,26 +56,36 @@ const AddCreditCardFormInner = () => {
       const userProfile = await UserService.getProfile();
       const userEmail = userProfile?.email || "guest@yourstore.com";
 
-      const { error, setupIntent: _setupIntent } =
-        await stripe.confirmCardSetup(clientSecret, {
-          payment_method: {
-            card: cardNumberElement,
-            billing_details: {
-              email: userEmail,
-              name: cardName || userProfile?.name || "Guest",
+      // 📌 ใช้ createPaymentMethod แทน เพื่อแปลงบัตรเป็น Token (pm_xxxx)
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardNumberElement,
+        billing_details: {
+          email: userEmail,
+          name: cardName || userProfile?.name || "Guest",
+        },
+      });
+
+      if (error || !paymentMethod) {
+        toast.error(error?.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
+      } else {
+        toast.success("เพิ่มบัตรชั่วคราวสำเร็จ!");
+
+        // ส่ง Payment Method ID และข้อมูลบัตรกลับไปหน้า /payment
+        navigate("/payment", {
+          state: {
+            cartItems,
+            newCard: {
+              id: paymentMethod.id, // จะได้ค่าเช่น pm_1Nxxxx...
+              brand: paymentMethod.card?.brand || "unknown", // เช่น visa, mastercard
+              last4: paymentMethod.card?.last4 || "****",
             },
           },
         });
-
-      if (error) {
-        toast.error(error.message || "เกิดข้อผิดพลาด");
-      } else {
-        toast.success("เพิ่มบัตรสำเร็จ!");
-        navigate("/payment", { state: { cartItems: cartItems } });
       }
     } catch (err) {
       console.error(err);
-      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้");
+      toast.error("ไม่สามารถเชื่อมต่อระบบได้");
     } finally {
       setIsProcessing(false);
     }
@@ -261,6 +275,8 @@ const AddCreditCardFormInner = () => {
 };
 
 const AddCreditCardForm = () => {
+  const location = useLocation();
+
   return (
     <Elements stripe={stripePromise}>
       <AddCreditCardFormInner />

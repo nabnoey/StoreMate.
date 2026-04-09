@@ -66,6 +66,10 @@ const PaymentSuccess = lazy(() =>
 const PaymentCancel = lazy(() =>
   lazyDelay(() => import("../pages/payment/PaymentCancel"), 1200),
 );
+
+const HistoryPage = lazy(() =>
+  lazyDelay(() => import("./../pages/users/HistoryShop"), 1200),
+);
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
@@ -180,6 +184,14 @@ const router = createBrowserRouter([
       {
         path: "/payment/cancel",
         element: <PaymentCancel />,
+      },
+      {
+        path: "history-shop",
+        element: (
+          <ProtectedRout>
+            <HistoryPage />
+          </ProtectedRout>
+        ),
       },
     ],
   },

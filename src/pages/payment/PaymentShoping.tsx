@@ -1,31 +1,55 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation,useNavigate, Link } from "react-router-dom";
-import type { RootState,AppDispatch } from "../../redux/store";
+import { useLocation } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import type { CartItem } from "../../types/cartItem";
 import type { SavedCard } from "../../types/payment";
+import { addCard, setSelectedCard } from "../../redux/payment/paymentReducer";
 import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+  //ข้อมูลที่ส่งมาจากหน้ารถเข็น
   const location = useLocation();
+
+  //เลือกจ่ายตัง
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [selectedCardId, setSelectedCardId] = useState<string>("");
-  const [savedCards] = useState<SavedCard[]>([]);
+
+  //เลือกบัตรเครดิต
+  const selectedCardId = useSelector(
+    (state: RootState) => state.payment.selectedCardId,
+  );
+
+  //รายการสินค้าที่เลือกจากหน้ารถเข็น
   const selectedItems: CartItem[] = location.state?.items || [];
+
+  //ที่อยู่เริ่มต้น
   const defaultAddress = useSelector(
     (state: RootState) =>
       state.address.defaultAddress || state.address.addresses[0],
   );
 
+  //เพิ่มบัตร
+  const savedCards = useSelector(
+    (state: RootState) => state.payment.savedCards,
+  );
+  const newCard = location.state?.newCard as SavedCard | undefined;
+
+  useEffect(() => {
+    if (newCard) {
+      dispatch(addCard(newCard));
+      dispatch(setSelectedCard(newCard.id));
+    }
+  }, [dispatch, newCard]);
+
   useEffect(() => {
     dispatch(fetchAddressDefault());
-    // เพิ่มการดึงข้อมูลบัตรเครดิตที่นี่ เช่น
-    // fetchSavedCards().then(data => setSavedCards(data));
   }, [dispatch]);
 
   const subtotal = selectedItems.reduce(
@@ -36,20 +60,6 @@ const PaymentShoping = () => {
   // const shipping = subtotal > 0 ? 14 : 0;
 
   // const totalPrice = subtotal + shipping;
-
-  // const handleAddNewCard = async () => {
-  //   try {
-  //     const response = await PaymentService.createSetupIntent();
-
-  //     navigate("/add-credit-card", {
-  //       state: {
-  //         clientSecret: response.clientSecret,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const handleConfirmOrder = async () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -81,16 +91,26 @@ const PaymentShoping = () => {
           isBuyNow: isBuyNow,
         };
 
-        if (paymentMethod === "credit" && selectedCardId) {
+        console.log(selectedItems);
+
+        if (paymentMethod === "credit") {
+          if (!selectedCardId) {
+            toast.error("กรุณาเลือกบัตร");
+            return;
+          }
+
           requestPayload.cardId = selectedCardId;
         }
 
+        console.log("payload:", requestPayload);
         const responseData =
           await PaymentService.createPaymentIntent(requestPayload);
+        console.log(responseData);
 
         toast.dismiss(loadingToastId);
 
         if (paymentMethod === "credit") {
+          (document.activeElement as HTMLElement)?.blur();
           navigate("/checkout-stripe", {
             state: {
               clientSecret: responseData.clientSecret,
@@ -256,7 +276,7 @@ const PaymentShoping = () => {
                     <button
                       data-test="btn-select-payment-method"
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`cursor-pointer flex items-center gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
+                      className={`cursor-pointer flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
                     >
                       <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
                         <Icon icon={method.icon} className="w-5 h-5" />
@@ -283,7 +303,7 @@ const PaymentShoping = () => {
                         {savedCards.map((card) => (
                           <button
                             key={card.id}
-                            onClick={() => setSelectedCardId(card.id)}
+                            onClick={() => dispatch(setSelectedCard(card.id))}
                             className="flex items-center gap-3 cursor-pointer"
                           >
                             <div
@@ -313,7 +333,7 @@ const PaymentShoping = () => {
                         ))}
                         <button
                           data-test="click-add-credit-card"
-                          // onClick={handleAddNewCard}
+                          onClick={() => navigate("/add-credit-card")}
                           className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
                         >
                           <Icon
@@ -438,9 +458,11 @@ const PaymentShoping = () => {
         <div className="bg-white mb-2 shadow-sm">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-100">
             <Icon icon="mdi:cash-multiple" className="w-5 h-5 text-blue-500" />
-            <span className="font-semibold text-sm">วิธีการชำระเงิน</span>
+            <span className="font-semibold text-sm">
+              เลือกช่องทางการชำระเงิน
+            </span>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col items-start">
             {[
               {
                 id: "qr",
@@ -458,12 +480,11 @@ const PaymentShoping = () => {
                 key={method.id}
                 className="border-b border-gray-100 last:border-none"
               >
-                <button
-                  data-test="btn-select-payment-method-mobile"
-                  className="px-4 py-3 flex items-center justify-between cursor-pointer"
+                <div
+                  className="px-4 py-3 flex items-center justify-between text-left w-full"
                   onClick={() => setPaymentMethod(method.id)}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center text-left  gap-3 flex-1">
                     <Icon
                       icon={method.icon}
                       className="w-5 h-5 text-gray-600"
@@ -480,15 +501,15 @@ const PaymentShoping = () => {
                   ) : (
                     <div className="w-[20px] h-[20px] rounded-full border-2 border-gray-300"></div>
                   )}
-                </button>
+                </div>
 
+                {/* Nested Credit Cards for Mobile */}
                 {method.id === "credit" && paymentMethod === "credit" && (
                   <div className="bg-[#fafafa] px-5 py-2 space-y-1">
                     {savedCards.map((card) => (
-                      <button
-                        data-test="btn-select-saved-card-mobile"
+                      <div
                         key={card.id}
-                        onClick={() => setSelectedCardId(card.id)}
+                        onClick={() => dispatch(setSelectedCard(card.id))}
                         className="flex items-center gap-3 py-2 cursor-pointer"
                       >
                         {selectedCardId === card.id ? (
@@ -513,8 +534,20 @@ const PaymentShoping = () => {
                         <span className="text-[13px] text-gray-700">
                           {card.bankName} (****{card.last4})
                         </span>
-                      </button>
+                      </div>
                     ))}
+                    <div
+                      onClick={() => navigate("/add-credit-card")}
+                      className="flex items-center gap-2 py-3 cursor-pointer text-blue-500 pl-8"
+                    >
+                      <Icon
+                        icon="lucide:plus-circle"
+                        className="w-[18px] h-[18px]"
+                      />
+                      <span className="text-[13px] font-medium">
+                        เพิ่มบัตรใหม่
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>

@@ -1,233 +1,137 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
+import { Icon } from "@iconify/react";
+import StatusOrderTabs from "../../components/user/StatusOrderTabs";
+import type { CartItem } from "../../types/cartItem";
+import { useLocation } from "react-router-dom";
 
-// --- Types ---
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-}
+const HistoryPage = () => {
+  const location = useLocation();
+  const selectedItems: CartItem[] = location.state?.items || [];
+  // สร้าง State สำหรับเก็บว่ากำลังเลือก Tab ไหนอยู่ (ตั้งค่าเริ่มต้นเป็น "ที่ต้องได้รับ")
+  const [currentTab, setCurrentTab] = useState("ที่ต้องได้รับ");
 
-interface OrderItem {
-  productId: string;
-  quantity: number;
-  productDetail?: Product;
-}
+  const subtotal = selectedItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
-interface Order {
-  id: string;
-  shopName: string;
-  statusDelivery: string;
-  statusPayment: string;
-  items: OrderItem[];
-  totalPrice: number;
-}
+  return (
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
+      <div className="max-w-[1200px] mx-auto px-4">
+        {/* Nav (Breadcrumbs) */}
+        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-6 font-medium">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="hover:text-blue-500 transition-colors"
+          >
+            หน้าหลัก
+          </Link>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1 text-black"
+          />
+          <Link to="/profile" className="hover:text-blue-500 transition-colors">
+            การซื้อของฉัน
+          </Link>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1 text-black"
+          />
+          <span className="text-black">สถานะคำสั่งซื้อ</span>
+        </nav>
 
-const TABS = [
-  "ทั้งหมด",
-  "รอการชำระเงิน",
-  "ที่ต้องจัดส่ง",
-  "ที่ต้องได้รับ",
-  "คำสั่งซื้อสำเร็จ",
-  "การคืนเงิน",
-  "คืนสินค้า",
-  "ยกเลิกแล้ว",
-];
-
-const mockOrders: Order[] = [
-  {
-    id: "ORD-001",
-    shopName: "ร้านพัดทอง",
-    statusDelivery: "พัสดุถูกจัดส่งแล้ว",
-    statusPayment: "สำเร็จแล้ว",
-    totalPrice: 180,
-    items: [
-      { productId: "PROD-001", quantity: 1 },
-      { productId: "PROD-002", quantity: 1 },
-    ],
-  },
-];
-
-const HistoryShop = () => {
-  const [activeTab, setActiveTab] = useState<string>("ทั้งหมด");
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const fetchMockProduct = async (productId: string): Promise<Product> => {
-    // จำลอง API delay 500ms
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return {
-      id: productId,
-      name: "น้ำมะม่วงหาวมะนาวโห่ สูตรไม่มีน้ำตาล 50 ขวด สกัดจากผลที่แก่จัด วิตามินซี เสริมภูมิคุ้มกันร่างกาย",
-      image: "https://www.nanagarden.com/picture/product/400/338965.jpg",
-      price: 90,
-    };
-  };
-
-  const updateOrderDetails = async (order: Order): Promise<Order> => {
-    const updatedItems = await Promise.all(
-      order.items.map(async (item) => {
-        if (item.productDetail) return item;
-        const details = await fetchMockProduct(item.productId);
-        return { ...item, productDetail: details };
-      }),
-    );
-    return { ...order, items: updatedItems };
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const results = await Promise.all(orders.map(updateOrderDetails));
-        setOrders(results);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  const filteredOrders = useMemo(() => {
-    if (activeTab === "ทั้งหมด") return orders;
-    return orders.filter(
-      (order) =>
-        order.statusPayment.includes(activeTab) ||
-        order.statusDelivery.includes(activeTab),
-    );
-  }, [activeTab, orders]);
-
-  const renderOrderList = () => {
-    if (isLoading) {
-      return (
-        <div className="text-center py-20 text-gray-500 bg-white border border-gray-200 shadow-sm rounded-sm">
-          <div className="animate-pulse">
-            กำลังโหลดข้อมูลประวัติการสั่งซื้อ...
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Sidebar */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <ProfileSidebar />
           </div>
-        </div>
-      );
-    }
 
-    if (filteredOrders.length === 0) {
-      return (
-        <div className="text-center py-20 text-gray-400 bg-white border border-gray-200 shadow-sm rounded-sm">
-          ไม่มีประวัติการสั่งซื้อในหมวด "{activeTab}"
-        </div>
-      );
-    }
+          {/* Main Content */}
+          <main className="flex-1 w-full min-h-[500px]">
+            {/* เรียกใช้ Component Tabs */}
+            <StatusOrderTabs
+              activeTab={currentTab}
+              onTabChange={(tabName) => setCurrentTab(tabName)}
+            />
 
-    return filteredOrders.map((order) => (
-      <div
-        key={order.id}
-        className="bg-white shadow-sm border border-gray-200 p-4 sm:p-6 mb-4"
-      >
-        <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center pb-3 border-b border-gray-100 gap-2">
-          <span className="font-semibold text-black text-base">
-            {order.shopName}
-          </span>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="text-green-600 font-medium">
-              {order.statusDelivery}
-            </span>
-            <div className="w-[1px] h-3 bg-gray-300 mx-1 hidden md:block"></div>
-            <span className="text-blue-600 font-medium">
-              {order.statusPayment}
-            </span>
-          </div>
-        </div>
+            {/* ส่วนนี้สามารถเพิ่ม Logic เพื่อกรองสินค้าตาม currentTab ได้เลยในอนาคต */}
 
-        <div className="flex flex-col">
-          {order.items.map((item) => (
-            <div
-              key={item.productId}
-              className="flex gap-4 py-5 border-b border-gray-100 last:border-b-0"
-            >
-              {/* Product Image */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-50 border border-gray-100 rounded overflow-hidden">
-                {item.productDetail?.image && (
-                  <img
-                    src={item.productDetail.image}
-                    alt={item.productDetail.name}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+            {/* Order Item */}
+            <div className="bg-white">
+              {/* Order Header */}
+              <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">เลขที่คำสั่งซื้อ</p>
+                  <p className="font-medium text-black">ORD-2024-001</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">วันที่สั่งซื้อ</p>
+                  <p className="font-medium text-black">15 มีนาคม 2567</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">สถานะ</p>
+                  <p className="font-medium text-[#5B95F9]">
+                    {currentTab}
+                  </p>{" "}
+                </div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-between">
-                <h3 className="text-sm text-gray-800 line-clamp-2 leading-snug">
-                  {item.productDetail?.name || "กำลังโหลด..."}
-                </h3>
-                <div className="flex flex-col items-end w-full">
-                  <span className="text-gray-500 text-xs sm:text-sm">
-                    x {item.quantity}
+              <div className="flex flex-col gap-2 py-6 border-b border-gray-100 items-start w-full">
+                {selectedItems.map((item) => (
+                  <div
+                    key={item.productId}
+                    className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
+                  >
+                    <img
+                      src={item.imageUrl || ""}
+                      alt=""
+                      className="w-16 h-16 object-contain rounded-md"
+                    />
+                    <div className="flex-1 font-bold text-sm line-clamp-1">
+                      {item.productName}
+                    </div>
+                    <div className="w-24 text-center text-sm">
+                      ฿ {item.price.toLocaleString()}
+                    </div>
+                    <div className="w-12 text-center text-sm">
+                      x {item.quantity}
+                    </div>
+                    <div className="w-24 text-right text-blue-500 font-medium text-sm">
+                      ฿ {(item.price * item.quantity).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Payment Detail Section */}
+              <div className="pt-8 w-full">
+                <h2 className="font-bold text-xl mb-4 text-black">
+                  การชำระเงิน
+                </h2>
+                <div className="flex justify-between items-center py-4 bg-[#F9F9F9] px-4 rounded-t-sm mb-[2px]">
+                  <span className="text-black font-medium">
+                    วิธีการชำระเงิน
                   </span>
-                  <span className="text-[#E53725] font-bold text-base sm:text-lg">
-                    {item.productDetail?.price.toLocaleString()}฿
+                  <span className="text-gray-700">บัตรเครดิต/เดบิต</span>
+                </div>
+                <div className="flex justify-between items-center py-4 bg-[#F9F9F9] px-4 rounded-b-sm">
+                  <span className="text-black font-bold text-lg">
+                    ยอดรวมสุทธิ
+                  </span>
+                  <span className="font-bold text-[#5B95F9] text-xl">
+                    ฿ {subtotal.toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
-          ))}
+          </main>
         </div>
-
-        <div className="mt-2 pt-4 flex flex-col items-end gap-4 border-t border-gray-50">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600">รวมการสั่งซื้อ:</span>
-            <span className="text-xl font-bold text-[#E53725]">
-              {order.totalPrice.toLocaleString()}฿
-            </span>
-          </div>
-          <button
-            type="button"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-2.5 rounded text-sm font-medium transition-colors shadow-sm"
-          >
-            ซื้ออีกครั้ง
-          </button>
-        </div>
-      </div>
-    ));
-  };
-
-  return (
-    <div
-      id="page-history-shop"
-      className="min-h-screen bg-gray-50 font-sans text-gray-950 pt-4 sm:pt-10 pb-20"
-    >
-      <div className="max-w-[1200px] mx-auto px-3 sm:px-4 flex flex-col md:flex-row gap-6">
-        <ProfileSidebar />
-
-        <main className="flex-1 w-full min-w-0">
-          <nav className="bg-white shadow-sm border border-gray-200 mb-4 overflow-x-auto no-scrollbar">
-            <div className="flex w-max min-w-full">
-              {TABS.map((tab) => {
-                const isActive = activeTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-5 py-4 text-sm font-medium whitespace-nowrap transition-colors flex-1 text-center border-b-2 
-                      ${
-                        isActive
-                          ? "border-blue-500 text-blue-500"
-                          : "border-transparent text-gray-600 hover:text-blue-500"
-                      }`}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-
-          <div className="space-y-4">{renderOrderList()}</div>
-        </main>
       </div>
     </div>
   );
 };
 
-export default HistoryShop;
+export default HistoryPage;

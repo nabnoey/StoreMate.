@@ -14,3 +14,8 @@ export interface Order {
   items: OrderItem[];
   totalPrice: number;
 }
+
+export interface StatusOrderTabsProps {
+  activeTab: string;
+  onTabChange: (tabName: string) => void;
+}
