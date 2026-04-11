@@ -69,8 +69,8 @@ const AddressProfile = () => {
 
   const fillAddressData = async (address: Address) => {
     const streetAddress = address.streetAddress;
-    const subDistrictName = address.subdistrict;
     const districtName = address.district;
+    const subDistrictName = address.subdistrict;
     const provinceName = address.province;
 
     // จังหวัด
