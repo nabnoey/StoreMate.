@@ -4,15 +4,16 @@ import { Icon } from "@iconify/react";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
-  // ดึงรหัสออเดอร์จาก URL (?id=ORD...)
+ const status: string = searchParams.get("status") || "ALL";
+
   const orderId = searchParams.get("id") || "";
   const [orderDate, setOrderDate] = useState("");
 
   useEffect(() => {
-    // ลอจิกการแยกและแปลงวันที่จากรหัส ORD
-    if (orderId?.startsWith("ORD")) {
+
+    if (orderId && orderId.startsWith("ORD")) {
       const timeString = orderId.replace("ORD", "");
       const timestamp = Number.parseInt(timeString, 10);
 
@@ -81,7 +82,7 @@ const PaymentSuccess = () => {
           {/* ปุ่ม Action (Responsive: มือถือเรียงลง ลากจอใหญ่เรียงข้าง) */}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => navigate("/orders")}
+              onClick={() => navigate(`/orders?status=${status}`)}
               className="flex-1 bg-[#007AFF] hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg"
             >
               ดูคำสั่งซื้อ
