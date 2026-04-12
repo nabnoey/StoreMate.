@@ -28,20 +28,20 @@ const OrderCard = ({ order }: Props) => {
         {order.orderItems.map((item:OrderItem) => (
           <div key={item.id} className="flex gap-6 py-6 border-b border-gray-100 last:border-b-0">
             <div className="w-24 h-24 flex-shrink-0 border border-gray-100 rounded-md overflow-hidden bg-gray-50">
-              {item.productDetail?.imageUrl && (
-                <img src={item.productDetail.imageUrl} alt="" className="w-full h-full object-contain p-1" />
+              {item.imageUrl && (
+                <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-contain p-1" />
               )}
             </div>
             <div className="flex-1 flex justify-between items-start">
               <div className="space-y-2">
                 <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                  {item.?.productName || "กำลังโหลด..."}
+                  {item.productName || "กำลังโหลด..."}
                 </h3>
-                <p className="text-gray-600 text-sm font-medium">ราคาต่อหน่วย ฿ {item.productDetail?.price.toLocaleString()}</p>
+                <p className="text-gray-600 text-sm font-medium">ราคาต่อหน่วย ฿ {item.price?.toLocaleString()}</p>
                 <p className="text-gray-600 text-sm">จำนวน x {item.quantity}</p>
               </div>
               <div className="text-[#3b82f6] font-bold text-xl">
-                ฿ {((item.productDetail?.price || 0) * item.quantity).toLocaleString()}
+                ฿ {item.subTotal?.toLocaleString()}
               </div>
             </div>
           </div>
