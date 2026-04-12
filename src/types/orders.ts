@@ -28,6 +28,8 @@ export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
+  totalPrice: number;       
+  statusDelivery?: string;  
   checkoutType: string;
 
   orderAddress: OrderAddress[];

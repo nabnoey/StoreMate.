@@ -33,23 +33,6 @@ const PaymentShoping = () => {
     0,
   );
 
-  // const shipping = subtotal > 0 ? 14 : 0;
-
-  // const totalPrice = subtotal + shipping;
-
-  // const handleAddNewCard = async () => {
-  //   try {
-  //     const response = await PaymentService.createSetupIntent();
-
-  //     navigate("/add-credit-card", {
-  //       state: {
-  //         clientSecret: response.clientSecret,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const handleConfirmOrder = async () => {
     if (!selectedItems || selectedItems.length === 0) {
