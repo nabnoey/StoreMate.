@@ -4,11 +4,7 @@ import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
 import reviewsReducer from "./reviews/reviewsReducer";
 import addressReducer from "./address/addressReducer";
-
-//import middleware จาก payment มาด้วยเลย
-import paymentReducer, {
-  paymentLocalStorageMiddleware,
-} from "./payment/paymentReducer";
+import paymentReducer from "./payment/PaymentReducer";
 
 export const store = configureStore({
   reducer: {
@@ -20,10 +16,6 @@ export const store = configureStore({
     payment: paymentReducer,
   },
   devTools: true,
-
-  //เสียบ middleware ของ payment ในนระบบเลย
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(paymentLocalStorageMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

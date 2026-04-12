@@ -16,7 +16,6 @@ const PaymentQRInner = () => {
 
   const clientSecret = location.state?.clientSecret;
   const totalPrice = location.state?.totalPrice || 0;
-  // const orderRef = location.state?.orderRef || "N/A";
 
   const [showQR] = useState(true);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
@@ -90,7 +89,6 @@ const PaymentQRInner = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
-        // navigate(`/payment/cancel?id=${id}&reason=timeout`);
         navigate(`/payment/cancel`);
         return;
       }
@@ -108,12 +106,6 @@ const PaymentQRInner = () => {
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
-
-  // const handleConfirmPaid = () => {
-  //   toast.success("ส่งข้อมูลยืนยันการชำระเงินเรียบร้อย");
-  //   // navigate(`/payment/success?id=${id}`, { state: { clientSecret } });
-  //   navigate(`/payment/success`);
-  // };
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">

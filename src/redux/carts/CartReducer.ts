@@ -8,12 +8,14 @@ import { CartItemService } from "../../services/cartitem.service";
 
 interface CartState {
   items: CartItem[];
+  selectedItems: CartItem[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: CartState = {
   items: [],
+  selectedItems: [],
   status: "idle",
   error: null,
 };
@@ -93,6 +95,14 @@ const cartSlice = createSlice({
       state.items = state.items.filter(
         (item) => String(item.productId) !== String(action.payload),
       );
+
+      state.selectedItems = state.selectedItems.filter(
+        (item) => String(item.productId) !== String(action.payload),
+      );
+    },
+
+    setSelectedItems: (state, action: PayloadAction<CartItem[]>) => {
+      state.selectedItems = action.payload;
     },
   },
 
@@ -150,6 +160,10 @@ const cartSlice = createSlice({
         state.items = state.items.filter(
           (item) => item.productId !== productId,
         );
+
+        state.selectedItems = state.selectedItems.filter(
+          (item) => item.productId !== productId,
+        );
       })
       .addCase(fetchCartThunk.pending, (state) => {
         state.status = "loading";
@@ -165,6 +179,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeFromCart } = cartSlice.actions;
+export const { removeFromCart, setSelectedItems } = cartSlice.actions;
 
 export default cartSlice.reducer;
