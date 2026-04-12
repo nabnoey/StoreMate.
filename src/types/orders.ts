@@ -43,3 +43,7 @@ export interface OrdersState {
   error: string | null;
 }
 
+export interface StatusOrderTabsProps {
+  activeTab: string;
+  onTabChange: (tabName: string) => void;
+}
