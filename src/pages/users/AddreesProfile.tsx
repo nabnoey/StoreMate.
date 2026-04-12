@@ -16,7 +16,7 @@ import type { Address } from "../../types/address";
 const AddressProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const addresses = useSelector((state: RootState) => state.address.addresses);
-  const { provinces, districts } = useSelector(
+  const { provinces, districts,subdistricts } = useSelector(
     (state: RootState) => state.address,
   );
 
