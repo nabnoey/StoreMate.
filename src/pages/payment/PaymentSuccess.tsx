@@ -6,15 +6,12 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate(); 
 
-  // const getOrders:string = searchParams.get("ALL") || ""
  const status: string = searchParams.get("status") || "ALL";
 
-  // ดึงรหัสออเดอร์จาก URL (?id=ORD...)
   const orderId = searchParams.get("id") || "";
   const [orderDate, setOrderDate] = useState("");
 
   useEffect(() => {
-    // ลอจิกการแยกและแปลงวันที่จากรหัส ORD
     if (orderId && orderId.startsWith("ORD")) {
       const timeString = orderId.replace("ORD", "");
       const timestamp = parseInt(timeString, 10);
