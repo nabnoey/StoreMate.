@@ -1,34 +1,73 @@
 import { useState,useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useLocation } from "react-router-dom";
 import type { AppDispatch,RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../components/user/StatusOrderTabs";
 import type { CartItem } from "../../types/cartItem";
-import { useLocation } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import { fetchOrders } from "../../redux/orders/orderReduer";
+import type { OrderStatus } from "../../types/orders";
+const tabToStatusMap: Record<string, OrderStatus> = {
+  "ทั้งหมด": "ALL",
+  "คำสั่งซื้อสำเร็จ": "COMPLETED",
+  "ที่ต้องชำระ": "PENDING",
+  "ที่ต้องจัดส่ง": "PROCESSING",
+  "ที่ต้องได้รับ": "RECEIVE",
+  "ยกเลิก": "CANCELLED",
+  "คืนเงิน/คืนสินค้า": "REFUND",
+};
+
+const statusToTabMap: Record<OrderStatus, string> = {
+  ALL: "ทั้งหมด",
+  COMPLETED: "คำสั่งซื้อสำเร็จ",
+  PENDING: "ที่ต้องชำระ",
+  PROCESSING: "ที่ต้องจัดส่ง",
+  RECEIVE: "ที่ต้องได้รับ",
+  CANCELLED: "ยกเลิก",
+  REFUND: "คืนเงิน/คืนสินค้า",
+};
 
 
 const HistoryPage = () => {
   const location = useLocation();
+
   const selectedItems: CartItem[] = location.state?.items || [];
-  // สร้าง State สำหรับเก็บว่ากำลังเลือก Tab ไหนอยู่ (ตั้งค่าเริ่มต้นเป็น "ที่ต้องได้รับ")
-  const [currentTab, setCurrentTab] = useState("ที่ต้องได้รับ");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawStatus = searchParams.get("status");
+  const status = (rawStatus && statusToTabMap[rawStatus as OrderStatus])
+    ? (rawStatus as OrderStatus)
+    : "ALL";
+  const initialTab = statusToTabMap[status] || "ทั้งหมด";
+  const [currentTab, setCurrentTab] = useState(initialTab);
   const orders = useSelector((state: RootState) => state.orders.orders);
   const dispatch = useDispatch<AppDispatch>()
-  const [searchParams] = useSearchParams();
-const status = searchParams.get("status") || "ALL";
 
   useEffect(() => {
     dispatch(fetchOrders(status as any))
+  }, [dispatch, status])
 
-  },[dispatch,status])
+  useEffect(() => {
+    const mappedTab = statusToTabMap[status] || "ทั้งหมด";
+    setCurrentTab(mappedTab);
+  }, [status])
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+
+  const filteredOrders = orders.filter((order) => {
+    const requestedStatus = tabToStatusMap[currentTab] || "ALL";
+    if (requestedStatus === "ALL") return true; 
+    return order.status === requestedStatus; 
+  });
+
+  const handleTabChange = (tabName: string) => {
+    const nextStatus = tabToStatusMap[tabName] || "ALL";
+    setCurrentTab(tabName);
+    setSearchParams({ status: nextStatus });
+  };
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
@@ -62,19 +101,18 @@ const status = searchParams.get("status") || "ALL";
             <ProfileSidebar />
           </div>
 
-          {/* Main Content */}
+          
           <main className="flex-1 w-full min-h-[500px]">
-            {/* เรียกใช้ Component Tabs */}
+            
             <StatusOrderTabs
               activeTab={currentTab}
-              onTabChange={(tabName) => setCurrentTab(tabName)}
+              onTabChange={handleTabChange}
             />
 
-            {/* ส่วนนี้สามารถเพิ่ม Logic เพื่อกรองสินค้าตาม currentTab ได้เลยในอนาคต */}
+            
 
-            {/* Order Item */}
+           
             <div className="bg-white">
-              {/* Order Header */}
               <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">เลขที่คำสั่งซื้อ</p>
@@ -93,9 +131,8 @@ const status = searchParams.get("status") || "ALL";
               </div>
 
               <div className="flex flex-col gap-2 py-6 border-b border-gray-100 items-start w-full">
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
   <div key={order.id}>
-    {/* Order Header */}
     <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
       <div>
         <p className="text-sm text-gray-600 mb-1">เลขที่คำสั่งซื้อ</p>
@@ -107,7 +144,6 @@ const status = searchParams.get("status") || "ALL";
       </div>
     </div>
 
-    {/* Order Items */}
     <div className="flex flex-col gap-2 py-4 border-b border-gray-100">
       {order.orderItems.map((item) => (
         <div
@@ -138,7 +174,7 @@ const status = searchParams.get("status") || "ALL";
 ))}
               </div>
 
-              {/* Payment Detail Section */}
+             
               <div className="pt-8 w-full">
                 <h2 className="font-bold text-xl mb-4 text-black">
                   การชำระเงิน
