@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link, useSearchParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import type { RootState } from "../../redux/store";
 
@@ -8,6 +8,11 @@ const ProfileSidebar = () => {
   const user = useSelector((state: RootState) => state?.auth?.user);
   const navigate = useNavigate();
   const location = useLocation();
+    const [searchParams] = useSearchParams();
+ 
+
+  // const getOrders:string = searchParams.get("ALL") || ""
+ const status: string = searchParams.get("status") || "ALL";
 
   const [isDesktopProfileOpen, setIsDesktopProfileOpen] = useState(true);
 
@@ -218,9 +223,9 @@ const ProfileSidebar = () => {
           </div>
 
           <div className="pt-2 mt-2">
-            <Link
+          <Link
               data-test="btn-profile-menu-history"
-              to="/history-shop"
+              to={`/orders?status=${status}`}
               className="cursor-pointer w-full flex items-center gap-2 font-medium text-medium p-3  transition-colors hover:text-[#4285F4]"
             >
               การซื้อของฉัน

@@ -1,18 +1,48 @@
-import type { Product } from "./product";
+export interface OrderAddress {
+  id: number;
+  streetAddress: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  zipcode: string;
+}
+export type OrderStatus =
+  | "ALL"
+  | "COMPLETED"
+  | "PENDING"
+  | "PROCESSING"
+  | "RECEIVE"
+  | "CANCELLED"
+  | "REFUND";
 
-interface OrderItem {
-  productId: string;
+export interface OrderItem {
+  id: number;
+  productName: string;
+  imageUrl: string;
+  price: number;
   quantity: number;
-  productDetail?: Product;
+  subTotal: number;
 }
 
 export interface Order {
-  id: string;
-  shopName: string;
-  statusDelivery: string;
-  statusPayment: string;
-  items: OrderItem[];
-  totalPrice: number;
+  id: number;
+  orderNo: string;
+  status: OrderStatus;
+  totalPrice: number;       
+  statusDelivery?: string;  
+  checkoutType: string;
+
+  orderAddress: OrderAddress[];
+  orderItems: OrderItem[];
+
+  total: number;
+  paidAt: string;
+}
+
+export interface OrdersState {
+  orders: Order[];
+  loading: boolean;
+  error: string | null;
 }
 
 export interface StatusOrderTabsProps {

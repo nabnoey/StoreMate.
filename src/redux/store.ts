@@ -5,6 +5,7 @@ import productsReducer from "./products/productReducer";
 import reviewsReducer from "./reviews/reviewsReducer";
 import addressReducer from "./address/addressReducer";
 import paymentReducer from "./payment/PaymentReducer";
+import orderReducer from "./orders/orderReduer"
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     reviews: reviewsReducer,
     address: addressReducer,
     payment: paymentReducer,
+    orders : orderReducer
   },
   devTools: true,
 });

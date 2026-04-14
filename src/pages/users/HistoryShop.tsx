@@ -1,16 +1,30 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+
+import { useState,useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import type { AppDispatch,RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../components/user/StatusOrderTabs";
 import type { CartItem } from "../../types/cartItem";
 import { useLocation } from "react-router-dom";
+import { useDispatch,useSelector } from "react-redux";
+import { fetchOrders } from "../../redux/orders/orderReduer";
 
 const HistoryPage = () => {
   const location = useLocation();
   const selectedItems: CartItem[] = location.state?.items || [];
   // สร้าง State สำหรับเก็บว่ากำลังเลือก Tab ไหนอยู่ (ตั้งค่าเริ่มต้นเป็น "ที่ต้องได้รับ")
   const [currentTab, setCurrentTab] = useState("ที่ต้องได้รับ");
+  
+  const orders = useSelector((state: RootState) => state.orders.orders);
+  const dispatch = useDispatch<AppDispatch>()
+  const [searchParams] = useSearchParams();
+const status = searchParams.get("status") || "ALL";
+
+  useEffect(() => {
+    dispatch(fetchOrders(status as any))
+
+  },[dispatch,status])
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -80,30 +94,49 @@ const HistoryPage = () => {
               </div>
 
               <div className="flex flex-col gap-2 py-6 border-b border-gray-100 items-start w-full">
-                {selectedItems.map((item) => (
-                  <div
-                    key={item.productId}
-                    className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
-                  >
-                    <img
-                      src={item.imageUrl || ""}
-                      alt=""
-                      className="w-16 h-16 object-contain rounded-md"
-                    />
-                    <div className="flex-1 font-bold text-sm line-clamp-1">
-                      {item.productName}
-                    </div>
-                    <div className="w-24 text-center text-sm">
-                      ฿ {item.price.toLocaleString()}
-                    </div>
-                    <div className="w-12 text-center text-sm">
-                      x {item.quantity}
-                    </div>
-                    <div className="w-24 text-right text-blue-500 font-medium text-sm">
-                      ฿ {(item.price * item.quantity).toLocaleString()}
-                    </div>
-                  </div>
-                ))}
+                {orders.map((order) => (
+  <div key={order.id}>
+    {/* Order Header */}
+    <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
+      <div>
+        <p className="text-sm text-gray-600 mb-1">เลขที่คำสั่งซื้อ</p>
+        <p className="font-medium text-black">{order.orderNo}</p>
+      </div>
+      <div>
+        <p className="text-sm text-gray-600 mb-1">สถานะ</p>
+        <p className="font-medium text-blue-500">{order.status}</p>
+      </div>
+    </div>
+
+    {/* Order Items */}
+    <div className="flex flex-col gap-2 py-4 border-b border-gray-100">
+      {order.orderItems.map((item) => (
+        <div
+          key={item.id}
+          className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
+        >
+          <img
+            src={item.imageUrl || ""}
+            alt=""
+            className="w-16 h-16 object-contain rounded-md"
+          />
+          <div className="flex-1 font-bold text-sm line-clamp-1">
+            {item.productName}
+          </div>
+          <div className="w-24 text-center text-sm">
+            ฿ {item.price.toLocaleString()}
+          </div>
+          <div className="w-12 text-center text-sm">
+            x {item.quantity}
+          </div>
+          <div className="w-24 text-right text-blue-500 font-medium text-sm">
+            ฿ {(item.price * item.quantity).toLocaleString()}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+))}
               </div>
 
               {/* Payment Detail Section */}

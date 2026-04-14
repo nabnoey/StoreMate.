@@ -70,6 +70,7 @@ const PaymentCancel = lazy(() =>
 const HistoryPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/HistoryShop"), 1200),
 );
+
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
@@ -193,6 +194,11 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
+
+      {
+        path:"/orders",
+        element:<HistoryShop/>
+      }
     ],
   },
 
