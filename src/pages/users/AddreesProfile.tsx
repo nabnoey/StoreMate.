@@ -26,11 +26,13 @@ const AddressProfile = () => {
   const [isBlocking, setIsBlocking] = useState(false);
 
   const [formData, setFormData] = useState({
+    
     streetAddress: "",
     subDistrict: 0,
     district: 0,
     province: 0,
     zipcode: "",
+    // zipcodeId: 0,
   });
 
   const loadProvinces = async () => {
@@ -151,6 +153,7 @@ const AddressProfile = () => {
       district: 0,
       province: 0,
       zipcode: "",
+      // zipcodeId: res?.[0]?.id || 0,
     });
     setIsModalOpen(true);
   };
@@ -159,6 +162,7 @@ const AddressProfile = () => {
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const pId = Number(e.target.value);
+
 
     setFormData((prev) => ({
       ...prev,
@@ -178,6 +182,7 @@ const AddressProfile = () => {
   };
 
   const handleSaveAddress = async () => {
+    console.log("Current Form Data:", formData);
     const { streetAddress, subDistrict, district, province, zipcode } =
       formData;
     if (!streetAddress || !subDistrict || !district || !province || !zipcode) {
@@ -443,7 +448,8 @@ const AddressProfile = () => {
                           ...prev,
                           district: dId,
                           subDistrict: 0,
-                          zipcode: "",
+                          // zipcodeId: "",
+                          // zipcodeId: res?.[0]?.id || 0,
                         }));
                         await dispatch(
                           addressDropdown({
