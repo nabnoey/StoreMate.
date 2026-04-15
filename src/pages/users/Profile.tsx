@@ -354,7 +354,11 @@ const ProfilePage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/profile" className="transition-colors">
+          <Link
+            to="/profile"
+            data-test="click-profile"
+            className="transition-colors"
+          >
             โปรไฟล์
           </Link>
         </nav>
@@ -384,7 +388,7 @@ const ProfilePage = () => {
                     ชื่อ - นามสกุล
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span className="truncate">
+                    <span data-test="profile-name" className="truncate">
                       {tempData.firstName} {tempData.lastName}
                     </span>
                     <button
@@ -405,7 +409,7 @@ const ProfilePage = () => {
                     อีเมล
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span className="truncate">
+                    <span data-test="profile-email" className="truncate">
                       {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
                     </span>
                     <button
@@ -426,7 +430,7 @@ const ProfilePage = () => {
                     หมายเลขโทรศัพท์
                   </label>
                   <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span className="truncate">
+                    <span data-test="profile-phone" className="truncate">
                       {tempData.phone
                         ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2")
                         : "-"}
@@ -465,18 +469,20 @@ const ProfilePage = () => {
                   {tempData.image ? (
                     <img
                       src={tempData.image}
+                      data-test="profile-image"
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <Icon
+                      data-test="default-profile-icon"
                       icon="lucide:user"
                       className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400"
                     />
                   )}
                 </div>
                 <button
-                  data-test="btn-change-profile-picture"
+                  data-test="btn-open-image-modal"
                   onClick={() => setIsImageModalOpen(true)}
                   className="cursor-pointer border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4"
                 >
@@ -493,7 +499,10 @@ const ProfilePage = () => {
 
         {/* --- Modals --- */}
         {isImageModalOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div
+            data-test="image-modal"
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="p-6 border-b border-gray-100 pb-4">
                 <h3 className="text-xl font-bold text-gray-800">
@@ -540,7 +549,6 @@ const ProfilePage = () => {
                     >
                       {rawImageSrc && (
                         <Cropper
-                          data-test="cropper-component"
                           image={rawImageSrc}
                           crop={crop}
                           zoom={zoom}
@@ -558,7 +566,7 @@ const ProfilePage = () => {
                         0
                       </span>
                       <input
-                        data-tses="zoom-slider"
+                        data-test="zoom-slider"
                         type="range"
                         value={zoom}
                         min={1}

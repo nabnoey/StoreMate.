@@ -1,22 +1,29 @@
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation,useNavigate, Link } from "react-router-dom";
-import type { RootState,AppDispatch } from "../../redux/store";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
-import type { CartItem } from "../../types/cartItem";
 import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
+import { addSavedCard } from "../../redux/payment/PaymentReducer";
+import { fetchCartThunk } from "../../redux/carts/CartReducer";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [selectedCardId, setSelectedCardId] = useState<string>("");
-  const [savedCards] = useState<SavedCard[]>([]);
-  const selectedItems: CartItem[] = location.state?.items || [];
+  const { savedCards } = useSelector((state: RootState) => state.payment);
+  const newlyAddedCard = location.state?.newlyAddedCard;
+
+  const selectedItems = useSelector(
+    (state: RootState) => state.carts.selectedItems,
+  );
+
   const defaultAddress = useSelector(
     (state: RootState) =>
       state.address.defaultAddress || state.address.addresses[0],
@@ -24,15 +31,34 @@ const PaymentShoping = () => {
 
   useEffect(() => {
     dispatch(fetchAddressDefault());
-    // เพิ่มการดึงข้อมูลบัตรเครดิตที่นี่ เช่น
-    // fetchSavedCards().then(data => setSavedCards(data));
-  }, [dispatch]);
+
+    if (newlyAddedCard) {
+      const cardName = newlyAddedCard.billing_details?.name || "Card";
+
+      const formattedCard: SavedCard = {
+        id: newlyAddedCard.id,
+        brand: newlyAddedCard.card.brand,
+        last4: newlyAddedCard.card.last4,
+        bankName: `${cardName}`,
+      };
+
+      dispatch(addSavedCard(formattedCard));
+    }
+  }, [dispatch, newlyAddedCard]);
+
+  const handleAddNewCard = () => {
+    navigate("/add-credit-card", {
+      state: {
+        cartItems: selectedItems,
+        isBuyNow: location.state?.isBuyNow,
+      },
+    });
+  };
 
   const subtotal = selectedItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-
 
   const handleConfirmOrder = async () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -56,25 +82,27 @@ const PaymentShoping = () => {
     try {
       const isBuyNow = location.state?.isBuyNow || false;
 
-      if (paymentMethod === "credit" || paymentMethod === "qr") {
-        const requestPayload: any = {
-          ids: selectedItems.map((item) =>
-            isBuyNow ? Number(item.productId) : Number(item.cartItemId),
-          ),
-          isBuyNow: isBuyNow,
-        };
+      // สร้าง Payload กลางไว้ใช้ได้ทั้ง 3 รูปแบบ (Credit, QR, COD)
+      const requestPayload: any = {
+        ids: selectedItems.map((item) =>
+          isBuyNow ? Number(item.productId) : Number(item.cartItemId),
+        ),
+        isBuyNow: isBuyNow,
+      };
 
+      if (paymentMethod === "credit" || paymentMethod === "qr") {
         if (paymentMethod === "credit" && selectedCardId) {
           requestPayload.cardId = selectedCardId;
         }
 
         const responseData =
           await PaymentService.createPaymentIntent(requestPayload);
-
         toast.dismiss(loadingToastId);
 
+        if (!isBuyNow) dispatch(fetchCartThunk());
+
         if (paymentMethod === "credit") {
-          navigate("/checkout-stripe", {
+          navigate("/history-shop", {
             state: {
               clientSecret: responseData.clientSecret,
               referenceId: responseData.paymentIntentId,
@@ -91,14 +119,20 @@ const PaymentShoping = () => {
           });
         }
       } else if (paymentMethod === "cod") {
+        requestPayload.paymentMethod = "cod";
+        await PaymentService.createPaymentIntent(requestPayload);
+
         toast.dismiss(loadingToastId);
-        toast.success("ชำระเงินสำเร็จ");
+        toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ");
+
+        if (!isBuyNow) {
+          dispatch(fetchCartThunk());
+        }
 
         navigate("/payment", { state: { status: "success" } });
       }
     } catch (error: any) {
       toast.dismiss(loadingToastId);
-
       if (
         error.response?.status === 400 &&
         error.response?.data?.message === "OUT_OF_STOCK"
@@ -175,7 +209,7 @@ const PaymentShoping = () => {
                 )}
               </div>
               <button
-                data-test="btn-change-address"
+                data-test="btn-change-address-mobile"
                 onClick={() => navigate("/address-profile")}
                 className="cursor-pointer text-blue-500 text-sm border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
@@ -237,9 +271,9 @@ const PaymentShoping = () => {
                 ].map((method) => (
                   <div key={method.id} className="flex flex-col">
                     <button
-                      data-test="btn-select-payment-method"
+                      data-test="btn-select-payment-method-mobile"
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`cursor-pointer flex items-center gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
+                      className={`cursor-pointer flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
                     >
                       <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
                         <Icon icon={method.icon} className="w-5 h-5" />
@@ -266,6 +300,7 @@ const PaymentShoping = () => {
                         {savedCards.map((card) => (
                           <button
                             key={card.id}
+                            data-test="btn-select-card-method-mobile"
                             onClick={() => setSelectedCardId(card.id)}
                             className="flex items-center gap-3 cursor-pointer"
                           >
@@ -295,8 +330,8 @@ const PaymentShoping = () => {
                           </button>
                         ))}
                         <button
-                          data-test="click-add-credit-card"
-                          // onClick={handleAddNewCard}
+                          data-test="click-add-credit-card-mobile"
+                          onClick={handleAddNewCard}
                           className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
                         >
                           <Icon
@@ -328,7 +363,7 @@ const PaymentShoping = () => {
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button
-                      data-test="btn-confirm-payment"
+                      data-test="btn-confirm-payment-mobile"
                       onClick={handleConfirmOrder}
                       className=" cursor-pointer w-[146px] h-[29px] bg-[#4285F4] text-white rounded-[7px] text-[13px] font-medium shadow-md"
                     >
@@ -417,134 +452,153 @@ const PaymentShoping = () => {
             </div>
           ))}
         </div>
+        {/* Payment Method & Summary Row */}
+        <div className="flex flex-row items-start justify-between">
+          <div className="space-y-4 flex-1">
+            <h2 className="text-lg font-bold text-gray-900">
+              เลือกช่องทางการชำระเงิน
+            </h2>
+            <div className="flex flex-col gap-3">
+              {[
+                {
+                  id: "qr",
+                  title: "พร้อมเพย์ (PromptPay)",
+                  desc: "สแกน QR Code เพื่อชำระเงินทันที",
+                  icon: "lucide:wallet",
+                },
+                {
+                  id: "credit",
+                  title: "บัตรเครดิต / บัตรเดบิต",
+                  desc: "Visa , Mastercard",
+                  icon: "lucide:credit-card",
+                },
+                {
+                  id: "cod",
+                  title: "เก็บเงินปลายทาง (Cash on Delivery)",
+                  desc: "ชำระเงินเมื่อได้รับสินค้า",
+                  icon: "lucide:truck",
+                },
+              ].map((method) => (
+                <div key={method.id} className="flex flex-col">
+                  <button
+                    data-test="btn-select-payment-method"
+                    onClick={() => setPaymentMethod(method.id)}
+                    className={`cursor-pointer flex items-center gap-4 w-full max-w-[585px] p-3 rounded-xl border-2 transition-all ${
+                      paymentMethod === method.id
+                        ? "border-black bg-gray-50"
+                        : "border-gray-100 bg-white"
+                    }`}
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
+                      <Icon icon={method.icon} className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="font-bold text-sm text-gray-900">
+                        {method.title}
+                      </p>
+                      <p className="text-[11px] text-gray-500">{method.desc}</p>
+                    </div>
+                    {paymentMethod === method.id && (
+                      <Icon
+                        icon="lucide:check-circle"
+                        className="w-5 h-5 text-black"
+                      />
+                    )}
+                  </button>
 
-        <div className="bg-white mb-2 shadow-sm">
-          <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-100">
-            <Icon icon="mdi:cash-multiple" className="w-5 h-5 text-blue-500" />
-            <span className="font-semibold text-sm">วิธีการชำระเงิน</span>
-          </div>
-          <div className="flex flex-col">
-            {[
-              {
-                id: "qr",
-                title: "พร้อมเพย์ (PromptPay)",
-                icon: "lucide:wallet",
-              },
-              {
-                id: "credit",
-                title: "บัตรเครดิต / บัตรเดบิต",
-                icon: "lucide:credit-card",
-              },
-              { id: "cod", title: "เก็บเงินปลายทาง", icon: "lucide:truck" },
-            ].map((method) => (
-              <div
-                key={method.id}
-                className="border-b border-gray-100 last:border-none"
-              >
-                <button
-                  data-test="btn-select-payment-method-mobile"
-                  className="px-4 py-3 flex items-center justify-between cursor-pointer"
-                  onClick={() => setPaymentMethod(method.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon
-                      icon={method.icon}
-                      className="w-5 h-5 text-gray-600"
-                    />
-                    <span className="text-[14px] text-gray-800">
-                      {method.title}
-                    </span>
-                  </div>
-                  {paymentMethod === method.id ? (
-                    <Icon
-                      icon="mdi:check-circle"
-                      className="w-[22px] h-[22px] text-blue-500"
-                    />
-                  ) : (
-                    <div className="w-[20px] h-[20px] rounded-full border-2 border-gray-300"></div>
-                  )}
-                </button>
-
-                {method.id === "credit" && paymentMethod === "credit" && (
-                  <div className="bg-[#fafafa] px-5 py-2 space-y-1">
-                    {savedCards.map((card) => (
+                  {/* Credit Card Options */}
+                  {method.id === "credit" && paymentMethod === "credit" && (
+                    <div className="ml-12 mt-3 space-y-3 animate-in fade-in slide-in-from-top-1">
+                      {savedCards.map((card) => (
+                        <button
+                          key={card.id}
+                          data-test="btn-select-card-method"
+                          onClick={() => setSelectedCardId(card.id)}
+                          className="flex items-center gap-3 cursor-pointer"
+                        >
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedCardId === card.id ? "border-blue-500" : "border-gray-400"}`}
+                          >
+                            {selectedCardId === card.id && (
+                              <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                            )}
+                          </div>
+                          <div className="w-10 h-6 border border-gray-200 rounded flex items-center justify-center bg-white">
+                            <Icon
+                              icon={
+                                card.brand === "mastercard"
+                                  ? "logos:mastercard"
+                                  : "logos:visa"
+                              }
+                              className="text-lg"
+                            />
+                          </div>
+                          <span className="text-sm text-black">
+                            {card.bankName} **** {card.last4}
+                          </span>
+                        </button>
+                      ))}
                       <button
-                        data-test="btn-select-saved-card-mobile"
-                        key={card.id}
-                        onClick={() => setSelectedCardId(card.id)}
-                        className="flex items-center gap-3 py-2 cursor-pointer"
+                        data-test="add-to-card"
+                        onClick={handleAddNewCard}
+                        className="flex items-center gap-2 text-xs font-medium border border-black px-3 py-1.5 rounded-md hover:bg-gray-50 transition-all"
                       >
-                        {selectedCardId === card.id ? (
-                          <Icon
-                            icon="mdi:radiobox-marked"
-                            className="w-5 h-5 text-blue-500"
-                          />
-                        ) : (
-                          <Icon
-                            icon="mdi:radiobox-blank"
-                            className="w-5 h-5 text-gray-400"
-                          />
-                        )}
-                        <Icon
-                          icon={
-                            card.brand === "mastercard"
-                              ? "logos:mastercard"
-                              : "logos:visa"
-                          }
-                          className="w-7 text-xl"
-                        />
-                        <span className="text-[13px] text-gray-700">
-                          {card.bankName} (****{card.last4})
-                        </span>
+                        <Icon icon="lucide:plus" className="w-3.5 h-3.5" />{" "}
+                        เพิ่มบัตรเครดิต/เดบิต
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white mb-2 p-4 space-y-2.5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Icon
+                icon="mdi:receipt-text-outline"
+                className="w-5 h-5 text-gray-600"
+              />
+              <span className="font-semibold text-sm">
+                รายละเอียดการชำระเงิน
+              </span>
+            </div>
+            <div className="flex justify-between text-[13px] text-gray-500">
+              <span>รวมค่าสินค้า</span>
+              <span>฿{subtotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-[13px] text-gray-500">
+              <span>ค่าจัดส่ง</span>
+              <span>฿{subtotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm pt-3 mt-2 border-t border-gray-100">
+              <span className="font-semibold text-gray-800">
+                ยอดชำระทั้งหมด
+              </span>
+              <span className="text-lg font-bold text-blue-500">
+                ฿{subtotal.toLocaleString()}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white mb-2 p-4 space-y-2.5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Icon
-              icon="mdi:receipt-text-outline"
-              className="w-5 h-5 text-gray-600"
-            />
-            <span className="font-semibold text-sm">รายละเอียดการชำระเงิน</span>
-          </div>
-          <div className="flex justify-between text-[13px] text-gray-500">
-            <span>รวมค่าสินค้า</span>
-            <span>฿{subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between text-[13px] text-gray-500">
-            <span>ค่าจัดส่ง</span>
-            <span>฿{subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-center text-sm pt-3 mt-2 border-t border-gray-100">
-            <span className="font-semibold text-gray-800">ยอดชำระทั้งหมด</span>
-            <span className="text-lg font-bold text-blue-500">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-end z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+          <div className="flex flex-col px-4 text-right justify-center">
+            <span className="text-[12px] text-gray-600 mb-0.5">
+              ยอดชำระทั้งหมด
+            </span>
+            <span className="text-[18px] font-bold text-blue-500 leading-none">
               ฿{subtotal.toLocaleString()}
             </span>
           </div>
+          <button
+            data-test="btn-confirm-order-mobile"
+            onClick={handleConfirmOrder}
+            className="cursor-pointer bg-blue-500 active:bg-blue-600 text-white h-[60px] px-8 font-bold text-sm transition-colors flex-shrink-0"
+          >
+            สั่งซื้อสินค้า
+          </button>
         </div>
-      </div>
-
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-end z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <div className="flex flex-col px-4 text-right justify-center">
-          <span className="text-[12px] text-gray-600 mb-0.5">
-            ยอดชำระทั้งหมด
-          </span>
-          <span className="text-[18px] font-bold text-blue-500 leading-none">
-            ฿{subtotal.toLocaleString()}
-          </span>
-        </div>
-        <button
-          onClick={handleConfirmOrder}
-          className="bg-blue-500 active:bg-blue-600 text-white h-[60px] px-8 font-bold text-sm transition-colors flex-shrink-0"
-        >
-          สั่งซื้อสินค้า
-        </button>
       </div>
     </div>
   );

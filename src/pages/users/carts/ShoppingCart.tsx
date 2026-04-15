@@ -7,6 +7,7 @@ import {
   incrementCartItemThunk,
   decrementCartItemThunk,
   fetchCartThunk,
+  setSelectedItems as setReduxSelectedItems,
 } from "../../../redux/carts/CartReducer";
 
 import { Icon } from "@iconify/react";
@@ -353,11 +354,10 @@ const ShoppingCart = () => {
                   <button
                     data-test="btn-payment"
                     disabled={selectedItems.length === 0}
-                    onClick={() =>
-                      navigate("/payment", {
-                        state: { items: selectedCartItems, total: subtotal },
-                      })
-                    }
+                    onClick={() => {
+                      dispatch(setReduxSelectedItems(selectedCartItems));
+                      navigate("/payment");
+                    }}
                     className="w-full sm:w-auto bg-[#4a89f3] text-white px-8 py-3 sm:py-2.5 rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-200 transition-all shadow-sm cursor-pointer"
                   >
                     สั่งซื้อสินค้า

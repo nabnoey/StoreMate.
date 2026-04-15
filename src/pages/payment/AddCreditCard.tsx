@@ -20,7 +20,6 @@ const AddCreditCardFormInner = () => {
   const elements = useElements();
   const navigate = useNavigate();
   const location = useLocation();
-  const clientSecret = location.state?.clientSecret;
   const cartItems = location.state?.cartItems;
 
   const [cardName, setCardName] = useState("");
@@ -41,8 +40,8 @@ const AddCreditCardFormInner = () => {
     if (!stripe || !elements) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement || !clientSecret) {
-      toast.error("เซสชันไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+    if (!cardNumberElement) {
+      toast.error("ข้อมูลฟอร์มไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง");
       return;
     }
 
@@ -52,22 +51,26 @@ const AddCreditCardFormInner = () => {
       const userProfile = await UserService.getProfile();
       const userEmail = userProfile?.email || "guest@yourstore.com";
 
-      const { error, setupIntent: _setupIntent } =
-        await stripe.confirmCardSetup(clientSecret, {
-          payment_method: {
-            card: cardNumberElement,
-            billing_details: {
-              email: userEmail,
-              name: cardName || userProfile?.name || "Guest",
-            },
-          },
-        });
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardNumberElement,
+        billing_details: {
+          email: userEmail,
+          name: cardName || userProfile?.name || "Guest",
+        },
+      });
 
       if (error) {
-        toast.error(error.message || "เกิดข้อผิดพลาด");
+        toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
       } else {
         toast.success("เพิ่มบัตรสำเร็จ!");
-        navigate("/payment", { state: { cartItems: cartItems } });
+
+        navigate("/payment", {
+          state: {
+            cartItems: cartItems,
+            newlyAddedCard: paymentMethod,
+          },
+        });
       }
     } catch (err) {
       console.error(err);
