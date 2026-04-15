@@ -26,13 +26,12 @@ const AddressProfile = () => {
   const [isBlocking, setIsBlocking] = useState(false);
 
   const [formData, setFormData] = useState({
-    
     streetAddress: "",
     subDistrict: 0,
     district: 0,
     province: 0,
     zipcode: "",
-    // zipcodeId: 0,
+    zipcodeId: 0,
   });
 
   const loadProvinces = async () => {
@@ -67,6 +66,11 @@ const AddressProfile = () => {
     setIsModalOpen(true);
 
     fillAddressData(address);
+  };
+
+  const parseDropdownResponse = (response: any) => {
+    if (Array.isArray(response)) return response;
+    return response?.data || [];
   };
 
   const fillAddressData = async (address: Address) => {
@@ -137,11 +141,13 @@ const AddressProfile = () => {
     ).unwrap();
 
     const zipcode = zipRes[0]?.name || "";
+    const zipcodeId = zipRes[0]?.id || 0;
 
     setFormData((prev) => ({
       ...prev,
       subDistrict,
       zipcode,
+      zipcodeId,
     }));
   };
 
@@ -153,7 +159,7 @@ const AddressProfile = () => {
       district: 0,
       province: 0,
       zipcode: "",
-      // zipcodeId: res?.[0]?.id || 0,
+      zipcodeId: 0,
     });
     setIsModalOpen(true);
   };
@@ -170,6 +176,7 @@ const AddressProfile = () => {
       district: 0,
       subDistrict: 0,
       zipcode: "",
+      zipcodeId: 0,
     }));
 
     await dispatch(
@@ -183,9 +190,35 @@ const AddressProfile = () => {
 
   const handleSaveAddress = async () => {
     console.log("Current Form Data:", formData);
-    const { streetAddress, subDistrict, district, province, zipcode } =
+    const { streetAddress, subDistrict, district, province, zipcode, zipcodeId } =
       formData;
-    if (!streetAddress || !subDistrict || !district || !province || !zipcode) {
+
+    const fetchZipcodeInfo = async (zip: string, zipId: number) => {
+      if (zip && zipId) {
+        return { zipcode: zip, zipcodeId: zipId };
+      }
+      if (!province || !district || !subDistrict) {
+        return { zipcode: "", zipcodeId: 0 };
+      }
+
+      const zipResRaw = await dispatch(
+        addressDropdown({
+          provinceId: province,
+          districtId: district,
+          subdistrictId: subDistrict,
+        }),
+      ).unwrap();
+      const zipRes = parseDropdownResponse(zipResRaw);
+      return {
+        zipcode: zipRes?.[0]?.name || "",
+        zipcodeId: zipRes?.[0]?.id || 0,
+      };
+    };
+
+    const { zipcodeId: finalZipcodeId } =
+      await fetchZipcodeInfo(zipcode, zipcodeId);
+
+    if (!streetAddress || !subDistrict || !district || !province || !finalZipcodeId) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
@@ -201,8 +234,8 @@ const AddressProfile = () => {
         updateAddress({
           id: Number(targetAddressId),
           data: {
-            streetAddress: streetAddress,
-            zipcode: zipcode || currentAddress?.zipcode,
+            streetAddress,
+            zipcodeId: finalZipcodeId,
             isDefault: currentAddress?.isDefault || false,
           },
         }),
@@ -212,8 +245,8 @@ const AddressProfile = () => {
     } else {
       await dispatch(
         addAddress({
-          streetAddress: streetAddress,
-          zipcode: zipcode,
+          streetAddress,
+          zipcodeId: finalZipcodeId,
           isDefault: false,
         }),
       );
@@ -448,8 +481,8 @@ const AddressProfile = () => {
                           ...prev,
                           district: dId,
                           subDistrict: 0,
-                          // zipcodeId: "",
-                          // zipcodeId: res?.[0]?.id || 0,
+                          zipcode: "",
+                          zipcodeId: 0,
                         }));
                         await dispatch(
                           addressDropdown({
@@ -500,6 +533,7 @@ const AddressProfile = () => {
                         setFormData((prev) => ({
                           ...prev,
                           zipcode: res?.[0]?.name || "",
+                          zipcodeId: res?.[0]?.id || 0,
                         }));
                       }}
                       className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"

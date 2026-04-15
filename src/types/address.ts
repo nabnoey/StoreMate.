@@ -6,6 +6,7 @@
   subdistrict: string;     
   district: string;      
   zipcode:string 
+  zipcodeId: number;
   province: string;      
   isDefault: boolean;
 }
