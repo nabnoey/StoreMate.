@@ -197,7 +197,7 @@ const router = createBrowserRouter([
 
       {
         path:"/orders",
-        element:<HistoryShop/>
+        element:<HistoryPage/>
       }
     ],
   },

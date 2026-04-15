@@ -4,12 +4,12 @@ const OrderCard = ({ order }: { order: Order }) => {
   return (
     <div className="bg-white border p-4 mb-4">
       <div className="flex justify-between border-b pb-2">
-        <span>{order.orderNo}</span>
-        <span>{order.statusDelivery}</span>
+        <span>{order.orderItems.length} items</span>
+        <span>{order.status}</span>
       </div>
 
-      {order.orderItems?.map((item) => (
-        <div key={item.id} className="flex gap-3 py-3">
+      {order.orderItems.map((item) => (
+        <div key={item.imageUrl} className="flex gap-3 py-3">
           <img
             src={item.imageUrl}
             className="w-20 h-20"
