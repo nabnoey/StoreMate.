@@ -17,7 +17,9 @@ const PaymentShoping = () => {
 
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [selectedCardId, setSelectedCardId] = useState<string>("");
-  const { savedCards } = useSelector((state: RootState) => state.payment);
+  const savedCards = useSelector(
+    (state: RootState) => state.payment.savedCards,
+  );
   const newlyAddedCard = location.state?.newlyAddedCard;
 
   const selectedItems = useSelector(
@@ -37,8 +39,8 @@ const PaymentShoping = () => {
 
       const formattedCard: SavedCard = {
         id: newlyAddedCard.id,
-        brand: newlyAddedCard.card.brand,
-        last4: newlyAddedCard.card.last4,
+        brand: newlyAddedCard.card?.brand ?? "unknown",
+        last4: newlyAddedCard.card?.last4 ?? "0000",
         bankName: `${cardName}`,
       };
 
@@ -297,7 +299,7 @@ const PaymentShoping = () => {
                     </button>
                     {method.id === "credit" && paymentMethod === "credit" && (
                       <div className="ml-0 sm:ml-12 mt-3 space-y-3">
-                        {savedCards.map((card) => (
+                        {savedCards.map((card: SavedCard) => (
                           <button
                             key={card.id}
                             data-test="btn-select-card-method-mobile"
@@ -509,7 +511,7 @@ const PaymentShoping = () => {
                   {/* Credit Card Options */}
                   {method.id === "credit" && paymentMethod === "credit" && (
                     <div className="ml-12 mt-3 space-y-3 animate-in fade-in slide-in-from-top-1">
-                      {savedCards.map((card) => (
+                      {savedCards.map((card: SavedCard) => (
                         <button
                           key={card.id}
                           data-test="btn-select-card-method"

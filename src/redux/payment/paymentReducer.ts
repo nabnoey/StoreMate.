@@ -1,4 +1,3 @@
-// ไฟล์: src/redux/payment/PaymentReducer.ts (ปรับ path ตามจริงของคุณนะ)
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 // สร้าง Type สำหรับบัตร (ถ้าคุณมีในไฟล์ types อยู่แล้วให้ import มาแทนได้เลย)
