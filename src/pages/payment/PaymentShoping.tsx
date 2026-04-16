@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import type { SavedCard } from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
-import { addSavedCard } from "../../redux/payment/PaymentReducer";
+import { addSavedCard } from "../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
 
 const PaymentShoping = () => {
