@@ -30,6 +30,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
           </span>
           <div className="flex gap-3 mt-2">
             <button
+              data-test="btn-confirm-logout"
               type="button"
               onClick={() => {
                 toast.dismiss(t.id);
@@ -44,6 +45,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               ออกจากระบบ
             </button>
             <button
+              data-test="btn-cancel-logout"
               type="button"
               onClick={() => toast.dismiss(t.id)}
               className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
@@ -99,6 +101,17 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <Icon icon="ph:gear" width="26" height="26" />
           </button>
           <button
+            data-test="btn-orders-mobile"
+            type="button"
+            onClick={() => {
+              navigate("/history-shop");
+              if (onCloseMenu) onCloseMenu();
+            }}
+            className="hover:text-[#0A157A] transition-colors cursor-pointer"
+          >
+            <Icon icon="radix-icons:clipboard" width="26" height="26" />
+          </button>
+          <button
             data-test="btn-logout-mobile"
             type="button"
             onClick={handleLogout}
@@ -145,50 +158,88 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         </div>
       </button>
 
-      <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50">
-        <li>
-          <button
-            type="button"
-            onClick={() => {
-              navigate("/profile");
-              (document.activeElement as HTMLElement)?.blur();
-            }}
-            className="cursor-pointer flex items-center gap-3 py-3 w-full text-left"
-          >
-            <Icon
-              icon="ph:gear"
-              width="22"
-              height="22"
-              className="text-black"
-            />
-            <span className=" cursor-pointer font-medium text-black">
-              แก้ไขโปรไฟล์
-            </span>
-          </button>
-        </li>
+      <div className="relative">
+        <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50">
+          {/* แก้ไขโปรไฟล์ */}
+          <li>
+            <button
+              data-test="btn-edit-profile"
+              type="button"
+              onClick={() => {
+                navigate("/profile");
+                (document.activeElement as HTMLElement)?.blur();
+              }}
+              className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+            >
+              <div className="relative flex items-center justify-center overflow-hidden">
+                <Icon
+                  icon="ph:gear"
+                  width="24"
+                  height="24"
+                  className="text-black"
+                />
+              </div>
+              <span className="break-words font-Anuphan text-[20px] font-semibold leading-[32px] text-black">
+                แก้ไขโปรไฟล์
+              </span>
+            </button>
+          </li>
 
-        <hr className="my-1 border-gray-50" />
+          <hr className="my-1 border-gray-50" />
 
-        <li>
-          <button
-            data-test="btn-logout"
-            type="button"
-            onClick={() => {
-              (document.activeElement as HTMLElement)?.blur();
-              handleLogout();
-            }}
-            className="cursor-pointer flex items-center gap-3 py-3 text-black hover:text-red-600 w-full text-left"
-          >
-            <Icon
-              icon="ph:sign-out"
-              width="22"
-              height="22"
-              className="rotate-180"
-            />
-            <span className="font-medium">ลงชื่อออกจากระบบ</span>
-          </button>
-        </li>
-      </ul>
+          {/* การซื้อของฉัน */}
+          <li>
+            <button
+              data-test="btn-orders"
+              type="button"
+              onClick={() => {
+                navigate("/history-shop");
+                (document.activeElement as HTMLElement)?.blur();
+              }}
+              className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+            >
+              <div className="relative flex items-center justify-center overflow-hidden">
+                <Icon
+                  icon="radix-icons:clipboard"
+                  width="24"
+                  height="24"
+                  className="text-black"
+                />
+              </div>
+              <span className="break-words font-Anuphan text-[20px] font-semibold leading-[32px] text-black">
+                การซื้อของฉัน
+              </span>
+            </button>
+          </li>
+
+          <hr className="my-1 border-gray-50" />
+
+          {/* ลงชื่อออกจากระบบ */}
+          <li>
+            <button
+              data-test="btn-logout"
+              type="button"
+              onClick={() => {
+                (document.activeElement as HTMLElement)?.blur();
+                handleLogout();
+              }}
+              className="group flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+            >
+              <div className="relative flex items-center justify-center overflow-hidden">
+                <Icon
+                  icon="ph:sign-out"
+                  width="24"
+                  height="24"
+                  className="rotate-180 text-[#1F2937] transition-colors text-semibold"
+                />
+              </div>
+              <span className="break-words font-Anuphan text-[19px] font-semibold leading-[32px] text-[#1F2937] transition-colors">
+                ลงชื่อออกจากระบบ
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };

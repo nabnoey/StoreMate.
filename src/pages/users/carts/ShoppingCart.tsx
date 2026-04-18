@@ -73,40 +73,137 @@ const ShoppingCart = () => {
     0,
   );
 
-  const handleRemoveItem = (productId: number) => {
+  // const handleRemoveItem = (productId: number) => {
+  //   setIsBlocking(true);
+
+  //   const confirmDelete = (toastId: string) => {
+  //     toast.dismiss(toastId);
+  //     setIsBlocking(false);
+  //     dispatch(deleteCartItemThunk(productId));
+  //     setSelectedItems((prev) => prev.filter((id) => id !== productId));
+  //     toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+  //   };
+
+  //   const cancelDelete = (toastId: string) => {
+  //     toast.dismiss(toastId);
+  //     setIsBlocking(false);
+  //   };
+
+  //   toast(
+  //     (t) => (
+  //       <div className="flex flex-col gap-3 items-center p-2 overlay">
+  //         <span className="text-gray-800 font-medium text-base">
+  //           คุณต้องการลบสินค้านี้ใช่หรือไม่?
+  //         </span>
+
+  //         <div className="flex gap-3 mt-2">
+  //           <button
+  //             onClick={() => confirmDelete(t.id)}
+  //             className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
+  //           >
+  //             ลบ
+  //           </button>
+
+  //           <button
+  //             onClick={() => cancelDelete(t.id)}
+  //             className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
+  //           >
+  //             ยกเลิก
+  //           </button>
+  //         </div>
+  //       </div>
+  //     ),
+  //     {
+  //       duration: Infinity,
+  //       position: "top-center",
+  //     },
+  //   );
+  // };
+
+  // const handleRemoveSelected = () => {
+  //   if (selectedItems.length === 0) {
+  //     toast.error("กรุณาเลือกสินค้าก่อน");
+  //     return;
+  //   }
+
+  //   setIsBlocking(true);
+
+  //   const confirmDeleteAll = (toastId: string) => {
+  //     selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
+  //     setSelectedItems([]);
+  //     toast.dismiss(toastId);
+  //     setIsBlocking(false);
+  //     toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
+  //   };
+
+  //   const cancelDeleteAll = (toastId: string) => {
+  //     toast.dismiss(toastId);
+  //     setIsBlocking(false);
+  //   };
+
+  //   toast(
+  //     (t) => (
+  //       <div>
+  //         <p className="text-gray-800 font-medium text-base">
+  //           คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?
+  //         </p>
+
+  //         <div className="flex gap-3 mt-4 justify-center">
+  //           <button
+  //             onClick={() => confirmDeleteAll(t.id)}
+  //             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
+  //           >
+  //             ยืนยัน
+  //           </button>
+
+  //           <button
+  //             onClick={() => cancelDeleteAll(t.id)}
+  //             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 cursor-pointer"
+  //           >
+  //             ยกเลิก
+  //           </button>
+  //         </div>
+  //       </div>
+  //     ),
+  //     {
+  //       duration: Infinity,
+  //       position: "top-center",
+  //     },
+  //   );
+  // };
+
+  const showConfirm = ({
+    message,
+    onConfirm,
+  }: {
+    message: string;
+    onConfirm: () => void;
+  }) => {
     setIsBlocking(true);
-
-    const confirmDelete = (toastId: string) => {
-      toast.dismiss(toastId);
-      setIsBlocking(false);
-      dispatch(deleteCartItemThunk(productId));
-      setSelectedItems((prev) => prev.filter((id) => id !== productId));
-      toast.success("ลบสินค้าแล้ว", { duration: 1500 });
-    };
-
-    const cancelDelete = (toastId: string) => {
-      toast.dismiss(toastId);
-      setIsBlocking(false);
-    };
 
     toast(
       (t) => (
-        <div className="flex flex-col gap-3 items-center p-2 overlay">
-          <span className="text-gray-800 font-medium text-base">
-            คุณต้องการลบสินค้านี้ใช่หรือไม่?
-          </span>
+        <div className="flex flex-col gap-3 items-center p-2">
+          <span className="text-gray-800 font-medium text-base">{message}</span>
 
           <div className="flex gap-3 mt-2">
             <button
-              onClick={() => confirmDelete(t.id)}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+                onConfirm();
+              }}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
-              ลบ
+              ยืนยัน
             </button>
 
             <button
-              onClick={() => cancelDelete(t.id)}
-              className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsBlocking(false);
+              }}
+              className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
             >
               ยกเลิก
             </button>
@@ -120,56 +217,31 @@ const ShoppingCart = () => {
     );
   };
 
+  const handleRemoveItem = (productId: number) => {
+    showConfirm({
+      message: "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
+      onConfirm: () => {
+        dispatch(deleteCartItemThunk(productId));
+        setSelectedItems((prev) => prev.filter((id) => id !== productId));
+        toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+      },
+    });
+  };
+
   const handleRemoveSelected = () => {
     if (selectedItems.length === 0) {
       toast.error("กรุณาเลือกสินค้าก่อน");
       return;
     }
 
-    setIsBlocking(true);
-
-    const confirmDeleteAll = (toastId: string) => {
-      selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
-      setSelectedItems([]);
-      toast.dismiss(toastId);
-      setIsBlocking(false);
-      toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
-    };
-
-    const cancelDeleteAll = (toastId: string) => {
-      toast.dismiss(toastId);
-      setIsBlocking(false);
-    };
-
-    toast(
-      (t) => (
-        <div>
-          <p className="text-gray-800 font-medium text-base">
-            คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?
-          </p>
-
-          <div className="flex gap-3 mt-4 justify-center">
-            <button
-              onClick={() => confirmDeleteAll(t.id)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
-            >
-              ยืนยัน
-            </button>
-
-            <button
-              onClick={() => cancelDeleteAll(t.id)}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 cursor-pointer"
-            >
-              ยกเลิก
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        duration: Infinity,
-        position: "top-center",
+    showConfirm({
+      message: "คุณต้องการลบสินค้าทั้งหมดนี้ใช่หรือไม่?",
+      onConfirm: () => {
+        selectedItems.forEach((id) => dispatch(deleteCartItemThunk(id)));
+        setSelectedItems([]);
+        toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
       },
-    );
+    });
   };
 
   if (cartStatus === "loading") {
