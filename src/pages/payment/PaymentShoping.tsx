@@ -4,18 +4,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
-import type { SavedCard } from "../../types/payment";
+import type {
+  BasePaymentRequest,
+  PaymentIntentRequest,
+  SavedCard,
+  PaymentMethod,
+} from "../../types/payment";
 import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
 import { addSavedCard } from "../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
+import { PAYMENT_OPTIONS } from "../../constants/payment";
 
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+
   const [selectedCardId, setSelectedCardId] = useState<string>("");
   const savedCards = useSelector(
     (state: RootState) => state.payment.savedCards,
@@ -44,9 +51,53 @@ const PaymentShoping = () => {
         bankName: `${cardName}`,
       };
 
-      dispatch(addSavedCard(formattedCard));
+      if (!savedCards.find((c) => c.id === formattedCard.id)) {
+        dispatch(addSavedCard(formattedCard));
+      }
     }
-  }, [dispatch, newlyAddedCard]);
+  }, [dispatch, newlyAddedCard, savedCards]);
+
+  const buildBasePayload = (isBuyNow: boolean): BasePaymentRequest => {
+    const ids = selectedItems
+      .map((item) => {
+        const id = isBuyNow ? item.productId : item.cartItemId;
+        return id ? Number(id) : null;
+      })
+      .filter((id): id is number => id !== null);
+
+    return { ids, isBuyNow };
+  };
+
+  const createPaymentPayload = (
+    base: BasePaymentRequest,
+  ): PaymentIntentRequest => {
+    switch (paymentMethod) {
+      case "credit":
+        if (!selectedCardId) {
+          throw new Error("NO_CARD");
+        }
+        return {
+          ...base,
+          paymentMethod: "credit",
+          cardId: selectedCardId,
+        };
+
+      case "qr":
+        return {
+          ...base,
+          paymentMethod: "qr",
+        };
+
+      case "cod":
+        return {
+          ...base,
+          paymentMethod: "cod",
+        };
+
+      default:
+        throw new Error("INVALID_METHOD");
+    }
+  };
 
   const handleAddNewCard = () => {
     navigate("/add-credit-card", {
@@ -57,100 +108,111 @@ const PaymentShoping = () => {
     });
   };
 
-  const subtotal = selectedItems.reduce(
+  const subtotal = (selectedItems ?? []).reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
 
-  const handleConfirmOrder = async () => {
+  const validateOrder = () => {
     if (!selectedItems || selectedItems.length === 0) {
       toast.error("ไม่พบสินค้าในคำสั่งซื้อ");
       navigate("/shopping-cart");
-      return;
+      return false;
     }
 
     if (!defaultAddress) {
       toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า");
-      return;
+      return false;
     }
 
     if (!paymentMethod) {
       toast.error("กรุณาเลือกช่องทางการชำระเงิน");
-      return;
+      return false;
     }
 
-    const loadingToastId = toast.loading("กำลังดำเนินการ...");
+    if (paymentMethod === "credit" && !selectedCardId) {
+      toast.error("กรุณาเลือกบัตรเครดิต");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleConfirmOrder = async () => {
+    if (!validateOrder()) return;
+
+    let loadingToastId: string | undefined;
 
     try {
+      loadingToastId = toast.loading("กำลังดำเนินการ...");
       const isBuyNow = location.state?.isBuyNow || false;
 
-      // สร้าง Payload กลางไว้ใช้ได้ทั้ง 3 รูปแบบ (Credit, QR, COD)
-      const requestPayload: any = {
-        ids: selectedItems.map((item) =>
-          isBuyNow ? Number(item.productId) : Number(item.cartItemId),
-        ),
-        isBuyNow: isBuyNow,
-      };
+      const base = buildBasePayload(isBuyNow);
+      const payload = createPaymentPayload(base);
 
-      if (paymentMethod === "credit" || paymentMethod === "qr") {
-        if (paymentMethod === "credit" && selectedCardId) {
-          requestPayload.cardId = selectedCardId;
-        }
+      const response = await PaymentService.createPaymentIntent(payload);
 
-        const responseData =
-          await PaymentService.createPaymentIntent(requestPayload);
-        toast.dismiss(loadingToastId);
+      if (!isBuyNow) dispatch(fetchCartThunk());
 
-        if (!isBuyNow) dispatch(fetchCartThunk());
-
-        if (paymentMethod === "credit") {
+      switch (payload.paymentMethod) {
+        case "credit":
           navigate("/history-shop", {
             state: {
-              clientSecret: responseData.clientSecret,
-              referenceId: responseData.paymentIntentId,
+              clientSecret: response.clientSecret,
+              referenceId: response.paymentIntentId,
               totalPrice: subtotal,
               items: selectedItems,
             },
           });
-        } else {
-          navigate(`/payment-qr`, {
+          return;
+
+        case "qr":
+          navigate("/payment-qr", {
             state: {
-              clientSecret: responseData.clientSecret,
+              clientSecret: response.clientSecret,
               totalPrice: subtotal,
             },
           });
-        }
-      } else if (paymentMethod === "cod") {
-        requestPayload.paymentMethod = "cod";
-        await PaymentService.createPaymentIntent(requestPayload);
+          return;
 
-        toast.dismiss(loadingToastId);
-        toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ");
-
-        if (!isBuyNow) {
-          dispatch(fetchCartThunk());
-        }
-
-        navigate("/payment", { state: { status: "success" } });
+        case "cod":
+          toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ");
+          navigate("/history-shop", { state: { status: "success" } });
+          return;
       }
     } catch (error: any) {
-      toast.dismiss(loadingToastId);
-      if (
-        error.response?.status === 400 &&
-        error.response?.data?.message === "OUT_OF_STOCK"
-      ) {
+      const message = error?.message;
+
+      if (message === "NO_CARD") {
+        toast.error("กรุณาเลือกบัตรเครดิต");
+        return;
+      }
+
+      if (message === "INVALID_METHOD") {
+        toast.error("ช่องทางการชำระเงินไม่ถูกต้อง");
+        return;
+      }
+
+      const isOutOfStock =
+        error?.response?.status === 400 &&
+        error?.response?.data?.message === "OUT_OF_STOCK";
+
+      if (isOutOfStock) {
         toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ");
         navigate("/shopping-cart");
-      } else {
-        toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
+        return;
       }
+
+      toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
+    } finally {
+      if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
-        <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
+        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-[#333333] break-words">
           <Link to="/" className="hover:text-blue-500">
             หน้าหลัก
           </Link>
@@ -165,7 +227,7 @@ const PaymentShoping = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <span className="text-black">สรุปคำสั่งซื้อ</span>
+          <span className="text-[#333333]">สรุปคำสั่งซื้อ</span>
         </nav>
       </div>
 
@@ -173,7 +235,7 @@ const PaymentShoping = () => {
       <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30">
         <Icon
           icon="lucide:arrow-left"
-          className="w-6 h-6 mr-3 text-black"
+          className="w-6 h-6 mr-3 text-black cursor-pointer"
           onClick={() => navigate(-1)}
         />
         <span className="text-lg font-bold text-black">ทำการสั่งซื้อ</span>
@@ -190,18 +252,20 @@ const PaymentShoping = () => {
       >
         <div className="p-8">
           <div className="flex items-center gap-3 mb-2 pb-4">
-            <Icon icon="ph:shopping-cart" className="w-8 h-8 text-black" />
-            <h1 className="text-2xl font-bold text-black">สรุปคำสั่งซื้อ</h1>
+            <Icon icon="ph:shopping-cart" className="w-8 h-8 text-[#111827]" />
+            <h1 className="font-['Plus_Jakarta_Sans'] text-[30px] font-medium text-[#111827] leading-[40px] break-words">
+              สรุปคำสั่งซื้อ
+            </h1>
           </div>
           <div className="mb-10">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">
+            <h2 className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words mb-2">
               ที่อยู่ในการจัดส่ง
             </h2>
             <div className="flex justify-between items-center py-3 border-b border-gray-200">
-              <div className="text-sm text-gray-600">
+              <div className="font-anuphan text-[16px] font-normal text-[#7E7E7E] leading-[24px] break-words">
                 {defaultAddress ? (
                   <span className="flex items-center gap-2">
-                    <strong className="text-black">
+                    <strong className="text-black font-normal">
                       {defaultAddress.receiverName}
                     </strong>
                     {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
@@ -213,14 +277,15 @@ const PaymentShoping = () => {
               <button
                 data-test="btn-change-address-mobile"
                 onClick={() => navigate("/address-profile")}
-                className="cursor-pointer text-blue-500 text-sm border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
+                className="cursor-pointer font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
                 เปลี่ยน
               </button>
             </div>
           </div>
+
           <div className="max-h-[250px] overflow-y-auto mb-10 pr-2">
-            {selectedItems.map((item) => (
+            {selectedItems.map((item: any) => (
               <div
                 key={item.productId}
                 className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0"
@@ -228,16 +293,16 @@ const PaymentShoping = () => {
                 <img
                   src={item.imageUrl || ""}
                   alt=""
-                  className="w-16 h-16 object-contain rounded-md"
+                  className="w-30 h-30 object-contain rounded-md"
                 />
-                <div className="flex-1 font-bold text-sm line-clamp-1">
+                <div className="flex-1 font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-1">
                   {item.productName}
                 </div>
-                <div className="w-24 text-center text-sm">
+                <div className="w-24 text-center font-anup han text-[16px] font-normal text-black leading-[24px] break-words">
                   ฿ {item.price.toLocaleString()}
                 </div>
-                <div className="w-12 text-center text-sm">{item.quantity}</div>
-                <div className="w-24 text-right text-blue-500 font-medium text-sm">
+                {/* <div className="w-12 text-center text-sm">{item.quantity}</div> */}
+                <div className="w-24 text-right font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words">
                   ฿ {(item.price * item.quantity).toLocaleString()}
                 </div>
               </div>
@@ -247,44 +312,29 @@ const PaymentShoping = () => {
           <hr className="border-t border-[#D1D5DB] mb-6" />
           <div className="flex flex-row items-start gap-[60px]">
             <div className="space-y-4">
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words">
                 เลือกช่องทางการชำระเงิน
               </h2>
               <div className="flex flex-col gap-3">
-                {[
-                  {
-                    id: "qr",
-                    title: "พร้อมเพย์ (PromptPay)",
-                    desc: "สแกน QR Code เพื่อชำระเงินทันที",
-                    icon: "lucide:wallet",
-                  },
-                  {
-                    id: "credit",
-                    title: "บัตรเครดิต / บัตรเดบิต",
-                    desc: "Visa , Mastercard",
-                    icon: "lucide:credit-card",
-                  },
-                  {
-                    id: "cod",
-                    title: "เก็บเงินปลายทาง (Cash on Delivery)",
-                    desc: "ชำระเงินเมื่อได้รับสินค้า",
-                    icon: "lucide:truck",
-                  },
-                ].map((method) => (
+                {PAYMENT_OPTIONS.map((method: any) => (
                   <div key={method.id} className="flex flex-col">
                     <button
                       data-test="btn-select-payment-method-mobile"
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`cursor-pointer flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${paymentMethod === method.id ? "border-black bg-[#EAEAEA]" : "border-gray-200 bg-white"}`}
+                      className={`cursor-pointer flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
+                        paymentMethod === method.id
+                          ? "border-black bg-[#EAEAEA]"
+                          : "border-gray-200 bg-white"
+                      }`}
                     >
-                      <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
+                      <div className="w-10 h-10 flex items-center text-black justify-center bg-white border border-gray-100 rounded-lg">
                         <Icon icon={method.icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-sm text-gray-900 leading-tight">
+                        <p className="font-['Inter'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
                           {method.title}
                         </p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
+                        <p className="font-['Inter'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
                           {method.desc}
                         </p>
                       </div>
@@ -299,7 +349,7 @@ const PaymentShoping = () => {
                     </button>
                     {method.id === "credit" && paymentMethod === "credit" && (
                       <div className="ml-0 sm:ml-12 mt-3 space-y-3">
-                        {savedCards.map((card: SavedCard) => (
+                        {savedCards.map((card: any) => (
                           <button
                             key={card.id}
                             data-test="btn-select-card-method-mobile"
@@ -307,7 +357,11 @@ const PaymentShoping = () => {
                             className="flex items-center gap-3 cursor-pointer"
                           >
                             <div
-                              className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${selectedCardId === card.id ? "border-blue-500" : "border-gray-400"}`}
+                              className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                                selectedCardId === card.id
+                                  ? "border-blue-500"
+                                  : "border-gray-400"
+                              }`}
                             >
                               {selectedCardId === card.id && (
                                 <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
@@ -355,19 +409,23 @@ const PaymentShoping = () => {
             <div className="pt-10">
               <div className="hidden lg:flex lg:order-2 flex-col pt-[90px]">
                 <div className="w-[330px] h-[93px] grid grid-cols-2 grid-rows-3 gap-y-[6px] gap-x-[50px] items-center">
-                  <span className="text-sm font-medium">รวมการสั่งซื้อ</span>
-                  <span className="text-md font-medium text-right">
+                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
+                    รวมการสั่งซื้อ
+                  </span>
+                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
                     ฿ {subtotal.toLocaleString()}
                   </span>
-                  <span className="text-sm font-medium">ยอดชำระทั้งหมด</span>
-                  <span className="text-md font-medium text-right">
+                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
+                    ยอดชำระทั้งหมด
+                  </span>
+                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
                     ฿ {subtotal.toLocaleString()}
                   </span>
                   <div className="col-start-2 flex justify-end">
                     <button
                       data-test="btn-confirm-payment-mobile"
                       onClick={handleConfirmOrder}
-                      className=" cursor-pointer w-[146px] h-[29px] bg-[#4285F4] text-white rounded-[7px] text-[13px] font-medium shadow-md"
+                      className="cursor-pointer w-[146px] h-[29px] bg-[#4285F4] rounded-[7px] shadow-md font-anuphan text-[16px] font-normal text-[#FCFCFC] leading-[24px] break-words"
                     >
                       ยืนยันการชำระเงิน
                     </button>
@@ -379,6 +437,7 @@ const PaymentShoping = () => {
         </div>
       </div>
 
+      {/* ---------------- MOBILE SECTION ---------------- */}
       <div className="w-full lg:hidden block">
         <div className="bg-white mb-2 pb-3 shadow-sm">
           <div
@@ -390,7 +449,7 @@ const PaymentShoping = () => {
           ></div>
           <button
             data-test="btn-confirm-payment-mobile"
-            className="px-4 flex items-center justify-between cursor-pointer"
+            className="px-4 flex items-center justify-between cursor-pointer w-full text-left"
             onClick={() => navigate("/address-profile")}
           >
             <div className="flex items-start gap-3">
@@ -401,14 +460,13 @@ const PaymentShoping = () => {
               <div className="text-sm flex-1">
                 {defaultAddress ? (
                   <>
-                    <p className="font-semibold text-gray-800 text-[15px]">
+                    <p className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words">
                       ที่อยู่ในการจัดส่ง
                     </p>
-                    <p className="text-gray-800 mt-1">
-                      {defaultAddress.receiverName} |
-                      {defaultAddress.receiverPhone}
+                    <p className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words mt-1">
+                      {defaultAddress.receiverName}
                     </p>
-                    <p className="text-gray-500 mt-0.5 line-clamp-2 leading-relaxed text-[13px]">
+                    <p className="font-anuphan text-[16px] font-normal text-[#7E7E7E] leading-[24px] break-words mt-0.5 line-clamp-1">
                       {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
                     </p>
                   </>
@@ -425,10 +483,12 @@ const PaymentShoping = () => {
 
         <div className="bg-white mb-2 shadow-sm">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-gray-100">
-            <Icon icon="mdi:storefront" className="w-5 h-5 text-gray-700" />
-            <span className="font-semibold text-sm">สินค้าที่สั่งซื้อ</span>
+            <Icon icon="mdi:storefront" className="w-5 h-5 text-black" />
+            <span className="font-semibold text-sm text-black">
+              สินค้าที่สั่งซื้อ
+            </span>
           </div>
-          {selectedItems.map((item) => (
+          {selectedItems.map((item: any) => (
             <div
               key={item.productId}
               className="flex gap-3 p-4 bg-[#f9f9f9] border-b border-white last:border-none"
@@ -439,11 +499,11 @@ const PaymentShoping = () => {
                 className="w-[72px] h-[72px] object-cover border border-gray-200"
               />
               <div className="flex-1 flex flex-col justify-between">
-                <p className="text-sm text-gray-800 line-clamp-2">
+                <p className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-2">
                   {item.productName}
                 </p>
                 <div className="flex justify-between items-end mt-2">
-                  <span className="text-[15px] font-semibold text-blue-500">
+                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                     ฿{item.price.toLocaleString()}
                   </span>
                   <span className="text-sm text-gray-500">
@@ -454,51 +514,35 @@ const PaymentShoping = () => {
             </div>
           ))}
         </div>
-        {/* Payment Method & Summary Row */}
-        <div className="flex flex-row items-start justify-between">
+
+        {/* Payment Method Mobile */}
+        <div className="bg-white mb-2 p-4 shadow-sm">
           <div className="space-y-4 flex-1">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words">
               เลือกช่องทางการชำระเงิน
             </h2>
             <div className="flex flex-col gap-3">
-              {[
-                {
-                  id: "qr",
-                  title: "พร้อมเพย์ (PromptPay)",
-                  desc: "สแกน QR Code เพื่อชำระเงินทันที",
-                  icon: "lucide:wallet",
-                },
-                {
-                  id: "credit",
-                  title: "บัตรเครดิต / บัตรเดบิต",
-                  desc: "Visa , Mastercard",
-                  icon: "lucide:credit-card",
-                },
-                {
-                  id: "cod",
-                  title: "เก็บเงินปลายทาง (Cash on Delivery)",
-                  desc: "ชำระเงินเมื่อได้รับสินค้า",
-                  icon: "lucide:truck",
-                },
-              ].map((method) => (
+              {PAYMENT_OPTIONS.map((method: any) => (
                 <div key={method.id} className="flex flex-col">
                   <button
                     data-test="btn-select-payment-method"
                     onClick={() => setPaymentMethod(method.id)}
-                    className={`cursor-pointer flex items-center gap-4 w-full max-w-[585px] p-3 rounded-xl border-2 transition-all ${
+                    className={`cursor-pointer flex items-center gap-4 w-full p-3 rounded-xl border-2 transition-all ${
                       paymentMethod === method.id
                         ? "border-black bg-gray-50"
                         : "border-gray-100 bg-white"
                     }`}
                   >
-                    <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
-                      <Icon icon={method.icon} className="w-5 h-5" />
+                    <div className="w-10 h-10 flex items-center text-black justify-center bg-white border border-gray-100 rounded-lg cursor-pointer">
+                      <Icon icon={method.icon} className="w-5 h-5 " />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="font-bold text-sm text-gray-900">
+                      <p className="font-['Inter'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
                         {method.title}
                       </p>
-                      <p className="text-[11px] text-gray-500">{method.desc}</p>
+                      <p className="font-['Inter'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
+                        {method.desc}
+                      </p>
                     </div>
                     {paymentMethod === method.id && (
                       <Icon
@@ -508,10 +552,10 @@ const PaymentShoping = () => {
                     )}
                   </button>
 
-                  {/* Credit Card Options */}
+                  {/* Credit Card Options Mobile */}
                   {method.id === "credit" && paymentMethod === "credit" && (
                     <div className="ml-12 mt-3 space-y-3 animate-in fade-in slide-in-from-top-1">
-                      {savedCards.map((card: SavedCard) => (
+                      {savedCards.map((card: any) => (
                         <button
                           key={card.id}
                           data-test="btn-select-card-method"
@@ -519,7 +563,11 @@ const PaymentShoping = () => {
                           className="flex items-center gap-3 cursor-pointer"
                         >
                           <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedCardId === card.id ? "border-blue-500" : "border-gray-400"}`}
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              selectedCardId === card.id
+                                ? "border-blue-500"
+                                : "border-gray-400"
+                            }`}
                           >
                             {selectedCardId === card.id && (
                               <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
@@ -532,7 +580,7 @@ const PaymentShoping = () => {
                                   ? "logos:mastercard"
                                   : "logos:visa"
                               }
-                              className="text-lg"
+                              className="text-lg text-black"
                             />
                           </div>
                           <span className="text-sm text-black">
@@ -543,9 +591,12 @@ const PaymentShoping = () => {
                       <button
                         data-test="add-to-card"
                         onClick={handleAddNewCard}
-                        className="flex items-center gap-2 text-xs font-medium border border-black px-3 py-1.5 rounded-md hover:bg-gray-50 transition-all"
+                        className="flex items-center gap-2 text-xs text-black font-medium border border-black px-3 py-1.5 rounded-md cursor-pointrer transition-all bg-white"
                       >
-                        <Icon icon="lucide:plus" className="w-3.5 h-3.5" />{" "}
+                        <Icon
+                          icon="lucide:plus"
+                          className="w-3.5 h-3.5 text-black"
+                        />{" "}
                         เพิ่มบัตรเครดิต/เดบิต
                       </button>
                     </div>
@@ -554,39 +605,39 @@ const PaymentShoping = () => {
               ))}
             </div>
           </div>
+        </div>
 
-          <div className="bg-white mb-2 p-4 space-y-2.5 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Icon
-                icon="mdi:receipt-text-outline"
-                className="w-5 h-5 text-gray-600"
-              />
-              <span className="font-semibold text-sm">
-                รายละเอียดการชำระเงิน
-              </span>
-            </div>
-            <div className="flex justify-between text-[13px] text-gray-500">
-              <span>รวมค่าสินค้า</span>
-              <span>฿{subtotal.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-[13px] text-gray-500">
-              <span>ค่าจัดส่ง</span>
-              <span>฿{subtotal.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm pt-3 mt-2 border-t border-gray-100">
-              <span className="font-semibold text-gray-800">
-                ยอดชำระทั้งหมด
-              </span>
-              <span className="text-lg font-bold text-blue-500">
-                ฿{subtotal.toLocaleString()}
-              </span>
-            </div>
+        <div className="bg-white mb-2 p-4 space-y-2.5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon
+              icon="mdi:receipt-text-outline"
+              className="w-5 h-5 text-black"
+            />
+            <span className="font-semibold text-sm text-black">
+              รายละเอียดการชำระเงิน
+            </span>
+          </div>
+          <div className="flex justify-between text-[13px] text-black">
+            <span>รวมค่าสินค้า</span>
+            <span>฿{subtotal.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between text-[13px] text-black">
+            <span>ค่าจัดส่ง</span>
+            <span>฿{subtotal.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between items-center text-sm pt-3 mt-2 border-t border-gray-100">
+            <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
+              ยอดชำระทั้งหมด
+            </span>
+            <span className="text-lg font-bold text-blue-500">
+              ฿{subtotal.toLocaleString()}
+            </span>
           </div>
         </div>
 
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-end z-40 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
           <div className="flex flex-col px-4 text-right justify-center">
-            <span className="text-[12px] text-gray-600 mb-0.5">
+            <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words mb-0.5">
               ยอดชำระทั้งหมด
             </span>
             <span className="text-[18px] font-bold text-blue-500 leading-none">
@@ -596,9 +647,9 @@ const PaymentShoping = () => {
           <button
             data-test="btn-confirm-order-mobile"
             onClick={handleConfirmOrder}
-            className="cursor-pointer bg-blue-500 active:bg-blue-600 text-white h-[60px] px-8 font-bold text-sm transition-colors flex-shrink-0"
+            className="cursor-pointer bg-blue-500 active:bg-blue-600 text-[#FCFCFC] h-[60px] px-8 font-normal text-[16px] font-anuphan transition-colors flex-shrink-0"
           >
-            สั่งซื้อสินค้า
+            ยืนยันการชำระเงิน
           </button>
         </div>
       </div>

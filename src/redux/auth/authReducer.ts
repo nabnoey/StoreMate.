@@ -121,7 +121,7 @@ const authSlice = createSlice({
       state.loading = false;
       const newToken = action.payload;
       state.token = newToken;
-      state.user = getUserFromToken(newToken);
+      state.user = { ...state.user, ...getUserFromToken(newToken) };
       state.isAuthenticated = true;
       state.error = null;
     });

@@ -7,6 +7,7 @@ import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
 import { Icon } from "@iconify/react";
+import { getProfile } from "../../redux/auth/authReducer";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     if (isAuthentication) {
       dispatch(fetchCartThunk());
+      dispatch(getProfile());
     }
   }, [dispatch, isAuthentication]);
 
@@ -66,13 +68,13 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative w-full">
+    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
       {/* LOGO */}
-      <div className="flex items-center flex-shrink-0 lg:w-1/4">
-        <button onClick={() => navigate("/")} className="flex items-center">
+      <div className="navbar-start right-5 flex items-center justify-start">
+        <button onClick={() => navigate("/")}>
           <img
             src={logo}
-            className="w-24 lg:w-32 cursor-pointer object-contain"
+            className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
             alt="Logo"
             data-test="logo"
           />
@@ -80,8 +82,8 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* MENU DESKTOP */}
-      <div className="hidden lg:flex flex-1 justify-center font-Anuphan text-black">
-        <ul className="flex items-center gap-6 xl:gap-10 text-[16px]">
+      <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-Anuphan text-black">
+        <ul className="flex items-center gap-6 xl:gap-10 text-[16px] whitespace-nowrap">
           <li>
             <Link
               data-test="list-search"
@@ -157,11 +159,11 @@ const Navbar: React.FC = () => {
                     handleSubmitSearch();
                   }
                 }}
-                className="absolute right-8 top-1/2 -translate-y-1/2 input input-bordered bg-white w-[180px] sm:w-[220px] md:w-[250px] h-10 text-[#74768f] z-50 focus:outline-none"
+                className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
                 autoFocus
               />
               {inputValue && searchResult.length > 0 && (
-                <div className="absolute right-8 top-12 w-60 bg-white shadow-lg rounded-md z-50 max-h-60 overflow-y-auto text-black">
+                <div className="absolute right-0 mt-3 text-black w-64 bg-white shadow-lg rounded-md z-50 divide-y max-h-60 overflow-y-auto">
                   {searchResult.map((product) => (
                     <button
                       data-test="click-to-product"
@@ -257,7 +259,7 @@ const Navbar: React.FC = () => {
           {isAuthenticated ? (
             <UserProfile
               variant="mobile"
-              onCloseMenu={() => setOpenMenu(false)}
+              onCloseMenu={() => setOpenMenu(true)}
             />
           ) : (
             <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-100">
