@@ -11,14 +11,19 @@ function ProductCard({ product }: Readonly<Props>) {
       className="block group"
       data-test="product-card"
     >
-      <div className="card bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
-        <figure className="px-2 pt-2 overflow-hidden rounded-2xl h-[250px]">
+   
+      <div className="card bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
+        
+      
+        <figure className="overflow-hidden rounded-xl h-[220px] w-full"> 
           <img
             src={product.imageUrl}
             alt="สินค้า"
-            className="w-full h-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         </figure>
+        
+        
         <div className="card-body p-4 flex flex-col justify-between">
           <div>
             <h2 className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors">
@@ -29,6 +34,8 @@ function ProductCard({ product }: Readonly<Props>) {
             </p>
           </div>
         </div>
+        
+        
         <div className="px-4 pb-4 mt-auto">
           <div className="flex justify-between items-center">
             <p className="font-extrabold text-lg text-blue-500">
@@ -40,4 +47,5 @@ function ProductCard({ product }: Readonly<Props>) {
     </Link>
   );
 }
+
 export default ProductCard;
