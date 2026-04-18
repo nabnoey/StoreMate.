@@ -1,3 +1,5 @@
+export type PaymentMethod = "credit" | "qr" | "cod";
+
 export type SavedCard = {
   id: string;
   brand: string;
@@ -5,7 +7,25 @@ export type SavedCard = {
   last4: string;
 };
 
-export type PaymentIntentRequest = {
+export type BasePaymentRequest = {
   ids: number[];
-  [key: string]: number | number[] | string[];
+  isBuyNow: boolean;
 };
+
+export type CreditPaymentRequest = BasePaymentRequest & {
+  paymentMethod: "credit";
+  cardId: string;
+};
+
+export type QRPaymentRequest = BasePaymentRequest & {
+  paymentMethod: "qr";
+};
+
+export type CODPaymentRequest = BasePaymentRequest & {
+  paymentMethod: "cod";
+};
+
+export type PaymentIntentRequest =
+  | CreditPaymentRequest
+  | QRPaymentRequest
+  | CODPaymentRequest;
