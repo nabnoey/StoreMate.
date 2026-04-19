@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
+import { useStripe } from "@stripe/react-stripe-js";
 import type {
   BasePaymentRequest,
   PaymentIntentRequest,
@@ -20,6 +21,7 @@ const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const stripe = useStripe();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
 
@@ -156,14 +158,36 @@ const PaymentShoping = () => {
 
       switch (payload.paymentMethod) {
         case "credit":
-          navigate("/history-shop", {
-            state: {
-              clientSecret: response.clientSecret,
-              referenceId: response.paymentIntentId,
-              totalPrice: subtotal,
-              items: selectedItems,
+          if (!stripe) {
+            toast.error(
+              "ระบบชำระเงินผ่านบัตรเครดิตยังไม่พร้อมใช้งาน กรุณาลองใหม่อีกครั้งในภายหลัง",
+            );
+            return;
+          }
+
+          const confirmResult = await stripe.confirmCardPayment(
+            response.clientSecret,
+            {
+              payment_method: selectedCardId,
             },
-          });
+          );
+
+          if (confirmResult.paymentIntent?.status === "succeeded") {
+            toast.success("ชำระเงินผ่านบัตรเครดิตสำเร็จ", {
+              duration: 2000,
+            });
+
+            setTimeout(() => {
+              navigate("/history-shop", {
+                state: {
+                  clientSecret: response.clientSecret,
+                  referenceId: confirmResult.paymentIntent?.id,
+                  totalPrice: subtotal,
+                  items: selectedItems,
+                },
+              });
+            }, 2000);
+          }
           return;
 
         case "qr":
@@ -176,8 +200,14 @@ const PaymentShoping = () => {
           return;
 
         case "cod":
-          toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ");
-          navigate("/history-shop", { state: { status: "success" } });
+          toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ", {
+            duration: 2000,
+          });
+          setTimeout(() => {
+            navigate("/history-shop", {
+              state: { status: "success", paymentMethod: "cod" },
+            });
+          }, 2000);
           return;
       }
     } catch (error: any) {

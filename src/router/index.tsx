@@ -3,6 +3,10 @@ import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
 import ProtectedRout from "./ProtectedRout";
 import { lazyDelay } from "../utils/lazyDelay";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
 const ShoppingCartPage = lazy(() =>
@@ -94,7 +98,9 @@ const router = createBrowserRouter([
         path: "payment",
         element: (
           <ProtectedRout>
-            <PaymentShoping />
+            <Elements stripe={stripePromise}>
+              <PaymentShoping />
+            </Elements>
           </ProtectedRout>
         ),
       },
@@ -196,9 +202,9 @@ const router = createBrowserRouter([
       },
 
       {
-        path:"/orders",
-        element:<HistoryPage/>
-      }
+        path: "/orders",
+        element: <HistoryPage />,
+      },
     ],
   },
 
