@@ -11,9 +11,55 @@ import {
 } from "../../../redux/carts/CartReducer";
 
 import { Icon } from "@iconify/react";
-import { toast } from "react-hot-toast";
+import { type Toast, toast } from "react-hot-toast";
 import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
+
+interface ConfirmToastProps {
+  t: Toast;
+  message: string;
+  onResolve: (value: boolean) => void;
+  setIsBlocking: (value: boolean) => void;
+}
+
+const ConfirmToastUI = ({
+  t,
+  message,
+  onResolve,
+  setIsBlocking,
+}: ConfirmToastProps) => {
+  const handleConfirm = () => {
+    toast.dismiss(t.id);
+    setIsBlocking(false);
+    onResolve(true);
+  };
+
+  const handleCancel = () => {
+    toast.dismiss(t.id);
+    setIsBlocking(false);
+    onResolve(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-3 items-center p-2">
+      <span className="text-gray-800 font-medium text-base">{message}</span>
+      <div className="flex gap-3 mt-2">
+        <button
+          onClick={handleConfirm}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >
+          ยืนยัน
+        </button>
+        <button
+          onClick={handleCancel}
+          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+        >
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
@@ -68,33 +114,12 @@ const ShoppingCart = () => {
       setIsBlocking(true);
       toast(
         (t) => (
-          <div className="flex flex-col gap-3 items-center p-2">
-            <span className="text-gray-800 font-medium text-base">
-              {message}
-            </span>
-            <div className="flex gap-3 mt-2">
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  setIsBlocking(false);
-                  resolve(true); // ตอบตกลง
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                ยืนยัน
-              </button>
-              <button
-                onClick={() => {
-                  toast.dismiss(t.id);
-                  setIsBlocking(false);
-                  resolve(false); // ยกเลิก
-                }}
-                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
+          <ConfirmToastUI
+            t={t}
+            message={message}
+            onResolve={resolve}
+            setIsBlocking={setIsBlocking}
+          />
         ),
         { duration: Infinity, position: "top-center" },
       );

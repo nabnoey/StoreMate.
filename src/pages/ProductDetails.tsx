@@ -194,11 +194,21 @@ const ProductDetailPage: React.FC = () => {
         {
           productId: productDetail.id,
           cartItemId: null,
+          quantity: buyQuantity,
+          price: productDetail.price,
+          totalPrice: productDetail.price * buyQuantity,
+
+          // 🌟 แบบแบนราบ (Flat) เผื่อ UI เรียกใช้ตรงๆ
           productName: productDetail.productName,
           imageUrl: activeImage || productDetail.productImages?.[0]?.imageUrl,
-          price: productDetail.price,
-          quantity: buyQuantity,
-          totalPrice: productDetail.price * buyQuantity,
+
+          // 🌟 จำลองโครงสร้างซ้อน (Nested) ให้เหมือนข้อมูลใน Redux Cart
+          product: {
+            id: productDetail.id,
+            productName: productDetail.productName,
+            price: productDetail.price,
+            imageUrl: activeImage || productDetail.productImages?.[0]?.imageUrl,
+          },
         },
       ],
       total: productDetail.price * buyQuantity,
@@ -381,34 +391,6 @@ const ProductDetailPage: React.FC = () => {
                   data-test="container-cart-actions"
                   className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
                 >
-                  {/* <button
-                    type="button"
-                    data-test="btn-add-to-cart"
-                    onClick={() => handleAddToCart(false)}
-                    disabled={isAddingToCart}
-                    className={`flex-1 md:flex-none md:w-[151px] h-[60px] md:h-[52px]
-                      flex items-center justify-center gap-[10px] p-[10px]
-                      bg-blue-50 text-blue-600 md:bg-blue-500 md:hover:bg-blue-600 md:text-white
-                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
-                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                  >
-                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
-                  </button> */}
-
-                  {/* <button
-                    type="button"
-                    data-test="btn-buy-cart"
-                    onClick={() => handleAddToCart(true)}
-                    disabled={isAddingToCart}
-                    className={`flex-1 md:flex-none md:w-[115px] h-[60px] md:h-[52px]
-                      flex items-center justify-center gap-[10px] p-[10px]
-                      bg-[#10B981] hover:bg-green-600 text-white
-                      rounded-none md:rounded-[12px] font-semibold text-md transition-colors md:shadow-sm
-                      ${isAddingToCart ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                  >
-                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
-                  </button> */}
-
                   <button
                     type="button"
                     data-test="btn-add-to-cart"

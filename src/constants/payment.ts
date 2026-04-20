@@ -7,19 +7,19 @@ export const PAYMENT_OPTIONS: {
   icon: string;
 }[] = [
   {
-    id: "qr",
+    id: "PROMPTPAY",
     title: "พร้อมเพย์ (PromptPay)",
     desc: "สแกน QR Code เพื่อชำระเงินทันที",
     icon: "lucide:wallet",
   },
   {
-    id: "credit",
+    id: "CARD",
     title: "บัตรเครดิต / บัตรเดบิต",
     desc: "Visa , Mastercard",
     icon: "lucide:credit-card",
   },
   {
-    id: "cod",
+    id: "DESTINATION",
     title: "เก็บเงินปลายทาง",
     desc: "ชำระเงินเมื่อได้รับสินค้า",
     icon: "lucide:truck",

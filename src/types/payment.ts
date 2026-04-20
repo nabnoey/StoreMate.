@@ -1,4 +1,4 @@
-export type PaymentMethod = "credit" | "qr" | "cod";
+export type PaymentMethod = "CARD" | "PROMPTPAY" | "DESTINATION";
 
 export type SavedCard = {
   id: string;
@@ -7,25 +7,15 @@ export type SavedCard = {
   last4: string;
 };
 
-export type BasePaymentRequest = {
+export type PaymentIntentPayload = {
   ids: number[];
-  isBuyNow: boolean;
+  checkoutType: PaymentMethod;
+  cardId?: string; // จะมีเฉพาะถ้า checkoutType เป็น "CARD"
 };
 
-export type CreditPaymentRequest = BasePaymentRequest & {
-  paymentMethod: "credit";
-  cardId: string;
+export type PaymentNowPayload = {
+  id: number;
+  quantity: number;
+  checkoutType: PaymentMethod;
+  cardId?: string; // จะมีเฉพาะถ้า checkoutType เป็น "CARD"
 };
-
-export type QRPaymentRequest = BasePaymentRequest & {
-  paymentMethod: "qr";
-};
-
-export type CODPaymentRequest = BasePaymentRequest & {
-  paymentMethod: "cod";
-};
-
-export type PaymentIntentRequest =
-  | CreditPaymentRequest
-  | QRPaymentRequest
-  | CODPaymentRequest;
