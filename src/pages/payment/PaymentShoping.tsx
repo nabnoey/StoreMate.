@@ -17,7 +17,7 @@ import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
 import { addSavedCard } from "../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
-import { PAYMENT_OPTIONS } from "../../constants/paymentOptions"
+import { PAYMENT_OPTIONS } from "../../constants/payment";
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
