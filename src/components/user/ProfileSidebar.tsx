@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useLocation, Link, useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  Link,
+  useSearchParams,
+} from "react-router-dom";
 import { Icon } from "@iconify/react";
 import type { RootState } from "../../redux/store";
 
@@ -8,39 +13,52 @@ const ProfileSidebar = () => {
   const user = useSelector((state: RootState) => state?.auth?.user);
   const navigate = useNavigate();
   const location = useLocation();
-    const [searchParams] = useSearchParams();
- 
+  const [searchParams] = useSearchParams();
 
-  // const getOrders:string = searchParams.get("ALL") || ""
- const status: string = searchParams.get("status") || "ALL";
+  const status: string = searchParams.get("status") || "ALL";
 
+  // State สำหรับ Desktop Menu (แบบพับขึ้นลง)
   const [isDesktopProfileOpen, setIsDesktopProfileOpen] = useState(true);
+
+  // State สำหรับ Mobile Dropdown
+  const [isMobileProfileOpen, setIsMobileProfileOpen] = useState(false);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
 
   // ฟังก์ชันเช็คว่าหน้าปัจจุบันตรงกับ URL นี้ไหม
   const isActive = (path: string) => location.pathname === path;
 
+  // ปิด Mobile Dropdown เมื่อคลิกที่อื่น (Click Outside)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // สไตล์สำหรับเมนู Desktop (มีไฮไลท์สีฟ้าเมื่อเลือก)
   const getDesktopMenuClass = (path: string) => {
     return isActive(path)
-      ? "flex items-center gap-2 px-4 py-2  text-blue-500 font-medium transition-all rounded-md w-full text-left"
-      : "flex items-center gap-2 px-4 py-2 text-black font-medium hover:text-blue-500 transition-all rounded-md w-full text-left";
-  };
-
-  // สไตล์สำหรับเมนู Mobile แบบปุ่ม Pill
-  const getMobileTabClass = (path: string) => {
-    return isActive(path)
-      ? "flex-shrink-0 px-5 py-2 bg-blue-500 text-white text-sm font-medium rounded-full shadow-sm transition-all"
-      : "flex-shrink-0 px-5 py-2 bg-white text-black text-sm font-medium rounded-full shadow-sm border border-gray-100 hover:text-blue-500 transition-all";
+      ? "flex items-center gap-2 px-4 py-2 text-[#4285F4] font-medium transition-all rounded-md w-full text-left"
+      : "flex items-center gap-2 px-4 py-2 text-black font-medium hover:text-[#4285F4] transition-all rounded-md w-full text-left";
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 font-['Anuphan']">
       {/* ================= MOBILE VIEW ================= */}
-      <div className="md:hidden flex flex-col gap-3 relative z-20 mb-2">
-        {/* Mobile Profile Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-11 h-11 border rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-gray-50">
+      <div className="md:hidden mt-2 relative z-50">
+        {/* เทคนิค: ใช้ pb-[250px] เพื่อสร้างพื้นที่ให้ Dropdown และดึง -mb-[250px] กลับ เพื่อไม่ให้เว็บเกิดช่องว่าง */}
+        {/* pointer-events-none ทำให้พื้นที่ล่องหนไม่บังการกดเนื้อหาเว็บด้านล่าง */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-[250px] -mb-[250px] pointer-events-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* กล่องที่ 1: ชื่อโปรไฟล์ */}
+          {/* pointer-events-auto เพื่อให้กล่องนี้ยังคงกดใช้งานและเลื่อนได้ปกติ */}
+          <div className="pointer-events-auto flex-shrink-0 bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-2.5 flex items-center gap-3">
+            <div className="w-6 h-6 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50 shrink-0">
               {user?.image_url || user?.image ? (
                 <img
                   src={user.image_url || user.image}
@@ -50,66 +68,107 @@ const ProfileSidebar = () => {
               ) : (
                 <Icon
                   icon="ph:user"
-                  width="24"
-                  height="24"
+                  width="16"
+                  height="16"
                   className="text-gray-500"
                 />
               )}
             </div>
-
-            <div className="truncate">
-              <p className="text-sm font-bold text-gray-900 truncate">
-                {user?.name || "กำลังโหลด..."}
-              </p>
-              <button
-                data-test="btn-edit-profile-mobile"
-                onClick={() => navigate("/profile")}
-                className="cursor-pointer text-md text-black flex items-center gap-1 mt-0.5"
-              >
-                <Icon
-                  icon="ph:pencil-simple"
-                  width="12"
-                  height="12"
-                  data-test="btn-edit-profile-mobile-icon"
-                  className="cursor-pointer"
-                />
-                แก้ไขโปรไฟล์
-              </button>
-            </div>
+            <span className="text-base font-normal text-gray-800 truncate max-w-[120px]">
+              {user?.name || "กำลังโหลด..."}
+            </span>
+            <button
+              onClick={() => navigate("/profile")}
+              className="cursor-pointer ml-1"
+            >
+              <Icon
+                icon="ph:pencil-simple"
+                width="16"
+                height="16"
+                className="text-gray-800"
+              />
+            </button>
           </div>
-        </div>
 
-        {/* Mobile Horizontal Menu (Scrollable Pills) */}
-        {/* ใช้ [&::-webkit-scrollbar]:hidden เพื่อซ่อน scrollbar แต่ยังปัดซ้ายขวาได้ */}
-        <div className="flex overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
-          <button
-            data-test="btn-profile-tab-profile"
-            className={getMobileTabClass("/profile")}
-            onClick={() => navigate("/profile")}
+          {/* กล่องที่ 2: โปรไฟล์ของฉัน (Dropdown) */}
+          <div
+            className="pointer-events-auto flex-shrink-0 relative"
+            ref={mobileDropdownRef}
           >
-            โปรไฟล์
-          </button>
-          <button
-            data-test="btn-profile-tab-address"
-            className={getMobileTabClass("/address-profile")}
-            onClick={() => navigate("/address-profile")}
-          >
-            จัดการที่อยู่
-          </button>
-          <button
-            data-test="btn-profile-tab-password"
-            className={getMobileTabClass("/change-password")}
-            onClick={() => navigate("/change-password")}
-          >
-            รหัสผ่าน
-          </button>
-          <button
-            data-test="btn-profile-tab-history"
-            className={getMobileTabClass("/history-shop")}
-            onClick={() => navigate("/history-shop")}
+            <button
+              onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
+              className={`rounded-lg px-4 py-2.5 flex items-center gap-2 text-base transition-colors shadow-sm border border-gray-100 ${
+                isMobileProfileOpen
+                  ? "bg-gray-200 text-gray-800"
+                  : "bg-white text-gray-800 hover:bg-gray-50"
+              }`}
+            >
+              โปรไฟล์ของฉัน
+              <Icon
+                icon="ic:round-menu"
+                width="20"
+                height="20"
+                className="text-gray-800"
+              />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isMobileProfileOpen && (
+              <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-3 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-50">
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setIsMobileProfileOpen(false);
+                  }}
+                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                    isActive("/profile")
+                      ? "text-[#4285F4]"
+                      : "text-[#374151] hover:bg-gray-50"
+                  }`}
+                >
+                  โปรไฟล์
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/address-profile");
+                    setIsMobileProfileOpen(false);
+                  }}
+                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                    isActive("/address-profile")
+                      ? "text-[#4285F4]"
+                      : "text-[#374151] hover:bg-gray-50"
+                  }`}
+                >
+                  จัดการที่อยู่
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/change-password");
+                    setIsMobileProfileOpen(false);
+                  }}
+                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                    isActive("/change-password")
+                      ? "text-[#4285F4]"
+                      : "text-[#374151] hover:bg-gray-50"
+                  }`}
+                >
+                  เปลี่ยนรหัสผ่าน
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* กล่องที่ 3: การซื้อของฉัน */}
+          <Link
+            to={`/orders?status=${status}`}
+            className={`pointer-events-auto flex-shrink-0 rounded-lg px-4 py-2.5 text-base transition-colors shadow-sm border border-gray-100 ${
+              isActive("/orders") || isActive("/history-shop")
+                ? "bg-white text-[#4285F4]"
+                : "bg-white text-gray-800 hover:text-[#4285F4]"
+            }`}
           >
             การซื้อของฉัน
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -150,7 +209,7 @@ const ProfileSidebar = () => {
               />
               <button
                 data-test="btn-edit-profile-mobile"
-                className="cursor-pointer text-black text-xs flex items-center gap-1.5  transition-colors font-medium"
+                className="cursor-pointer text-black text-xs flex items-center gap-1.5 transition-colors font-medium"
                 onClick={() => navigate("/profile")}
               >
                 แก้ไขโปรไฟล์
@@ -160,10 +219,10 @@ const ProfileSidebar = () => {
         </div>
 
         {/* Desktop Menu */}
-        <div className="bg-[#F3F4F6] rounded-xl shadow-md  border border-gray-100 p-3">
+        <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-3">
           <div className="mb-2">
             <button
-              className="w-full flex items-center justify-between font-medium text-black text-medium p-3 rounded-lg hover:text-blue-500 transition-colors"
+              className="w-full flex items-center justify-between font-medium text-black text-medium p-3 rounded-lg hover:text-[#4285F4] transition-colors"
               onClick={() => setIsDesktopProfileOpen(!isDesktopProfileOpen)}
             >
               <div
@@ -223,10 +282,10 @@ const ProfileSidebar = () => {
           </div>
 
           <div className="pt-2 mt-2">
-          <Link
+            <Link
               data-test="btn-profile-menu-history"
               to={`/orders?status=${status}`}
-              className="cursor-pointer w-full flex items-center gap-2 font-medium text-medium p-3  transition-colors hover:text-[#4285F4]"
+              className="cursor-pointer w-full flex items-center gap-2 font-medium text-medium p-3 transition-colors hover:text-[#4285F4]"
             >
               การซื้อของฉัน
             </Link>
