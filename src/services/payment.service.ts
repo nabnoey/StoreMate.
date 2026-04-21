@@ -1,12 +1,5 @@
 import api from "./api";
-
-// สร้าง Interface มารับ Type ให้ชัดเจน (เพื่อกัน TypeScript บ่นครับ)
-interface PaymentIntentPayload {
-  ids: number[];
-  isBuyNow?: boolean;
-  cardId?: string;
-}
-
+import type { PaymentIntentPayload, PaymentNowPayload } from "../types/payment";
 const createPaymentIntent = async (data: PaymentIntentPayload) => {
   const res = await api.post(
     `${import.meta.env.VITE_ORDER_API}/${import.meta.env.VITE_PAYMENT_API}/intent`,
@@ -15,6 +8,15 @@ const createPaymentIntent = async (data: PaymentIntentPayload) => {
   return res.data;
 };
 
+const paymentNow = async (data: PaymentNowPayload) => {
+  const res = await api.post(
+    `${import.meta.env.VITE_ORDER_API}/${import.meta.env.VITE_PAYMENT_API}/now`,
+    data,
+  );
+  return res.data;
+};
+
 export const PaymentService = {
   createPaymentIntent,
+  paymentNow,
 };

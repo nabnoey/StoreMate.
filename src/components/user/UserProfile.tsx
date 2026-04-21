@@ -174,12 +174,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon
                   icon="ph:gear"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   className="text-black"
                 />
               </div>
-              <span className="break-words font-Anuphan text-[20px] font-semibold leading-[32px] text-black">
+              <span className="break-words font-Anuphan text-[16px] font-semibold leading-[32px] text-black">
                 แก้ไขโปรไฟล์
               </span>
             </button>
@@ -201,12 +201,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon
                   icon="radix-icons:clipboard"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   className="text-black"
                 />
               </div>
-              <span className="break-words font-Anuphan text-[20px] font-semibold leading-[32px] text-black">
+              <span className="break-words font-Anuphan text-[16px] font-semibold leading-[32px] text-black">
                 การซื้อของฉัน
               </span>
             </button>
@@ -228,12 +228,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon
                   icon="ph:sign-out"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   className="rotate-180 text-[#1F2937] transition-colors text-semibold"
                 />
               </div>
-              <span className="break-words font-Anuphan text-[19px] font-semibold leading-[32px] text-[#1F2937] transition-colors">
+              <span className="break-words font-Anuphan text-[16px] font-semibold leading-[32px] text-[#1F2937] transition-colors">
                 ลงชื่อออกจากระบบ
               </span>
             </button>

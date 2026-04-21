@@ -5,12 +5,14 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import { useStripe } from "@stripe/react-stripe-js";
+
 import type {
-  BasePaymentRequest,
-  PaymentIntentRequest,
+  PaymentIntentPayload,
+  PaymentNowPayload,
   SavedCard,
   PaymentMethod,
 } from "../../types/payment";
+
 import { PaymentService } from "../../services/payment.service";
 import { fetchAddressDefault } from "../../redux/address/addressReducer";
 import { addSavedCard } from "../../redux/payment/paymentReducer";
@@ -23,16 +25,22 @@ const PaymentShoping = () => {
   const stripe = useStripe();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
-
   const [selectedCardId, setSelectedCardId] = useState<string>("");
+
   const savedCards = useSelector(
     (state: RootState) => state.payment.savedCards,
   );
   const newlyAddedCard = location.state?.newlyAddedCard;
 
-  const selectedItems = useSelector(
+  const cartSelectedItems = useSelector(
     (state: RootState) => state.carts.selectedItems,
   );
+
+  const isBuyNow = location.state?.isBuyNow || false;
+
+  const selectedItems = isBuyNow
+    ? location.state?.items || []
+    : cartSelectedItems;
 
   const defaultAddress = useSelector(
     (state: RootState) =>
@@ -58,59 +66,17 @@ const PaymentShoping = () => {
     }
   }, [dispatch, newlyAddedCard, savedCards]);
 
-  const buildBasePayload = (isBuyNow: boolean): BasePaymentRequest => {
-    const ids = selectedItems
-      .map((item) => {
-        const id = isBuyNow ? item.productId : item.cartItemId;
-        return id ? Number(id) : null;
-      })
-      .filter((id): id is number => id !== null);
-
-    return { ids, isBuyNow };
-  };
-
-  const createPaymentPayload = (
-    base: BasePaymentRequest,
-  ): PaymentIntentRequest => {
-    switch (paymentMethod) {
-      case "credit":
-        if (!selectedCardId) {
-          throw new Error("NO_CARD");
-        }
-        return {
-          ...base,
-          paymentMethod: "credit",
-          cardId: selectedCardId,
-        };
-
-      case "qr":
-        return {
-          ...base,
-          paymentMethod: "qr",
-        };
-
-      case "cod":
-        return {
-          ...base,
-          paymentMethod: "cod",
-        };
-
-      default:
-        throw new Error("INVALID_METHOD");
-    }
-  };
-
   const handleAddNewCard = () => {
     navigate("/add-credit-card", {
       state: {
         cartItems: selectedItems,
-        isBuyNow: location.state?.isBuyNow,
+        isBuyNow: isBuyNow,
       },
     });
   };
 
   const subtotal = (selectedItems ?? []).reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum: number, item: any) => sum + item.price * item.quantity,
     0,
   );
 
@@ -131,12 +97,97 @@ const PaymentShoping = () => {
       return false;
     }
 
-    if (paymentMethod === "credit" && !selectedCardId) {
+    if (paymentMethod === "CARD" && !selectedCardId) {
       toast.error("กรุณาเลือกบัตรเครดิต");
       return false;
     }
 
     return true;
+  };
+
+  const executePaymentApi = async (checkoutType: PaymentMethod) => {
+    if (isBuyNow) {
+      const buyNowItem = selectedItems[0];
+      const payload: PaymentNowPayload = {
+        id: Number(buyNowItem.productId),
+        quantity: Number(buyNowItem.quantity),
+        checkoutType,
+        ...(checkoutType === "CARD" && { cardId: selectedCardId }),
+      };
+      return await PaymentService.paymentNow(payload);
+    }
+
+    // กรณีไม่ได้กด Buy Now (ตะกร้าสินค้า)
+    const ids = selectedItems.map((item: any) => Number(item.cartItemId));
+    const payload: PaymentIntentPayload = {
+      ids,
+      checkoutType,
+      ...(checkoutType === "CARD" && { cardId: selectedCardId }),
+    };
+    return await PaymentService.createPaymentIntent(payload);
+  };
+
+  const handlePaymentSuccess = async (
+    checkoutType: PaymentMethod,
+    clientSecret: string,
+  ) => {
+    if (checkoutType === "CARD") {
+      if (!stripe) {
+        toast.error(
+          "ระบบชำระเงินผ่านบัตรเครดิตยังไม่พร้อมใช้งาน กรุณาลองใหม่อีกครั้งในภายหลัง",
+        );
+        return;
+      }
+
+      const confirmResult = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: selectedCardId,
+      });
+
+      if (confirmResult.paymentIntent?.status === "succeeded") {
+        toast.success("ชำระเงินผ่านบัตรเครดิตสำเร็จ", { duration: 2000 });
+        setTimeout(() => {
+          navigate("/history-shop", {
+            state: {
+              clientSecret,
+              referenceId: confirmResult.paymentIntent?.id,
+              totalPrice: subtotal,
+              items: selectedItems,
+            },
+          });
+        }, 2000);
+      }
+      return;
+    }
+
+    if (checkoutType === "PROMPTPAY") {
+      navigate("/payment-qr", {
+        state: { clientSecret, totalPrice: subtotal },
+      });
+      return;
+    }
+
+    if (checkoutType === "DESTINATION") {
+      toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ", { duration: 2000 });
+      setTimeout(() => {
+        navigate("/history-shop", {
+          state: { status: "success", checkoutType: "DESTINATION" },
+        });
+      }, 2000);
+    }
+  };
+
+  const handlePaymentError = (error: any) => {
+    const isOutOfStock =
+      error?.response?.status === 400 &&
+      error?.response?.data?.message === "OUT_OF_STOCK";
+
+    if (isOutOfStock) {
+      toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ");
+      navigate("/shopping-cart");
+      return;
+    }
+
+    toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
   };
 
   const handleConfirmOrder = async () => {
@@ -146,98 +197,19 @@ const PaymentShoping = () => {
 
     try {
       loadingToastId = toast.loading("กำลังดำเนินการ...");
-      const isBuyNow = location.state?.isBuyNow || false;
+      const currentCheckoutType = paymentMethod as PaymentMethod;
 
-      const base = buildBasePayload(isBuyNow);
-      const payload = createPaymentPayload(base);
-
-      const response = await PaymentService.createPaymentIntent(payload);
+      const response = await executePaymentApi(currentCheckoutType);
 
       if (!isBuyNow) dispatch(fetchCartThunk());
 
-      switch (payload.paymentMethod) {
-        case "credit":
-          if (!stripe) {
-            toast.error(
-              "ระบบชำระเงินผ่านบัตรเครดิตยังไม่พร้อมใช้งาน กรุณาลองใหม่อีกครั้งในภายหลัง",
-            );
-            return;
-          }
-
-          const confirmResult = await stripe.confirmCardPayment(
-            response.clientSecret,
-            {
-              payment_method: selectedCardId,
-            },
-          );
-
-          if (confirmResult.paymentIntent?.status === "succeeded") {
-            toast.success("ชำระเงินผ่านบัตรเครดิตสำเร็จ", {
-              duration: 2000,
-            });
-
-            setTimeout(() => {
-              navigate("/history-shop", {
-                state: {
-                  clientSecret: response.clientSecret,
-                  referenceId: confirmResult.paymentIntent?.id,
-                  totalPrice: subtotal,
-                  items: selectedItems,
-                },
-              });
-            }, 2000);
-          }
-          return;
-
-        case "qr":
-          navigate("/payment-qr", {
-            state: {
-              clientSecret: response.clientSecret,
-              totalPrice: subtotal,
-            },
-          });
-          return;
-
-        case "cod":
-          toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ", {
-            duration: 2000,
-          });
-          setTimeout(() => {
-            navigate("/history-shop", {
-              state: { status: "success", paymentMethod: "cod" },
-            });
-          }, 2000);
-          return;
-      }
+      await handlePaymentSuccess(currentCheckoutType, response.clientSecret);
     } catch (error: any) {
-      const message = error?.message;
-
-      if (message === "NO_CARD") {
-        toast.error("กรุณาเลือกบัตรเครดิต");
-        return;
-      }
-
-      if (message === "INVALID_METHOD") {
-        toast.error("ช่องทางการชำระเงินไม่ถูกต้อง");
-        return;
-      }
-
-      const isOutOfStock =
-        error?.response?.status === 400 &&
-        error?.response?.data?.message === "OUT_OF_STOCK";
-
-      if (isOutOfStock) {
-        toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ");
-        navigate("/shopping-cart");
-        return;
-      }
-
-      toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
+      handlePaymentError(error);
     } finally {
       if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
-
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
@@ -376,7 +348,7 @@ const PaymentShoping = () => {
                         </div>
                       )}
                     </button>
-                    {method.id === "credit" && paymentMethod === "credit" && (
+                    {method.id === "CARD" && paymentMethod === "CARD" && (
                       <div className="ml-0 sm:ml-12 mt-3 space-y-3">
                         {savedCards.map((card: any) => (
                           <button
@@ -582,7 +554,7 @@ const PaymentShoping = () => {
                   </button>
 
                   {/* Credit Card Options Mobile */}
-                  {method.id === "credit" && paymentMethod === "credit" && (
+                  {method.id === "CARD" && paymentMethod === "CARD" && (
                     <div className="ml-12 mt-3 space-y-3 animate-in fade-in slide-in-from-top-1">
                       {savedCards.map((card: any) => (
                         <button

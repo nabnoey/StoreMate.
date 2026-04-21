@@ -87,26 +87,32 @@ const EditModal = ({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[450px] p-6 animate-in zoom-in-95 duration-200">
-        <h3 className="text-xl font-bold text-gray-800 mb-6">{title}</h3>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[450px] p-6 animate-in zoom-in-95 duration-200 font-['Anuphan']">
+        <h3 className="text-[#374151] text-[20px] font-semibold leading-[32px] break-words mb-6">
+          {title}
+        </h3>
+
         <div className="space-y-4">{children}</div>
+
+        {/* ส่วนปุ่มกด */}
         <div
           data-test="edit-modal-actions"
-          className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8"
+          className="flex flex-row justify-center sm:justify-end gap-3 mt-8"
         >
-          <button
-            data-test="edit-modal-cancel-button"
-            onClick={onClose}
-            className="cursor-pointer w-full sm:w-auto border border-gray-300 text-gray-600 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-          >
-            ยกเลิก
-          </button>
           <button
             data-test="edit-modal-save-button"
             onClick={onSave}
-            className="cursor-pointer w-full sm:w-auto bg-green-500 text-white px-8 py-2.5 rounded-lg shadow-md text-sm font-medium hover:bg-green-600 transition-colors"
+            className="cursor-pointer bg-[#10B981] text-white px-8 py-2.5 rounded-lg shadow-md text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
           >
-            ยืนยันการแก้ไข
+            บันทึกข้อมูล
+          </button>
+
+          <button
+            data-test="edit-modal-cancel-button"
+            onClick={onClose}
+            className="cursor-pointer border border-gray-300 text-[#374151] px-6 py-2.5 rounded-lg text-[16px] font-normal leading-[24px] break-words hover:bg-gray-50 transition-colors"
+          >
+            ยกเลิก
           </button>
         </div>
       </div>
