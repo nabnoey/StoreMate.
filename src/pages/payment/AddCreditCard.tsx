@@ -25,15 +25,15 @@ const AddCreditCardFormInner = () => {
   const [cardName, setCardName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const elementOptions = {
-    style: {
-      base: {
-        fontSize: "16px",
-        color: "#1f2937",
-        "::placeholder": { color: "#9ca3af" },
-      },
-    },
-  };
+  // const elementOptions = {
+  //   style: {
+  //     base: {
+  //       fontSize: "16px",
+  //       color: "#1f2937",
+  //       "::placeholder": { color: "#9ca3af" },
+  //     },
+  //   },
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

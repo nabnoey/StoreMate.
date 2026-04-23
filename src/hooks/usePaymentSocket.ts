@@ -12,9 +12,9 @@ const usePaymentSocket = (token?: string) => {
     const stompClient = new Client({
       webSocketFactory: () => new SockJS("https://api.store-mate-api.me/ws"),
       connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
-      debug: (str) => {
-        // console.log("STOMP DEBUG:", str);
-      },
+      // debug: (str) => {
+      //   // console.log("STOMP DEBUG:", str);
+      // },
 
       onConnect: () => {
         // แนะนำให้ใช้ console.log แทน toast เพื่อไม่ให้รบกวนหน้าจอลูกค้า
