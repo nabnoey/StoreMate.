@@ -4,13 +4,24 @@ import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import { useSelector, useDispatch } from "react-redux";
+
 import { UserService } from "../../services/users.service";
+import usePaymentSocket from "../../hooks/usePaymentSocket";
+import { OrdersService } from "../../services/orders.service";
+
+import {
+  setPaymentStatus,
+  resetPaymentStatus,
+} from "../../redux/payment/paymentReducer";
+import type { RootState } from "../../redux/store";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const PaymentQRInner = () => {
   const stripe = useStripe();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { id } = useParams();
   const location = useLocation();
 
@@ -24,6 +35,62 @@ const PaymentQRInner = () => {
   const [refId, setRefId] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(true);
   const hasRequestedQR = useRef(false);
+
+  // 1️⃣ เปิดการเชื่อมต่อ WebSocket
+  usePaymentSocket();
+
+  // ดึงสถานะปัจจุบันจาก Redux
+  const paymentStatus = useSelector((state: RootState) => state.payment.status);
+
+  // 2️⃣ ระบบสำรอง: เช็คสถานะ API ทันทีตอนโหลดหน้า (เผื่อลูกค้ารีเฟรชหรือ WebSocket พลาด)
+  useEffect(() => {
+    const savedOrderNo = localStorage.getItem("orderNo");
+    if (!savedOrderNo) return;
+
+    const checkStatusOnRefresh = async () => {
+      try {
+        const data = await OrdersService.getOrdersStatus(savedOrderNo);
+
+        if (data.status === "COMPLETED" || data.paymentStatus === "SUCCESS") {
+          toast.success("ตรวจพบการชำระเงินสำเร็จ!");
+
+          dispatch(
+            setPaymentStatus({
+              status: "SUCCESS",
+              orderId: savedOrderNo,
+            }),
+          );
+        } else if (
+          data.status === "CANCELLED" ||
+          data.paymentStatus === "FAILED"
+        ) {
+          dispatch(
+            setPaymentStatus({
+              status: "FAILED",
+              orderId: savedOrderNo,
+            }),
+          );
+        }
+      } catch (error) {
+        console.error("❌ ไม่สามารถดึงสถานะล่าสุดของคำสั่งซื้อได้", error);
+      }
+    };
+
+    checkStatusOnRefresh();
+  }, [dispatch]);
+
+  // 3️⃣ ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
+  useEffect(() => {
+    if (paymentStatus === "SUCCESS") {
+      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
+      localStorage.removeItem("orderNo");
+      dispatch(resetPaymentStatus());
+      navigate("/history-shop", { replace: true });
+    } else if (paymentStatus === "FAILED") {
+      dispatch(resetPaymentStatus());
+      navigate("/payment/cancel", { replace: true });
+    }
+  }, [paymentStatus, navigate, dispatch]);
 
   useEffect(() => {
     if (!stripe || !clientSecret || hasRequestedQR.current) return;
@@ -107,6 +174,33 @@ const PaymentQRInner = () => {
     return `${m}:${s}`;
   };
 
+  // --- แยกส่วนการแสดงผล QR Code ออกมาจาก Nested Ternary ---
+  let qrContent;
+  if (isGenerating) {
+    qrContent = (
+      <div className="flex flex-col items-center text-gray-500">
+        <Icon icon="eos-icons:loading" className="w-8 h-8 mb-2" />
+        <span className="text-xs">กำลังสร้าง QR...</span>
+      </div>
+    );
+  } else if (qrImage) {
+    qrContent = (
+      <img
+        src={qrImage}
+        alt="PromptPay QR Code"
+        className="w-full h-full object-contain"
+      />
+    );
+  } else {
+    qrContent = (
+      <span className="text-xs text-red-500 text-center">
+        โหลด QR ไม่สำเร็จ
+        <br />
+        โปรดลองใหม่อีกครั้ง
+      </span>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
       {/* --- DESKTOP BREADCRUMB --- */}
@@ -155,7 +249,6 @@ const PaymentQRInner = () => {
         </span>
       </div>
 
-      {/* กล่องเนื้อหาหลัก */}
       <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm p-4 sm:p-10 lg:mt-6 lg:mb-10">
         {/* Title (Desktop Only) */}
         <button
@@ -199,24 +292,8 @@ const PaymentQRInner = () => {
               </div>
               <div className="p-6 flex flex-col items-center bg-white">
                 <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] bg-white flex items-center justify-center border-2 border-[#113566] mb-5 p-2 rounded-xl shadow-sm relative">
-                  {isGenerating ? (
-                    <div className="flex flex-col items-center text-gray-500">
-                      <Icon icon="eos-icons:loading" className="w-8 h-8 mb-2" />
-                      <span className="text-xs">กำลังสร้าง QR...</span>
-                    </div>
-                  ) : qrImage ? (
-                    <img
-                      src={qrImage}
-                      alt="PromptPay QR Code"
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-xs text-red-500 text-center">
-                      โหลด QR ไม่สำเร็จ
-                      <br />
-                      โปรดลองใหม่อีกครั้ง
-                    </span>
-                  )}
+                  {/* แสดงผลตัวแปร qrContent ที่เราดึงออกมาจาก Ternary */}
+                  {qrContent}
                 </div>
                 <span className="text-blue-500 font-bold text-xl mb-3">
                   ฿ {totalPrice.toLocaleString()}

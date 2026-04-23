@@ -104,7 +104,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             data-test="btn-orders-mobile"
             type="button"
             onClick={() => {
-              navigate("/history-shop");
+              navigate("/orders");
               if (onCloseMenu) onCloseMenu();
             }}
             className="hover:text-[#0A157A] transition-colors cursor-pointer"
@@ -193,7 +193,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
               data-test="btn-orders"
               type="button"
               onClick={() => {
-                navigate("/history-shop");
+                navigate("/orders");
                 (document.activeElement as HTMLElement)?.blur();
               }}
               className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"

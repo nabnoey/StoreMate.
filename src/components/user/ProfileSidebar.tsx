@@ -41,7 +41,7 @@ const ProfileSidebar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // สไตล์สำหรับเมนู Desktop (มีไฮไลท์สีฟ้าเมื่อเลือก)
+  // สไตล์สำหรับเมนู Desktop
   const getDesktopMenuClass = (path: string) => {
     return isActive(path)
       ? "flex items-center gap-2 px-4 py-2 text-[#4285F4] font-medium transition-all rounded-md w-full text-left"
@@ -49,15 +49,13 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 font-['Anuphan']">
+    <div className="flex flex-col gap-4 font-['Anuphan'] w-full">
       {/* ================= MOBILE VIEW ================= */}
-      <div className="md:hidden mt-2 relative z-50">
-        {/* เทคนิค: ใช้ pb-[250px] เพื่อสร้างพื้นที่ให้ Dropdown และดึง -mb-[250px] กลับ เพื่อไม่ให้เว็บเกิดช่องว่าง */}
-        {/* pointer-events-none ทำให้พื้นที่ล่องหนไม่บังการกดเนื้อหาเว็บด้านล่าง */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-[250px] -mb-[250px] pointer-events-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0">
-          {/* กล่องที่ 1: ชื่อโปรไฟล์ */}
-          {/* pointer-events-auto เพื่อให้กล่องนี้ยังคงกดใช้งานและเลื่อนได้ปกติ */}
-          <div className="pointer-events-auto flex-shrink-0 bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-2.5 flex items-center gap-3">
+      <div className="md:hidden mt-2 relative z-50 w-full">
+        {/* เปลี่ยนมาใช้ flex-wrap เพื่อไม่ให้ล้นจอ และเอาเทคนิค overflow-x-auto แบบเก่าออก */}
+        <div className="flex flex-wrap items-center gap-2 w-full">
+          {/* กล่องที่ 1: ชื่อโปรไฟล์ (ขยายตัวตามพื้นที่ที่เหลือ min-w ช่วยให้ไม่บีบเกินไป) */}
+          <div className="flex-1 min-w-[160px] max-w-full bg-white rounded-lg shadow-sm border border-gray-100 px-3 py-2.5 flex items-center gap-2">
             <div className="w-6 h-6 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50 shrink-0">
               {user?.image_url || user?.image ? (
                 <img
@@ -74,12 +72,12 @@ const ProfileSidebar = () => {
                 />
               )}
             </div>
-            <span className="text-base font-normal text-gray-800 truncate max-w-[120px]">
+            <span className="text-sm font-normal text-gray-800 truncate flex-1">
               {user?.name || "กำลังโหลด..."}
             </span>
             <button
               onClick={() => navigate("/profile")}
-              className="cursor-pointer ml-1"
+              className="cursor-pointer shrink-0 ml-1"
             >
               <Icon
                 icon="ph:pencil-simple"
@@ -91,13 +89,10 @@ const ProfileSidebar = () => {
           </div>
 
           {/* กล่องที่ 2: โปรไฟล์ของฉัน (Dropdown) */}
-          <div
-            className="pointer-events-auto flex-shrink-0 relative"
-            ref={mobileDropdownRef}
-          >
+          <div className="relative shrink-0" ref={mobileDropdownRef}>
             <button
               onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
-              className={`rounded-lg px-4 py-2.5 flex items-center gap-2 text-base transition-colors shadow-sm border border-gray-100 ${
+              className={`rounded-lg px-3 py-2.5 flex items-center gap-1.5 text-sm transition-colors shadow-sm border border-gray-100 ${
                 isMobileProfileOpen
                   ? "bg-gray-200 text-gray-800"
                   : "bg-white text-gray-800 hover:bg-gray-50"
@@ -106,21 +101,21 @@ const ProfileSidebar = () => {
               โปรไฟล์ของฉัน
               <Icon
                 icon="ic:round-menu"
-                width="20"
-                height="20"
+                width="18"
+                height="18"
                 className="text-gray-800"
               />
             </button>
 
             {/* Dropdown Menu */}
             {isMobileProfileOpen && (
-              <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-3 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-50">
+              <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-50">
                 <button
                   onClick={() => {
                     navigate("/profile");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                     isActive("/profile")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -133,7 +128,7 @@ const ProfileSidebar = () => {
                     navigate("/address-profile");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                     isActive("/address-profile")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -146,7 +141,7 @@ const ProfileSidebar = () => {
                     navigate("/change-password");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-5 py-2 text-[16px] transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
                     isActive("/change-password")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -161,7 +156,7 @@ const ProfileSidebar = () => {
           {/* กล่องที่ 3: การซื้อของฉัน */}
           <Link
             to={`/orders?status=${status}`}
-            className={`pointer-events-auto flex-shrink-0 rounded-lg px-4 py-2.5 text-base transition-colors shadow-sm border border-gray-100 ${
+            className={`shrink-0 rounded-lg px-3 py-2.5 text-sm transition-colors shadow-sm border border-gray-100 whitespace-nowrap ${
               isActive("/orders") || isActive("/history-shop")
                 ? "bg-white text-[#4285F4]"
                 : "bg-white text-gray-800 hover:text-[#4285F4]"
@@ -173,7 +168,7 @@ const ProfileSidebar = () => {
       </div>
 
       {/* ================= DESKTOP VIEW ================= */}
-      <aside className="hidden md:flex flex-col w-[260px] flex-shrink-0 gap-4">
+      <aside className="hidden md:flex flex-col w-[260px] shrink-0 gap-4">
         {/* Desktop Profile Card */}
         <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-5 flex items-center gap-4">
           <div className="w-14 h-14 bg-[#F3F4F6] overflow-hidden border border-gray-200 rounded-full flex items-center justify-center shrink-0">
@@ -222,7 +217,7 @@ const ProfileSidebar = () => {
         <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-3">
           <div className="mb-2">
             <button
-              className="w-full flex items-center justify-between font-medium text-black text-medium p-3 rounded-lg hover:text-[#4285F4] transition-colors"
+              className="w-full flex items-center justify-between font-medium text-black text-base p-3 rounded-lg hover:text-[#4285F4] transition-colors"
               onClick={() => setIsDesktopProfileOpen(!isDesktopProfileOpen)}
             >
               <div
@@ -285,7 +280,7 @@ const ProfileSidebar = () => {
             <Link
               data-test="btn-profile-menu-history"
               to={`/orders?status=${status}`}
-              className="cursor-pointer w-full flex items-center gap-2 font-medium text-medium p-3 transition-colors hover:text-[#4285F4]"
+              className="cursor-pointer w-full flex items-center gap-2 font-medium text-base p-3 transition-colors hover:text-[#4285F4]"
             >
               การซื้อของฉัน
             </Link>

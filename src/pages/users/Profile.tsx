@@ -18,13 +18,9 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener("load", () => resolve(image));
-
-    // เปลี่ยนมา reject ด้วย new Error แทน
     image.addEventListener("error", () =>
       reject(new Error(`Failed to load image at URL: ${url}`)),
     );
-
-    // (อย่าลืมกำหนด src ให้รูปภาพด้วยนะครับ เผื่อในโค้ดจริงตกหล่นไป)
     image.src = url;
   });
 
@@ -94,7 +90,6 @@ const EditModal = ({
 
         <div className="space-y-4">{children}</div>
 
-        {/* ส่วนปุ่มกด */}
         <div
           data-test="edit-modal-actions"
           className="flex flex-row justify-center sm:justify-end gap-3 mt-8"
@@ -151,10 +146,8 @@ const ProfilePage = () => {
   useEffect(() => {
     setLoading(true);
     if (user) {
-      // แยกชื่อและนามสกุลด้วยช่องว่าง (ถ้าไม่มีจะเซ็ตเป็นค่าว่าง)
       const nameParts = (user.name || "").trim().split(/\s+/);
       const firstName = nameParts[0] || "";
-      // กรณีคนมีชื่อกลางหรือนามสกุลยาวๆ จะเอาเฉพาะคำแรกเป็นชื่อ และที่เหลือเป็นนามสกุล
       const lastName = nameParts.slice(1).join(" ") || "";
 
       setTempData({
@@ -175,7 +168,6 @@ const ProfilePage = () => {
   const openModal = (type: string) => setActiveModal(type);
 
   const processFile = (file: File) => {
-    //แจ้งเตือนขนาดรูปภาพ
     if (file.size > 5 * 1024 * 1024) {
       toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
       return;
@@ -239,7 +231,6 @@ const ProfilePage = () => {
         };
 
         formData.append("data", JSON.stringify(userData));
-
         formData.append("image", blob, "profile.jpeg");
 
         await dispatch(updateProfile(formData) as any).unwrap();
@@ -281,14 +272,11 @@ const ProfilePage = () => {
       };
 
       const formData = new FormData();
-
       formData.append("data", JSON.stringify(userData));
 
       if (imageFileForUpload) {
-        // บังคับตั้งชื่อไฟล์ให้มัน Backend จะได้รู้ว่าเป็นไฟล์รูปภาพ
         formData.append("image", imageFileForUpload, "profile.jpeg");
       }
-      // formData.append("image", imageFileForUpload || "");
 
       await dispatch(updateProfile(formData) as any).unwrap();
 
@@ -298,7 +286,6 @@ const ProfilePage = () => {
         });
         setActiveModal(null);
 
-        // ดีเลย์นิดนึงให้ผู้ใช้อ่านข้อความ แล้วเตะ Logout
         setTimeout(() => {
           dispatch(logout());
           window.location.href = "/login";
@@ -306,15 +293,12 @@ const ProfilePage = () => {
         return;
       }
 
-      // ถ้าไม่ได้เปลี่ยนอีเมล ค่อยดึงข้อมูลตามปกติ
       await dispatch(getProfile() as any).unwrap();
       toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
-
-      // ดึง error จาก backend มาโชว์ ถ้าไม่มีให้ใช้ข้อความ default (6.4)
       const errorMessage =
         typeof error === "string"
           ? error
@@ -372,106 +356,23 @@ const ProfilePage = () => {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex-1 bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.05)] border border-gray-200 p-6 sm:p-10 relative min-h-[500px]">
+          <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-0 py-4 sm:p-10 relative min-h-[500px]">
             {/* ส่วนหัวข้อ */}
-            <div className="mb-7 md:mb-10">
-              <h1 className="text-lg sm:text-xl font-bold text-black">
+            <div className="mb-6 md:mb-10">
+              <h1 className="text-[18px] sm:text-xl font-bold text-black">
                 ข้อมูลของฉัน
               </h1>
-              <p className="text-md font-medium text-black mt-1">
+              <p className="text-[12px] sm:text-md font-normal text-gray-600 mt-1">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="w-48 sm:w-56 border-b border-black mt-4"></div>
+              <div className="hidden md:block w-48 sm:w-56 border-b border-black mt-4"></div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:justify-between items-stretch">
-              <div className="flex-1 space-y-6 order-2 md:order-1 mt-10 md:mt-10 md:pr-26 lg:pr-16">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="name"
-                    className="text-black font-normal text-medium sm:w-36 shrink-0 text-center"
-                  >
-                    ชื่อ - นามสกุล
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-name" className="truncate">
-                      {tempData.firstName} {tempData.lastName}
-                    </span>
-                    <button
-                      data-test="btn-change-name"
-                      onClick={() => openModal("name")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="email"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    อีเมล
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-email" className="truncate">
-                      {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
-                    </span>
-                    <button
-                      data-test="btn-change-email"
-                      onClick={() => openModal("email")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="phone"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    หมายเลขโทรศัพท์
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-phone" className="truncate">
-                      {tempData.phone
-                        ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2")
-                        : "-"}
-                    </span>
-                    <button
-                      data-test="btn-change-phone"
-                      onClick={() => openModal("phone")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="createdAt"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    วันที่สมัคร
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span className="truncate">
-                      {user.createdAt && user.createdAt !== "null"
-                        ? user.createdAt
-                        : "-"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden md:block w-px bg-gray-200 order-2 self-stretch mx-4 lg:mx-8"></div>
-              <hr className="w-full border-gray-200 my-8 order-2 md:hidden" />
-              <div className="flex flex-col items-center justify-start order-1 md:order-3 w-full md:w-56 lg:w-64 shrink-0">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-5">
+            <div className="flex flex-col md:flex-row md:justify-between items-center md:items-stretch w-full">
+              
+              {/* Profile Image Section */}
+              <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
+                <div className="w-[100px] h-[100px] sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
                   {tempData.image ? (
                     <img
                       src={tempData.image}
@@ -483,22 +384,89 @@ const ProfilePage = () => {
                     <Icon
                       data-test="default-profile-icon"
                       icon="lucide:user"
-                      className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400"
+                      className="w-12 h-12 sm:w-20 sm:h-20 text-gray-400"
                     />
                   )}
                 </div>
                 <button
                   data-test="btn-open-image-modal"
                   onClick={() => setIsImageModalOpen(true)}
-                  className="cursor-pointer border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4"
+                  className="cursor-pointer border border-gray-300 bg-white px-5 py-1.5 text-[14px] text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4"
                 >
                   เลือกรูป
                 </button>
-                <div className="text-md font-medium text-black text-center space-y-1.5 leading-relaxed">
+                <div className="text-[12px] font-normal text-gray-600 text-center space-y-1.5 leading-relaxed">
+                  <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                   <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
-                  <p>ขนาดไฟล์: สูงสุด 5 MB</p>
                 </div>
               </div>
+
+              {/* Mobile Divider */}
+              <hr className="w-full border-t border-gray-200 my-6 block md:hidden order-2" />
+              
+              {/* Desktop Divider */}
+              <div className="hidden md:block w-px bg-gray-200 order-2 self-stretch mx-4 lg:mx-8"></div>
+
+              {/* Form Fields Section (ปรับตาม UI ที่กำหนด) */}
+              <div className="w-full flex-1 order-3 md:order-1 mt-0 md:mt-10 md:pr-10 lg:pr-16 overflow-x-auto">
+                <div style={{ width: '100%', height: '100%', justifyContent: 'flex-start', alignItems: 'center', gap: '47px', display: 'inline-flex' }}>
+                  <div style={{ padding: '10px', justifyContent: 'flex-start', alignItems: 'center', gap: '10px', display: 'flex' }}>
+                    <div style={{ width: '119px', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', gap: '35px', display: 'inline-flex' }}>
+                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>ชื่อ  - นามสกุล</div>
+                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>อีเมล</div>
+                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>หมายเลขโทรศัพท์</div>
+                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>วันที่สมัคร</div>
+                    </div>
+                  </div>
+                  <div style={{ width: '213px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: '35px', display: 'inline-flex' }}>
+                    
+                    {/* ชื่อ */}
+                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', display: 'inline-flex' }}>
+                      <div data-test="profile-name" style={{ width: '123px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        {tempData.firstName} {tempData.lastName}
+                      </div>
+                      <div data-test="btn-change-name" onClick={() => openModal("name")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
+                    </div>
+                    
+                    {/* อีเมล (เพิ่มปุ่มเปลี่ยนเข้าไปเพื่อรองรับการแก้ไขอีเมลตามระบบเดิม) */}
+                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '5px', display: 'inline-flex', width: '100%' }}>
+                      <div data-test="profile-email" style={{ flex: 1, height: '23px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
+                      </div>
+                      <div data-test="btn-change-email" onClick={() => openModal("email")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
+                    </div>
+                    
+                    {/* เบอร์โทรศัพท์ */}
+                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '20px', display: 'inline-flex' }}>
+                      <div data-test="profile-phone" style={{ width: '85px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word' }}>
+                        {tempData.phone ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2") : "-"}
+                      </div>
+                      <div data-test="btn-change-phone" onClick={() => openModal("phone")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
+                    </div>
+                    
+                    {/* วันที่สมัคร */}
+                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '32px', display: 'inline-flex' }}>
+                      <div style={{ width: '83px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word' }}>
+                        {user.createdAt && user.createdAt !== "null" ? user.createdAt : "-"}
+                      </div>
+                      {/* ซ่อนปุ่มเปลี่ยนในส่วนของวันที่ เนื่องจากแก้ไขไม่ได้ */}
+                      <div style={{ width: '44px', height: '24px', color: 'transparent', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}></div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              {/* ปุ่มบันทึกข้อมูลด้านล่าง (แสดงเฉพาะ Mobile แบบในรูปภาพ) */}
+              <div className="w-full flex justify-center mt-10 mb-4 order-4 md:hidden">
+                <button
+                  onClick={handleSave}
+                  className="bg-[#10B981] hover:bg-green-600 text-white px-10 py-2.5 rounded text-[14px] font-medium shadow-sm transition-colors"
+                >
+                  บันทึกข้อมูล
+                </button>
+              </div>
+
             </div>
           </main>
         </div>
@@ -525,7 +493,7 @@ const ProfilePage = () => {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
+                    className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors w-full ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
                   >
                     <Icon
                       icon="lucide:upload"
@@ -536,14 +504,14 @@ const ProfilePage = () => {
                       คลิกเพื่ออัปโหลดหรือลากวาง
                     </p>
                     <p className="text-gray-400 text-sm mt-1">
-                      PNG, JPG, GIF up to 5 MB
+                      PNG, JPG up to 1 MB
                     </p>
                     <input
                       data-test="file-input"
                       type="file"
                       ref={fileInputRef}
                       onChange={handleImageChange}
-                      accept=".jpg, .jpeg, .png, .gif"
+                      accept=".jpg, .jpeg, .png"
                       className="hidden"
                     />
                   </button>
@@ -637,7 +605,7 @@ const ProfilePage = () => {
               />
               <label
                 htmlFor="lastName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block"
+                className="text-sm text-gray-600 font-medium mb-1.5 block mt-4"
               >
                 นามสกุล
               </label>

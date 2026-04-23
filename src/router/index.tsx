@@ -63,14 +63,6 @@ const PaymentQR = lazy(() =>
   lazyDelay(() => import("../pages/payment/PaymentQR"), 1200),
 );
 
-const PaymentSuccess = lazy(() =>
-  lazyDelay(() => import("../pages/payment/PaymentSuccess"), 1200),
-);
-
-const PaymentCancel = lazy(() =>
-  lazyDelay(() => import("../pages/payment/PaymentCancel"), 1200),
-);
-
 const HistoryPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/HistoryShop"), 1200),
 );
@@ -183,14 +175,6 @@ const router = createBrowserRouter([
       {
         path: "/payment-qr",
         element: <PaymentQR />,
-      },
-      {
-        path: "/payment/success",
-        element: <PaymentSuccess />,
-      },
-      {
-        path: "/payment/cancel",
-        element: <PaymentCancel />,
       },
       {
         path: "history-shop",

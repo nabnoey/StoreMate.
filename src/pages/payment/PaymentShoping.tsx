@@ -144,9 +144,9 @@ const PaymentShoping = () => {
       });
 
       if (confirmResult.paymentIntent?.status === "succeeded") {
-        toast.success("ชำระเงินผ่านบัตรเครดิตสำเร็จ", { duration: 2000 });
+        toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
         setTimeout(() => {
-          navigate("/history-shop", {
+          navigate("/orders", {
             state: {
               clientSecret,
               referenceId: confirmResult.paymentIntent?.id,
@@ -167,9 +167,9 @@ const PaymentShoping = () => {
     }
 
     if (checkoutType === "DESTINATION") {
-      toast.success("สั่งซื้อแบบเก็บเงินปลายทางสำเร็จ", { duration: 2000 });
+      toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
       setTimeout(() => {
-        navigate("/history-shop", {
+        navigate("/orders", {
           state: { status: "success", checkoutType: "DESTINATION" },
         });
       }, 2000);
