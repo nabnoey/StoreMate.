@@ -51,10 +51,10 @@ const ProfileSidebar = () => {
   return (
     <div className="flex flex-col gap-4 font-['Anuphan'] w-full">
       {/* ================= MOBILE VIEW ================= */}
-      <div className="md:hidden mt-2 relative z-50 w-full">
-        {/* เปลี่ยนมาใช้ flex-wrap เพื่อไม่ให้ล้นจอ และเอาเทคนิค overflow-x-auto แบบเก่าออก */}
+      {/* 🔴 แก้ไข z-50 เป็น z-10 เพื่อไม่ให้ไปทับ Dropdown จาก Header */}
+      <div className="md:hidden mt-2 relative z-10 w-full">
         <div className="flex flex-wrap items-center gap-2 w-full">
-          {/* กล่องที่ 1: ชื่อโปรไฟล์ (ขยายตัวตามพื้นที่ที่เหลือ min-w ช่วยให้ไม่บีบเกินไป) */}
+          {/* กล่องที่ 1: ชื่อโปรไฟล์ */}
           <div className="flex-1 min-w-[160px] max-w-full bg-white rounded-lg shadow-sm border border-gray-100 px-3 py-2.5 flex items-center gap-2">
             <div className="w-6 h-6 rounded-full border overflow-hidden flex items-center justify-center bg-gray-50 shrink-0">
               {user?.image_url || user?.image ? (
@@ -92,7 +92,7 @@ const ProfileSidebar = () => {
           <div className="relative shrink-0" ref={mobileDropdownRef}>
             <button
               onClick={() => setIsMobileProfileOpen(!isMobileProfileOpen)}
-              className={`rounded-lg px-3 py-2.5 flex items-center gap-1.5 text-sm transition-colors shadow-sm border border-gray-100 ${
+              className={`rounded-lg px-3 py-2.5 flex items-center gap-1.5 text-sm transition-colors shadow-sm border border-gray-100 cursor-pointer ${
                 isMobileProfileOpen
                   ? "bg-gray-200 text-gray-800"
                   : "bg-white text-gray-800 hover:bg-gray-50"
@@ -109,13 +109,14 @@ const ProfileSidebar = () => {
 
             {/* Dropdown Menu */}
             {isMobileProfileOpen && (
-              <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-50">
+              /* 🔴 แก้ไข z-50 เป็น z-20 ให้อยู่เหนือเนื้อหาในหน้าตัวเอง แต่ต่ำกว่า Header */
+              <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-20">
                 <button
                   onClick={() => {
                     navigate("/profile");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
                     isActive("/profile")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -128,7 +129,7 @@ const ProfileSidebar = () => {
                     navigate("/address-profile");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
                     isActive("/address-profile")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -141,7 +142,7 @@ const ProfileSidebar = () => {
                     navigate("/change-password");
                     setIsMobileProfileOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
                     isActive("/change-password")
                       ? "text-[#4285F4]"
                       : "text-[#374151] hover:bg-gray-50"
@@ -156,7 +157,7 @@ const ProfileSidebar = () => {
           {/* กล่องที่ 3: การซื้อของฉัน */}
           <Link
             to={`/orders?status=${status}`}
-            className={`shrink-0 rounded-lg px-3 py-2.5 text-sm transition-colors shadow-sm border border-gray-100 whitespace-nowrap ${
+            className={`shrink-0 rounded-lg px-3 py-2.5 text-sm transition-colors shadow-sm border border-gray-100 whitespace-nowrap cursor-pointer ${
               isActive("/orders") || isActive("/history-shop")
                 ? "bg-white text-[#4285F4]"
                 : "bg-white text-gray-800 hover:text-[#4285F4]"
@@ -204,7 +205,7 @@ const ProfileSidebar = () => {
               />
               <button
                 data-test="btn-edit-profile-mobile"
-                className="cursor-pointer text-black text-xs flex items-center gap-1.5 transition-colors font-medium"
+                className="cursor-pointer text-black text-xs flex items-center gap-1.5 transition-colors font-medium hover:text-[#4285F4]"
                 onClick={() => navigate("/profile")}
               >
                 แก้ไขโปรไฟล์
@@ -217,12 +218,12 @@ const ProfileSidebar = () => {
         <div className="bg-[#F3F4F6] rounded-xl shadow-md border border-gray-100 p-3">
           <div className="mb-2">
             <button
-              className="w-full flex items-center justify-between font-medium text-black text-base p-3 rounded-lg hover:text-[#4285F4] transition-colors"
+              className="w-full flex items-center justify-between font-medium text-black text-base p-3 rounded-lg hover:text-[#4285F4] transition-colors cursor-pointer"
               onClick={() => setIsDesktopProfileOpen(!isDesktopProfileOpen)}
             >
               <div
                 data-test="btn-profile-menu-toggle"
-                className="cursor-pointer flex items-center gap-2"
+                className="flex items-center gap-2"
               >
                 <span>โปรไฟล์ของฉัน</span>
               </div>
@@ -231,14 +232,14 @@ const ProfileSidebar = () => {
                   icon="ph:chevron-up"
                   width="16"
                   height="16"
-                  className="text-black cursor-pointer"
+                  className="text-black"
                 />
               ) : (
                 <Icon
                   icon="ph:chevron-down"
                   width="16"
                   height="16"
-                  className="text-black cursor-pointer"
+                  className="text-black"
                 />
               )}
             </button>
@@ -280,7 +281,11 @@ const ProfileSidebar = () => {
             <Link
               data-test="btn-profile-menu-history"
               to={`/orders?status=${status}`}
-              className="cursor-pointer w-full flex items-center gap-2 font-medium text-base p-3 transition-colors hover:text-[#4285F4]"
+              className={`cursor-pointer w-full flex items-center gap-2 font-medium text-base p-3 transition-colors rounded-lg ${
+                isActive("/orders")
+                  ? "text-[#4285F4]"
+                  : "text-black hover:text-[#4285F4]"
+              }`}
             >
               การซื้อของฉัน
             </Link>

@@ -324,6 +324,16 @@ const ProfilePage = () => {
     setActiveModal(null);
   };
 
+  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
+  const formatDate = (dateString: string) => {
+    if (!dateString || dateString === "null") return "-";
+
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  };
+
   if (loading) return <Loading />;
   if (!user) return <Link to="/login" replace />;
 
@@ -356,21 +366,20 @@ const ProfilePage = () => {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-0 py-4 sm:p-10 relative min-h-[500px]">
+          <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
             {/* ส่วนหัวข้อ */}
             <div className="mb-6 md:mb-10">
-              <h1 className="text-[18px] sm:text-xl font-bold text-black">
+              <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
                 ข้อมูลของฉัน
               </h1>
-              <p className="text-[12px] sm:text-md font-normal text-gray-600 mt-1">
+              <p className="text-[14px] sm:text-[16px] font-normal text-black mt-1 font-['Anuphan']">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="hidden md:block w-48 sm:w-56 border-b border-black mt-4"></div>
+              <div className="hidden md:block w-full border-b border-black mt-4" />
             </div>
 
-            <div className="flex flex-col md:flex-row md:justify-between items-center md:items-stretch w-full">
-              
-              {/* Profile Image Section */}
+            <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start w-full">
+              {/* Profile Image Section (อยู่ด้านบนใน Mobile, อยู่ขวาใน Desktop) */}
               <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
                 <div className="w-[100px] h-[100px] sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
                   {tempData.image ? (
@@ -384,89 +393,131 @@ const ProfilePage = () => {
                     <Icon
                       data-test="default-profile-icon"
                       icon="lucide:user"
-                      className="w-12 h-12 sm:w-20 sm:h-20 text-gray-400"
+                      className="w-16 h-16 sm:w-20 sm:h-20 text-gray-400"
                     />
                   )}
                 </div>
                 <button
                   data-test="btn-open-image-modal"
                   onClick={() => setIsImageModalOpen(true)}
-                  className="cursor-pointer border border-gray-300 bg-white px-5 py-1.5 text-[14px] text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4"
+                  className="cursor-pointer border border-gray-300 bg-white px-5 py-1.5 text-[14px] sm:text-[16px] text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4 font-['Anuphan']"
                 >
                   เลือกรูป
                 </button>
-                <div className="text-[12px] font-normal text-gray-600 text-center space-y-1.5 leading-relaxed">
+                <div className="text-[14px] sm:text-[16px] font-normal text-gray-600 md:text-black text-center space-y-1.5 leading-relaxed font-['Anuphan']">
                   <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                   <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
                 </div>
               </div>
 
               {/* Mobile Divider */}
-              <hr className="w-full border-t border-gray-200 my-6 block md:hidden order-2" />
-              
-              {/* Desktop Divider */}
-              <div className="hidden md:block w-px bg-gray-200 order-2 self-stretch mx-4 lg:mx-8"></div>
+              <hr className="w-full border-t border-[#D1D5DB] my-4 block md:hidden order-2" />
 
-              {/* Form Fields Section (ปรับตาม UI ที่กำหนด) */}
-              <div className="w-full flex-1 order-3 md:order-1 mt-0 md:mt-10 md:pr-10 lg:pr-16 overflow-x-auto">
-                <div style={{ width: '100%', height: '100%', justifyContent: 'flex-start', alignItems: 'center', gap: '47px', display: 'inline-flex' }}>
-                  <div style={{ padding: '10px', justifyContent: 'flex-start', alignItems: 'center', gap: '10px', display: 'flex' }}>
-                    <div style={{ width: '119px', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', gap: '35px', display: 'inline-flex' }}>
-                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>ชื่อ  - นามสกุล</div>
-                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>อีเมล</div>
-                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>หมายเลขโทรศัพท์</div>
-                      <div style={{ textAlign: 'right', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}>วันที่สมัคร</div>
+              {/* Desktop Divider */}
+              <div className="hidden md:block w-px bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
+
+              {/* Form Fields Section (อยู่ด้านล่างใน Mobile, อยู่ซ้ายใน Desktop) */}
+              <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
+                {/* ใช้ Flex Column ในการจัดการระยะห่างแต่ละบรรทัด */}
+                <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
+                  {/* ชื่อ - นามสกุล */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      ชื่อ - นามสกุล
                     </div>
-                  </div>
-                  <div style={{ width: '213px', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: '35px', display: 'inline-flex' }}>
-                    
-                    {/* ชื่อ */}
-                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', display: 'inline-flex' }}>
-                      <div data-test="profile-name" style={{ width: '123px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-name"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
                         {tempData.firstName} {tempData.lastName}
                       </div>
-                      <div data-test="btn-change-name" onClick={() => openModal("name")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
+                      <button
+                        data-test="btn-change-name"
+                        onClick={() => openModal("name")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
                     </div>
-                    
-                    {/* อีเมล (เพิ่มปุ่มเปลี่ยนเข้าไปเพื่อรองรับการแก้ไขอีเมลตามระบบเดิม) */}
-                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '5px', display: 'inline-flex', width: '100%' }}>
-                      <div data-test="profile-email" style={{ flex: 1, height: '23px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                        {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
-                      </div>
-                      <div data-test="btn-change-email" onClick={() => openModal("email")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
-                    </div>
-                    
-                    {/* เบอร์โทรศัพท์ */}
-                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '20px', display: 'inline-flex' }}>
-                      <div data-test="profile-phone" style={{ width: '85px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word' }}>
-                        {tempData.phone ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2") : "-"}
-                      </div>
-                      <div data-test="btn-change-phone" onClick={() => openModal("phone")} style={{ width: '45px', height: '24px', color: 'var(--blue-500, #3B82F6)', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word', cursor: 'pointer' }}>เปลี่ยน</div>
-                    </div>
-                    
-                    {/* วันที่สมัคร */}
-                    <div style={{ justifyContent: 'flex-start', alignItems: 'center', gap: '32px', display: 'inline-flex' }}>
-                      <div style={{ width: '83px', height: '24px', color: 'black', fontSize: '14px', fontFamily: 'Plus Jakarta Sans', fontWeight: 400, lineHeight: '20px', wordWrap: 'break-word' }}>
-                        {user.createdAt && user.createdAt !== "null" ? user.createdAt : "-"}
-                      </div>
-                      {/* ซ่อนปุ่มเปลี่ยนในส่วนของวันที่ เนื่องจากแก้ไขไม่ได้ */}
-                      <div style={{ width: '44px', height: '24px', color: 'transparent', fontSize: '14px', fontFamily: 'Anuphan', fontWeight: 400, lineHeight: '24px', wordWrap: 'break-word' }}></div>
-                    </div>
+                  </div>
 
+                  {/* อีเมล */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      อีเมล
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-email"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
+                        {tempData.email.replace(
+                          /(.{3})(.*)(@.*)/,
+                          "$1******$3",
+                        )}
+                      </div>
+                      <button
+                        data-test="btn-change-email"
+                        onClick={() => openModal("email")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* หมายเลขโทรศัพท์ */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      หมายเลขโทรศัพท์
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-phone"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
+                        {tempData.phone
+                          ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2")
+                          : "-"}
+                      </div>
+                      <button
+                        data-test="btn-change-phone"
+                        onClick={() => openModal("phone")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* วันที่สมัคร */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      วันที่สมัคร
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div className="text-[14px] sm:text-[16px] text-black truncate">
+                        {user.createdAt && user.createdAt !== "null"
+                          ? formatDate(user.createdAt)
+                          : "-"}
+                      </div>
+                      {/* พื้นที่ว่างเพื่อรักษาระยะให้เท่ากับบรรทัดที่มีปุ่มเปลี่ยน */}
+                      <div className="w-[45px] shrink-0"></div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* ปุ่มบันทึกข้อมูลด้านล่าง (แสดงเฉพาะ Mobile แบบในรูปภาพ) */}
-              <div className="w-full flex justify-center mt-10 mb-4 order-4 md:hidden">
+              <div className="w-full flex justify-center mt-8 mb-2 order-4 md:hidden">
                 <button
                   onClick={handleSave}
-                  className="bg-[#10B981] hover:bg-green-600 text-white px-10 py-2.5 rounded text-[14px] font-medium shadow-sm transition-colors"
+                  className="w-full sm:w-auto bg-[#10B981] hover:bg-green-600 text-white px-10 py-3 rounded text-[16px] font-medium shadow-sm transition-colors font-['Anuphan']"
                 >
                   บันทึกข้อมูล
                 </button>
               </div>
-
             </div>
           </main>
         </div>

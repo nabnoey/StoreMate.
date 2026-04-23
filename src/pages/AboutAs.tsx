@@ -243,7 +243,7 @@ const AboutUs = () => {
                   ด้วยกระบวนการที่ทันสมัย
                 </h3>
 
-                <p className="text-sm md:text-base text-blalck font-semibold max-w-[300px]">
+                <p className="text-sm md:text-base text-black font-semibold max-w-[300px]">
                   ดูมาตรฐานการคัดสรรวัตถุดิบ
                 </p>
               </div>

@@ -213,7 +213,7 @@ const PaymentShoping = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
-        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-[#333333] break-words">
+        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
           <Link to="/" className="hover:text-blue-500">
             หน้าหลัก
           </Link>
@@ -228,7 +228,7 @@ const PaymentShoping = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <span className="text-[#333333]">สรุปคำสั่งซื้อ</span>
+          <span className="transition-colors">สรุปคำสั่งซื้อ</span>
         </nav>
       </div>
 
@@ -254,7 +254,7 @@ const PaymentShoping = () => {
         <div className="p-8">
           <div className="flex items-center gap-3 mb-2 pb-4">
             <Icon icon="ph:shopping-cart" className="w-8 h-8 text-[#111827]" />
-            <h1 className="font-['Plus_Jakarta_Sans'] text-[30px] font-medium text-[#111827] leading-[40px] break-words">
+            <h1 className="font-['Anuphan'] text-[30px] font-medium text-[#111827] leading-[40px] break-words">
               สรุปคำสั่งซื้อ
             </h1>
           </div>
@@ -299,7 +299,7 @@ const PaymentShoping = () => {
                 <div className="flex-1 font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-1">
                   {item.productName}
                 </div>
-                <div className="w-24 text-center font-anup han text-[16px] font-normal text-black leading-[24px] break-words">
+                <div className="w-24 text-center font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                   ฿ {item.price.toLocaleString()}
                 </div>
                 {/* <div className="w-12 text-center text-sm">{item.quantity}</div> */}
@@ -332,10 +332,10 @@ const PaymentShoping = () => {
                         <Icon icon={method.icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-['Inter'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
+                        <p className="font-['Anuphan'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
                           {method.title}
                         </p>
-                        <p className="font-['Inter'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
+                        <p className="font-['Anuphan'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
                           {method.desc}
                         </p>
                       </div>
