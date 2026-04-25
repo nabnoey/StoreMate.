@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { logout } from "../../redux/auth/authReducer";
 import type { AppDispatch, RootState } from "../../redux/store";
@@ -18,9 +18,32 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   const user = useSelector((state: RootState) => state?.auth?.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // เช็คว่า Path ปัจจุบันตรงกับเมนูไหน
+  const isActive = (path: string) => location.pathname === path;
+
+  // ฟังก์ชันสำหรับปิดเมนู ครอบคลุมทั้ง Desktop (DaisyUI Dropdown) และ Mobile
+  const closeMenu = () => {
+    // บังคับให้ Dropdown ของ DaisyUI เสีย Focus เพื่อให้เมนูหุบกลับทันที
+    const elem = document.activeElement as HTMLElement;
+    if (elem) {
+      elem.blur();
+    }
+    // ถ้ามีฟังก์ชันปิดเมนูสำหรับ Mobile (เช่น ปิด Sidebar/Drawer) ให้เรียกใช้งานด้วย
+    if (onCloseMenu) {
+      onCloseMenu();
+    }
+  };
+
+  // ฟังก์ชันรวมสำหรับการเปลี่ยนหน้าและปิดเมนู
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    closeMenu();
+  };
 
   const handleLogout = () => {
-    if (onCloseMenu) onCloseMenu();
+    closeMenu(); // ปิดเมนูก่อนแสดง Popup ยืนยัน
 
     toast(
       (t) => (
@@ -88,26 +111,24 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-5 text-black">
+        <div className="flex items-center gap-2 text-black">
           <button
             data-test="btn-edit-profile-mobile"
             type="button"
-            onClick={() => {
-              navigate("/profile");
-              if (onCloseMenu) onCloseMenu();
-            }}
-            className="hover:text-[#0A157A] transition-colors cursor-pointer"
+            onClick={() => handleNavigation("/profile")}
+            className={`p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 hover:text-[#0A157A] ${
+              isActive("/profile") ? "bg-gray-100 text-[#0A157A]" : ""
+            }`}
           >
             <Icon icon="ph:gear" width="26" height="26" />
           </button>
           <button
             data-test="btn-orders-mobile"
             type="button"
-            onClick={() => {
-              navigate("/history-shop");
-              if (onCloseMenu) onCloseMenu();
-            }}
-            className="hover:text-[#0A157A] transition-colors cursor-pointer"
+            onClick={() => handleNavigation("/orders")}
+            className={`p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 hover:text-[#0A157A] ${
+              isActive("/orders") ? "bg-gray-100 text-[#0A157A]" : ""
+            }`}
           >
             <Icon icon="radix-icons:clipboard" width="26" height="26" />
           </button>
@@ -115,7 +136,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             data-test="btn-logout-mobile"
             type="button"
             onClick={handleLogout}
-            className="cursor-pointer hover:text-red-500 transition-colors"
+            className="p-2 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-red-500 transition-colors"
           >
             <Icon
               icon="ph:sign-out"
@@ -159,17 +180,17 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
       </button>
 
       <div className="relative">
-        <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-50">
+        {/* เปลี่ยน z-50 เป็น z-[9999] ป้องกัน dropdown โดนบัง */}
+        <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-[9999]">
           {/* แก้ไขโปรไฟล์ */}
           <li>
             <button
               data-test="btn-edit-profile"
               type="button"
-              onClick={() => {
-                navigate("/profile");
-                (document.activeElement as HTMLElement)?.blur();
-              }}
-              className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+              onClick={() => handleNavigation("/profile")}
+              className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
+                isActive("/profile") ? "bg-gray-100" : ""
+              }`}
             >
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon
@@ -192,11 +213,10 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-orders"
               type="button"
-              onClick={() => {
-                navigate("/history-shop");
-                (document.activeElement as HTMLElement)?.blur();
-              }}
-              className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+              onClick={() => handleNavigation("/orders")}
+              className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
+                isActive("/orders") ? "bg-gray-100" : ""
+              }`}
             >
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon
@@ -219,11 +239,8 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-logout"
               type="button"
-              onClick={() => {
-                (document.activeElement as HTMLElement)?.blur();
-                handleLogout();
-              }}
-              className="group flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left"
+              onClick={handleLogout}
+              className="group flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100"
             >
               <div className="relative flex items-center justify-center overflow-hidden">
                 <Icon

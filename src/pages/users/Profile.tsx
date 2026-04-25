@@ -18,13 +18,9 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener("load", () => resolve(image));
-
-    // เปลี่ยนมา reject ด้วย new Error แทน
     image.addEventListener("error", () =>
       reject(new Error(`Failed to load image at URL: ${url}`)),
     );
-
-    // (อย่าลืมกำหนด src ให้รูปภาพด้วยนะครับ เผื่อในโค้ดจริงตกหล่นไป)
     image.src = url;
   });
 
@@ -94,7 +90,6 @@ const EditModal = ({
 
         <div className="space-y-4">{children}</div>
 
-        {/* ส่วนปุ่มกด */}
         <div
           data-test="edit-modal-actions"
           className="flex flex-row justify-center sm:justify-end gap-3 mt-8"
@@ -151,10 +146,8 @@ const ProfilePage = () => {
   useEffect(() => {
     setLoading(true);
     if (user) {
-      // แยกชื่อและนามสกุลด้วยช่องว่าง (ถ้าไม่มีจะเซ็ตเป็นค่าว่าง)
       const nameParts = (user.name || "").trim().split(/\s+/);
       const firstName = nameParts[0] || "";
-      // กรณีคนมีชื่อกลางหรือนามสกุลยาวๆ จะเอาเฉพาะคำแรกเป็นชื่อ และที่เหลือเป็นนามสกุล
       const lastName = nameParts.slice(1).join(" ") || "";
 
       setTempData({
@@ -175,7 +168,6 @@ const ProfilePage = () => {
   const openModal = (type: string) => setActiveModal(type);
 
   const processFile = (file: File) => {
-    //แจ้งเตือนขนาดรูปภาพ
     if (file.size > 5 * 1024 * 1024) {
       toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
       return;
@@ -239,7 +231,6 @@ const ProfilePage = () => {
         };
 
         formData.append("data", JSON.stringify(userData));
-
         formData.append("image", blob, "profile.jpeg");
 
         await dispatch(updateProfile(formData) as any).unwrap();
@@ -281,14 +272,11 @@ const ProfilePage = () => {
       };
 
       const formData = new FormData();
-
       formData.append("data", JSON.stringify(userData));
 
       if (imageFileForUpload) {
-        // บังคับตั้งชื่อไฟล์ให้มัน Backend จะได้รู้ว่าเป็นไฟล์รูปภาพ
         formData.append("image", imageFileForUpload, "profile.jpeg");
       }
-      // formData.append("image", imageFileForUpload || "");
 
       await dispatch(updateProfile(formData) as any).unwrap();
 
@@ -298,7 +286,6 @@ const ProfilePage = () => {
         });
         setActiveModal(null);
 
-        // ดีเลย์นิดนึงให้ผู้ใช้อ่านข้อความ แล้วเตะ Logout
         setTimeout(() => {
           dispatch(logout());
           window.location.href = "/login";
@@ -306,15 +293,12 @@ const ProfilePage = () => {
         return;
       }
 
-      // ถ้าไม่ได้เปลี่ยนอีเมล ค่อยดึงข้อมูลตามปกติ
       await dispatch(getProfile() as any).unwrap();
       toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
-
-      // ดึง error จาก backend มาโชว์ ถ้าไม่มีให้ใช้ข้อความ default (6.4)
       const errorMessage =
         typeof error === "string"
           ? error
@@ -338,6 +322,16 @@ const ProfilePage = () => {
       });
     }
     setActiveModal(null);
+  };
+
+  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
+  const formatDate = (dateString: string) => {
+    if (!dateString || dateString === "null") return "-";
+
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
 
   if (loading) return <Loading />;
@@ -372,106 +366,22 @@ const ProfilePage = () => {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex-1 bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.05)] border border-gray-200 p-6 sm:p-10 relative min-h-[500px]">
+          <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
             {/* ส่วนหัวข้อ */}
-            <div className="mb-7 md:mb-10">
-              <h1 className="text-lg sm:text-xl font-bold text-black">
+            <div className="mb-6 md:mb-10">
+              <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
                 ข้อมูลของฉัน
               </h1>
-              <p className="text-md font-medium text-black mt-1">
+              <p className="text-[14px] sm:text-[16px] font-normal text-black mt-1 font-['Anuphan']">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="w-48 sm:w-56 border-b border-black mt-4"></div>
+              <div className="hidden md:block w-full border-b border-black mt-4" />
             </div>
 
-            <div className="flex flex-col md:flex-row md:justify-between items-stretch">
-              <div className="flex-1 space-y-6 order-2 md:order-1 mt-10 md:mt-10 md:pr-26 lg:pr-16">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="name"
-                    className="text-black font-normal text-medium sm:w-36 shrink-0 text-center"
-                  >
-                    ชื่อ - นามสกุล
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-name" className="truncate">
-                      {tempData.firstName} {tempData.lastName}
-                    </span>
-                    <button
-                      data-test="btn-change-name"
-                      onClick={() => openModal("name")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="email"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    อีเมล
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-email" className="truncate">
-                      {tempData.email.replace(/(.{3})(.*)(@.*)/, "$1******$3")}
-                    </span>
-                    <button
-                      data-test="btn-change-email"
-                      onClick={() => openModal("email")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="phone"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    หมายเลขโทรศัพท์
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span data-test="profile-phone" className="truncate">
-                      {tempData.phone
-                        ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2")
-                        : "-"}
-                    </span>
-                    <button
-                      data-test="btn-change-phone"
-                      onClick={() => openModal("phone")}
-                      className="cursor-pointer text-blue-500 text-md font-normal hover:underline whitespace-nowrap"
-                    >
-                      เปลี่ยน
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <label
-                    htmlFor="createdAt"
-                    className="text-black font-normal text-md sm:w-36 shrink-0 text-center"
-                  >
-                    วันที่สมัคร
-                  </label>
-                  <div className="flex-1 text-black font-normal text-md flex items-center gap-4">
-                    <span className="truncate">
-                      {user.createdAt && user.createdAt !== "null"
-                        ? user.createdAt
-                        : "-"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hidden md:block w-px bg-gray-200 order-2 self-stretch mx-4 lg:mx-8"></div>
-              <hr className="w-full border-gray-200 my-8 order-2 md:hidden" />
-              <div className="flex flex-col items-center justify-start order-1 md:order-3 w-full md:w-56 lg:w-64 shrink-0">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-5">
+            <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start w-full">
+              {/* Profile Image Section (อยู่ด้านบนใน Mobile, อยู่ขวาใน Desktop) */}
+              <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
+                <div className="w-[100px] h-[100px] sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
                   {tempData.image ? (
                     <img
                       src={tempData.image}
@@ -490,14 +400,123 @@ const ProfilePage = () => {
                 <button
                   data-test="btn-open-image-modal"
                   onClick={() => setIsImageModalOpen(true)}
-                  className="cursor-pointer border border-gray-300 bg-white px-6 py-2 text-md text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4"
+                  className="cursor-pointer border border-gray-300 bg-white px-5 py-1.5 text-[14px] sm:text-[16px] text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4 font-['Anuphan']"
                 >
                   เลือกรูป
                 </button>
-                <div className="text-md font-medium text-black text-center space-y-1.5 leading-relaxed">
+                <div className="text-[14px] sm:text-[16px] font-normal text-gray-600 md:text-black text-center space-y-1.5 leading-relaxed font-['Anuphan']">
+                  <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                   <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
-                  <p>ขนาดไฟล์: สูงสุด 5 MB</p>
                 </div>
+              </div>
+
+              {/* Mobile Divider */}
+              <hr className="w-full border-t border-[#D1D5DB] my-4 block md:hidden order-2" />
+
+              {/* Desktop Divider */}
+              <div className="hidden md:block w-px bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
+
+              {/* Form Fields Section (อยู่ด้านล่างใน Mobile, อยู่ซ้ายใน Desktop) */}
+              <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
+                {/* ใช้ Flex Column ในการจัดการระยะห่างแต่ละบรรทัด */}
+                <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
+                  {/* ชื่อ - นามสกุล */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      ชื่อ - นามสกุล
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-name"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
+                        {tempData.firstName} {tempData.lastName}
+                      </div>
+                      <button
+                        data-test="btn-change-name"
+                        onClick={() => openModal("name")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* อีเมล */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      อีเมล
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-email"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
+                        {tempData.email.replace(
+                          /(.{3})(.*)(@.*)/,
+                          "$1******$3",
+                        )}
+                      </div>
+                      <button
+                        data-test="btn-change-email"
+                        onClick={() => openModal("email")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* หมายเลขโทรศัพท์ */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      หมายเลขโทรศัพท์
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div
+                        data-test="profile-phone"
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                      >
+                        {tempData.phone
+                          ? tempData.phone.replace(/^(.*)(.{2})$/, "********$2")
+                          : "-"}
+                      </div>
+                      <button
+                        data-test="btn-change-phone"
+                        onClick={() => openModal("phone")}
+                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                      >
+                        เปลี่ยน
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* วันที่สมัคร */}
+                  <div className="flex items-center gap-4 sm:gap-8 w-full">
+                    <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
+                      วันที่สมัคร
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div className="text-[14px] sm:text-[16px] text-black truncate">
+                        {user.createdAt && user.createdAt !== "null"
+                          ? formatDate(user.createdAt)
+                          : "-"}
+                      </div>
+                      {/* พื้นที่ว่างเพื่อรักษาระยะให้เท่ากับบรรทัดที่มีปุ่มเปลี่ยน */}
+                      <div className="w-[45px] shrink-0"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ปุ่มบันทึกข้อมูลด้านล่าง (แสดงเฉพาะ Mobile แบบในรูปภาพ) */}
+              <div className="w-full flex justify-center mt-8 mb-2 order-4 md:hidden">
+                <button
+                  onClick={handleSave}
+                  className="w-full sm:w-auto bg-[#10B981] hover:bg-green-600 text-white px-10 py-3 rounded text-[16px] font-medium shadow-sm transition-colors font-['Anuphan']"
+                >
+                  บันทึกข้อมูล
+                </button>
               </div>
             </div>
           </main>
@@ -525,7 +544,7 @@ const ProfilePage = () => {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
+                    className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors w-full ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
                   >
                     <Icon
                       icon="lucide:upload"
@@ -536,14 +555,14 @@ const ProfilePage = () => {
                       คลิกเพื่ออัปโหลดหรือลากวาง
                     </p>
                     <p className="text-gray-400 text-sm mt-1">
-                      PNG, JPG, GIF up to 5 MB
+                      PNG, JPG up to 1 MB
                     </p>
                     <input
                       data-test="file-input"
                       type="file"
                       ref={fileInputRef}
                       onChange={handleImageChange}
-                      accept=".jpg, .jpeg, .png, .gif"
+                      accept=".jpg, .jpeg, .png"
                       className="hidden"
                     />
                   </button>
@@ -637,7 +656,7 @@ const ProfilePage = () => {
               />
               <label
                 htmlFor="lastName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block"
+                className="text-sm text-gray-600 font-medium mb-1.5 block mt-4"
               >
                 นามสกุล
               </label>

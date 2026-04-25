@@ -194,14 +194,22 @@ const ShoppingCart = () => {
       </nav>
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden p-4 sm:p-8 md:p-12">
-          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-            <Icon
-              icon="lucide:shopping-cart"
-              className="w-7 h-7 sm:w-8 sm:h-8 text-black"
-            />
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              รถเข็น
-            </h1>
+          <div className="mb-6 md:mb-10">
+            <div className="flex items-center gap-3">
+              <Icon
+                icon="lucide:shopping-cart"
+                className="w-7 h-7 sm:w-8 sm:h-8 text-black"
+              />
+              <h1 className="text-2xl sm:text-[36px] font-bold text-black">
+                รถเข็น
+              </h1>
+            </div>
+
+            <p className="text-base sm:text-[20px] font-normal text-black mt-1">
+              สินค้าในตะกร้า
+            </p>
+
+            <div className="hidden md:block w-full border-b border-black mt-4" />
           </div>
 
           {enrichedCartItems.length > 0 ? (
@@ -364,11 +372,11 @@ const ShoppingCart = () => {
           ) : (
             <div className="flex flex-col items-center justify-center py-16 sm:py-28">
               <Icon
-                icon="lucide:shopping-cart"
-                className="w-32 h-32 sm:w-40 sm:h-40 text-gray-200 mb-6"
+                icon="mdi-light:cart"
+                className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
               />
-              <p className="text-base sm:text-lg font-medium text-gray-500 mb-6">
-                ไม่มีสินค้าในตะกร้า
+              <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6">
+                ไม่มีสินค้าในรถเข็น
               </p>
               <button
                 onClick={() => navigate("/")}

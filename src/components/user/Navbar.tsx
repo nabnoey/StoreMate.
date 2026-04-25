@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-search"
-              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
+              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               to="/search"
             >
               สินค้า
@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             <Link
-              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
+              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-about"
-              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
+              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               to="/about-us"
             >
               เกี่ยวกับเรา
@@ -113,7 +113,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-contact"
-              className="hover:text-indigo-600 cursor-pointer transition-colors duration-200"
+              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
               to="contact"
             >
               ติดต่อ
@@ -292,7 +292,7 @@ const Navbar: React.FC = () => {
               data-test="list-product"
               to="/search"
               onClick={() => setOpenMenu(false)}
-              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
             >
               สินค้า
             </Link>
@@ -300,7 +300,7 @@ const Navbar: React.FC = () => {
               data-test="list-promo"
               to={`/search?category=promotion`}
               onClick={() => setOpenMenu(false)}
-              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
             >
               โปรโมชั่น
             </Link>
@@ -308,7 +308,7 @@ const Navbar: React.FC = () => {
               data-test="list-about"
               to="/about-us"
               onClick={() => setOpenMenu(false)}
-              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
             >
               เกี่ยวกับเรา
             </Link>
@@ -316,7 +316,7 @@ const Navbar: React.FC = () => {
               data-test="list-contact"
               to="/contact"
               onClick={() => setOpenMenu(false)}
-              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-blue-50 transition-colors"
+              className="cursor-pointer w-full text-left px-6 py-3.5 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
             >
               ติดต่อ
             </Link>

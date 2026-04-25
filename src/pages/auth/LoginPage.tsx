@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,19 @@ function LoginPage() {
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("remember_email");
+    const savedPassword = localStorage.getItem("remember_password");
+
+    if (savedEmail && savedPassword) {
+      formik.setValues({
+        email: savedEmail,
+        password: savedPassword,
+      });
+      setRememberMe(true);
+    }
+  }, []);
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -55,10 +68,20 @@ function LoginPage() {
         ).unwrap();
 
         if (rememberMe) {
+          // เก็บ Email และ Password ลง localStorage (เพื่อใช้กรอกฟอร์มครั้งหน้า)
+          localStorage.setItem("remember_email", values.email);
+          localStorage.setItem("remember_password", values.password);
+
+          // เก็บ Auth Data ตาม Logic เดิมของคุณ
           localStorage.setItem("auth", JSON.stringify(authData));
         } else {
+          // ถ้าไม่ได้ติ๊ก ให้ลบข้อมูลที่เคยจำไว้ออก
+          localStorage.removeItem("remember_email");
+          localStorage.removeItem("remember_password");
+
           sessionStorage.setItem("auth", JSON.stringify(authData));
         }
+
         toast.dismiss();
         toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
 
@@ -164,14 +187,13 @@ function LoginPage() {
 
           <div className="flex items-center gap-3 mb-6">
             <input
-              data-test="remember-me"
               type="checkbox"
+              id="remember-me"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
               className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
             />
             <label
-              data-test="remember-me-label"
               htmlFor="remember-me"
               className="text-gray-800 cursor-pointer select-none"
             >

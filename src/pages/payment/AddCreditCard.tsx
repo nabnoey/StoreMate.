@@ -25,15 +25,15 @@ const AddCreditCardFormInner = () => {
   const [cardName, setCardName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const elementOptions = {
-    style: {
-      base: {
-        fontSize: "16px",
-        color: "#1f2937",
-        "::placeholder": { color: "#9ca3af" },
-      },
-    },
-  };
+  // const elementOptions = {
+  //   style: {
+  //     base: {
+  //       fontSize: "16px",
+  //       color: "#1f2937",
+  //       "::placeholder": { color: "#9ca3af" },
+  //     },
+  //   },
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,38 +80,44 @@ const AddCreditCardFormInner = () => {
     }
   };
 
+  const cardNumberOptions = {
+    placeholder: "0000 0000 0000 0000",
+  };
+
+  const cardExpiryOptions = {
+    placeholder: "MM / YY",
+  };
+
+  const cardCvcOptions = {
+    placeholder: "xxx",
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-10 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
-      <div className="w-full max-w-[1136px] hidden lg:block">
-        <nav className="flex items-center mt-10 text-md text-black mb-4 font-medium py-1">
-          <Link to="/" className="hover:text-[#4285F4] transition-colors">
+      <div className="w-[1136px] hidden lg:block">
+        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
+          <Link to="/" className="hover:text-blue-500">
             หน้าหลัก
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <Link
-            to="/shopping-cart"
-            className="hover:text-[#4285F4] transition-colors"
-          >
+          <Link to="/shopping-cart" className="hover:text-blue-500">
             รถเข็น
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <Link
-            to="/payment"
-            className="hover:text-[#4285F4] transition-colors"
-          >
+          <Link to="/payment" className="hover:text-blue-500">
             สรุปคำสั่งซื้อ
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <span className="text-black font-bold">เพิ่มบัตรเครดิต/เดบิต</span>
+          <span className="transition-colors">เพิ่มบัตรเครดิต/เดบิต</span>
         </nav>
       </div>
 
@@ -166,7 +172,7 @@ const AddCreditCardFormInner = () => {
                   <div className="opacity-70 text-[9px] sm:text-[10px]">
                     Expires
                   </div>
-                  <div className="tracking-widest">**/**</div>
+                  <div className="tracking-widest">MM/YY</div>
                 </div>
               </div>
             </div>
@@ -180,7 +186,7 @@ const AddCreditCardFormInner = () => {
           <div>
             <label
               htmlFor="cardName"
-              className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+              className="block text-[16px] sm:text-sm font-semibold text-gray-900 mb-1.5"
             >
               ชื่อที่ปรากฏบนบัตร
             </label>
@@ -197,12 +203,12 @@ const AddCreditCardFormInner = () => {
           <div>
             <label
               htmlFor="cardNumber"
-              className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+              className="block text-[16px] sm:text-sm font-semibold text-gray-900 mb-1.5"
             >
               หมายเลขบัตร
             </label>
             <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
-              <CardNumberElement options={elementOptions} />
+              <CardNumberElement options={cardNumberOptions} />
             </div>
           </div>
 
@@ -210,24 +216,24 @@ const AddCreditCardFormInner = () => {
             <div>
               <label
                 htmlFor="cardExpiry"
-                className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+                className="block text-[16px] sm:text-sm font-semibold text-gray-900 mb-1.5"
               >
                 วันหมดอายุ
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
-                <CardExpiryElement options={elementOptions} />
+                <CardExpiryElement options={cardExpiryOptions} />
               </div>
             </div>
 
             <div>
               <label
                 htmlFor="cardCvc"
-                className="block text-[13px] sm:text-sm font-bold text-gray-900 mb-1.5"
+                className="block text-[16px] sm:text-sm font-semibold text-gray-900 mb-1.5"
               >
                 CVC
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
-                <CardCvcElement options={elementOptions} />
+                <CardCvcElement options={cardCvcOptions} />
               </div>
             </div>
           </div>
@@ -242,7 +248,7 @@ const AddCreditCardFormInner = () => {
           </button>
         </form>
 
-        <div className="max-w-[500px] mx-auto mt-8 bg-[#f4f7fd] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mx-1 sm:mx-auto">
+        <div className="max-w-[500px] mx-auto mt-8 bg-#F3F4F6] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mx-1 sm:mx-auto">
           <Icon
             icon="lucide:shield-check"
             className="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5"
