@@ -248,7 +248,11 @@ const ProductDetailPage: React.FC = () => {
       >
         <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 pt-2 md:pt-8">
           <nav className="flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
-            <Link data-test="click-home" to="/" className="transition-colors">
+            <Link
+              data-test="click-home"
+              to="/"
+              className="transition-colors cursor-pointer"
+            >
               หน้าหลัก
             </Link>
             <Icon
@@ -257,7 +261,7 @@ const ProductDetailPage: React.FC = () => {
             />
             <Link
               to={`/search?category=${categoryName}`}
-              className="transition-colors"
+              className="transition-colors cursor-pointer"
             >
               {catagoryTranslator[categoryName] || categoryName}
             </Link>

@@ -206,7 +206,7 @@ const PaymentQRInner = () => {
       {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
         <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
-          <Link to="/" className="hover:text-[#4285F4] transition-colors">
+          <Link to="/" className="cursor-pointer transition-colors">
             หน้าหลัก
           </Link>
           <Icon
@@ -215,7 +215,7 @@ const PaymentQRInner = () => {
           />
           <Link
             to="/shopping-cart"
-            className="hover:text-[#4285F4] transition-colors"
+            className="cursor-pointer transition-colors"
           >
             รถเข็น
           </Link>
@@ -223,10 +223,7 @@ const PaymentQRInner = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <Link
-            to="/payment"
-            className="hover:text-[#4285F4] transition-colors"
-          >
+          <Link to="/payment" className="cursor-pointer transition-colors">
             สรุปคำสั่งซื้อ
           </Link>
           <Icon
