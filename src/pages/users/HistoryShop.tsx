@@ -61,9 +61,9 @@ const HistoryPage = () => {
   });
 
   const handleTabChange = (tabName: string) => {
-  const nextStatus = tabToStatusMap[tabName] || "ALL";
-  setSearchParams({ status: nextStatus });
-};
+    const nextStatus = tabToStatusMap[tabName] || "ALL";
+    setSearchParams({ status: nextStatus });
+  };
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
@@ -72,7 +72,7 @@ const HistoryPage = () => {
           <Link
             data-test="click-home"
             to="/"
-            className="hover:text-blue-500 transition-colors"
+            className="transition-colors cursor-pointer"
           >
             หน้าหลัก
           </Link>
@@ -80,7 +80,7 @@ const HistoryPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/profile" className="hover:text-blue-500 transition-colors">
+          <Link to="/profile" className="transition-colors cursor-pointer">
             การซื้อของฉัน
           </Link>
           <Icon
@@ -105,7 +105,8 @@ const HistoryPage = () => {
               <div className="flex flex-col gap-2 py-6 items-start w-full">
                 {filteredOrders.map((order) => {
                   const orderTotal =
-                    order.totalPrice || order.total ||
+                    order.totalPrice ||
+                    order.total ||
                     order.orderItems.reduce(
                       (sum, item) => sum + item.price * item.quantity,
                       0,
@@ -119,7 +120,9 @@ const HistoryPage = () => {
                           <p className="text-sm text-gray-600 mb-1">
                             เลขที่คำสั่งซื้อ
                           </p>
-                          <p className="font-medium text-black">{order.orderNo}</p>
+                          <p className="font-medium text-black">
+                            {order.orderNo}
+                          </p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600 mb-1">
@@ -170,7 +173,9 @@ const HistoryPage = () => {
                             <span className="text-black font-medium">
                               วิธีการชำระเงิน
                             </span>
-                            <span className="text-gray-700">บัตรเครดิต/เดบิต</span>
+                            <span className="text-gray-700">
+                              บัตรเครดิต/เดบิต
+                            </span>
                           </div>
                           <div className="flex justify-between items-center rounded-lg bg-white px-4 py-4">
                             <span className="text-black font-bold text-lg">
@@ -186,14 +191,20 @@ const HistoryPage = () => {
                           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
                               type="button"
-                              onClick={() => firstProductId && navigate(`/product/${firstProductId}`)}
+                              onClick={() =>
+                                firstProductId &&
+                                navigate(`/product/${firstProductId}`)
+                              }
                               className="rounded-md border border-blue-500 bg-white px-4 py-2 text-sm font-medium text-blue-500 transition hover:bg-blue-50"
                             >
                               ซื้ออีกครั้ง
                             </button>
                             <button
                               type="button"
-                              onClick={() => firstProductId && navigate(`/product/${firstProductId}`)}
+                              onClick={() =>
+                                firstProductId &&
+                                navigate(`/product/${firstProductId}`)
+                              }
                               className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
                             >
                               เขียนรีวิว

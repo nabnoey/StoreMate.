@@ -318,14 +318,18 @@ const AddressProfile = () => {
       <div className="max-w-[1200px] mx-auto px-4">
         {/* 1. Nav อยู่ด้านบนสุด */}
         <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
-          <Link data-test="click-home" to="/" className="transition-colors">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <span className="text-black">แก้ไขโปรไฟล์</span>
+          <span className="text-black cursor-pointer">แก้ไขโปรไฟล์</span>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
@@ -333,7 +337,7 @@ const AddressProfile = () => {
           <Link
             to="/profile"
             data-test="click-profile"
-            className="transition-colors"
+            className="transition-colors "
           >
             โปรไฟล์
           </Link>
@@ -397,7 +401,7 @@ const AddressProfile = () => {
                     <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between min-w-[120px]">
                       <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
                         <button
-                          data-test={`btn-edit-address-${address.id}`}
+                          data-test="btn-edit-address"
                           onClick={() => openEditModal(address)}
                           className="text-[#4285F4] hover:underline cursor-pointer"
                         >
@@ -405,7 +409,7 @@ const AddressProfile = () => {
                         </button>
                         <span className="text-gray-300">|</span>
                         <button
-                          data-test={`btn-delete-address-${address.id}`}
+                          data-test="btn-delete-address"
                           onClick={() => handleDeleteAddress(address.id)}
                           className="text-orange-500 hover:underline cursor-pointer"
                         >
@@ -413,7 +417,7 @@ const AddressProfile = () => {
                         </button>
                       </div>
                       <button
-                        data-test={`btn-set-default-${address.id}`}
+                        data-test="btn-set-default-address"
                         disabled={address.isDefault}
                         onClick={() => dispatch(addAdressDefault(address.id))}
                         className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors cursor-pointer ${
@@ -607,14 +611,16 @@ const AddressProfile = () => {
               {/* Footer Actions */}
               <div className="px-6 py-5 bg-gray-50 flex flex-col-reverse sm:flex-row gap-3 border-t border-gray-100">
                 <button
+                  data-test="btn-cancel-address"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all active:scale-95"
+                  className="cursor-pointer flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all active:scale-95"
                 >
                   ยกเลิก
                 </button>
                 <button
+                  data-test="btn-save-address"
                   onClick={handleSaveAddress}
-                  className="flex-[2] px-4 py-2.5 bg-[#4285F4] hover:bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-200 transition-all active:scale-95"
+                  className="cursor-pointer flex-[2] px-4 py-2.5 bg-[#4285F4] hover:bg-blue-600 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-200 transition-all active:scale-95"
                 >
                   {isEditMode ? "บันทึกการเปลี่ยนแปลง" : "เพิ่มที่อยู่นี้"}
                 </button>

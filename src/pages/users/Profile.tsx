@@ -340,9 +340,12 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
       <div className="max-w-[1200px] mx-auto px-4">
-        {/* 1. Nav อยู่ด้านบนสุด */}
         <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
-          <Link data-test="click-home" to="/" className="transition-colors">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
           <Icon
@@ -367,7 +370,6 @@ const ProfilePage = () => {
           <ProfileSidebar />
 
           <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
-            {/* ส่วนหัวข้อ */}
             <div className="mb-6 md:mb-10">
               <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
                 ข้อมูลของฉัน
@@ -416,11 +418,8 @@ const ProfilePage = () => {
               {/* Desktop Divider */}
               <div className="hidden md:block w-px bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
 
-              {/* Form Fields Section (อยู่ด้านล่างใน Mobile, อยู่ซ้ายใน Desktop) */}
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
-                {/* ใช้ Flex Column ในการจัดการระยะห่างแต่ละบรรทัด */}
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
-                  {/* ชื่อ - นามสกุล */}
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       ชื่อ - นามสกุล
@@ -435,14 +434,13 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-name"
                         onClick={() => openModal("name")}
-                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
                       >
                         เปลี่ยน
                       </button>
                     </div>
                   </div>
 
-                  {/* อีเมล */}
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       อีเมล
@@ -460,14 +458,13 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-email"
                         onClick={() => openModal("email")}
-                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
                       >
                         เปลี่ยน
                       </button>
                     </div>
                   </div>
 
-                  {/* หมายเลขโทรศัพท์ */}
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       หมายเลขโทรศัพท์
@@ -484,7 +481,7 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-phone"
                         onClick={() => openModal("phone")}
-                        className="text-blue-500 hover:text-blue-700 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer text-blue-500text-[14px] sm:text-[16px] shrink-0"
                       >
                         เปลี่ยน
                       </button>
@@ -502,18 +499,17 @@ const ProfilePage = () => {
                           ? formatDate(user.createdAt)
                           : "-"}
                       </div>
-                      {/* พื้นที่ว่างเพื่อรักษาระยะให้เท่ากับบรรทัดที่มีปุ่มเปลี่ยน */}
                       <div className="w-[45px] shrink-0"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* ปุ่มบันทึกข้อมูลด้านล่าง (แสดงเฉพาะ Mobile แบบในรูปภาพ) */}
               <div className="w-full flex justify-center mt-8 mb-2 order-4 md:hidden">
                 <button
+                  data-test="btn-save-profile"
                   onClick={handleSave}
-                  className="w-full sm:w-auto bg-[#10B981] hover:bg-green-600 text-white px-10 py-3 rounded text-[16px] font-medium shadow-sm transition-colors font-['Anuphan']"
+                  className="cursor-pointer w-full sm:w-auto bg-[#10B981] text-white px-10 py-3 rounded text-[16px] font-medium shadow-sm transition-colors font-['Anuphan']"
                 >
                   บันทึกข้อมูล
                 </button>
