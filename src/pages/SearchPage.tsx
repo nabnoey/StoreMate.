@@ -32,7 +32,6 @@ const SearchPage = () => {
   const handleClearFilter = () => {
     setMaxPriceInput("");
     setMinPriceInput("");
-    //คลิกที่ล้างค่า path url ข้างบนจะหายตามจะมีแค่ /search
     setSearchParams({});
     setInputValue("");
   };
@@ -78,6 +77,8 @@ const SearchPage = () => {
       }
     }
   };
+
+  const sortedProducts = [...searchResult].sort((p1, p2) => p1.price - p2.price);
 
   return (
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
@@ -154,7 +155,6 @@ const SearchPage = () => {
                   keyword: keyword,
                   minPrice: minPriceParam,
                   maxPrice: maxPriceParam,
-                  // category: "",
                 });
               }}
               className={`cursor-pointer bg-transparent border-none p-0 text-left transition-colors hover:text-black ${
@@ -269,8 +269,14 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
+          // <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
+          //   {searchResult.map((product) => {
+          //     return <ProductCard key={product.id} product={product} />;
+          //   })}
+          // </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
-            {searchResult.map((product) => {
+            {sortedProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
           </div>

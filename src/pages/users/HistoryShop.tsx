@@ -113,7 +113,8 @@ const HistoryPage = () => {
                   const firstProductId = order.orderItems?.[0]?.id;
                   return (
                     <div key={order.id} className="mb-8">
-                      <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
+                      {/* <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100"> */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 border-b border-gray-100">
                         <div>
                           <p className="text-sm text-gray-600 mb-1">
                             เลขที่คำสั่งซื้อ
@@ -140,23 +141,23 @@ const HistoryPage = () => {
                         {order.orderItems.map((item) => (
                           <div
                             key={item.id}
-                            className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
+                            className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
                           >
                             <img
                               src={item.imageUrl || ""}
                               alt=""
-                              className="w-16 h-16 object-contain rounded-md"
+                              className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-md"
                             />
                             <div className="flex-1 font-bold text-sm line-clamp-1">
                               {item.productName}
                             </div>
-                            <div className="w-24 text-center text-sm">
+                            <div className="sm:w-24 text-left sm:text-center text-sm">
                               ฿ {item.price.toLocaleString()}
                             </div>
-                            <div className="w-12 text-center text-sm">
+                            <div className="sm:w-24 text-left sm:text-center text-sm">
                               x {item.quantity}
                             </div>
-                            <div className="w-24 text-right text-blue-500 font-medium text-sm">
+                            <div className="sm:w-24 text-left sm:text-right text-blue-500 font-medium text-smหห">
                               ฿ {(item.price * item.quantity).toLocaleString()}
                             </div>
                           </div>
@@ -164,7 +165,7 @@ const HistoryPage = () => {
                       </div>
 
                       <div className="mt-4 rounded-xl border border-gray-200 bg-[#FBFBFB] p-4">
-                        <div className="grid gap-3 md:grid-cols-2">
+                        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
                           <div className="flex justify-between items-center rounded-lg bg-white px-4 py-4">
                             <span className="text-black font-medium">
                               วิธีการชำระเงิน
@@ -182,7 +183,7 @@ const HistoryPage = () => {
                         </div>
 
                         {status === "COMPLETED" && (
-                          <div className="mt-4 flex flex-wrap gap-3 justify-end">
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
                               type="button"
                               onClick={() => firstProductId && navigate(`/product/${firstProductId}`)}
