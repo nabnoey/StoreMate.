@@ -7,6 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 
 import { UserService } from "../../services/users.service";
+import usePaymentSocket from "../../hooks/usePaymentSocket";
 import { OrdersService } from "../../services/orders.service";
 
 import {
@@ -35,8 +36,12 @@ const PaymentQRInner = () => {
   const [isGenerating, setIsGenerating] = useState(true);
   const hasRequestedQR = useRef(false);
 
+  usePaymentSocket();
+
+  // ดึงสถานะปัจจุบันจาก Redux
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
+  // 2️⃣ ระบบสำรอง: เช็คสถานะ API ทันทีตอนโหลดหน้า (เผื่อลูกค้ารีเฟรชหรือ WebSocket พลาด)
   useEffect(() => {
     const savedOrderNo = localStorage.getItem("orderNo");
     if (!savedOrderNo) return;
@@ -45,7 +50,10 @@ const PaymentQRInner = () => {
       try {
         const data = await OrdersService.getOrdersStatus(savedOrderNo);
 
-        if (data.status === "COMPLETED" || data.paymentStatus === "SUCCESS") {
+        if (
+          data.status === "COMPLETED" ||
+          data.paymentStatus === "PAYMENT_SUCCESS"
+        ) {
           toast.success("ตรวจพบการชำระเงินสำเร็จ!");
 
           dispatch(
@@ -56,7 +64,7 @@ const PaymentQRInner = () => {
           );
         } else if (
           data.status === "CANCELLED" ||
-          data.paymentStatus === "PAYMENT_FAILS"
+          data.paymentStatus === "FAILED"
         ) {
           dispatch(
             setPaymentStatus({
@@ -66,18 +74,20 @@ const PaymentQRInner = () => {
           );
         }
       } catch (error) {
-        console.error("ไม่สามารถดึงสถานะล่าสุดของคำสั่งซื้อได้", error);
+        console.error("❌ ไม่สามารถดึงสถานะล่าสุดของคำสั่งซื้อได้", error);
       }
     };
 
     checkStatusOnRefresh();
   }, [dispatch]);
 
+  // 3️⃣ ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
   useEffect(() => {
     if (paymentStatus === "PAYMENT_SUCCESS") {
+      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
-      navigate("/orders", { replace: true });
+      navigate("/history-shop", { replace: true });
     } else if (paymentStatus === "PAYMENT_FAILS") {
       dispatch(resetPaymentStatus());
       navigate("/payment/cancel", { replace: true });
@@ -113,6 +123,7 @@ const PaymentQRInner = () => {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
         } else {
           if (paymentIntent?.id) {
+            // ดึง 6 ตัวอักษรสุดท้ายจาก pi_... มาทำเป็นตัวพิมพ์ใหญ่
             const shortRef = paymentIntent.id.slice(-6).toUpperCase();
             setRefId(shortRef);
           }
@@ -151,7 +162,7 @@ const PaymentQRInner = () => {
         return;
       }
       const timerId = setInterval(() => {
-        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        setTimeLeft((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(timerId);
     }
@@ -165,6 +176,7 @@ const PaymentQRInner = () => {
     return `${m}:${s}`;
   };
 
+  // --- แยกส่วนการแสดงผล QR Code ออกมาจาก Nested Ternary ---
   let qrContent;
   if (isGenerating) {
     qrContent = (
@@ -196,7 +208,7 @@ const PaymentQRInner = () => {
       {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
         <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
-          <Link to="/" className="cursor-pointer transition-colors">
+          <Link to="/" className="hover:text-[#4285F4] transition-colors">
             หน้าหลัก
           </Link>
           <Icon
@@ -205,7 +217,7 @@ const PaymentQRInner = () => {
           />
           <Link
             to="/shopping-cart"
-            className="cursor-pointer transition-colors"
+            className="hover:text-[#4285F4] transition-colors"
           >
             รถเข็น
           </Link>
@@ -213,7 +225,10 @@ const PaymentQRInner = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <Link to="/payment" className="cursor-pointer transition-colors">
+          <Link
+            to="/payment"
+            className="hover:text-[#4285F4] transition-colors"
+          >
             สรุปคำสั่งซื้อ
           </Link>
           <Icon

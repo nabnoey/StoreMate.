@@ -4,83 +4,109 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { toast } from "react-hot-toast";
 import { setPaymentStatus } from "../redux/payment/paymentReducer";
+import { getAccessToken } from "../utils/auth";
 
-const usePaymentSocket = (token?: string) => {
+let globalClient: Client | null = null;
+
+const usePaymentSocket = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const stompClient = new Client({
+    console.log("🚀 SOCKET INIT START");
+
+    const token = getAccessToken();
+
+    console.log("🔑 TOKEN:", token);
+
+    if (!token) {
+      console.log("⛔ NO TOKEN → SKIP SOCKET");
+      return;
+    }
+
+    // กัน duplicate connection
+    if (globalClient?.active) {
+      console.log("⚠️ SOCKET ALREADY ACTIVE");
+      return;
+    }
+
+    const client = new Client({
       webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL),
-      connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
+
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
 
+      // 🔥 IMPORTANT: send identity
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+
+      debug: (str) => console.log("[STOMP]", str),
+
       onConnect: () => {
-        stompClient.subscribe("/user/queue/notifications", (message) => {
-          if (message.body) {
-            try {
-              const data = JSON.parse(message.body);
+        console.log("✅ SOCKET CONNECTED");
 
-              const currentOrder = localStorage.getItem("orderNo");
+        client.subscribe("/user/queue/notifications", (message) => {
+          if (!message.body) return;
 
-              if (data.orderNo && data.orderNo !== currentOrder) {
-                return;
-              }
+          const data = JSON.parse(message.body);
+          const currentOrder = localStorage.getItem("orderNo");
 
-              if (
-                data.paymentStatus === "PAYMENT_SUCCESS" ||
-                data.status === "COMPLETED"
-              ) {
-                if (data.orderNo && data.orderNo !== currentOrder) {
-                  return;
-                }
-                toast.success("ชำระเงินสำเร็จ!", { duration: 3000 });
+          if (data.orderNo && data.orderNo !== currentOrder) return;
 
-                localStorage.removeItem("orderNo");
+          // ✅ SUCCESS
+          if (
+            data.paymentStatus === "PAYMENT_SUCCESS" ||
+            data.status === "COMPLETED"
+          ) {
+            toast.success("ชำระเงินสำเร็จ 🎉");
 
-                dispatch(
-                  setPaymentStatus({
-                    status: "PAYMENT_SUCCESS",
-                    orderId: data.orderNo || data.orderId,
-                  }),
-                );
-              } else if (
-                data.paymentStatus === "PAYMENT_FAILS" ||
-                data.status === "CANCELLED"
-              ) {
-                toast.error("การชำระเงินไม่สำเร็จ หรือถูกยกเลิก", {
-                  duration: 3000,
-                });
+            localStorage.removeItem("orderNo");
 
-                dispatch(
-                  setPaymentStatus({
-                    status: "PAYMENT_FAILS",
-                    orderId: data.orderNo || data.orderId,
-                  }),
-                );
-              }
-            } catch (error) {}
+            dispatch(
+              setPaymentStatus({
+                status: "PAYMENT_SUCCESS",
+                orderId: data.orderNo || data.orderId,
+              }),
+            );
+          }
+
+          // ❌ FAIL
+          if (
+            data.paymentStatus === "PAYMENT_FAILS" ||
+            data.status === "CANCELLED"
+          ) {
+            toast.error("ชำระเงินไม่สำเร็จ");
+
+            dispatch(
+              setPaymentStatus({
+                status: "PAYMENT_FAILS",
+                orderId: data.orderNo || data.orderId,
+              }),
+            );
           }
         });
       },
 
-      // onStompError: (frame) => {
-      //   console.error("STOMP Error พบข้อผิดพลาด:", frame.headers["message"]);
-      // },
+      onWebSocketClose: () => {
+        console.log("🔴 SOCKET CLOSED");
+      },
 
-      // onWebSocketError: (event) => {
-      //   console.error("WebSocket Error:", event);
-      // },
+      onStompError: (frame) => {
+        console.error("STOMP ERROR:", frame.headers["message"]);
+      },
     });
 
-    stompClient.activate();
+    globalClient = client;
+    client.activate();
 
     return () => {
-      stompClient.deactivate();
-      // console.log("ปิดการเชื่อมต่อ WebSocket แล้ว");
+      console.log("🧹 CLEANUP SOCKET");
+
+      client.deactivate();
+      globalClient = null;
     };
-  }, [dispatch, token]);
+  }, [dispatch]);
 };
 
 export default usePaymentSocket;
