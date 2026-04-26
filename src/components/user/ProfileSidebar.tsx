@@ -49,7 +49,7 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 font-['Anuphan'] w-full">
+    <div className="flex flex-col gap-4 font-['Anuphan'] w-full md:w-auto">
       {/* ================= MOBILE VIEW ================= */}
       {/* 🔴 แก้ไข z-50 เป็น z-10 เพื่อไม่ให้ไปทับ Dropdown จาก Header */}
       <div className="md:hidden mt-2 relative z-10 w-full">
