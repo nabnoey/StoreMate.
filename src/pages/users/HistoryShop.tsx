@@ -101,9 +101,20 @@ const HistoryPage = () => {
               onTabChange={handleTabChange}
             />
 
-            <div className="bg-white">
-              <div className="flex flex-col gap-2 py-6 items-start w-full">
-                {filteredOrders.map((order) => {
+            <div className="flex flex-col gap-2 py-6 items-center w-full bg-white ">
+              {filteredOrders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 sm:py-28">
+                  <Icon
+                    icon="mdi-light:cart"
+                    className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
+                  />
+
+                  <p className="text-[36px] sm:text-[20px] lg:text-[36px] font-medium text-black mb-4 sm:mb-6">
+                    ไม่มีรายการคำสั่งซื้อ
+                  </p>
+                </div>
+              ) : (
+                filteredOrders.map((order) => {
                   const orderTotal =
                     order.totalPrice ||
                     order.total ||
@@ -135,7 +146,7 @@ const HistoryPage = () => {
                         <div>
                           <p className="text-sm text-gray-600 mb-1">สถานะ</p>
                           <p className="font-medium text-blue-500">
-                            {order.status}
+                            {statusToTabMap[order.status]}
                           </p>
                         </div>
                       </div>
@@ -214,8 +225,8 @@ const HistoryPage = () => {
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                })
+              )}
             </div>
           </main>
         </div>

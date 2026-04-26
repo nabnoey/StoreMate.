@@ -4,11 +4,15 @@ import Loading from "../components/loading/Loading";
 import NavBar from "../components/user/Navbar";
 import Footer from "../components/user/Footer";
 import ScrollToTop from "../components/user/ScrollToTop";
+import usePaymentSocket from "../hooks/usePaymentSocket";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
 
 const MainLayout = () => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  usePaymentSocket(token || undefined);
   return (
     <div className="flex flex-col min-h-screen">
-
       {/* NavBar */}
       <ScrollToTop />
       <div className="fixed top-0 left-0 right-0 z-50">
@@ -22,7 +26,6 @@ const MainLayout = () => {
       </main>
 
       <Footer />
-
     </div>
   );
 };

@@ -9,7 +9,7 @@ export interface SavedCard {
 
 interface PaymentState {
   savedCards: SavedCard[];
-  status: "IDLE" | "PENDING" | "SUCCESS" | "FAILED";
+  status: "IDLE" | "PENDING" | "PAYMENT_SUCCESS" | "PAYMENT_FAILS";
   orderId: string | null;
 }
 
@@ -39,10 +39,10 @@ const paymentSlice = createSlice({
         orderId?: string;
       }>,
     ) => {
+      if (state.status === action.payload.status) return;
+
       state.status = action.payload.status;
-      if (action.payload.orderId) {
-        state.orderId = action.payload.orderId;
-      }
+      state.orderId = action.payload.orderId || null;
     },
 
     resetPaymentStatus: (state) => {

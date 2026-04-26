@@ -7,7 +7,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 
 import { UserService } from "../../services/users.service";
-import usePaymentSocket from "../../hooks/usePaymentSocket";
 import { OrdersService } from "../../services/orders.service";
 
 import {
@@ -36,13 +35,8 @@ const PaymentQRInner = () => {
   const [isGenerating, setIsGenerating] = useState(true);
   const hasRequestedQR = useRef(false);
 
-  // 1️⃣ เปิดการเชื่อมต่อ WebSocket
-  usePaymentSocket();
-
-  // ดึงสถานะปัจจุบันจาก Redux
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
-  // 2️⃣ ระบบสำรอง: เช็คสถานะ API ทันทีตอนโหลดหน้า (เผื่อลูกค้ารีเฟรชหรือ WebSocket พลาด)
   useEffect(() => {
     const savedOrderNo = localStorage.getItem("orderNo");
     if (!savedOrderNo) return;
@@ -56,37 +50,35 @@ const PaymentQRInner = () => {
 
           dispatch(
             setPaymentStatus({
-              status: "SUCCESS",
+              status: "PAYMENT_SUCCESS",
               orderId: savedOrderNo,
             }),
           );
         } else if (
           data.status === "CANCELLED" ||
-          data.paymentStatus === "FAILED"
+          data.paymentStatus === "PAYMENT_FAILS"
         ) {
           dispatch(
             setPaymentStatus({
-              status: "FAILED",
+              status: "PAYMENT_FAILS",
               orderId: savedOrderNo,
             }),
           );
         }
       } catch (error) {
-        console.error("❌ ไม่สามารถดึงสถานะล่าสุดของคำสั่งซื้อได้", error);
+        console.error("ไม่สามารถดึงสถานะล่าสุดของคำสั่งซื้อได้", error);
       }
     };
 
     checkStatusOnRefresh();
   }, [dispatch]);
 
-  // 3️⃣ ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
   useEffect(() => {
-    if (paymentStatus === "SUCCESS") {
-      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
+    if (paymentStatus === "PAYMENT_SUCCESS") {
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
-      navigate("/history-shop", { replace: true });
-    } else if (paymentStatus === "FAILED") {
+      navigate("/orders", { replace: true });
+    } else if (paymentStatus === "PAYMENT_FAILS") {
       dispatch(resetPaymentStatus());
       navigate("/payment/cancel", { replace: true });
     }
@@ -121,7 +113,6 @@ const PaymentQRInner = () => {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
         } else {
           if (paymentIntent?.id) {
-            // ดึง 6 ตัวอักษรสุดท้ายจาก pi_... มาทำเป็นตัวพิมพ์ใหญ่
             const shortRef = paymentIntent.id.slice(-6).toUpperCase();
             setRefId(shortRef);
           }
@@ -160,7 +151,7 @@ const PaymentQRInner = () => {
         return;
       }
       const timerId = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
       return () => clearInterval(timerId);
     }
@@ -174,7 +165,6 @@ const PaymentQRInner = () => {
     return `${m}:${s}`;
   };
 
-  // --- แยกส่วนการแสดงผล QR Code ออกมาจาก Nested Ternary ---
   let qrContent;
   if (isGenerating) {
     qrContent = (
