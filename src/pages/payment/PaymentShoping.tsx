@@ -214,14 +214,14 @@ const PaymentShoping = () => {
     <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[70px] lg:pb-0 font-anuphan flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
         <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
-          <Link to="/" className="hover:text-blue-500">
+          <Link to="/" className="cursor-pointer">
             หน้าหลัก
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1"
           />
-          <Link to="/shopping-cart" className="hover:text-blue-500">
+          <Link to="/shopping-cart" className="cursor-pointer">
             รถเข็น
           </Link>
           <Icon

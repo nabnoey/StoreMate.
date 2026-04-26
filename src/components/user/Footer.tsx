@@ -13,22 +13,27 @@ const Footer: React.FC = () => {
             <div className="w-9 h-9 bg-[#EAB308] rounded-full flex items-center justify-center text-[#193220] font-bold text-sm shrink-0">
               PT
             </div>
-            <h2 className="text-[#EAB308] font-bold text-xl">พัดทอง</h2>
+            <h2 className="text-[#EAB308] font-bold text-[16px]">พัดทอง</h2>
           </div>
-          <p className="text-sm leading-relaxed text-gray-300 max-w-sm">
-            ผลิตภัณฑ์แปรรูปจากสมุนไพรไทย มะม่วงหาว มะนาวโห่คุณภาพสูง
+          <p className="text-[16px] leading-relaxed text-gray-300 max-w-sm">
+            ผลิตภัณฑ์แปรรูปจากสมุนไพรไทย
+            <br />
+            มะม่วงหาว
+            <br />
+            มะนาวโห่คุณภาพสูง
+            <br />
             เพื่อสุขภาพที่ดีของคุณ
           </p>
         </div>
 
         {/* Column 2: Menu */}
         <div>
-          <h3 className="text-[#EAB308] font-bold text-sm mb-4">เมนู</h3>
+          <h3 className="text-[#EAB308] font-bold text-[20px] mb-4">เมนู</h3>
           <ul className="flex flex-col space-y-2 text-sm">
             <li>
               <button
                 data-test="home-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
+                className="cursor-pointer py-1 text-left text-[16px] hover:text-white transition-colors"
                 onClick={() => navigate("/")}
               >
                 หน้าแรก
@@ -37,7 +42,7 @@ const Footer: React.FC = () => {
             <li>
               <button
                 data-test="all-products-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
+                className="cursor-pointer py-1 text-left text-[16px] hover:text-white transition-colors"
                 onClick={() => navigate("/search")}
               >
                 สินค้าทั้งหมด
@@ -46,7 +51,7 @@ const Footer: React.FC = () => {
             <li>
               <button
                 data-test="promotions-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
+                className="cursor-pointer py-1 text-left text-[16px] hover:text-white transition-colors"
                 onClick={() => navigate("/search?keyword=&category=promotion")}
               >
                 โปรโมชั่น
@@ -55,7 +60,7 @@ const Footer: React.FC = () => {
             <li>
               <button
                 data-test="contact-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
+                className="cursor-pointer py-1 text-left text-[16px] hover:text-white transition-colors"
                 onClick={() => navigate("/contact")}
               >
                 ติดต่อเรา
@@ -64,52 +69,11 @@ const Footer: React.FC = () => {
           </ul>
         </div>
 
-        {/* Column 3: Help */}
-        <div>
-          <h3 className="text-[#EAB308] font-bold text-sm mb-4">ช่วยเหลือ</h3>
-          <ul className="flex flex-col space-y-2 text-sm">
-            <li>
-              <button
-                data-test="how-to-order-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
-                onClick={() => navigate("/")}
-              >
-                วิธีการสั่งซื้อ
-              </button>
-            </li>
-            <li>
-              <button
-                data-test="payment-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
-                onClick={() => navigate("/")}
-              >
-                แจ้งชำระเงิน
-              </button>
-            </li>
-            <li>
-              <button
-                data-test="shipping-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
-                onClick={() => navigate("/")}
-              >
-                การจัดส่งสินค้า
-              </button>
-            </li>
-            <li>
-              <button
-                data-test="privacy-policy-button"
-                className="cursor-pointer py-1 text-left hover:text-white transition-colors"
-                onClick={() => navigate("/")}
-              >
-                นโยบายความเป็นส่วนตัว
-              </button>
-            </li>
-          </ul>
-        </div>
-
         {/* Column 4: Social Media */}
         <div>
-          <h3 className="text-[#EAB308] font-bold text-sm mb-4">ติดตามเรา</h3>
+          <h3 className="text-[#EAB308] font-bold text-[20px] mb-4">
+            ติดตามเรา
+          </h3>
           <div className="flex gap-3">
             <a
               data-test="facebook-button"
@@ -153,7 +117,7 @@ const Footer: React.FC = () => {
 
       {/* Bottom Section (Copyright) */}
       <div className="border-t border-white/10">
-        <div className="max-w-[1200px] mx-auto px-6 py-5 text-center text-xs text-gray-400 font-light">
+        <div className="max-w-[1200px] mx-auto px-6 py-5 text-center text-[14px] text-[#D1D5DB] font-light">
           © {new Date().getFullYear()} Phadthong Store. สงวนลิขสิทธิ์.
         </div>
       </div>

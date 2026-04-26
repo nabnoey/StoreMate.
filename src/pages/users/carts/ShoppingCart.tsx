@@ -182,7 +182,7 @@ const ShoppingCart = () => {
         <Link
           data-test="click-home"
           to="/"
-          className="transition-colors hover:text-blue-500"
+          className="transition-colors cursor-pointer"
         >
           หน้าหลัก
         </Link>
