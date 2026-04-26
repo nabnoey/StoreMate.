@@ -51,7 +51,6 @@ const ProfileSidebar = () => {
   return (
     <div className="flex flex-col gap-4 font-['Anuphan'] w-full md:w-auto">
       {/* ================= MOBILE VIEW ================= */}
-      {/* 🔴 แก้ไข z-50 เป็น z-10 เพื่อไม่ให้ไปทับ Dropdown จาก Header */}
       <div className="md:hidden mt-2 relative z-10 w-full">
         <div className="flex flex-wrap items-center gap-2 w-full">
           {/* กล่องที่ 1: ชื่อโปรไฟล์ */}
@@ -109,9 +108,9 @@ const ProfileSidebar = () => {
 
             {/* Dropdown Menu */}
             {isMobileProfileOpen && (
-              /* 🔴 แก้ไข z-50 เป็น z-20 ให้อยู่เหนือเนื้อหาในหน้าตัวเอง แต่ต่ำกว่า Header */
               <div className="absolute left-0 top-full mt-2 w-[160px] bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-50 py-2 flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-100 z-20">
                 <button
+                data-test="btn-profile-dropdown-profile"
                   onClick={() => {
                     navigate("/profile");
                     setIsMobileProfileOpen(false);
@@ -125,6 +124,7 @@ const ProfileSidebar = () => {
                   โปรไฟล์
                 </button>
                 <button
+                data-test="btn-profile-dropdown-address"
                   onClick={() => {
                     navigate("/address-profile");
                     setIsMobileProfileOpen(false);
@@ -138,6 +138,7 @@ const ProfileSidebar = () => {
                   จัดการที่อยู่
                 </button>
                 <button
+                data-test="btn-profile-dropdown-password"
                   onClick={() => {
                     navigate("/change-password");
                     setIsMobileProfileOpen(false);

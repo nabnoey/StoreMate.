@@ -481,7 +481,7 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-phone"
                         onClick={() => openModal("phone")}
-                        className="cursor-pointer text-blue-500text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
                       >
                         เปลี่ยน
                       </button>

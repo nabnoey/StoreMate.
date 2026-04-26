@@ -10,81 +10,75 @@ const usePaymentSocket = (token?: string) => {
 
   useEffect(() => {
     const stompClient = new Client({
-      webSocketFactory: () => new SockJS("https://api.store-mate-api.me/ws"),
+      webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL),
       connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
-      // debug: (str) => {
-      //   // console.log("STOMP DEBUG:", str);
-      // },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
 
       onConnect: () => {
-        // แนะนำให้ใช้ console.log แทน toast เพื่อไม่ให้รบกวนหน้าจอลูกค้า
-        console.log("เชื่อมต่อ WebSocket สำเร็จแล้ว รอรับแจ้งเตือน...");
-
         stompClient.subscribe("/user/queue/notifications", (message) => {
           if (message.body) {
             try {
               const data = JSON.parse(message.body);
 
-              // ใช้ console.log เพื่อดูข้อมูลดิบหลังบ้าน
-              console.log("ได้รับการแจ้งเตือนจาก Backend:", data);
+              const currentOrder = localStorage.getItem("orderNo");
+
+              if (data.orderNo && data.orderNo !== currentOrder) {
+                return;
+              }
 
               if (
-                data.paymentStatus === "SUCCESS" ||
+                data.paymentStatus === "PAYMENT_SUCCESS" ||
                 data.status === "COMPLETED"
               ) {
-                // แจ้งเตือนผ่าน Toast ว่าสำเร็จ (ให้ลูกค้าเห็น)
+                if (data.orderNo && data.orderNo !== currentOrder) {
+                  return;
+                }
                 toast.success("ชำระเงินสำเร็จ!", { duration: 3000 });
 
                 localStorage.removeItem("orderNo");
 
-                // อัปเดต Redux เพื่อให้ UI เปลี่ยนหน้า
                 dispatch(
                   setPaymentStatus({
-                    status: "SUCCESS",
+                    status: "PAYMENT_SUCCESS",
                     orderId: data.orderNo || data.orderId,
                   }),
                 );
               } else if (
-                data.paymentStatus === "FAILED" ||
+                data.paymentStatus === "PAYMENT_FAILS" ||
                 data.status === "CANCELLED"
               ) {
-                // แจ้งเตือนกรณีชำระเงินไม่สำเร็จ
                 toast.error("การชำระเงินไม่สำเร็จ หรือถูกยกเลิก", {
                   duration: 3000,
                 });
 
-                // อัปเดต Redux ให้เป็น FAILED เผื่อเอาไปจัดการ UI ต่อ
                 dispatch(
                   setPaymentStatus({
-                    status: "FAILED",
+                    status: "PAYMENT_FAILS",
                     orderId: data.orderNo || data.orderId,
                   }),
                 );
               }
-            } catch (error) {
-              console.error(
-                "ไม่สามารถแปลงข้อมูล WebSocket เป็น JSON ได้",
-                error,
-              );
-            }
+            } catch (error) {}
           }
         });
       },
 
-      onStompError: (frame) => {
-        console.error("STOMP Error พบข้อผิดพลาด:", frame.headers["message"]);
-      },
+      // onStompError: (frame) => {
+      //   console.error("STOMP Error พบข้อผิดพลาด:", frame.headers["message"]);
+      // },
 
-      onWebSocketError: (event) => {
-        console.error("WebSocket Error:", event);
-      },
+      // onWebSocketError: (event) => {
+      //   console.error("WebSocket Error:", event);
+      // },
     });
 
     stompClient.activate();
 
     return () => {
       stompClient.deactivate();
-      console.log("ปิดการเชื่อมต่อ WebSocket แล้ว");
+      // console.log("ปิดการเชื่อมต่อ WebSocket แล้ว");
     };
   }, [dispatch, token]);
 };
