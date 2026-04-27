@@ -1,33 +1,32 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { toast } from "react-hot-toast";
 import { setPaymentStatus } from "../redux/payment/paymentReducer";
-import { getAccessToken } from "../utils/auth";
+import type { RootState } from "../redux/store";
 
 let globalClient: Client | null = null;
 
 const usePaymentSocket = () => {
   const dispatch = useDispatch();
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    console.log("🚀 SOCKET INIT START");
-
-    const token = getAccessToken();
-
-    console.log("🔑 TOKEN:", token);
+    console.log("SOCKET EFFECT RUN");
 
     if (!token) {
-      console.log("⛔ NO TOKEN → SKIP SOCKET");
+      console.log("WAITING TOKEN...");
       return;
     }
 
-    // กัน duplicate connection
-    if (globalClient?.active) {
-      console.log("⚠️ SOCKET ALREADY ACTIVE");
+    // ✅ reuse connection
+    if (globalClient) {
+      console.log("REUSE SOCKET");
       return;
     }
+
+    console.log("CONNECT SOCKET WITH TOKEN");
 
     const client = new Client({
       webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL),
@@ -36,7 +35,6 @@ const usePaymentSocket = () => {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
 
-      // 🔥 IMPORTANT: send identity
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
@@ -44,7 +42,7 @@ const usePaymentSocket = () => {
       debug: (str) => console.log("[STOMP]", str),
 
       onConnect: () => {
-        console.log("✅ SOCKET CONNECTED");
+        console.log("SOCKET CONNECTED");
 
         client.subscribe("/user/queue/notifications", (message) => {
           if (!message.body) return;
@@ -54,15 +52,15 @@ const usePaymentSocket = () => {
 
           if (data.orderNo && data.orderNo !== currentOrder) return;
 
-          // ✅ SUCCESS
           if (
             data.paymentStatus === "PAYMENT_SUCCESS" ||
             data.status === "COMPLETED"
           ) {
-            toast.success("ชำระเงินสำเร็จ 🎉");
+            toast.dismiss();
+            toast.success("ชำระเงินสำเร็จ");
 
             localStorage.removeItem("orderNo");
-
+            // window.location.href = "/orders";
             dispatch(
               setPaymentStatus({
                 status: "PAYMENT_SUCCESS",
@@ -70,8 +68,8 @@ const usePaymentSocket = () => {
               }),
             );
           }
+          console.log("WS DATA:", data);
 
-          // ❌ FAIL
           if (
             data.paymentStatus === "PAYMENT_FAILS" ||
             data.status === "CANCELLED"
@@ -89,7 +87,8 @@ const usePaymentSocket = () => {
       },
 
       onWebSocketClose: () => {
-        console.log("🔴 SOCKET CLOSED");
+        console.log("SOCKET CLOSED");
+        globalClient = null;
       },
 
       onStompError: (frame) => {
@@ -100,13 +99,11 @@ const usePaymentSocket = () => {
     globalClient = client;
     client.activate();
 
+    // ❌ ไม่ต้อง deactivate ทุกครั้ง
     return () => {
-      console.log("🧹 CLEANUP SOCKET");
-
-      client.deactivate();
-      globalClient = null;
+      console.log("EFFECT CLEANUP (NO DISCONNECT)");
     };
-  }, [dispatch]);
+  }, [token, dispatch]);
 };
 
 export default usePaymentSocket;

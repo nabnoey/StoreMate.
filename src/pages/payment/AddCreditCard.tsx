@@ -57,7 +57,8 @@ const AddCreditCardFormInner = () => {
 
         navigate("/payment", {
           state: {
-            cartItems: cartItems,
+            items: cartItems,
+            isBuyNow: true,
             newlyAddedCard: paymentMethod,
           },
         });
