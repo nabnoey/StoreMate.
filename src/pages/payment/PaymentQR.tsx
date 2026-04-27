@@ -7,7 +7,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 
 import { UserService } from "../../services/users.service";
-import usePaymentSocket from "../../hooks/usePaymentSocket";
 import { OrdersService } from "../../services/orders.service";
 
 import {
