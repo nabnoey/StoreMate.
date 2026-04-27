@@ -16,6 +16,7 @@ import {
 import type { RootState } from "../../redux/store";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+import usePaymentSocket from "./../../hooks/usePaymentSocket";
 
 const PaymentQRInner = () => {
   const stripe = useStripe();
@@ -35,7 +36,7 @@ const PaymentQRInner = () => {
   const [isGenerating, setIsGenerating] = useState(true);
   const hasRequestedQR = useRef(false);
 
-  // usePaymentSocket();
+  usePaymentSocket();
 
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
