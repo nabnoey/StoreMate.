@@ -154,7 +154,7 @@ const PaymentShoping = () => {
               items: selectedItems,
             },
           });
-        }, 2000);
+        });
       }
       return;
     }
