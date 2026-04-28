@@ -1,7 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
 import { Icon } from "@iconify/react";
 
 const ProfilePage = () => {

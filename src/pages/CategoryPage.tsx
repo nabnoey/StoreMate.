@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";
-import ProductCard from "../../components/user/ProductCard";
+import type { RootState } from "../redux/store";
+import ProductCard from "../components/user/ProductCard";
 
 const CategoryPage = () => {
   const { category } = useParams();

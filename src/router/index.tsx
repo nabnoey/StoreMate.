@@ -40,7 +40,7 @@ const SearchPage = lazy(() =>
   lazyDelay(() => import("../pages/SearchPage"), 1200),
 );
 const CategoryPage = lazy(() =>
-  lazyDelay(() => import("../pages/users/CategoryPage"), 1200),
+  lazyDelay(() => import("../pages/CategoryPage"), 1200),
 );
 const AddressProfile = lazy(() =>
   lazyDelay(() => import("../pages/users/AddreesProfile"), 1200),
