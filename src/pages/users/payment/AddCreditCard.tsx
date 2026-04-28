@@ -11,7 +11,7 @@ import {
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
-import { UserService } from "../../services/users.service";
+import { UserService } from "../../../services/users.service";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 

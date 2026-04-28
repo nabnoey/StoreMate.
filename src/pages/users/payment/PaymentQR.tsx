@@ -6,17 +6,17 @@ import { useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useSelector, useDispatch } from "react-redux";
 
-import { UserService } from "../../services/users.service";
-import { OrdersService } from "../../services/orders.service";
+import { UserService } from "../../../services/users.service";
+import { OrdersService } from "../../../services/orders.service";
 
 import {
   setPaymentStatus,
   resetPaymentStatus,
-} from "../../redux/payment/paymentReducer";
-import type { RootState } from "../../redux/store";
+} from "../../../redux/payment/paymentReducer";
+import type { RootState } from "../../../redux/store";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-import usePaymentSocket from "./../../hooks/usePaymentSocket";
+import usePaymentSocket from "../../../hooks/usePaymentSocket";
 
 const PaymentQRInner = () => {
   const stripe = useStripe();

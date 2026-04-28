@@ -244,10 +244,10 @@ const ProductDetailPage: React.FC = () => {
     <main className="w-full min-h-screen bg-white flex flex-col font-anuphan">
       <div
         id="product-detail-page"
-        className="bg-white min-h-screen pb-20 pt-4 md:pt-10 text-gray-800"
+        className="bg-white min-h-screen pb-20 pt-4 md:pt-5 text-gray-800"
       >
-        <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 pt-2 md:pt-8">
-          <nav className="flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+        <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
+          <nav className="hidden flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
             <Link
               data-test="click-home"
               to="/"
@@ -390,18 +390,15 @@ const ProductDetailPage: React.FC = () => {
                   </span>
                 </div>
 
-                {/* แก้ไข Responsive ปุ่มแบบ Shopee ตรงนี้ */}
                 <div
                   data-test="container-cart-actions"
-                  className="fixed bottom-0 left-0 w-full flex z-50 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sm:relative sm:w-auto sm:bg-transparent sm:shadow-none sm:gap-[11px] sm:-translate-x-[110px] sm:z-auto"
+                  className="flex flex-col md:flex-row gap-3 w-full"
                 >
                   <button
                     type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
-                    // mobile กว้าง 50%, พื้นหลังสีฟ้าอ่อน ตัวอักษรสีฟ้า, ขอบเหลี่ยม, สูง 60px
-                    // desktop: กว้าง 151px, พื้นหลังสีฟ้าทึบ ตัวอักษรสีขาว, ขอบโค้ง, สูง 52px
-                    className="flex-1 sm:flex-none sm:w-[151px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-blue-50 text-blue-600 sm:bg-blue-500 sm:hover:bg-blue-600 sm:text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm"
+                    className="w-full md:w-[160px] h-[48px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded-md md:rounded-xl font-semibold text-md transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
@@ -410,9 +407,7 @@ const ProductDetailPage: React.FC = () => {
                     type="button"
                     data-test="btn-buy-cart"
                     onClick={handleBuyNow}
-                    // mobile: กว้าง 50%, สีทึบ (เขียว), ขอบเหลี่ยม, สูง 60px
-                    // desktop: กว้าง 115px, สีทึบ, ขอบโค้ง, สูง 52px
-                    className="flex-1 sm:flex-none sm:w-[115px] h-[60px] sm:h-[52px] flex items-center justify-center gap-[10px] p-[10px] bg-[#10B981] hover:bg-green-600 text-white rounded-none sm:rounded-[12px] font-semibold text-md transition-colors sm:shadow-sm cursor-pointer"
+                    className="w-full md:w-[160px] h-[48px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded-md md:rounded-xl font-semibold text-md transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>

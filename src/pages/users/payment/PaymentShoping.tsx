@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import type { AppDispatch, RootState } from "../../redux/store";
+import type { AppDispatch, RootState } from "../../../redux/store";
 import { toast } from "react-hot-toast";
 import { useStripe } from "@stripe/react-stripe-js";
 
@@ -11,13 +11,13 @@ import type {
   PaymentNowPayload,
   SavedCard,
   PaymentMethod,
-} from "../../types/payment";
+} from "../../../types/payment";
 
-import { PaymentService } from "../../services/payment.service";
-import { fetchAddressDefault } from "../../redux/address/addressReducer";
-import { addSavedCard } from "../../redux/payment/paymentReducer";
-import { fetchCartThunk } from "../../redux/carts/CartReducer";
-import { PAYMENT_OPTIONS } from "../../constants/payment";
+import { PaymentService } from "../../../services/payment.service";
+import { fetchAddressDefault } from "../../../redux/address/addressReducer";
+import { addSavedCard } from "../../../redux/payment/paymentReducer";
+import { fetchCartThunk } from "../../../redux/carts/CartReducer";
+import { PAYMENT_OPTIONS } from "../../../constants/payment";
 const PaymentShoping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
