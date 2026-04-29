@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import type { AppDispatch, RootState } from "../../redux/store";
-import ProfileSidebar from "../../components/user/ProfileSidebar";
+import type { AppDispatch, RootState } from "../../../redux/store";
+import ProfileSidebar from "../../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
-import StatusOrderTabs from "../../components/user/StatusOrderTabs";
+import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../../redux/orders/orderReduer";
-import type { OrderStatus } from "../../types/orders";
+import { fetchOrders } from "../../../redux/orders/orderReduer";
+import type { OrderStatus } from "../../../types/orders";
+import { statusConfig, getOrderLabel } from "../../../utils/order";
+
+//อันนี้ของ แทแล่บ
 const tabToStatusMap: Record<string, OrderStatus> = {
   ทั้งหมด: "ALL",
   คำสั่งซื้อสำเร็จ: "COMPLETED",
@@ -101,7 +104,7 @@ const HistoryPage = () => {
               onTabChange={handleTabChange}
             />
 
-            <div className="flex flex-col gap-2 py-6 items-center w-full bg-white ">
+            <div className="flex flex-col gap-2 py-6 w-full bg-white ">
               {filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 sm:py-28">
                   <Icon
@@ -115,6 +118,9 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
+                  const color = statusConfig[order.status].color;
+                  const label = getOrderLabel(order.status, order.checkoutType);
+
                   const orderTotal =
                     order.totalPrice ||
                     order.total ||
@@ -124,81 +130,83 @@ const HistoryPage = () => {
                     );
                   const firstProductId = order.orderItems?.[0]?.id;
                   return (
-                    <div key={order.id} className="mb-8">
+                    <div key={order.id} className="mb-8 w-full">
                       {/* <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100"> */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4 border-b border-gray-100">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">
+                          <p className="flex-1 text-sm text-black mb-1 text-[14px]">
                             เลขที่คำสั่งซื้อ
                           </p>
-                          <p className="font-medium text-black">
-                            {order.orderNo}
+                          <p className="flex-1  font-medium text-black text-[16px] ">
+                            {/* .padStart() ใช้เติมเลขข้างหน้าที่ต้องการ
+                                newDate().getFullYear() เอาไว้ดึงค.ศ. ปัจจุบัน*/}
+
+                            {/* เขียนแบบนี้เรียกว่า Template Strings */}
+                            {`ORD-${new Date().getFullYear()}-${String(order.id).padStart(3, "0")}`}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">
+                          <p className="flex-1 text-sm text-black mb-1 text-[14px]">
                             วันที่สั่งซื้อ
                           </p>
-                          <p className="font-medium text-black">
+                          <p className="flex-1  font-medium text-black text-[16px]">
                             {formatOrderDate(order.paidAt)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">สถานะ</p>
-                          <p className="font-medium text-blue-500">
-                            {statusToTabMap[order.status]}
+                          <p className="flex-1  text-sm text-black mb-1 text-[14px]">
+                            สถานะ
+                          </p>
+                          <p className={`font-medium ${color} text-[16px]`}>
+                            {label}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2 py-4 border-b border-gray-100">
+                      <div className="flex flex-col gap-2 py-4 border-b border-gray-100 w-full">
                         {order.orderItems.map((item) => (
                           <div
                             key={item.id}
-                            className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
+                            className="flex flex-row items-start gap-3 sm:gap-6 py-3 border-b border-[#D1D5DB] last:border-0 w-full"
                           >
                             <img
                               src={item.imageUrl || ""}
                               alt=""
-                              className="w-14 h-14 sm:w-16 sm:h-16 object-contain rounded-md"
+                              className="w-20 h-20 sm:w-35 sm:h-35 object-contain rounded-md flex-shrink-0"
                             />
-                            <div className="flex-1 font-bold text-sm line-clamp-1">
-                              {item.productName}
+
+                            <div className="flex flex-col flex-1 gap-1 not-last:text-left">
+                              <div className="font-bold text-[20px] font-anuphan text-black line-clamp-3">
+                                {item.productName}
+                              </div>
+                              <div className="text-black text-[16px]">
+                                ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
+                              </div>
+                              <div className="text-black text-[16px]">
+                                จำนวน x {item.quantity}
+                              </div>
                             </div>
-                            <div className="sm:w-24 text-left sm:text-center text-sm">
-                              ฿ {item.price.toLocaleString()}
-                            </div>
-                            <div className="sm:w-24 text-left sm:text-center text-sm">
-                              x {item.quantity}
-                            </div>
-                            <div className="sm:w-24 text-left sm:text-right text-blue-500 font-medium text-smหห">
+
+                            <div className="flex h-full self-center text-right text-[#5B95F9] font-bold text-[20px] sm:text-lg flex-shrink-0">
                               ฿ {(item.price * item.quantity).toLocaleString()}
                             </div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="mt-4 rounded-xl border border-gray-200 bg-[#FBFBFB] p-4">
-                        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                          <div className="flex justify-between items-center rounded-lg bg-white px-4 py-4">
-                            <span className="text-black font-medium">
-                              วิธีการชำระเงิน
-                            </span>
-                            <span className="text-gray-700">
-                              บัตรเครดิต/เดบิต
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center rounded-lg bg-white px-4 py-4">
-                            <span className="text-black font-bold text-lg">
+                      <div className="mt-4 rounded-xl  bg-white p-4">
+                        <div className="grid gap-2 w-full">
+                          <div className="flex justify-between items-center rounded-lg bg-[#F9FAFB] px-4 py-4">
+                            <span className="text-black font-bold text-[20px]">
                               ยอดรวมสุทธิ
                             </span>
-                            <span className="font-bold text-[#5B95F9] text-xl">
+                            <span className="font-bold text-[#5B95F9] text-[20px]">
                               ฿ {orderTotal.toLocaleString()}
                             </span>
                           </div>
                         </div>
 
-                        {status === "COMPLETED" && (
+                        {order.status === "COMPLETED" ? (
                           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
                               type="button"
@@ -219,6 +227,18 @@ const HistoryPage = () => {
                               className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
                             >
                               เขียนรีวิว
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log("ยกเลิกคำสั่งซื้อ", order.id);
+                              }}
+                              className="rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
+                            >
+                              ยกเลิกคำสั่งซื้อ
                             </button>
                           </div>
                         )}

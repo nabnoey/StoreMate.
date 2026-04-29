@@ -34,13 +34,13 @@ const ProductDetailPage = lazy(() =>
   lazyDelay(() => import("../pages/ProductDetails"), 1200),
 );
 const PaymentShoping = lazy(() =>
-  lazyDelay(() => import("../pages/payment/PaymentShoping"), 1200),
+  lazyDelay(() => import("../pages/users/payment/PaymentShoping"), 1200),
 );
 const SearchPage = lazy(() =>
   lazyDelay(() => import("../pages/SearchPage"), 1200),
 );
 const CategoryPage = lazy(() =>
-  lazyDelay(() => import("../pages/users/CategoryPage"), 1200),
+  lazyDelay(() => import("../pages/CategoryPage"), 1200),
 );
 const AddressProfile = lazy(() =>
   lazyDelay(() => import("../pages/users/AddreesProfile"), 1200),
@@ -52,7 +52,7 @@ const MainLayout = lazy(() =>
 );
 
 const AddCreditCard = lazy(() =>
-  lazyDelay(() => import("../pages/payment/AddCreditCard"), 1200),
+  lazyDelay(() => import("../pages/users/payment/AddCreditCard"), 1200),
 );
 
 const AdminLayout = lazy(() =>
@@ -60,11 +60,11 @@ const AdminLayout = lazy(() =>
 );
 
 const PaymentQR = lazy(() =>
-  lazyDelay(() => import("../pages/payment/PaymentQR"), 1200),
+  lazyDelay(() => import("../pages/users/payment/PaymentQR"), 1200),
 );
 
 const HistoryPage = lazy(() =>
-  lazyDelay(() => import("./../pages/users/HistoryShop"), 1200),
+  lazyDelay(() => import("../pages/users/orders/HistoryShop"), 1200),
 );
 
 import Stock from "../pages/admin/Stock";

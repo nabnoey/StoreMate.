@@ -1,3 +1,5 @@
+import type { PaymentMethod } from "./payment";
+
 export interface OrderAddress {
   id: number;
   streetAddress: string;
@@ -28,9 +30,9 @@ export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
-  totalPrice: number;       
-  statusDelivery?: string;  
-  checkoutType: string;
+  totalPrice: number;
+  statusDelivery?: string;
+  checkoutType: PaymentMethod;
 
   orderAddress: OrderAddress[];
   orderItems: OrderItem[];

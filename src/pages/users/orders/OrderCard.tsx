@@ -1,4 +1,4 @@
-import type { Order } from "../../types/orders";
+import type { Order } from "../../../types/orders";
 
 const OrderCard = ({ order }: { order: Order }) => {
   return (
@@ -10,10 +10,7 @@ const OrderCard = ({ order }: { order: Order }) => {
 
       {order.orderItems.map((item) => (
         <div key={item.imageUrl} className="flex gap-3 py-3">
-          <img
-            src={item.imageUrl}
-            className="w-20 h-20"
-          />
+          <img src={item.imageUrl} className="w-20 h-20" />
           <div>
             <p>{item.productName}</p>
             <p>x{item.quantity}</p>
@@ -21,9 +18,7 @@ const OrderCard = ({ order }: { order: Order }) => {
         </div>
       ))}
 
-      <div className="text-right mt-2">
-        {order.totalPrice}฿
-      </div>
+      <div className="text-right mt-2">{order.totalPrice}฿</div>
     </div>
   );
 };
