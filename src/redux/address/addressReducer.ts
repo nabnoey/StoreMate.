@@ -164,7 +164,7 @@ const addressSlice = createSlice({
           state.subdistricts = data;
           state.zipcodeId = [];
         }  else if (provinceId > 0 && districtId > 0 && subdistrictId > 0) {
-      state.zipcodeId = data; // ✅ ตรงนี้แหละที่ขาด
+      state.zipcodeId = data; 
     }
       }
     });
