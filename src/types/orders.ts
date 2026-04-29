@@ -39,6 +39,9 @@ export interface Order {
 
   total: number;
   paidAt: string;
+
+  //mock ของยกเลิกคำสั่งซื้อเฉยๆ
+  cancelReason?: string;
 }
 
 export interface OrdersState {
