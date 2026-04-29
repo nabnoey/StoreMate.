@@ -21,6 +21,7 @@ const AddressProfile = () => {
   const { provinces, districts, subdistricts } = useSelector(
     (state: RootState) => state.address,
   );
+  const [zipcodes, setZipcodes] = useState<{ id: number; name: string }[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -180,6 +181,8 @@ const AddressProfile = () => {
       zipcodeId: 0,
     }));
 
+    setZipcodes([]);
+
     await dispatch(
       addressDropdown({
         provinceId: pId,
@@ -245,13 +248,14 @@ const AddressProfile = () => {
         (a) => a.id === Number(targetAddressId),
       );
 
+      // ส่ง isDefault มาพอดีตามสถานะเดิม
       await dispatch(
         updateAddress({
           id: Number(targetAddressId),
           data: {
             streetAddress,
             zipcodeId: finalZipcodeId,
-            isDefault: currentAddress?.isDefault || false,
+            isDefault: currentAddress?.isDefault ?? false,
           },
         }),
       );
@@ -536,6 +540,7 @@ const AddressProfile = () => {
                             zipcode: "",
                             zipcodeId: 0,
                           }));
+                          setZipcodes([]);
                           await dispatch(
                             addressDropdown({
                               provinceId: formData.province,
@@ -575,19 +580,27 @@ const AddressProfile = () => {
                             subDistrict: sId,
                             zipcode: "",
                           }));
-                          const res = await dispatch(
+                          const resRaw = await dispatch(
                             addressDropdown({
                               provinceId: formData.province,
                               districtId: formData.district,
                               subdistrictId: sId,
                             }),
                           ).unwrap();
-                          setFormData((prev) => ({
+                          
+                          const res = parseDropdownResponse(resRaw);
+                          setZipcodes(res || []);
+
+
+                          if (res?.length) {
+                             setFormData((prev) => ({
                             ...prev,
                             zipcode: res?.[0]?.name || "",
                             zipcodeId: res?.[0]?.id || 0,
                           }));
                         }}
+                          }
+                         
                         className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
                         <option value="">กรุณาเลือกตำบล</option>
@@ -603,14 +616,28 @@ const AddressProfile = () => {
                       <label className="text-sm font-semibold text-gray-700">
                         รหัสไปรษณีย์
                       </label>
-                      <input
-                        id="zipcode"
-                        name="zipcode"
-                        value={formData.zipcode}
-                        readOnly
-                        placeholder="อัตโนมัติ"
-                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm bg-gray-50 text-gray-500 outline-none cursor-not-allowed"
-                      />
+                      <select
+                        value={formData.zipcodeId}
+                        disabled={!zipcodes.length}
+                        onChange={(e) => {
+                          const zId = Number(e.target.value);
+                          const selected = zipcodes.find((z) => z.id === zId);
+
+                          setFormData((prev) => ({
+                            ...prev,
+                            zipcodeId: zId,
+                            zipcode: selected?.name || "",
+                          }));
+                        }}
+                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm"
+                      >
+                        <option value="" disabled hidden>กรุณาเลือกรหัสไปรษณีย์</option>
+                        {zipcodes.map((z) => (
+                          <option key={z.id} value={z.id}>
+                            {z.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

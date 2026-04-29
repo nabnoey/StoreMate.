@@ -103,6 +103,17 @@ const addressSlice = createSlice({
 
 
 
+    builder.addCase(updateAddress.fulfilled, (state, action) => {
+      const updatedAddress = action.payload;
+      const index = state.addresses.findIndex((addr) => addr.id === updatedAddress.id);
+      if (index !== -1) {
+        state.addresses[index] = updatedAddress;
+        if (updatedAddress.isDefault) {
+          state.defaultAddress = updatedAddress;
+        }
+      }
+    });
+
     builder.addCase(addAddress.fulfilled, (state, action) => {
       state.addresses.push(action.payload);
       if (action.payload.isDefault) {
@@ -144,12 +155,17 @@ const addressSlice = createSlice({
           state.provinces = data;
           state.districts = [];
           state.subdistricts = [];
+          state.zipcodeId = [];
         } else if (provinceId > 0 && (!districtId || districtId === 0)) {
           state.districts = data;
           state.subdistricts = [];
+          state.zipcodeId = [];
         } else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
           state.subdistricts = data;
-        }
+          state.zipcodeId = [];
+        }  else if (provinceId > 0 && districtId > 0 && subdistrictId > 0) {
+      state.zipcodeId = data; // ✅ ตรงนี้แหละที่ขาด
+    }
       }
     });
   },
