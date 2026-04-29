@@ -248,14 +248,13 @@ const AddressProfile = () => {
         (a) => a.id === Number(targetAddressId),
       );
 
-      // ส่ง isDefault มาพอดีตามสถานะเดิม
       await dispatch(
         updateAddress({
           id: Number(targetAddressId),
           data: {
             streetAddress,
             zipcodeId: finalZipcodeId,
-            isDefault: currentAddress?.isDefault ?? false,
+            isDefault: currentAddress?.isDefault || false,
           },
         }),
       );
@@ -631,7 +630,7 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm"
                       >
-                        <option value="" disabled hidden>กรุณาเลือกรหัสไปรษณีย์</option>
+                        <option value="">กรุณาเลือกรหัสไปรษณีย์</option>
                         {zipcodes.map((z) => (
                           <option key={z.id} value={z.id}>
                             {z.name}
