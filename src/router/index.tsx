@@ -67,6 +67,9 @@ const HistoryPage = lazy(() =>
   lazyDelay(() => import("../pages/users/orders/HistoryShop"), 1200),
 );
 
+const CancelOrderPage = lazy(() =>
+  lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
+);
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
@@ -188,6 +191,14 @@ const router = createBrowserRouter([
       {
         path: "/orders",
         element: <HistoryPage />,
+      },
+      {
+        path: "cancel-orders",
+        element: (
+          <ProtectedRout>
+            <CancelOrderPage />
+          </ProtectedRout>
+        ),
       },
     ],
   },

@@ -9,37 +9,14 @@ import { fetchOrders } from "../../../redux/orders/orderReduer";
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 
-//อันนี้ของ แทแล่บ
-const tabToStatusMap: Record<string, OrderStatus> = {
-  ทั้งหมด: "ALL",
-  คำสั่งซื้อสำเร็จ: "COMPLETED",
-  ที่ต้องชำระ: "PENDING",
-  ที่ต้องจัดส่ง: "PROCESSING",
-  ที่ต้องได้รับ: "RECEIVE",
-  ยกเลิก: "CANCELLED",
-  "คืนเงิน/คืนสินค้า": "REFUND",
-};
-
-const statusToTabMap: Record<OrderStatus, string> = {
-  ALL: "ทั้งหมด",
-  COMPLETED: "คำสั่งซื้อสำเร็จ",
-  PENDING: "ที่ต้องชำระ",
-  PROCESSING: "ที่ต้องจัดส่ง",
-  RECEIVE: "ที่ต้องได้รับ",
-  CANCELLED: "ยกเลิก",
-  REFUND: "คืนเงิน/คืนสินค้า",
-};
-
 const HistoryPage = () => {
   const navigate = useNavigate();
-
   const [searchParams, setSearchParams] = useSearchParams();
-  const rawStatus = searchParams.get("status");
-  const status =
-    rawStatus && statusToTabMap[rawStatus as OrderStatus]
-      ? (rawStatus as OrderStatus)
-      : "ALL";
-  const currentTab = statusToTabMap[status] || "ทั้งหมด";
+
+  const rawStatus = searchParams.get("status") as OrderStatus | null;
+  const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
+
+  // const currentTab = statusToTabMap[status] || "ทั้งหมด";
   const orders = useSelector((state: RootState) => state.orders.orders);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -58,13 +35,13 @@ const HistoryPage = () => {
   }, [dispatch, status]);
 
   const filteredOrders = orders.filter((order) => {
-    const requestedStatus = tabToStatusMap[currentTab] || "ALL";
-    if (requestedStatus === "ALL") return true;
-    return order.status === requestedStatus;
+    // const requestedStatus = tabToStatusMap[currentTab] || "ALL";
+    if (status === "ALL") return true;
+    return order.status === status;
   });
 
-  const handleTabChange = (tabName: string) => {
-    const nextStatus = tabToStatusMap[tabName] || "ALL";
+  const handleTabChange = (nextStatus: string) => {
+    // const nextStatus = tabToStatusMap[tabName] || "ALL";
     setSearchParams({ status: nextStatus });
   };
 
@@ -99,10 +76,7 @@ const HistoryPage = () => {
           </div>
 
           <main className="flex-1 w-full min-h-[500px]">
-            <StatusOrderTabs
-              activeTab={currentTab}
-              onTabChange={handleTabChange}
-            />
+            <StatusOrderTabs activeTab={status} onTabChange={handleTabChange} />
 
             <div className="flex flex-col gap-2 py-6 w-full bg-white ">
               {filteredOrders.length === 0 ? (
@@ -210,6 +184,7 @@ const HistoryPage = () => {
                           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
                               type="button"
+                              data-test="btn-add-orders"
                               onClick={() =>
                                 firstProductId &&
                                 navigate(`/product/${firstProductId}`)
@@ -220,6 +195,7 @@ const HistoryPage = () => {
                             </button>
                             <button
                               type="button"
+                              data-test="btn-review-orders"
                               onClick={() =>
                                 firstProductId &&
                                 navigate(`/product/${firstProductId}`)
@@ -229,13 +205,23 @@ const HistoryPage = () => {
                               เขียนรีวิว
                             </button>
                           </div>
+                        ) : order.status === "CANCELLED" ? (
+                          <div className="mt-4 flex flex-col items-start w-full">
+                            <p className="text-black text-[16px">
+                              <span className="font-medium">เหตุผล :</span>{" "}
+                              {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
+                            </p>
+                          </div>
                         ) : (
                           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
+                              data-test="btn-cancel-orders"
                               type="button"
-                              onClick={() => {
-                                console.log("ยกเลิกคำสั่งซื้อ", order.id);
-                              }}
+                              onClick={() =>
+                                navigate("/cancel-orders", {
+                                  state: { orderId: order.id },
+                                })
+                              }
                               className="rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
                             >
                               ยกเลิกคำสั่งซื้อ
