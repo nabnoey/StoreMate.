@@ -12,38 +12,36 @@ function ProductCard({ product }: Readonly<Props>) {
       data-test="product-card"
     >
    
-      <div className="card bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-3 text-black w-full max-w-[280px] h-[450px] relative">
-        
-      
-        <figure className="overflow-hidden rounded-xl h-[220px] w-full"> 
-          <img
-            src={product.imageUrl}
-            alt="สินค้า"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        </figure>
-        
-        
-        <div className="card-body p-4 flex flex-col justify-between">
-          <div>
-            <h2 className="card-title text-base w-full whitespace-normal break-words line-clamp-2 group-hover:text-blue-600 transition-colors">
-              {product.productName}
-            </h2>
-            <p className="text-sm text-gray-500 line-clamp-2 mt-2">
-              {product.description}
-            </p>
-          </div>
-        </div>
-        
-        
-        <div className="px-4 pb-4 mt-auto">
-          <div className="flex justify-between items-center">
-            <p className="font-extrabold text-lg text-blue-500">
-              ฿{product.price}
-            </p>
-          </div>
-        </div>
-      </div>
+  <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-3 flex flex-col h-full">
+  
+  {/* รูป */}
+  <div className="aspect-square overflow-hidden rounded-xl">
+    <img
+      src={product.imageUrl}
+      className="w-full h-full object-cover"
+    />
+  </div>
+
+  
+  <div className="flex flex-col flex-grow mt-2">
+    
+    <h2 className="text-sm text-black font-semibold line-clamp-2">
+      {product.productName}
+    </h2>
+
+    <p className="text-xs text-gray-400 line-clamp-2 mt-1">
+      {product.description}
+    </p>
+
+    
+    <div className="mt-auto pt-2">
+      <p className="font-bold text-blue-500">
+        ฿{product.price}
+      </p>
+    </div>
+
+  </div>
+</div>
     </Link>
   );
 }

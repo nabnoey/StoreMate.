@@ -83,7 +83,7 @@ const SearchPage = () => {
   return (
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
       <div className="w-full lg:w-[320px] pt-6 lg:pt-16 ">
-        <div className="flex items-center gap-10 justify-between w-full lg:w-full">
+        {/* <div className="flex items-center gap-10 justify-between w-full lg:w-full"> */}
           <div className="relative flex-1 w-full pl-5 lg:pl-0 md:left-1">
             <GoSearch className="absolute lg:left-4 left-8  top-1/2 -translate-y-1/2 text-gray-500 " />
 
@@ -91,30 +91,32 @@ const SearchPage = () => {
               data-test="input-search"
               type="text"
               placeholder="ค้นหาสินค้า..."
-              className="w-full h-[40px]  text-black border border-gray-300 rounded pl-10 "
+              className="w-full h-[40px]  text-black border border-gray-300 rounded pl-10"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleSearch}
             />
-          </div>
 
-          <button
-            onClick={() => setOpenFilter(!openFilter)}
-            className="p-2   rounded-md lg:hidden text-black "
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="30"
-              height="30"
-              viewBox="4 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M11 20q-.425 0-.712-.288T10 19v-6L4.2 5.6q-.375-.5-.112-1.05T5 4h14q.65 0 .913.55T19.8 5.6L14 13v6q0 .425-.288.713T13 20z"
-              />
-            </svg>
-          </button>
-        </div>
+            <button
+    onClick={() => setOpenFilter(!openFilter)}
+    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 lg:hidden text-black"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="4 0 24 24"
+    >
+      <path
+        fill="currentColor"
+        d="M11 20q-.425 0-.712-.288T10 19v-6L4.2 5.6q-.375-.5-.112-1.05T5 4h14q.65 0 .913.55T19.8 5.6L14 13v6q0 .425-.288.713T13 20z"
+      />
+    </svg>
+  </button>
+
+            
+          </div>
+        {/* </div> */}
         <div
           className={`${openFilter ? "block" : "hidden"} lg:block w-full lg:w-[320px] pt-6 lg:pt-16`}
           data-test="all-filter"
@@ -255,7 +257,7 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-16 md:py-8 -mt-10 lg:mt-0">
+      <div className="flex-1 px-5 py-16 md:py-8 -mt-23 lg:mt-7">
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {searchResult.length} รายการ</p>
 
@@ -269,13 +271,8 @@ const SearchPage = () => {
             ไม่พบสินค้าที่คุณค้นหา
           </p>
         ) : (
-          // <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
-          //   {searchResult.map((product) => {
-          //     return <ProductCard key={product.id} product={product} />;
-          //   })}
-          // </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
+          <div className="grid grid-cols-2  lg:grid-cols-3 mx-auto gap-8 md:gap-8  md:ml-3 justify-center pl-3">
             {sortedProducts.map((product) => {
               return <ProductCard key={product.id} product={product} />;
             })}
