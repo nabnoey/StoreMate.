@@ -141,11 +141,16 @@ function HomePage() {
             subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
             category="promotion"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
-            {getCategoryProducts("promotion").map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
+  {getCategoryProducts("promotion").map((product) => (
+    <div
+      key={product.id}
+      className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
+    >
+      <ProductCard product={product} />
+    </div>
+  ))}
+</div>
           {/* </ContentWrapper> */}
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
@@ -179,9 +184,14 @@ function HomePage() {
             category="soap"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
             {getCategoryProducts("soap").map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div
+                key={product.id}
+                className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
@@ -216,9 +226,14 @@ function HomePage() {
             category="drinks"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
             {getCategoryProducts("drinks").map((product) => (
-              <ProductCard key={product.id} product={product} />
+               <div
+                key={product.id}
+                className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
@@ -254,7 +269,12 @@ function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
             {getCategoryProducts("shampoo").map((product) => (
-              <ProductCard key={product.id} product={product} />
+               <div
+                key={product.id}
+                className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
