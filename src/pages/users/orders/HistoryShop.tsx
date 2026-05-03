@@ -124,7 +124,7 @@ const HistoryPage = () => {
                             วันที่สั่งซื้อ
                           </p>
                           <p className="flex-1  font-medium text-black text-[16px]">
-                            {formatOrderDate(order.paidAt)}
+                            {formatOrderDate(order.createdAt)}
                           </p>
                         </div>
                         <div>

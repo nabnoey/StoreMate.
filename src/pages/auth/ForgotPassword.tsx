@@ -34,41 +34,47 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-white p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[571px] p-6 sm:p-8 relative">
-        <h2 className="text-2xl sm:text-[36px] font-semibold mb-6 text-black">
-          กู้คืนรหัสผ่าน
-        </h2>
+    <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
+      <div className="flex-grow flex items-center justify-center px-4 py-8">
+        <div className="flex flex-col min-h-[calc(100vh-100px)] bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative">
+          <h2 className="text-2xl sm:text-[36px] font-semibold mb-6 text-black text-center">
+            กู้คืนรหัสผ่าน
+          </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-4 text-black text-[16px] font-light"
-        >
-          <div className="flex flex-col gap-2">
-            <label htmlFor="email-input" className="font-medium">
-              อีเมล
-            </label>
-            <input
-              id="forgot-email"
-              type="email"
-              data-test="input-email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@gmail.com"
-              className="input input-bordered w-full bg-white font-light text-[#4B5563] focus:border-[#6B7280] border-gray-300 h-[48px]"
-              required
-            />
-          </div>
-
-          <button
-            data-test="submit-btn"
-            type="submit"
-            className="btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors"
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col min-h-[calc(100vh-100px)] bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
-            ยืนยัน
-          </button>
-        </form>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="reg-input-email">
+                <span className="font-medium lg:font-semibold text-[16px] text-black">
+                  อีเมล
+                </span>
+              </label>
+              <input
+                id="forgot-email"
+                type="email"
+                data-test="input-email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@gmail.com"
+                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                required
+              />
+            </div>
+
+            <div className="mt-auto flex flex-col gap-4 pb-0 pt-20">
+              <button
+                data-test="submit-btn"
+                type="submit"
+                className="btn bg-[#16A249] border-0 text-white mt-4 transition-colors disabled:opacity-50"
+              >
+                ยืนยัน
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

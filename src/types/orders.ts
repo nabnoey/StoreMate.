@@ -38,7 +38,7 @@ export interface Order {
   orderItems: OrderItem[];
 
   total: number;
-  paidAt: string;
+  createdAt: string;
 
   //mock ของยกเลิกคำสั่งซื้อเฉยๆ
   cancelReason?: string;
