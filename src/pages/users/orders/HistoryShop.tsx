@@ -16,7 +16,6 @@ const HistoryPage = () => {
   const rawStatus = searchParams.get("status") as OrderStatus | null;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
-  // const currentTab = statusToTabMap[status] || "ทั้งหมด";
   const orders = useSelector((state: RootState) => state.orders.orders);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -35,13 +34,11 @@ const HistoryPage = () => {
   }, [dispatch, status]);
 
   const filteredOrders = orders.filter((order) => {
-    // const requestedStatus = tabToStatusMap[currentTab] || "ALL";
     if (status === "ALL") return true;
     return order.status === status;
   });
 
   const handleTabChange = (nextStatus: string) => {
-    // const nextStatus = tabToStatusMap[tabName] || "ALL";
     setSearchParams({ status: nextStatus });
   };
 
