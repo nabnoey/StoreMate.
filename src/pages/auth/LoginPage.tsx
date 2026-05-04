@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
 import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
 import { login } from "../../redux/auth/authReducer";
 import { toast } from "react-hot-toast";
@@ -12,6 +10,8 @@ import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
 
 function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -24,213 +24,204 @@ function LoginPage() {
     const savedPassword = localStorage.getItem("remember_password");
 
     if (savedEmail && savedPassword) {
-      formik.setValues({
-        email: savedEmail,
-        password: savedPassword,
-      });
+      setEmail(savedEmail);
+      setPassword(savedPassword);
       setRememberMe(true);
     }
   }, []);
 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("รูปแบบอีเมลไม่ถูกต้อง")
-      .required("กรุณากรอกอีเมล"),
-    password: Yup.string()
-      .required("กรุณากรอกรหัสผ่าน")
-      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
-      .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
-      .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
-      .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
-      .matches(/\d/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
-      .matches(
-        /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
-      ),
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      setLoading(true);
-      const toastId = toast.loading("กำลังเข้าสู่ระบบ...");
+    if (!email || !password) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
 
-      try {
-        const authData = await dispatch(
-          login({
-            email: values.email.toLowerCase(),
-            password: values.password,
-          }),
-        ).unwrap();
+    setLoading(true);
+    const toastId = toast.loading("กำลังเข้าสู่ระบบ...");
 
-        if (rememberMe) {
-          // เก็บ Email และ Password ลง localStorage (เพื่อใช้กรอกฟอร์มครั้งหน้า)
-          localStorage.setItem("remember_email", values.email);
-          localStorage.setItem("remember_password", values.password);
+    try {
+      const authData = await dispatch(
+        login({
+          email: email.toLowerCase(),
+          password: password,
+        }),
+      ).unwrap();
 
-          // เก็บ Auth Data ตาม Logic เดิมของคุณ
-          localStorage.setItem("auth", JSON.stringify(authData));
-        } else {
-          // ถ้าไม่ได้ติ๊ก ให้ลบข้อมูลที่เคยจำไว้ออก
-          localStorage.removeItem("remember_email");
-          localStorage.removeItem("remember_password");
+      if (rememberMe) {
+        // เก็บ Email และ Password ลง localStorage (เพื่อใช้กรอกฟอร์มครั้งหน้า)
+        localStorage.setItem("remember_email", email);
+        localStorage.setItem("remember_password", password);
 
-          sessionStorage.setItem("auth", JSON.stringify(authData));
-        }
+        // เก็บ Auth Data ตาม Logic เดิมของคุณ
+        localStorage.setItem("auth", JSON.stringify(authData));
+      } else {
+        // ถ้าไม่ได้ติ๊ก ให้ลบข้อมูลที่เคยจำไว้ออก
+        localStorage.removeItem("remember_email");
+        localStorage.removeItem("remember_password");
 
-        toast.dismiss();
-        toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
-
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } catch (error: any) {
-        let errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
-        if (error?.message) {
-          errorMessage = error.message;
-        } else if (typeof error === "string") {
-          errorMessage = error;
-        }
-
-        toast.error(errorMessage, { id: toastId });
-      } finally {
-        setLoading(false);
+        sessionStorage.setItem("auth", JSON.stringify(authData));
       }
-    },
-  });
+
+      toast.dismiss();
+      toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
+
+      setTimeout(() => {
+        // const userRoleName = authData?.roles?.roleName;
+
+        // if (userRoleName === "ADMIN" || userRoleName === "MODERATOR") {
+        //   navigate("admin");
+        // }
+        navigate("/");
+      }, 1000);
+    } catch (error: any) {
+      let errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+
+      const apiErrorMsg =
+        error?.message?.toLowerCase() || typeof error === "string"
+          ? error.toLowerCase()
+          : "";
+      if (apiErrorMsg.includes("suspend") || apiErrorMsg.includes("banned")) {
+        errorMessage = "บัญชีนี้ถูกระงับการใช้งาน";
+      }
+      toast.error(errorMessage, { id: toastId });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50/50 px-4 py-8">
-      <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
-        <div className="hidden lg:flex flex-col items-center justify-center">
-          <img
-            src={auth}
-            alt="Auth Illustration"
-            className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
-          />
-          <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
-            เข้าสู่ระบบเพื่อใช้เว็บไซต์
-          </p>
-        </div>
-
-        {/* ฟอร์มเข้าสู่ระบบ */}
-        <form
-          onSubmit={formik.handleSubmit}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
-        >
-          <div className="absolute top-4 right-4 -mt-7.5">
+    <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
+      <div className="flex-grow flex items-center justify-center px-4 py-8">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
+          <div className="hidden lg:flex flex-col items-center justify-center">
             <img
-              src={logo}
-              alt="logo"
-              className="w-35 sm:w-35 lg:w-40 h-auto"
+              src={auth}
+              alt="Auth Illustration"
+              className="w-[300px] sm:w-[400px] lg:w-[513px] h-auto lg:mt-[-150px] lg:mb-[-37.5px]"
             />
+            <p className="text-black font-bold text-center text-2xl sm:text-3xl lg:text-3xl mt-4 lg:mt-[-160px] ml-4 lg:ml-5">
+              เข้าสู่ระบบเพื่อใช้เว็บไซต์
+            </p>
           </div>
 
-          <h2 className="text-2xl sm:text-[32px] font-extrabold mb-6 text-black text-left">
-            เข้าสู่ระบบ
-          </h2>
-
-          <div className="mb-4">
-            <label htmlFor="email" className="label p-0 mb-1">
-              <span className="font-semibold text-black">อีเมล</span>
-            </label>
-            <input
-              data-test="email"
-              disabled={loading}
-              type="email"
-              placeholder="example@gmail.com"
-              className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed${
-                formik.touched.email && formik.errors.email
-                  ? "border-red-500 focus:border-red-500"
-                  : ""
-              }`}
-              {...formik.getFieldProps("email")}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password" className="label p-0 mb-1">
-              <span className="font-semibold text-black">รหัสผ่าน</span>
-            </label>
-            <div className="relative">
-              <input
-                data-test="password"
-                disabled={loading}
-                type={showPassword ? "text" : "password"}
-                placeholder="รหัสผ่าน"
-                className={`input input-bordered w-full bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
-                  formik.touched.password && formik.errors.password
-                    ? "border-red-500 focus:border-red-500"
-                    : ""
-                }`}
-                {...formik.getFieldProps("password")}
-              />
-              <button
-                data-test="show-password"
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-black focus:outline-none"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-            {formik.touched.password && formik.errors.password && (
-              <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
-                {formik.errors.password}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <input
-              type="checkbox"
-              id="remember-me"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
-            />
-            <label
-              htmlFor="remember-me"
-              className="text-gray-800 cursor-pointer select-none"
-            >
-              จดจำฉัน
-            </label>
-          </div>
-
-          <button
-            data-test="btn-submit"
-            type="submit"
-            disabled={loading}
-            className="cursor-pointer btn w-full h-[52px] rounded-lg bg-[#16A249] hover:bg-[#12863c] text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          {/* ฟอร์มเข้าสู่ระบบ */}
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col min-h-[calc(100vh-100px)] bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
-            {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
-          </button>
-
-          <div className="flex flex-row justify-between items-center text-[13px] sm:text-sm mt-6 w-full text-gray-600">
-            {/* ฝั่งซ้าย */}
-            <button
-              className="hover:underline cursor-pointer"
-              onClick={() => navigate("/forgot-password")}
-            >
-              ลืมรหัสผ่าน
-            </button>
-
-            {/* ฝั่งขวา */}
-            <div className="flex items-center gap-1">
-              <span>ถ้ายังไม่มีบัญชี ?</span>
-              <button
-                className="text-blue-500 hover:underline cursor-pointer font-medium"
-                onClick={() => navigate("/register")}
-              >
-                สมัครสมาชิก
-              </button>
+            <div className="absolute top-4 right-4 -mt-7.5">
+              <img
+                src={logo}
+                alt="logo"
+                className="w-35 sm:w-35 lg:w-40 h-auto"
+              />
             </div>
-          </div>
-        </form>
+
+            <h2 className="text-[30px] sm:text-[32px] font-medium font-jakarta mb-6 text-[#111827] text-left">
+              เข้าสู่ระบบ
+            </h2>
+
+            <div className="mb-4">
+              <label htmlFor="email" className="label p-0 mb-1">
+                <span className="font-medium lg:font-semibold text-[16px] text-black">
+                  อีเมล
+                </span>
+              </label>
+              <input
+                id="email"
+                data-test="email"
+                disabled={loading}
+                type="email"
+                placeholder="example@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="password" className="label p-0 mb-1">
+                <span className="font-medium lg:font-semibold text-[16px] text-black">
+                  รหัสผ่าน
+                </span>
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  data-test="password"
+                  disabled={loading}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="รหัสผ่าน"
+                  className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  data-test="show-password"
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-black focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-auto flex flex-col gap-3 pb-0 pt-6">
+              <div className="flex items-center gap-2">
+                <input
+                  data-test="input-remember"
+                  type="checkbox"
+                  id="remember-me"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 appearance-none rounded-full bg-gray-200 cursor-pointer checked:bg-blue-500 border-none"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className="text-gray-500 text-sm cursor-pointer select-none"
+                >
+                  จดจำฉัน
+                </label>
+              </div>
+
+              <button
+                data-test="btn-submit"
+                type="submit"
+                disabled={loading}
+                className="cursor-pointer btn w-full h-[48px] rounded-md bg-[#16A249] hover:bg-[#158d40] text-white text-[16px] font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+              </button>
+
+              <div className="flex flex-row justify-between items-center text-[13px] sm:text-sm w-full text-black">
+                <button
+                  data-test="btn-forgot-password"
+                  type="button"
+                  className="hover:underline cursor-pointer"
+                  onClick={() => navigate("/forgot-password")}
+                >
+                  ลืมรหัสผ่าน
+                </button>
+
+                {/* ฝั่งขวา */}
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-600">ยังไม่มีบัญชี ?</span>
+                  <button
+                    data-test="btn-register"
+                    type="button"
+                    className="text-[#3B82F6] hover:underline cursor-pointer font-medium"
+                    onClick={() => navigate("/register")}
+                  >
+                    สมัครสมาชิก
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

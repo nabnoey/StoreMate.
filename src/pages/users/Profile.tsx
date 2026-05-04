@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
 import {
@@ -82,33 +82,49 @@ const EditModal = ({
 }: ModalProps) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[450px] p-6 animate-in zoom-in-95 duration-200 font-['Anuphan']">
-        <h3 className="text-[#374151] text-[20px] font-semibold leading-[32px] break-words mb-6">
-          {title}
-        </h3>
+    <div className="fixed bottom-0 left-0 right-0 top-[60px] sm:top-0 sm:inset-0 z-[60] flex items-start sm:items-center justify-center bg-white sm:bg-black/50 sm:backdrop-blur-sm">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-w-[450px] sm:rounded-xl shadow-none sm:shadow-2xl flex flex-col animate-in slide-in-from-right-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 font-['Anuphan'] relative">
+        <div className="px-4 pt-6 pb-2">
+          <div className="flex items-center gap-2 mb-3">
+            <button
+              onClick={onClose}
+              className="text-black p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+            >
+              <Icon
+                icon="material-symbols:arrow-back"
+                className="sm:hidden w-6 h-6"
+              />
+            </button>
+            <h3 className="text-[#374151] text-[16px] sm:text-[18px] font-bold break-words">
+              {title}
+            </h3>
+          </div>
+          <hr className="sm:hidden border-t-2 border-black w-full" />
+        </div>
 
-        <div className="space-y-4">{children}</div>
+        <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
 
-        <div
-          data-test="edit-modal-actions"
-          className="flex flex-row justify-center sm:justify-end gap-3 mt-8"
-        >
-          <button
-            data-test="edit-modal-save-button"
-            onClick={onSave}
-            className="cursor-pointer bg-[#10B981] text-white px-8 py-2.5 rounded-lg shadow-md text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
+        <div className="px-4 pb-6 pt-4 mt-auto bg-white">
+          <div
+            data-test="edit-modal-actions"
+            className="flex flex-row justify-between gap-3 w-full"
           >
-            บันทึกข้อมูล
-          </button>
+            <button
+              data-test="edit-modal-save-button"
+              onClick={onSave}
+              className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
+            >
+              บันทึกข้อมูล
+            </button>
 
-          <button
-            data-test="edit-modal-cancel-button"
-            onClick={onClose}
-            className="cursor-pointer border border-gray-300 text-[#374151] px-6 py-2.5 rounded-lg text-[16px] font-normal leading-[24px] break-words hover:bg-gray-50 transition-colors"
-          >
-            ยกเลิก
-          </button>
+            <button
+              data-test="edit-modal-cancel-button"
+              onClick={onClose}
+              className="flex-1 cursor-pointer border border-gray-300 text-[#374151] bg-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-gray-50 transition-colors"
+            >
+              ยกเลิก
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -116,6 +132,7 @@ const EditModal = ({
 };
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
 
@@ -339,8 +356,29 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
+      <div className="mb-6 md:mb-10">
+        <div className="flex items-start md:items-center gap-3">
+          <button
+            className="md:hidden mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full transition-colors cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+          </button>
+
+          <div>
+            <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
+              ข้อมูลของฉัน
+            </h1>
+            <p className="text-[14px] sm:text-[16px] font-normal text-black mt-1 font-['Anuphan']">
+              จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
+            </p>
+            <div className="md:block w-full border-t-2 border-black mt-4" />
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-[1200px] mx-auto px-4">
-        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
+        <nav className="hidden flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
           <Link
             data-test="click-home"
             to="/"
@@ -366,20 +404,10 @@ const ProfilePage = () => {
           </Link>
         </nav>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
-            <div className="mb-6 md:mb-10">
-              <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
-                ข้อมูลของฉัน
-              </h1>
-              <p className="text-[14px] sm:text-[16px] font-normal text-black mt-1 font-['Anuphan']">
-                จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
-              </p>
-              <div className="hidden md:block w-full border-b border-black mt-4" />
-            </div>
-
+          <main className="flex-1 w-full bg-[#F9FAFB] lg:bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
             <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start w-full">
               {/* Profile Image Section (อยู่ด้านบนใน Mobile, อยู่ขวาใน Desktop) */}
               <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
@@ -416,7 +444,7 @@ const ProfilePage = () => {
               <hr className="w-full border-t border-[#D1D5DB] my-4 block md:hidden order-2" />
 
               {/* Desktop Divider */}
-              <div className="hidden md:block w-px bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
+              <div className="hidden md:block w-px:bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
 
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
@@ -434,9 +462,15 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-name"
                         onClick={() => openModal("name")}
-                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer shrink-0 flex items-center"
                       >
-                        เปลี่ยน
+                        <span className="hidden sm:block text-blue-500 text-[16px]">
+                          เปลี่ยน
+                        </span>
+                        <Icon
+                          icon="material-symbols:chevron-right-rounded"
+                          className="sm:hidden w-6 h-6 text-gray-600"
+                        />
                       </button>
                     </div>
                   </div>
@@ -458,9 +492,15 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-email"
                         onClick={() => openModal("email")}
-                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer shrink-0 flex items-center"
                       >
-                        เปลี่ยน
+                        <span className="hidden sm:block text-blue-500 text-[16px]">
+                          เปลี่ยน
+                        </span>
+                        <Icon
+                          icon="material-symbols:chevron-right-rounded"
+                          className="sm:hidden w-6 h-6 text-gray-600"
+                        />
                       </button>
                     </div>
                   </div>
@@ -481,9 +521,15 @@ const ProfilePage = () => {
                       <button
                         data-test="btn-change-phone"
                         onClick={() => openModal("phone")}
-                        className="cursor-pointer text-blue-500 text-[14px] sm:text-[16px] shrink-0"
+                        className="cursor-pointer shrink-0 flex items-center"
                       >
-                        เปลี่ยน
+                        <span className="hidden sm:block text-blue-500 text-[16px]">
+                          เปลี่ยน
+                        </span>
+                        <Icon
+                          icon="material-symbols:chevron-right-rounded"
+                          className="sm:hidden w-6 h-6 text-gray-600"
+                        />
                       </button>
                     </div>
                   </div>

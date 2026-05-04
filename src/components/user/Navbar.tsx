@@ -68,13 +68,13 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-sm h-[60px] lg:h-[101px] px-4 lg:px-10 relative">
+    <nav className="flex items-center justify-between bg-white shadow-sm h-[73px] lg:h-[80px] px-4 lg:px-10 relative">
       {/* LOGO */}
       <div className="navbar-start right-5 flex items-center justify-start">
         <button onClick={() => navigate("/")}>
           <img
             src={logo}
-            className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
+            className="w-27 lg:w-38 mt-5 -ml-8 lg:mt-5 cursor-pointer"
             alt="Logo"
             data-test="logo"
           />
@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-search"
-              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              className="cursor-pointer transition-colors duration-200"
               to="/search"
             >
               สินค้า
@@ -95,7 +95,8 @@ const Navbar: React.FC = () => {
           </li>
           <li>
             <Link
-              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              data-test="list-promo"
+              className="cursor-pointer transition-colors duration-200"
               to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
@@ -104,7 +105,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-about"
-              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              className="cursor-pointer transition-colors duration-200"
               to="/about-us"
             >
               เกี่ยวกับเรา
@@ -113,7 +114,7 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-contact"
-              className="hover:bg-gray-100 cursor-pointer transition-colors duration-200"
+              className="cursor-pointer transition-colors duration-200"
               to="contact"
             >
               ติดต่อ

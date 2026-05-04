@@ -19,7 +19,7 @@ export const fetchOrders = createAsyncThunk(
   async (status: OrderStatus) => {
     const res = await OrdersService.getOrders(status);
     return res;
-  }
+  },
 );
 
 const ordersSlice = createSlice({
@@ -28,17 +28,18 @@ const ordersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-    //   .addCase(fetchOrders.pending, (state) => {
-    //     state.loading = true;
-    //   })
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        // state.loading = false;
+        state.loading = false;
         state.orders = action.payload;
       })
-    //   .addCase(fetchOrders.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message || "Error";
-    //   });
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Error fetching orders";
+      });
   },
 });
 

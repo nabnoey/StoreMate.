@@ -21,7 +21,7 @@ function ContactCard({ icon, color, children }: Readonly<ContactCardProps>) {
 function Contact() {
   return (
     <div className="w-full">
-      <div className="bg-[#e8e1d8] py-10 md:py-12 lg:pt-20 text-center">
+      <div className="bg-[#FBF7F1] py-10 md:py-12 lg:pt-20 text-center">
         <h1 className="font-bold text-black text-3xl  sm:text-4xl md:text-5xl lg:text-[64px] font-Anuphan">
           ข้อมูลการติดต่อ
         </h1>
