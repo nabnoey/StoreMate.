@@ -16,8 +16,7 @@ const HistoryPage = () => {
   const rawStatus = searchParams.get("status") as OrderStatus | null;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
-  // const currentTab = statusToTabMap[status] || "ทั้งหมด";
-  const orders = useSelector((state: RootState) => state.orders.orders);
+  const { orders, error } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch<AppDispatch>();
 
   const formatOrderDate = (dateString: string) => {
@@ -35,13 +34,11 @@ const HistoryPage = () => {
   }, [dispatch, status]);
 
   const filteredOrders = orders.filter((order) => {
-    // const requestedStatus = tabToStatusMap[currentTab] || "ALL";
     if (status === "ALL") return true;
     return order.status === status;
   });
 
   const handleTabChange = (nextStatus: string) => {
-    // const nextStatus = tabToStatusMap[tabName] || "ALL";
     setSearchParams({ status: nextStatus });
   };
 
@@ -79,7 +76,13 @@ const HistoryPage = () => {
             <StatusOrderTabs activeTab={status} onTabChange={handleTabChange} />
 
             <div className="flex flex-col gap-2 py-6 w-full bg-white ">
-              {filteredOrders.length === 0 ? (
+              {error ? (
+                <div className="flex flex-col items-center justify-center py-16 sm:py-28">
+                  <p className="text-[20px] sm:text-[24px] font-medium text-red-500 mb-4 sm:mb-6">
+                    ไม่พบข้อมูลคำสั่งซื้อ
+                  </p>
+                </div>
+              ) : filteredOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 sm:py-28">
                   <Icon
                     icon="mdi-light:cart"
@@ -87,7 +90,7 @@ const HistoryPage = () => {
                   />
 
                   <p className="text-[36px] sm:text-[20px] lg:text-[36px] font-medium text-black mb-4 sm:mb-6">
-                    ไม่มีรายการคำสั่งซื้อ
+                    ยังไม่มีรายการคำสั่งซื้อ
                   </p>
                 </div>
               ) : (
@@ -212,7 +215,7 @@ const HistoryPage = () => {
                               {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
                             </p>
                           </div>
-                        ) : (
+                        ) : order.status !== "RECEIVE" ? (
                           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
                             <button
                               data-test="btn-cancel-orders"
@@ -227,7 +230,7 @@ const HistoryPage = () => {
                               ยกเลิกคำสั่งซื้อ
                             </button>
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -19,11 +19,13 @@ import { addSavedCard } from "../../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../../redux/carts/CartReducer";
 import { PAYMENT_OPTIONS } from "../../../constants/payment";
 
-const PaymentShoping = () => {
+const PaymentShopping = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
   const stripe = useStripe();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [selectedCardId, setSelectedCardId] = useState<string>("");
@@ -76,10 +78,12 @@ const PaymentShoping = () => {
     });
   };
 
-  const subtotal = (selectedItems ?? []).reduce(
-    (sum: number, item: any) => sum + item.price * item.quantity,
-    0,
-  );
+  const subtotal = useMemo(() => {
+    return (selectedItems ?? []).reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity,
+      0,
+    );
+  }, [selectedItems]);
 
   const validateOrder = () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -134,15 +138,18 @@ const PaymentShoping = () => {
   ) => {
     if (checkoutType === "CARD") {
       if (!stripe) {
-        toast.error(
-          "ระบบชำระเงินผ่านบัตรเครดิตยังไม่พร้อมใช้งาน กรุณาลองใหม่อีกครั้งในภายหลัง",
-        );
+        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้");
         return;
       }
 
       const confirmResult = await stripe.confirmCardPayment(clientSecret, {
         payment_method: selectedCardId,
       });
+
+      if (confirmResult.error) {
+        toast.error("ข้อมูลบัตรไม่ถูกต้องหรือยอดเงินไม่เพียงพอ");
+        return;
+      }
 
       if (confirmResult.paymentIntent?.status === "succeeded") {
         toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
@@ -155,7 +162,7 @@ const PaymentShoping = () => {
               items: selectedItems,
             },
           });
-        });
+        }, 2000);
       }
       return;
     }
@@ -194,6 +201,7 @@ const PaymentShoping = () => {
   const handleConfirmOrder = async () => {
     if (!validateOrder()) return;
 
+    setIsLoading(true);
     let loadingToastId: string | undefined;
 
     try {
@@ -208,6 +216,7 @@ const PaymentShoping = () => {
     } catch (error: any) {
       handlePaymentError(error);
     } finally {
+      setIsLoading(false);
       if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
@@ -427,9 +436,10 @@ const PaymentShoping = () => {
                     <button
                       data-test="btn-confirm-payment-mobile"
                       onClick={handleConfirmOrder}
+                      disabled={isLoading}
                       className="cursor-pointer w-[146px] h-[29px] bg-[#4285F4] rounded-[7px] shadow-md font-anuphan text-[16px] font-normal text-[#FCFCFC] leading-[24px] break-words"
                     >
-                      ยืนยันการชำระเงิน
+                      {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
                     </button>
                   </div>
                 </div>
@@ -649,9 +659,10 @@ const PaymentShoping = () => {
           <button
             data-test="btn-confirm-order-mobile"
             onClick={handleConfirmOrder}
+            disabled={isLoading}
             className="cursor-pointer bg-blue-500 active:bg-blue-600 text-[#FCFCFC] h-[60px] px-8 font-normal text-[16px] font-anuphan transition-colors flex-shrink-0"
           >
-            ยืนยันการชำระเงิน
+            {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
           </button>
         </div>
       </div>
@@ -659,4 +670,4 @@ const PaymentShoping = () => {
   );
 };
 
-export default PaymentShoping;
+export default PaymentShopping;
