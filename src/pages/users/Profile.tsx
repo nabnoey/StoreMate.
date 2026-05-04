@@ -357,7 +357,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
       <div className="mb-6 md:mb-10">
-        <div className="flex items-start md:items-center gap-3">
+        <div className="flex items-end md:items-center gap-3">
           <button
             className="md:hidden mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full transition-colors cursor-pointer"
             onClick={() => navigate("/")}
