@@ -239,7 +239,7 @@ const SearchPage = () => {
               value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
               onBlur={() => handleApplyPrice()}
-              className="w-full max-w-[120px] border border-gray-300 rounded p-2  text-black"
+              className="w-full max-w-[120px] border border-gray-300 rounded p-2  text-black relative z-10"
             />
             <span className="text-lg py-1">—</span>
             <input
@@ -249,7 +249,7 @@ const SearchPage = () => {
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
               onBlur={() => handleApplyPrice()}
-              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black"
+              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black relative z-10"
             />
           </div>
 

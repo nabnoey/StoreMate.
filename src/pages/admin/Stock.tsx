@@ -1,10 +1,9 @@
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
-// import { useFormik } from 'formik';
+
 
 function Stock() {
-  // ข้อมูลจำลองสำหรับแสดงผลในตารางให้เหมือนภาพตัวอย่าง
   const products = [
     {
       id: "PRD-001",
@@ -55,15 +54,13 @@ function Stock() {
         subtitle="เพิ่ม แก้ไข ลบสินค้า ปรับสถานะสินค้า และจัดการจำนวนสินค้าคงเหลือ"
       />
 
-      {/* Main Content Area */}
+  
       <div className="p-6 text-[#374151]">
-        {/* ส่วนค้นหาสินค้า */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
           <h2 className="text-lg font-semibold mb-4 text-[#374151]">
             ค้นหาสินค้า
           </h2>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            {/* Input ค้นหา */}
             <div className="relative w-full sm:w-[400px]">
               <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999999] text-xl font-bold" />
               <input
@@ -71,8 +68,7 @@ function Stock() {
                 placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
-            </div>
-            {/* ปุ่มเพิ่มสินค้า */}
+            </div>j
             <button
               type="button"
               className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium"
