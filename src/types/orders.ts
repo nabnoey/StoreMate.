@@ -26,6 +26,13 @@ export interface OrderItem {
   subTotal: number;
 }
 
+export interface OrderRecipient {
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  phone?: string;
+}
+
 export interface Order {
   id: number;
   orderNo: string;
@@ -36,6 +43,7 @@ export interface Order {
 
   orderAddress: OrderAddress[];
   orderItems: OrderItem[];
+  orderRecipient?: OrderRecipient | null;
 
   total: number;
   paidAt: string;

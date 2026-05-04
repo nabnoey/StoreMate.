@@ -22,23 +22,56 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
+export const fetchOrderDetails = createAsyncThunk(
+  "orders/fetchOrderDetails",
+  async (orderNo: string) => {
+    const res = await OrdersService.orderDetails(orderNo);
+    return res;
+  }
+);
+
 const ordersSlice = createSlice({
   name: "orders",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-    //   .addCase(fetchOrders.pending, (state) => {
-    //     state.loading = true;
-    //   })
-      .addCase(fetchOrders.fulfilled, (state, action) => {
-        // state.loading = false;
-        state.orders = action.payload;
+      // ✅ จัดการ fetchOrders
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
-    //   .addCase(fetchOrders.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message || "Error";
-    //   });
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.orders = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "เกิดข้อผิดพลาด";
+      })
+
+      // ✅ จัดการ fetchOrderDetails
+      .addCase(fetchOrderDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderDetails.fulfilled, (state, action) => {
+        const orderIndex = state.orders.findIndex(
+          (order) => order.orderNo === action.payload.orderNo
+        );
+        if (orderIndex !== -1) {
+          // ถ้าพบอันที่เหมือน ให้อัพเดท
+          state.orders[orderIndex] = { ...state.orders[orderIndex], ...action.payload };
+        } else {
+          // ถ้าไม่พบ ให้เพิ่มใหม่
+          state.orders.push(action.payload);
+        }
+        state.loading = false;
+      })
+      .addCase(fetchOrderDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "เกิดข้อผิดพลาด";
+      });
   },
 });
 
