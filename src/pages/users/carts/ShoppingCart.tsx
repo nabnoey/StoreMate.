@@ -77,17 +77,28 @@ const ShoppingCart = () => {
   }, [dispatch]);
 
   const enrichedCartItems = useMemo(() => {
-    return cartItems.map((item: CartItem) => ({
-      ...item,
-      product: {
-        id: item.productId,
-        productName: item.productName,
-        price: item.price,
-        imageUrl: item.imageUrl,
-        stockQuantity: item.stockQuantity,
-      },
-    }));
+    return cartItems.map((item: CartItem) => {
+      const isAvailable = item.productStatus === "ACTIVE";
+      return {
+        ...item,
+        isAvailable,
+        product: {
+          id: item.productId,
+          productName: item.productName,
+          price: item.price,
+          imageUrl: item.imageUrl,
+          stockQuantity: item.stockQuantity,
+          productStatus: item.productStatus,
+        },
+      };
+    });
   }, [cartItems]);
+
+  // เอาไว้กรองสินค้าที่มีสถานะ พร้อมจำหน่าย
+  const availableItems = useMemo(
+    () => enrichedCartItems.filter((item) => item.isAvailable),
+    [enrichedCartItems],
+  );
 
   const isAllSelected = useMemo(() => {
     return (
@@ -236,6 +247,7 @@ const ShoppingCart = () => {
                       <div className="flex items-center pt-2 md:pt-0">
                         <input
                           type="checkbox"
+                          disabled={!item.isAvailable}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
                           className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
@@ -257,14 +269,12 @@ const ShoppingCart = () => {
 
                         <span
                           className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
-                            Number(item.product.stockQuantity) > 0 ||
-                            item.quantity > 0
+                            item.isAvailable
                               ? "bg-green-50 text-green-500"
                               : "bg-red-50 text-red-500"
                           }`}
                         >
-                          {Number(item.product.stockQuantity) > 0 ||
-                          item.quantity > 0
+                          {item.isAvailable
                             ? "พร้อมจำหน่าย"
                             : "ไม่พร้อมจำหน่าย"}
                         </span>
@@ -295,6 +305,7 @@ const ShoppingCart = () => {
 
                             dispatch(decrementCartItemThunk(item.productId));
                           }}
+                          disabled={!item.isAvailable}
                           className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
@@ -307,7 +318,10 @@ const ShoppingCart = () => {
                           onClick={() =>
                             dispatch(incrementCartItemThunk(item.productId))
                           }
-                          disabled={item.quantity >= item.product.stockQuantity}
+                          disabled={
+                            !item.isAvailable ||
+                            item.quantity >= item.product.stockQuantity
+                          }
                           className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                         >
                           <Icon icon="lucide:plus" width="14" height="14" />

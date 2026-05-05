@@ -52,8 +52,7 @@ function HomePage() {
     (state: RootState) => state.products.groupedProducts,
   );
 
-
-  const getCategoryProducts = (category:string) => {
+  const getCategoryProducts = (category: string) => {
     return (
       groupedProduct.find(
         (group) => group.categoryName.toLowerCase() === category,
@@ -141,20 +140,20 @@ function HomePage() {
             subTitle="น้ำสมุนไพรเพื่อสุขภาพ รสชาติกลมกล่อม ดื่มง่าย"
             category="promotion"
           />
-       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
-  {getCategoryProducts("promotion").map((product) => (
-    <div
-      key={product.id}
-      className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
-    >
-      <ProductCard product={product} />
-    </div>
-  ))}
-</div>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
+            {getCategoryProducts("promotion").map((product) => (
+              <div
+                key={product.id}
+                className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
           {/* </ContentWrapper> */}
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
-          {groupedProduct.length === 0 ? (
+          {getCategoryProducts("promotion").length === 0 ? (
             <div className="w-full min-h-100 border-2 border-solid border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-white text-black">
               {/* วงกลมรองหลัง Icon */}
               <div className="w-24 h-24  rounded-full flex items-center justify-center mb-5">
@@ -196,7 +195,7 @@ function HomePage() {
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
-          {groupedProduct.length === 0 ? (
+          {getCategoryProducts("soap").length === 0 ? (
             <div className="w-full min-h-100 border-2 border-solid border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-white text-black">
               {/* วงกลมรองหลัง Icon */}
               <div className="w-24 h-24  rounded-full flex items-center justify-center mb-5">
@@ -228,7 +227,7 @@ function HomePage() {
 
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
             {getCategoryProducts("drinks").map((product) => (
-               <div
+              <div
                 key={product.id}
                 className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
               >
@@ -238,7 +237,7 @@ function HomePage() {
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
-          {groupedProduct.length === 0 ? (
+          {getCategoryProducts("drinks").length === 0 ? (
             <div className="w-full min-h-100 border-2 border-solid border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-white text-black">
               {/* วงกลมรองหลัง Icon */}
               <div className="w-24 h-24  rounded-full flex items-center justify-center mb-5">
@@ -269,7 +268,7 @@ function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
             {getCategoryProducts("shampoo").map((product) => (
-               <div
+              <div
                 key={product.id}
                 className="w-[75%] sm:w-[45%] flex-shrink-0 md:w-auto"
               >
@@ -279,7 +278,7 @@ function HomePage() {
           </div>
 
           {/* เงื่อนไข: ถ้าไม่มีสินค้า ให้แสดงกรอบเส้นประ "ไม่พบรายการสินค้า" */}
-          {groupedProduct.length === 0 ? (
+          {getCategoryProducts("shampoo").length === 0 ? (
             <div className="w-full min-h-100 border-2 border-solid border-gray-200 rounded-4xl flex flex-col items-center justify-center p-10 bg-white text-black">
               {/* วงกลมรองหลัง Icon */}
               <div className="w-24 h-24  rounded-full flex items-center justify-center mb-5">

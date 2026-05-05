@@ -356,29 +356,8 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
-      <div className="mb-6 md:mb-10">
-        <div className="flex items-end md:items-center gap-3">
-          <button
-            className="md:hidden mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full transition-colors cursor-pointer"
-            onClick={() => navigate("/")}
-          >
-            <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-          </button>
-
-          <div>
-            <h1 className="text-[20px] sm:text-xl font-bold text-black font-['Anuphan']">
-              ข้อมูลของฉัน
-            </h1>
-            <p className="text-[14px] sm:text-[16px] font-normal text-black mt-1 font-['Anuphan']">
-              จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
-            </p>
-            <div className="md:block w-full border-t-2 border-black mt-4" />
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-[1200px] mx-auto px-4">
-        <nav className="hidden flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
+        <nav className="hidden md:flex items-center text-sm text-black mb-4 font-medium">
           <Link
             data-test="click-home"
             to="/"
@@ -404,12 +383,36 @@ const ProfilePage = () => {
           </Link>
         </nav>
 
+        <div className="md:hidden bg-white px-4 pt-6 pb-4">
+          <div className="flex items-start gap-3">
+            <button
+              className="mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full"
+              onClick={() => navigate("/")}
+            >
+              <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+            </button>
+
+            <div>
+              <h1 className="text-[20px] font-bold">ข้อมูลของฉัน</h1>
+              <p className="text-[14px] mt-1">
+                จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
+              </p>
+              <div className="w-full border-t border-black mt-5" />
+            </div>
+          </div>
+        </div>
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex-1 w-full bg-[#F9FAFB] lg:bg-white md:rounded-lg shadow-none md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-none md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
+          <main className="flex-1 w-full bg-[#F9FAFB] lg:bg-white md:rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.05)] md:shadow-[0_0_10px_rgba(0,0,0,0.05)] border-gray-600 md:border md:border-gray-200 p-4 sm:p-10 relative min-h-[500px]">
+            <div className="hidden md:block w-full mb-8">
+              <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
+              <p className="text-[14px] mt-1 text-black">
+                จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
+              </p>
+              <div className="w-full border-t border-black mt-5" />
+            </div>
             <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start w-full">
-              {/* Profile Image Section (อยู่ด้านบนใน Mobile, อยู่ขวาใน Desktop) */}
               <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
                 <div className="w-[100px] h-[100px] sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
                   {tempData.image ? (
@@ -434,17 +437,14 @@ const ProfilePage = () => {
                 >
                   เลือกรูป
                 </button>
-                <div className="text-[14px] sm:text-[16px] font-normal text-gray-600 md:text-black text-center space-y-1.5 leading-relaxed font-['Anuphan']">
+                <div className="hidden md:block text-[14px] sm:text-[16px] font-normal text-gray-600 md:text-black text-center space-y-1.5 leading-relaxed font-['Anuphan']">
                   <p>ขนาดไฟล์: สูงสุด 1 MB</p>
                   <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
                 </div>
               </div>
 
-              {/* Mobile Divider */}
-              <hr className="w-full border-t border-[#D1D5DB] my-4 block md:hidden order-2" />
-
               {/* Desktop Divider */}
-              <div className="hidden md:block w-px:bg-[#D1D5DB] order-2 self-stretch mx-4 lg:mx-8"></div>
+              <div className="hidden md:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
 
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
@@ -549,16 +549,6 @@ const ProfilePage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="w-full flex justify-center mt-8 mb-2 order-4 md:hidden">
-                <button
-                  data-test="btn-save-profile"
-                  onClick={handleSave}
-                  className="cursor-pointer w-full sm:w-auto bg-[#10B981] text-white px-10 py-3 rounded text-[16px] font-medium shadow-sm transition-colors font-['Anuphan']"
-                >
-                  บันทึกข้อมูล
-                </button>
               </div>
             </div>
           </main>
