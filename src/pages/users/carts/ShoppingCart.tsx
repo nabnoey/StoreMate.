@@ -102,10 +102,10 @@ const ShoppingCart = () => {
 
   const isAllSelected = useMemo(() => {
     return (
-      enrichedCartItems.length > 0 &&
-      selectedItems.length === enrichedCartItems.length
+      availableItems.length > 0 &&
+      selectedItems.length === availableItems.length
     );
-  }, [enrichedCartItems.length, selectedItems.length]);
+  }, [availableItems.length, selectedItems.length]);
 
   const selectedCartItems = useMemo(() => {
     return enrichedCartItems
@@ -147,7 +147,7 @@ const ShoppingCart = () => {
 
   const toggleSelectAll = () => {
     setSelectedItems(
-      isAllSelected ? [] : enrichedCartItems.map((item) => item.productId),
+      isAllSelected ? [] : availableItems.map((item) => item.productId),
     );
   };
 
