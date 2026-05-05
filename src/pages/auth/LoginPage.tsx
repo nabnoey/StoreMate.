@@ -93,7 +93,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
-      <div className="flex-grow flex items-center justify-center px-4 py-8">
+      <div className="flex-grow flex items-center justify-center px-4 py-8 lg:py-0">
         <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
           <div className="hidden lg:flex flex-col items-center justify-center">
             <img
@@ -105,11 +105,10 @@ function LoginPage() {
               เข้าสู่ระบบเพื่อใช้เว็บไซต์
             </p>
           </div>
-
           {/* ฟอร์มเข้าสู่ระบบ */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col min-h-[calc(100vh-100px)] bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
+            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
             <div className="absolute top-4 right-4 -mt-7.5">
               <img
@@ -181,7 +180,7 @@ function LoginPage() {
                 />
                 <label
                   htmlFor="remember-me"
-                  className="text-gray-500 text-sm cursor-pointer select-none"
+                  className="text-gray-500 text-md cursor-pointer select-none"
                 >
                   จดจำฉัน
                 </label>

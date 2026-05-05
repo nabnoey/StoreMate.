@@ -113,84 +113,97 @@ function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-white p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[571px] p-6 sm:p-8">
-        <h2 className="text-2xl sm:text-[36px] font-semibold mb-6 text-black text-center">
-          กู้คืนรหัสผ่าน
-        </h2>
-
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-4 text-black"
-        >
-          {/* 1. รหัสผ่านเดิม */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="new-password" className="text-sm">
-              รหัสผ่านเดิม
-            </label>
-            <div className="relative">
-              <input
-                id="new-password"
-                type={showPassword ? "text" : "password"}
-                data-test="new-password"
-                placeholder="อย่างน้อย 8 ตัว"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
-                  errors.password
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-gray-300"
-                }`}
-              />
-              <button
-                data-test="toggle-old-password"
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label htmlFor="confirm-password" className="text-sm">
-              ยืนยันรหัสผ่านใหม่
-            </label>
-            <div className="relative">
-              <input
-                id="confirm-password"
-                type={showConfirmPassword ? "text" : "password"}
-                data-test="confirm-password"
-                placeholder="อย่างน้อย 8 ตัว"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
-                  errors.password
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-gray-300"
-                }`}
-              />
-              <button
-                data-test="toggle-confirm-password"
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-              </button>
-            </div>
-          </div>
-
-          <button
-            data-test="submit-btn"
-            type="submit"
-            disabled={loading}
-            className="cursor-pointer btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors disabled:opacity-50"
+    <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
+      <div className="flex-grow flex items-center justify-center px-4 py-8 lg:py-0">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
-            {loading ? "กำลังดำเนินการ..." : "ยืนยัน"}
-          </button>
-        </form>
+            <h2 className="text-[30px] sm:text-[32px] font-medium font-jakarta mb-6 text-[#111827] text-center">
+              กู้คืนรหัสผ่าน
+            </h2>
+            {/* 1. รหัสผ่านเดิม */}
+            <div className="mb-4">
+              <label
+                htmlFor="new-password"
+                className="font-medium lg:font-semibold text-[16px] text-black"
+              >
+                รหัสผ่านเดิม
+              </label>
+              <div className="relative">
+                <input
+                  id="new-password"
+                  type={showPassword ? "text" : "password"}
+                  data-test="new-password"
+                  placeholder="อย่างน้อย 8 ตัว"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`input input-bordered w-full border bg-white text-[#4B5563] border-[#6B7280] pr-10 ${
+                    errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#4B5563]"
+                  }`}
+                />
+                <button
+                  data-test="toggle-old-password"
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-black focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="confirm-password"
+                className="font-medium lg:font-semibold text-[16px] text-black"
+              >
+                ยืนยันรหัสผ่านใหม่
+              </label>
+              <div className="relative">
+                <input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  data-test="confirm-password"
+                  placeholder="อย่างน้อย 8 ตัว"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`input input-bordered w-full border bg-white text-[#4B5563] border-[#6B7280] pr-10 ${
+                    errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#4B5563]"
+                  }`}
+                />
+                <button
+                  data-test="toggle-confirm-password"
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-black focus:outline-none"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <Eye size={20} />
+                  ) : (
+                    <EyeOff size={20} />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-auto lg:mt-10 flex flex-col gap-3 pb-0 pt-6 lg:pt-0">
+              <button
+                data-test="submit-btn"
+                type="submit"
+                disabled={loading}
+                className="mx-auto btn bg-[#16A249] border-0 text-white mt-4 transition-colors disabled:opacity-50 w-full max-w-[368px] h-[52px] rounded-[8px] p-[10px] flex items-center justify-center gap-[10px]"
+              >
+                {loading ? "กำลังดำเนินการ..." : "ยืนยัน"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
