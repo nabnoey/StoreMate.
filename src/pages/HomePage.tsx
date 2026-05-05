@@ -266,7 +266,7 @@ function HomePage() {
             category="shampoo"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 ml-0 md:-ml-16">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible">
             {getCategoryProducts("shampoo").map((product) => (
               <div
                 key={product.id}
