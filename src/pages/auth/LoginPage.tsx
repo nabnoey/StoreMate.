@@ -108,7 +108,7 @@ function LoginPage() {
           {/* ฟอร์มเข้าสู่ระบบ */}
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
+            className="flex flex-col h-auto min-h-[469px] bg-white rounded-[5px] lg:shadow-2xl w-full max-w-[448px] p-6 sm:p-8 relative"
           >
             <div className="absolute top-4 right-4 -mt-7.5">
               <img
@@ -168,8 +168,8 @@ function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-auto flex flex-col gap-3 pb-0 pt-6">
-              <div className="flex items-center gap-2">
+            <div className="mt-auto lg:mt-2 flex flex-col gap-5 pb-0 pt-3">
+              <div className="flex items-center gap-3">
                 <input
                   data-test="input-remember"
                   type="checkbox"
@@ -180,7 +180,7 @@ function LoginPage() {
                 />
                 <label
                   htmlFor="remember-me"
-                  className="text-gray-500 text-md cursor-pointer select-none"
+                  className="text-gray-500 text-[16px] cursor-pointer select-none"
                 >
                   จดจำฉัน
                 </label>
