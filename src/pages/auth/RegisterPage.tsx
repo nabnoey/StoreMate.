@@ -100,7 +100,7 @@ function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
       <div className="flex-grow flex items-center justify-center px-4 py-8 lg:py-0">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
+        <div className="pt-20 mb-20 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
           <div className="hidden lg:flex flex-col items-center justify-center">
             <img
               src={Auth}
@@ -115,7 +115,7 @@ function RegisterPage() {
           <form
             id="register-form"
             onSubmit={handleSubmit}
-            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
+            className=" flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
             <div className="absolute top-4 right-4 -mt-7.5">
               <img
@@ -125,7 +125,7 @@ function RegisterPage() {
               />
             </div>
 
-            <h2 className="text-[30px] sm:text-2xl font-medium lg:font-bold mb-6 text-black text-left">
+            <h2 className="text-[30px] sm:text-[30px] s font-medium lg:font-medium mb-6 text-black text-left">
               สมัครสมาชิก
             </h2>
 
