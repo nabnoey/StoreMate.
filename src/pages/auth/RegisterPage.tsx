@@ -115,7 +115,7 @@ function RegisterPage() {
           <form
             id="register-form"
             onSubmit={handleSubmit}
-            className="flex flex-col min-h-[calc(100vh-100px)] bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
+            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
             <div className="absolute top-4 right-4 -mt-7.5">
               <img
@@ -251,7 +251,7 @@ function RegisterPage() {
               </div>
             </div>
 
-            <div className="mt-auto flex flex-col gap-4 pb-0 pt-20">
+            <div className="mt-auto flex flex-col gap-3 pb-0 pt-6">
               <button
                 data-test="btn-register-submit"
                 type="submit"

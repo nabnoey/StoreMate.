@@ -320,38 +320,42 @@ const AddressProfile = () => {
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
       <div className="max-w-[1200px] mx-auto px-4">
         {/* 1. Nav อยู่ด้านบนสุด */}
-        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
-          <Link
-            data-test="click-home"
-            to="/"
-            className="transition-colors cursor-pointer"
-          >
-            หน้าหลัก
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <span className="text-black cursor-pointer">แก้ไขโปรไฟล์</span>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <Link
-            to="/profile"
-            data-test="click-profile"
-            className="transition-colors"
-          >
-            โปรไฟล์
-          </Link>
-        </nav>
+        <div className="hidden md:block">
+          <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
+            <Link
+              data-test="click-home"
+              to="/"
+              className="transition-colors cursor-pointer"
+            >
+              หน้าหลัก
+            </Link>
+            <Icon
+              icon="material-symbols:chevron-right-rounded"
+              className="w-5 h-5 mx-1 text-black"
+            />
+            <span className="text-black cursor-pointer">แก้ไขโปรไฟล์</span>
+            <Icon
+              icon="material-symbols:chevron-right-rounded"
+              className="w-5 h-5 mx-1 text-black"
+            />
+            <Link
+              to="/profile"
+              data-test="click-profile"
+              className="transition-colors"
+            >
+              โปรไฟล์
+            </Link>
+          </nav>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          <ProfileSidebar />
+          <div className="hidden md:block">
+            <ProfileSidebar />
+          </div>
 
           <main className="flex-1 bg-white rounded-lg shadow-sm border border-gray-100 min-h-[500px] overflow-hidden">
             <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h1 className="text-[10px] sm:text-[20px] font-bold">
+              <h1 className="text-[20px] sm:text-[20px] font-bold">
                 ที่อยู่ของฉัน
               </h1>
               <button
@@ -586,20 +590,18 @@ const AddressProfile = () => {
                               subdistrictId: sId,
                             }),
                           ).unwrap();
-                          
+
                           const res = parseDropdownResponse(resRaw);
                           setZipcodes(res || []);
 
-
                           if (res?.length) {
-                             setFormData((prev) => ({
-                            ...prev,
-                            zipcode: res?.[0]?.name || "",
-                            zipcodeId: res?.[0]?.id || 0,
-                          }));
-                        }}
+                            setFormData((prev) => ({
+                              ...prev,
+                              zipcode: res?.[0]?.name || "",
+                              zipcodeId: res?.[0]?.id || 0,
+                            }));
                           }
-                         
+                        }}
                         className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
                         <option value="">กรุณาเลือกตำบล</option>

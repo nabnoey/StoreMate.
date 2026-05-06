@@ -93,7 +93,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
-      <div className="flex-grow flex items-center justify-center px-4 py-8">
+      <div className="flex-grow flex items-center justify-center px-4 py-8 lg:py-0">
         <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
           <div className="hidden lg:flex flex-col items-center justify-center">
             <img
@@ -105,7 +105,6 @@ function LoginPage() {
               เข้าสู่ระบบเพื่อใช้เว็บไซต์
             </p>
           </div>
-
           {/* ฟอร์มเข้าสู่ระบบ */}
           <form
             onSubmit={handleSubmit}
