@@ -5,101 +5,97 @@ import type { AppDispatch } from "../../redux/store";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
 
 import logo from "../../assets/logo.png";
 import Auth from "../../assets/Auth.png";
 
 function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
 
+  // State สำหรับเปิด-ปิดรหัสผ่าน
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    name: Yup.string().required("กรุณากรอกชื่อ-นามสกุล"),
+    email: Yup.string()
+      .email("รูปแบบอีเมลไม่ถูกต้อง")
+      .required("กรุณากรอกอีเมล"),
+    phone: Yup.string()
+      .matches(/^0\d{9}$/, "เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก")
+      .required("กรุณากรอกเบอร์โทรศัพท์"),
+    password: Yup.string()
+      .min(8, "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
+      .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
+      .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
+      .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
+      .matches(/\d/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
+      .matches(
+        /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
+        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค",
+      )
+      .required("กรุณากรอกรหัสผ่าน"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], "รหัสผ่านไม่ตรงกัน")
+      .required("กรุณายืนยันรหัสผ่าน"),
+  });
 
-    if (!name) return toast.error("กรุณากรอกชื่อ-นามสกุล");
-    if (!email) return toast.error("กรุณากรอกอีเมล");
-    if (!phone) return toast.error("กรุณากรอกเบอร์โทรศัพท์");
-    if (!password) return toast.error("กรุณากรอกรหัสผ่าน");
-    if (!confirmPassword) return toast.error("กรุณายืนยันรหัสผ่าน");
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
 
-    if (password.length < 8) {
-      return toast.error("รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร");
-    }
-    if (!/[A-Z]/.test(password)) {
-      return toast.error("รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัวอักษร");
-    }
-    if (!/[a-z]/.test(password)) {
-      return toast.error("รหัสผ่านต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัวอักษร");
-    }
-    if (!/\d/.test(password)) {
-      return toast.error("รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัวอักษร");
-    }
+      const toastId = toast.loading("กำลังลงทะเบียน...");
 
-    if (password !== confirmPassword) {
-      return toast.error("รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน");
-    }
+      try {
+        await dispatch(
+          register({
+            name: values.name,
+            email: values.email.toLowerCase(),
 
-    setLoading(true);
-    const toastId = toast.loading("กำลังลงทะเบียน...");
+            phone: values.phone,
+            password: values.password,
+            confirmPassword: values.confirmPassword,
+          }),
+        ).unwrap();
 
-    try {
-      await dispatch(
-        register({
-          name: name,
-          email: email.toLowerCase(),
+        toast.success("ลงทะเบียนสำเร็จ", { id: toastId });
 
-          phone: phone,
-          password: password,
-          confirmPassword: confirmPassword,
-        }),
-      ).unwrap();
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      } catch (error: any) {
+        let message = "เกิดข้อผิดพลาดในการสมัครสมาชิก";
+        if (axios.isAxiosError(error)) {
+          message = error.response?.data?.message ?? "Server error";
+        } else if (error?.message) {
+          message = error.message;
+        } else if (typeof error === "string") {
+          message = error;
+        }
 
-      toast.success("ลงทะเบียนสำเร็จ", { id: toastId });
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-    } catch (error: any) {
-      let message = "เกิดข้อผิดพลาดในการสมัครสมาชิก";
-
-      let apiErrorMsg = "";
-      if (axios.isAxiosError(error)) {
-        apiErrorMsg = error.response?.data?.message?.toLowerCase() || "";
-      } else if (error?.message) {
-        apiErrorMsg = error.message.toLowerCase();
-      } else if (typeof error === "string") {
-        apiErrorMsg = error.toLowerCase();
+        toast.error(message, { id: toastId });
+      } finally {
+        setLoading(false);
       }
-
-      if (apiErrorMsg.includes("email") || apiErrorMsg.includes("อีเมล")) {
-        message = "อีเมลนี้ถูกใช้งานแล้ว";
-      } else if (
-        apiErrorMsg.includes("phone") ||
-        apiErrorMsg.includes("เบอร์")
-      ) {
-        message = "เบอร์โทรศัพท์มีผู้ใช้งานแล้ว";
-      }
-
-      toast.error(message, { id: toastId });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-white lg:bg-gray-50/50">
-      <div className="flex-grow flex items-center justify-center px-4 py-8">
+      <div className="flex-grow flex items-center justify-center px-4 py-8 lg:py-0">
         <div className="pt-20 mb-20 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 w-full max-w-6xl">
           <div className="hidden lg:flex flex-col items-center justify-center">
             <img
@@ -114,8 +110,8 @@ function RegisterPage() {
           {/* Register Card */}
           <form
             id="register-form"
-            onSubmit={handleSubmit}
-            className="flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
+            onSubmit={formik.handleSubmit}
+            className=" flex flex-col min-h-[calc(100vh-100px)] lg:min-h-fit bg-white lg:rounded-2xl lg:shadow-2xl w-full max-w-md lg:max-w-[450px] p-6 sm:p-8 relative"
           >
             <div className="absolute top-4 right-4 -mt-7.5">
               <img
@@ -125,7 +121,7 @@ function RegisterPage() {
               />
             </div>
 
-            <h2 className="text-[30px] sm:text-2xl font-medium lg:font-bold mb-6 text-black text-left">
+            <h2 className="text-[30px] sm:text-[30px] s font-medium lg:font-medium mb-6 text-black text-left">
               สมัครสมาชิก
             </h2>
 
@@ -142,10 +138,18 @@ function RegisterPage() {
                 type="text"
                 placeholder="ชื่อ-นามสกุล"
                 disabled={loading}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className={`input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
+                  formik.touched.name && formik.errors.name
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("name")}
               />
+              {formik.touched.name && formik.errors.name && (
+                <div className="text-red-500 text-xs mt-1">
+                  {formik.errors.name}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
@@ -160,10 +164,18 @@ function RegisterPage() {
                 type="email"
                 placeholder="example@gmail.com"
                 disabled={loading}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className={`input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
+                  formik.touched.email && formik.errors.email
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("email")}
               />
+              {formik.touched.email && formik.errors.email && (
+                <div className="text-red-500 text-xs mt-1">
+                  {formik.errors.email}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
@@ -179,10 +191,18 @@ function RegisterPage() {
                 type="text"
                 placeholder="เบอร์โทร"
                 disabled={loading}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className={`input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed ${
+                  formik.touched.phone && formik.errors.phone
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+                {...formik.getFieldProps("phone")}
               />
+              {formik.touched.phone && formik.errors.phone && (
+                <div className="text-red-500 text-xs mt-1">
+                  {formik.errors.phone}
+                </div>
+              )}
             </div>
 
             <div className="mb-4">
@@ -199,9 +219,12 @@ function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="รหัสผ่านอย่างน้อย 8 ตัว"
                   disabled={loading}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className={`input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed pr-10 ${
+                    formik.touched.password && formik.errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : ""
+                  }`}
+                  {...formik.getFieldProps("password")}
                 />
 
                 <button
@@ -214,6 +237,12 @@ function RegisterPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+
+              {formik.touched.password && formik.errors.password && (
+                <div className="text-red-500 text-xs mt-1 whitespace-pre-line">
+                  {formik.errors.password}
+                </div>
+              )}
             </div>
 
             <div className="mb-6">
@@ -230,9 +259,13 @@ function RegisterPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="ยืนยันรหัสผ่าน"
                   disabled={loading}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                  className={`input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed pr-10 ${
+                    formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                      ? "border-red-500 focus:border-red-500"
+                      : ""
+                  }`}
+                  {...formik.getFieldProps("confirmPassword")}
                 />
 
                 <button
@@ -249,6 +282,13 @@ function RegisterPage() {
                   )}
                 </button>
               </div>
+
+              {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword && (
+                  <div className="text-red-500 text-xs mt-1">
+                    {formik.errors.confirmPassword}
+                  </div>
+                )}
             </div>
 
             <div className="mt-auto flex flex-col gap-3 pb-0 pt-6">
