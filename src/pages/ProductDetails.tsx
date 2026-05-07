@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import { Icon } from "@iconify/react";
 
-import type { AppDispatch } from "../redux/store";
+import type { RootState, AppDispatch } from "../redux/store";
 import { addToCartThunk } from "../redux/carts/CartReducer";
 
 import { ProductService } from "../services/product.service";
@@ -41,6 +41,7 @@ const ProductDetailPage: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const currentStock = productDetail?.quantity || 0;
+  const cartItems = useSelector((state: RootState) => state.carts.items);
 
   // จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
@@ -72,18 +73,38 @@ const ProductDetailPage: React.FC = () => {
     }
   }, [token]);
 
+  //เช็คสินค้าในรถเข็น
+  const itemInCart = useMemo(() => {
+    return cartItems.find((item) => item.productId === Number(id));
+  }, [cartItems, id]);
+
+  const quantityInCart = itemInCart?.quantity || 0;
+
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         setLoading(true);
         if (id) {
           const data = await ProductService.getProductById(Number(id));
+          if (!data) {
+            toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+            return;
+          }
+
           setProductDetail(data);
 
           if (data.productImages && data.productImages.length > 0) {
             setActiveImage(data.productImages[0].imageUrl);
           }
         }
+      } catch (error) {
+        toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
       } finally {
         setLoading(false);
       }
@@ -91,7 +112,7 @@ const ProductDetailPage: React.FC = () => {
 
     fetchDetail();
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, navigate]);
 
   const handleIncrease = () => {
     if (buyQuantity < currentStock) {
@@ -112,8 +133,6 @@ const ProductDetailPage: React.FC = () => {
     const token = TokenService.getAccessToken();
     if (isAddingToCart) return;
 
-    setIsAddingToCart(true);
-
     if (!token) {
       toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
       navigate("/login");
@@ -126,12 +145,22 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    if (buyQuantity > currentStock) {
-      toast.error(
-        `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
-      );
+    const totalProposedQuantity = quantityInCart + buyQuantity;
+
+    if (totalProposedQuantity > currentStock) {
+      if (quantityInCart > 0) {
+        toast.error(
+          `ไม่สามารถเพิ่มจำนวนสินค้าได้ เนื่องจากคุณเพิ่มสินค้านี้ไว้ในรถเข็นเเล้ว ${quantityInCart} ชิ้น`,
+        );
+      } else {
+        toast.error(
+          `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+        );
+      }
       return;
     }
+
+    setIsAddingToCart(true);
 
     const cartItemPayload: CartItemRequestDTO = {
       productId: productDetail.id,
@@ -140,7 +169,6 @@ const ProductDetailPage: React.FC = () => {
 
     try {
       await dispatch(addToCartThunk(cartItemPayload)).unwrap();
-
       toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
       setBuyQuantity(1);
 
@@ -149,11 +177,9 @@ const ProductDetailPage: React.FC = () => {
       }
     } catch (error: unknown) {
       let backendMessage = "ไม่สามารถเพิ่มสินค้าได้";
-
       if (axios.isAxiosError(error)) {
         backendMessage = error.response?.data?.message || error.message;
       }
-
       if (backendMessage === "There is insufficient stock.") {
         toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
@@ -198,11 +224,9 @@ const ProductDetailPage: React.FC = () => {
           price: productDetail.price,
           totalPrice: productDetail.price * buyQuantity,
 
-          // 🌟 แบบแบนราบ (Flat) เผื่อ UI เรียกใช้ตรงๆ
           productName: productDetail.productName,
           imageUrl: activeImage || productDetail.productImages?.[0]?.imageUrl,
 
-          // 🌟 จำลองโครงสร้างซ้อน (Nested) ให้เหมือนข้อมูลใน Redux Cart
           product: {
             id: productDetail.id,
             productName: productDetail.productName,
@@ -247,7 +271,7 @@ const ProductDetailPage: React.FC = () => {
         className="bg-white min-h-screen pb-20 pt-4 md:pt-5 text-gray-800"
       >
         <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
-          <nav className="hidden flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+          <nav className="hidden md:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
             <Link
               data-test="click-home"
               to="/"
@@ -272,9 +296,17 @@ const ProductDetailPage: React.FC = () => {
             <span className="text-black">{productDetail.productName}</span>
           </nav>
 
+          <div className="lg:hidden w-full flex items-center bg-white px-4 pt-4 pb-1 top-0 z-30">
+            <Icon
+              icon="lucide:arrow-left"
+              className="w-6 h-6 mr-3 text-black cursor-pointer"
+              onClick={() => navigate(-1)}
+            />
+          </div>
+
           <div
             id="product-info-section"
-            className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16"
+            className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16 mt-0"
           >
             <div
               id="product-image-container"
@@ -291,37 +323,54 @@ const ProductDetailPage: React.FC = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
+
               <div
                 id="product-thumbnails"
-                className="flex gap-3 overflow-x-auto justify-center w-full"
+                className="flex gap-3 overflow-x-auto md:overflow-x-auto justify-center w-full"
               >
-                {productDetail.productImages?.map((img) => (
-                  <button
-                    type="button"
-                    key={img.id}
-                    onClick={() => setActiveImage(img.imageUrl)}
-                    className={`w-20 h-24 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
-                      activeImage === img.imageUrl
-                        ? "border-b-4 border-gray-800 opacity-100"
-                        : ""
-                    }`}
-                  >
-                    <img
-                      src={img.imageUrl}
-                      className="w-full h-full object-cover"
-                      alt="thumbnail"
-                    />
-                  </button>
-                ))}
+                {productDetail.productImages?.map((img, index, arr) => {
+                  const extraCount = arr.length - 2;
+                  const showOverlayOnMobile = index === 2 && arr.length > 3;
+
+                  return (
+                    <button
+                      type="button"
+                      key={img.id}
+                      onClick={() => setActiveImage(img.imageUrl)}
+                      className={`relative w-20 h-24 shrink-0 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
+                        activeImage === img.imageUrl
+                          ? "border-b-4 border-gray-800 opacity-100"
+                          : ""
+                      } ${index >= 3 ? "hidden md:block" : "block"}`}
+                    >
+                      <img
+                        src={img.imageUrl}
+                        className="w-full h-full object-cover"
+                        alt="thumbnail"
+                      />
+
+                      {showOverlayOnMobile && (
+                        <div className="absolute inset-0 bg-[#E2E4E9] flex items-center justify-center md:hidden">
+                          <span className="text-black font-semibold text-[15px]">
+                            + {extraCount}
+                          </span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div id="product-details-container" className="flex flex-col mt-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-[#2C2221] mb-3 leading-tight">
+            <div
+              id="product-details-container"
+              className="flex flex-col mt-4 md:mt-0 h-full w-full"
+            >
+              <h1 className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight">
                 {productDetail.productName}
               </h1>
 
-              <div className="flex text-[#FFEB55] text-xl mb-6 gap-0.5">
+              <div className="order-2 flex text-[#FFEB55] text-xl mb-4 md:mb-6 gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => {
                   const isFilled =
                     i < Math.round(productDetail.RatingScore || 0);
@@ -329,7 +378,7 @@ const ProductDetailPage: React.FC = () => {
                     <Icon
                       key={`star-${productDetail.id}-${i}`}
                       icon="material-symbols:star-rounded"
-                      className={`w-5 h-5 stroke-black ${
+                      className={`w-5 h-5 md:w-6 md:h-6 stroke-black ${
                         isFilled
                           ? "text-[#FFEB55] stroke-[1.4px]"
                           : "text-white stroke-[1.5px]"
@@ -339,66 +388,100 @@ const ProductDetailPage: React.FC = () => {
                 })}
               </div>
 
-              <div className="w-full max-w-[489px] min-h-[69px] py-4 md:py-0 bg-[#F3F4F6] px-4 md:px-6 rounded-md flex flex-wrap justify-between items-center mb-8 gap-2">
-                <span className="text-3xl font-bold text-black">ราคา</span>
-                <span className="text-4xl font-semibold text-black">
+              <div className="order-3 w-full min-h-[69px] py-4 md:py-0 bg-[#F3F4F6] px-4 md:px-6 rounded-md flex flex-wrap justify-between items-center mb-6 md:mb-6 gap-2">
+                <span className="text-xl md:text-3xl font-bold text-gray-700 md:text-black">
+                  ราคา
+                </span>
+                <span className="text-3xl md:text-4xl font-semibold text-black">
                   ฿{productDetail.price.toLocaleString()}
                 </span>
               </div>
 
-              <div className="mb-8">
-                <h3 className="font-medium mb-3 px-0.5 pt-0.2 text-3xl text-[#111827]">
+              <div className="order-4 md:hidden flex flex-col gap-3 mb-6 px-2 text-[13px] text-gray-700">
+                <div className="flex items-start gap-3">
+                  <Icon
+                    icon="mdi:truck-outline"
+                    className="w-5 h-5 text-black"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-[16px] text-[#2C2221]">
+                      ส่งฟรี
+                    </span>
+                    <span className="text-[#5C6670] font-medium text-[16px] mt-0.5">
+                      ถึงใน 2-3 วัน
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon icon="pajamas:redo" className="w-4 h-4 text-black" />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-[16px] text-[#2C2221]">
+                      คืนสินค้า
+                    </span>
+                    <span className="text-[#5C6670] font-medium text-[16px] mt-0.5">
+                      ภายใน 7 วัน
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="order-6 md:order-4 bg-[#F3F4F6] md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none w-full mt-6 md:mt-0 mb-8 md:mb-6 text-left">
+                <h3 className="font-medium mb-2 md:mb-3 text-[30px] md:text-xl text-[#111827]">
                   รายละเอียดสินค้า
                 </h3>
-                <div className="text-black text-md leading-relaxed whitespace-pre-line">
+                <div className="text-gray-700 text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left">
                   {productDetail.description || "ไม่มีรายละเอียด"}
                 </div>
               </div>
 
               <div
                 id="product-actions"
-                className="w-full max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 mt-auto pt-6"
+                className="order-5 md:order-5 w-full md:max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 pt-0 md:pt-4 mb-2 md:mb-2"
               >
-                <div className="flex items-center gap-4">
-                  <span className="font-bold text-[#2C2221]">จำนวน</span>
-                  <div
-                    data-test="buy-quantity"
-                    className="flex items-center w-[130px] h-[42px] gap-[10px] p-[10px] border border-gray-200 rounded-[8px] bg-white"
-                  >
-                    <button
-                      type="button"
-                      data-test="btn-decrease"
-                      onClick={handleDecrease}
-                      className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 w-full md:w-auto">
+                  <div className="flex items-center gap-4 justify-center w-full md:w-auto">
+                    <span className="font-bold text-[#2C2221] text-[16px] md:text-base">
+                      จำนวน
+                    </span>
+                    <div
+                      data-test="buy-quantity"
+                      className="flex items-center w-[120px] md:w-[130px] h-[36px] md:h-[40px] gap-[10px] p-[10px] border border-gray-200 rounded-md bg-white"
                     >
-                      −
-                    </button>
-                    <div className="flex-1 text-center font-medium text-gray-800 h-full flex items-center justify-center text-sm">
-                      {buyQuantity}
+                      <button
+                        type="button"
+                        data-test="btn-decrease"
+                        onClick={handleDecrease}
+                        className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
+                      >
+                        −
+                      </button>
+                      <div className="flex-1 text-center font-medium text-gray-800 h-full flex items-center justify-center text-sm cursor-pointer">
+                        {buyQuantity}
+                      </div>
+                      <button
+                        type="button"
+                        data-test="btn-increase"
+                        onClick={handleIncrease}
+                        className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
+                      >
+                        +
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      data-test="btn-increase"
-                      onClick={handleIncrease}
-                      className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
-                    >
-                      +
-                    </button>
                   </div>
-                  <span className="ml-4 md:ml-10 text-sm text-[#1F2937]">
+                  <span className="text-[16px] md:text-md text-black md:text-[#1F2937] text-center w-full md:w-auto mt-1 md:mt-0">
                     มีสินค้าทั้งหมด {currentStock} ชิ้น
                   </span>
                 </div>
 
                 <div
                   data-test="container-cart-actions"
-                  className="flex flex-col md:flex-row gap-3 w-full"
+                  className="flex flex-row md:flex-row gap-2 md:gap-3 w-full md:w-auto md:mt-2"
                 >
                   <button
                     type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
-                    className="w-full md:w-[160px] h-[48px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded-md md:rounded-xl font-semibold text-md transition-colors shadow-sm"
+                    className="flex-1 md:flex-none md:w-[160px] h-[44px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded-md md:rounded-xl font-semibold md:font-semibold text-[15px] md:text-md transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
@@ -407,7 +490,7 @@ const ProductDetailPage: React.FC = () => {
                     type="button"
                     data-test="btn-buy-cart"
                     onClick={handleBuyNow}
-                    className="w-full md:w-[160px] h-[48px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded-md md:rounded-xl font-semibold text-md transition-colors shadow-sm"
+                    className="flex-1 md:flex-none md:w-[160px] h-[44px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded-md md:rounded-xl font-semibold md:font-semibold text-[15px] md:text-md transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>
@@ -416,7 +499,7 @@ const ProductDetailPage: React.FC = () => {
             </div>
           </div>
 
-          <hr className="w-full max-w-[744px] ml-auto my-10 border-gray-200" />
+          <hr className="hidden md:block w-full max-w-[744px] ml-auto my-10 border-gray-200" />
 
           {/* ส่วนรีวิว */}
           <div className="max-w-4xl mx-auto">

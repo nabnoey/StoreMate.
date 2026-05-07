@@ -19,15 +19,14 @@ function ResetPassword() {
   // ตั้งค่าเงื่อนไขการตรวจสอบ (Validation Schema) ให้เหมือนหน้าอื่นๆ
   const validationSchema = Yup.object({
     password: Yup.string()
-      .required("กรุณากรอกรหัสผ่าน")
-      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
+      .min(8, "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร")
       .max(128, "รหัสผ่านต้องไม่เกิน 128 ตัวอักษร")
       .matches(/[A-Z]/, "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว")
       .matches(/[a-z]/, "ต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว")
       .matches(/\d/, "ต้องมีตัวเลขอย่างน้อย 1 ตัว")
       .matches(
         /^[a-zA-Z0-9\u0400-\u04FF~!@#$%^&*_\-+=()[\]{}></\\|"'.,:;]+$/,
-        "ห้ามเว้นวรรค และต้องเป็นตัวอักษรหรือสัญลักษณ์ที่กำหนดเท่านั้น",
+        "ตัวอักษรละติน/ซีริลลิก ตัวเลข หรือสัญลักษณ์เท่านั้น และห้ามเว้นวรรค",
       )
       .required("กรุณากรอกรหัสผ่านใหม่"),
     confirmPassword: Yup.string()
@@ -106,9 +105,9 @@ function ResetPassword() {
             </label>
             <div className="relative">
               <input
-                id="old-password"
+                id="new-password"
                 type={showPassword ? "text" : "password"}
-                data-test="old-password"
+                data-test="new-password"
                 placeholder="อย่างน้อย 8 ตัว"
                 className={`input input-bordered w-full border bg-white text-[#4B5563] focus:border-[#6B7280] pr-10 ${
                   formik.touched.password && formik.errors.password
@@ -118,7 +117,7 @@ function ResetPassword() {
                 {...formik.getFieldProps("password")}
               />
               <button
-                data-test="toggle-old-password"
+                data-test="toggle-new-password"
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
                 onClick={() => setShowPassword(!showPassword)}
@@ -172,7 +171,7 @@ function ResetPassword() {
             data-test="submit-btn"
             type="submit"
             disabled={loading}
-            className="cursor-pointer btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors disabled:opacity-50"
+            className="btn w-full sm:w-[368px] sm:mx-auto h-[52px] bg-[#16A249] hover:bg-[#12863c] text-white text-[20px] font-bold border-none mt-4 transition-colors disabled:opacity-50"
           >
             {loading ? "กำลังดำเนินการ..." : "ยืนยัน"}
           </button>

@@ -19,7 +19,7 @@ export const fetchOrders = createAsyncThunk(
   async (status: OrderStatus) => {
     const res = await OrdersService.getOrders(status);
     return res;
-  }
+  },
 );
 
 export const fetchOrderDetails = createAsyncThunk(
@@ -36,12 +36,15 @@ const ordersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // ✅ จัดการ fetchOrders
+    
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
+ล
+        state.loading = false;
+develop
         state.orders = action.payload;
         state.loading = false;
       })
@@ -68,9 +71,10 @@ const ordersSlice = createSlice({
         }
         state.loading = false;
       })
-      .addCase(fetchOrderDetails.rejected, (state, action) => {
+
+      .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "เกิดข้อผิดพลาด";
+        state.error = action.error.message || "Error fetching orders";
       });
   },
 });
