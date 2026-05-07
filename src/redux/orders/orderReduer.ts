@@ -72,10 +72,7 @@ const ordersSlice = createSlice({
         state.loading = false;
       })
 
-      .addCase(fetchOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Error fetching orders";
-      });
+    
   },
 });
 
