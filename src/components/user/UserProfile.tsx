@@ -93,7 +93,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         <div className="flex items-center gap-3">
           <div
             data-test="btn-user-profile-mobile"
-            className="cursor-pointer w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
+            className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
           >
             {user?.image_url || user?.image ? (
               <img

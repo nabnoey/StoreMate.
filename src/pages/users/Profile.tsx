@@ -384,27 +384,29 @@ const ProfilePage = () => {
         </nav>
 
         <div className="md:hidden bg-white px-4 pt-6 pb-4">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-[10px]">
             <button
-              className="mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full"
+              className="mt-[2px] text-black hover:bg-gray-200 p-0 flex-shrink-0"
               onClick={() => navigate("/")}
             >
               <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
             </button>
 
             <div>
-              <h1 className="text-[20px] font-bold">ข้อมูลของฉัน</h1>
-              <p className="text-[14px] mt-1">
+              <h1 className="text-[20px] font-bold leading-[28px] text-black">
+                ข้อมูลของฉัน
+              </h1>
+              <p className="text-[14px] leading-[20px] text-[#3F3F46] mt-[2px]">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="w-full border-t border-black mt-5" />
+              <div className="w-full border-t border-black mt-4" />
             </div>
           </div>
         </div>
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex flex-col w-[370px] h-[427px] bg-[#F9FAFB] lg:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b border-gray-600 md:border-gray-200 px-[16px] py-[12px] gap-[9px] relative">
+          <main className="flex flex-col w-full md:w-auto md:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
             <div className="hidden md:block w-full mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
