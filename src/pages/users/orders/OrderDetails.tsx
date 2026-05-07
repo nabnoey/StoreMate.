@@ -205,11 +205,11 @@ function OrderDetails() {
           >
             <FiArrowLeft className="text-xl" />
           </button>
-          <div className="flex items-center justify-between">
+          <div className="flex w-full items-center">
             <h1 className="text-xl font-bold text-gray-900">
               รายละเอียดคำสั่งซื้อ
             </h1>
-            <p className=" text-sm text-gray-500 ml-160 ">คำสั่งซื้อ: {order.orderNo} | {order.status}</p>
+            <p className="text-sm text-gray-500 ml-auto">คำสั่งซื้อ: {order.orderNo} | {order.status}</p>
           </div>
         </div>
       </div>
@@ -217,11 +217,13 @@ function OrderDetails() {
       
       <div className="p-6 w-full text-gray-700 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative">
-              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-gray-200 z-0"></div>
+          <div className="lg:col-span-2 flex flex-col gap-6 ">
+            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative ">
+              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-[#3B82F6] z-0"></div>
 
-              <div className="flex justify-between items-center relative z-10">
+
+
+              <div className="flex justify-between  items-center relative z-10 ">
                 {steps.map((step, index) => (
                   <StatusStep
                     key={step.status}
@@ -284,14 +286,14 @@ function OrderDetails() {
 
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-6">
-              <div className="bg-[#0B1A28] text-white px-5 py-3 flex items-center gap-2">
+              <div className="bg-[#3B82F6] text-white px-5 py-3 flex items-center gap-2">
                 <Users className="text-lg" />
                 <h3 className="font-bold text-sm">ข้อมูลผู้รับ</h3>
               </div>
 
-              <div className="p-5 flex flex-col gap-5">
+              <div className="p-5 flex flex-col gap-5 ">
                 <div>
-                  <p className="text-xs text-gray-500 font-normal mb-2 block">
+                  <p className="text-xs text-gray-500 font-normal mb-2 block ">
                     ชื่อผู้สั่งซื้อ
                   </p>
                   <div className="flex items-center gap-3">
@@ -321,7 +323,7 @@ function OrderDetails() {
 
               
                 <div>
-                  <p className="text-xs text-gray-500 font-normal mb-2 block">
+                  <p className="text-xs text-gray-500 font-normal mb-2 block justify-between">
                     ที่อยู่สำหรับการจัดส่ง
                   </p>
                   <div className="flex items-start gap-3">
