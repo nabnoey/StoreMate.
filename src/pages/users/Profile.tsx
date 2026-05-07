@@ -384,22 +384,22 @@ const ProfilePage = () => {
         </nav>
 
         <div className="md:hidden bg-white px-4 pt-6 pb-4">
-          <div className="flex items-start gap-[10px]">
+          <div className="flex items-start gap-3">
             <button
-              className="mt-[2px] text-black hover:bg-gray-200 p-0 flex-shrink-0"
+              className="mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full"
               onClick={() => navigate("/")}
             >
-              <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              <Icon icon="material-symbols:arrow-back" className="w-7 h-7" />
             </button>
 
-            <div>
-              <h1 className="text-[20px] font-bold leading-[28px] text-black">
+            <div className="flex-1">
+              <h1 className="text-[20px] leading-[28px] font-bold text-black">
                 ข้อมูลของฉัน
               </h1>
               <p className="text-[14px] leading-[20px] text-[#3F3F46] mt-[2px]">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="w-full border-t border-black mt-4" />
+              <div className="w-full border-t border-black mt-5" />
             </div>
           </div>
         </div>
