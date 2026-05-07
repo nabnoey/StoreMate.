@@ -27,7 +27,7 @@ export const fetchOrderDetails = createAsyncThunk(
   async (orderNo: string) => {
     const res = await OrdersService.orderDetails(orderNo);
     return res;
-  }
+  },
 );
 
 const ordersSlice = createSlice({
@@ -36,15 +36,12 @@ const ordersSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-    
+
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-ล
-        state.loading = false;
-develop
         state.orders = action.payload;
         state.loading = false;
       })
@@ -60,11 +57,14 @@ develop
       })
       .addCase(fetchOrderDetails.fulfilled, (state, action) => {
         const orderIndex = state.orders.findIndex(
-          (order) => order.orderNo === action.payload.orderNo
+          (order) => order.orderNo === action.payload.orderNo,
         );
         if (orderIndex !== -1) {
           // ถ้าพบอันที่เหมือน ให้อัพเดท
-          state.orders[orderIndex] = { ...state.orders[orderIndex], ...action.payload };
+          state.orders[orderIndex] = {
+            ...state.orders[orderIndex],
+            ...action.payload,
+          };
         } else {
           // ถ้าไม่พบ ให้เพิ่มใหม่
           state.orders.push(action.payload);

@@ -1,5 +1,3 @@
-
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +19,10 @@ import { FaHistory } from "react-icons/fa";
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import type { Address } from "../../../types/address";
-import { fetchAllAddresses, fetchAddressDefault } from "../../../redux/address/addressReducer";
+import {
+  fetchAllAddresses,
+  fetchAddressDefault,
+} from "../../../redux/address/addressReducer";
 import { getOrderLabel } from "../../../utils/order";
 
 function StatusStep({
@@ -103,7 +104,9 @@ function OrderDetails() {
 
   const { orders } = useSelector((state: RootState) => state.orders);
   const addresses = useSelector((state: RootState) => state.address.addresses);
-  const defaultAddress = useSelector((state: RootState) => state.address.defaultAddress);
+  const defaultAddress = useSelector(
+    (state: RootState) => state.address.defaultAddress,
+  );
   const authUser = useSelector((state: RootState) => state.auth.user);
   const order = orders.find((o) => o.orderNo === orderNo);
 
@@ -128,7 +131,6 @@ function OrderDetails() {
     return <Loading />;
   }
 
-
   if (!order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -152,14 +154,9 @@ function OrderDetails() {
     authUser?.name ||
     `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim();
 
-  const recipientName =
-    savedAddress?.receiverName ||
-    "ไม่ระบุ";
+  const recipientName = savedAddress?.receiverName || "ไม่ระบุ";
 
-  const recipientPhone =
-
-    savedAddress?.receiverPhone ||
-    "ไม่ระบุ";
+  const recipientPhone = savedAddress?.receiverPhone || "ไม่ระบุ";
 
   const fallbackAddress: Address = {
     id: 0,
@@ -174,15 +171,14 @@ function OrderDetails() {
     isDefault: false,
   };
 
-  const deliveryAddress =
-    orderAddress?.streetAddress
-      ? orderAddress
-      : savedAddress?.streetAddress
+  const deliveryAddress = orderAddress?.streetAddress
+    ? orderAddress
+    : savedAddress?.streetAddress
       ? savedAddress
       : fallbackAddress;
 
-  const orderDate = order.paidAt
-    ? new Date(order.paidAt).toLocaleDateString("th-TH")
+  const orderDate = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString("th-TH")
     : new Date().toLocaleDateString("th-TH");
 
   const steps = [
@@ -209,19 +205,18 @@ function OrderDetails() {
             <h1 className="text-xl font-bold text-gray-900">
               รายละเอียดคำสั่งซื้อ
             </h1>
-            <p className="text-sm text-gray-500 ml-auto">คำสั่งซื้อ: {order.orderNo} | {order.status}</p>
+            <p className="text-sm text-gray-500 ml-auto">
+              คำสั่งซื้อ: {order.orderNo} | {order.status}
+            </p>
           </div>
         </div>
       </div>
 
-      
       <div className="p-6 w-full text-gray-700 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-6 ">
             <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative ">
               <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-[#3B82F6] z-0"></div>
-
-
 
               <div className="flex justify-between  items-center relative z-10 ">
                 {steps.map((step, index) => (
@@ -238,7 +233,8 @@ function OrderDetails() {
 
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiPackage className="text-lg" /> รายการสินค้า ({order.orderItems.length})
+                <FiPackage className="text-lg" /> รายการสินค้า (
+                {order.orderItems.length})
               </h3>
 
               {order.orderItems.map((item) => (
@@ -274,7 +270,11 @@ function OrderDetails() {
                 <div className="relative pl-6">
                   <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100"></div>
                   <p className="font-bold text-sm text-gray-800">
-                    สถานะปัจจุบัน: {getOrderLabel(order.status, order.checkoutType || "DESTINATION")}
+                    สถานะปัจจุบัน:{" "}
+                    {getOrderLabel(
+                      order.status,
+                      order.checkoutType || "DESTINATION",
+                    )}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     วันที่สั่งซื้อ: {orderDate}
@@ -306,7 +306,6 @@ function OrderDetails() {
                   </div>
                 </div>
 
-              
                 <div>
                   <p className="text-xs text-gray-500 font-normal mb-2 block">
                     เบอร์โทรศัพท์
@@ -321,7 +320,6 @@ function OrderDetails() {
                   </div>
                 </div>
 
-              
                 <div>
                   <p className="text-xs text-gray-500 font-normal mb-2 block justify-between">
                     ที่อยู่สำหรับการจัดส่ง
@@ -335,7 +333,8 @@ function OrderDetails() {
                       {deliveryAddress.subdistrict && (
                         <>
                           <br />
-                          {deliveryAddress.subdistrict} {deliveryAddress.district}
+                          {deliveryAddress.subdistrict}{" "}
+                          {deliveryAddress.district}
                         </>
                       )}
                       {deliveryAddress.province && (
@@ -356,4 +355,4 @@ function OrderDetails() {
   );
 }
 
-export default OrderDetails
+export default OrderDetails;
