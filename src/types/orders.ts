@@ -46,7 +46,7 @@ export interface Order {
   orderRecipient?: OrderRecipient | null;
 
   total: number;
-  paidAt: string;
+  createdAt: string;
 
   //mock ของยกเลิกคำสั่งซื้อเฉยๆ
   cancelReason?: string;
