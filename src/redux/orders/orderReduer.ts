@@ -42,9 +42,7 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-ล
         state.loading = false;
-develop
         state.orders = action.payload;
         state.loading = false;
       })
