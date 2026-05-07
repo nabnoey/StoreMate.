@@ -26,7 +26,9 @@ const decrementCartItem = async (productId: number) => {
 };
 
 const removeCartItem = async (productId: number) => {
-  const res = await api.delete(`${import.meta.env.VITE_CART_API}/items/${productId}`);
+  const res = await api.delete(
+    `${import.meta.env.VITE_CART_API}/items/${productId}`,
+  );
   return res.data;
 };
 

@@ -60,7 +60,7 @@ const usePaymentSocket = () => {
             toast.success("ชำระเงินสำเร็จ");
 
             localStorage.removeItem("orderNo");
-            // window.location.href = "/orders";
+
             dispatch(
               setPaymentStatus({
                 status: "PAYMENT_SUCCESS",
