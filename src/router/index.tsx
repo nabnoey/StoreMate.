@@ -67,6 +67,9 @@ const HistoryPage = lazy(() =>
   lazyDelay(() => import("../pages/users/orders/HistoryShop"), 1200),
 );
 
+const OderDetails = lazy(() =>
+  lazyDelay(() => import("../pages/users/orders/OrderDetails"), 1200),
+);
 const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
@@ -191,6 +194,15 @@ const router = createBrowserRouter([
       {
         path: "/orders",
         element: <HistoryPage />,
+      },
+
+      {
+        path: "/orders/:orderNo",
+        element: (
+          <ProtectedRout>
+          <OderDetails />
+          </ProtectedRout>
+        ),
       },
       {
         path: "cancel-orders",

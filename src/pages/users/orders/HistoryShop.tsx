@@ -108,21 +108,26 @@ const HistoryPage = () => {
                     );
                   const firstProductId = order.orderItems?.[0]?.id;
                   return (
-                    <div key={order.id} className="mb-8 w-full">
-                      {/* <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100"> */}
-                      <div className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100">
-                        <div>
-                          <p className="flex-1 text-sm text-black mb-1 text-[14px]">
-                            เลขที่คำสั่งซื้อ
-                          </p>
-                          <p className="flex-1  font-medium text-black text-[16px] ">
-                            {/* .padStart() ใช้เติมเลขข้างหน้าที่ต้องการ
-                                newDate().getFullYear() เอาไว้ดึงค.ศ. ปัจจุบัน*/}
-
-                            {/* เขียนแบบนี้เรียกว่า Template Strings */}
-                            {`ORD-${new Date().getFullYear()}-${String(order.id).padStart(3, "0")}`}
-                          </p>
-                        </div>
+                    <div
+                      key={order.id}
+                      className="mb-8 w-full cursor-pointer hover:shadow-md transition-shadow rounded-lg p-4 bg-white border border-gray-100"
+                      onClick={() => {
+                        const orderNo = order.orderNo || `ORD-${order.id}`;
+                        navigate(`/orders/${orderNo}`);
+                      }}
+                    >
+                      <div
+                    className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100"
+                  >
+                    <div>
+                      <p className="flex-1 text-sm text-black mb-1 text-[14px]">
+                        เลขที่คำสั่งซื้อ
+                      </p>
+                      <p className="flex-1  font-medium text-black text-[16px] ">
+                        {/* ถ้ามี orderNo ก็ใช้ มั่ฉะนั้นก็ generate เอง */}
+                        {order.orderNo || `ORD-${order.id}`}
+                      </p>
+                    </div>
                         <div>
                           <p className="flex-1 text-sm text-black mb-1 text-[14px]">
                             วันที่สั่งซื้อ

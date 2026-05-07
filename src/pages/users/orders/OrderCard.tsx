@@ -1,24 +1,53 @@
 import type { Order } from "../../../types/orders";
+import { useNavigate } from "react-router-dom";
 
 const OrderCard = ({ order }: { order: Order }) => {
+  const navigate = useNavigate();
+
+  const handleOrderClick = () => {
+    navigate(`/orders/${order.orderNo}`);
+  };
+
   return (
-    <div className="bg-white border p-4 mb-4">
-      <div className="flex justify-between border-b pb-2">
-        <span>{order.orderItems.length} items</span>
-        <span>{order.status}</span>
+    <div
+      onClick={handleOrderClick}
+      className="bg-white border border-gray-200 p-4 mb-4 rounded-lg hover:shadow-md cursor-pointer transition-shadow"
+    >
+
+      <div className="flex justify-between border-b pb-2 mb-3">
+        <span className="text-sm text-gray-600">
+          {order.orderItems.length} รายการ
+        </span>
+        <span className="text-sm font-medium text-blue-600">{order.status}</span>
       </div>
 
       {order.orderItems.map((item) => (
-        <div key={item.imageUrl} className="flex gap-3 py-3">
-          <img src={item.imageUrl} className="w-20 h-20" />
-          <div>
-            <p>{item.productName}</p>
-            <p>x{item.quantity}</p>
+        <div key={item.id} className="flex gap-3 py-2">
+          <img
+            src={item.imageUrl}
+            alt={item.productName}
+            className="w-16 h-16 object-cover rounded"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 line-clamp-2">
+              {item.productName}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">จำนวน x{item.quantity}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-bold text-gray-900">
+              ฿ {item.price.toLocaleString()}
+            </p>
           </div>
         </div>
       ))}
 
-      <div className="text-right mt-2">{order.totalPrice}฿</div>
+  
+      <div className="border-t pt-2 mt-2 text-right">
+        <p className="text-sm font-bold text-gray-900">
+          รวม: ฿ {(order.total || order.totalPrice || 0).toLocaleString()}
+        </p>
+      </div>
     </div>
   );
 };

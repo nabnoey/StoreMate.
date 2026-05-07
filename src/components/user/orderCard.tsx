@@ -1,12 +1,23 @@
 import type { Order, OrderItem } from "../../types/orders";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   order: Order;
 };
 
 const OrderCard = ({ order }: Props) => {
+  const navigate = useNavigate();
+
+  // ✅ กดทั้ง card ก็ได้ = ไปยัง /orders/:orderNo
+  const handleCardClick = () => {
+    navigate(`/orders/${order.orderNo}`);
+  };
+
   return (
-    <div className="bg-white shadow-sm border border-gray-200 rounded-sm mb-4 overflow-hidden">
+    <div
+      onClick={handleCardClick}
+      className="bg-white shadow-sm border border-gray-200 rounded-sm mb-4 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+    >
       {/* ส่วนบน: ข้อมูลคำสั่งซื้อ */}
       <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-gray-100">
         <div>
