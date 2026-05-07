@@ -181,9 +181,9 @@ function OrderDetails() {
       ? savedAddress
       : fallbackAddress;
 
-  const orderDate = order.paidAt
-    ? new Date(order.paidAt).toLocaleDateString("th-TH")
-    : new Date().toLocaleDateString("th-TH");
+ const orderDate = order.createdAt
+  ? new Date(order.createdAt).toLocaleDateString("th-TH")
+  : new Date().toLocaleDateString("th-TH");
 
   const steps = [
     { icon: <FiClock />, label: "รอชำระเงิน", status: "PENDING" },
