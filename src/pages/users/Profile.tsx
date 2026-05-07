@@ -389,7 +389,7 @@ const ProfilePage = () => {
               className="mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full"
               onClick={() => navigate("/")}
             >
-              <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              <Icon icon="material-symbols:arrow-back" className="w-7 h-7" />
             </button>
 
             <div>
