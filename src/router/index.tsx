@@ -193,14 +193,18 @@ const router = createBrowserRouter([
 
       {
         path: "/orders",
-        element: <HistoryPage />,
+        element: (
+          <ProtectedRout>
+            <HistoryPage />
+          </ProtectedRout>
+        ),
       },
 
       {
         path: "/orders/:orderNo",
         element: (
           <ProtectedRout>
-          <OderDetails />
+            <OderDetails />
           </ProtectedRout>
         ),
       },

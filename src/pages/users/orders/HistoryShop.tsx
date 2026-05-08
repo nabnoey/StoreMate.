@@ -16,7 +16,6 @@ const HistoryPage = () => {
   const rawStatus = searchParams.get("status") as OrderStatus | null;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
-
   const { orders, error } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -32,12 +31,23 @@ const HistoryPage = () => {
 
   useEffect(() => {
     dispatch(fetchOrders(status as any));
+
+    const interval = setInterval(() => {
+      dispatch(fetchOrders(status as any));
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [dispatch, status]);
 
-  const filteredOrders = orders.filter((order) => {
-    if (status === "ALL") return true;
-    return order.status === status;
-  });
+  const filteredOrders = orders
+    .filter((order) => {
+      if (status === "ALL") return true;
+      return order.status === status;
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
   const handleTabChange = (nextStatus: string) => {
     setSearchParams({ status: nextStatus });
@@ -116,18 +126,16 @@ const HistoryPage = () => {
                         navigate(`/orders/${orderNo}`);
                       }}
                     >
-                      <div
-                    className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100"
-                  >
-                    <div>
-                      <p className="flex-1 text-sm text-black mb-1 text-[14px]">
-                        เลขที่คำสั่งซื้อ
-                      </p>
-                      <p className="flex-1  font-medium text-black text-[16px] ">
-                        {/* ถ้ามี orderNo ก็ใช้ มั่ฉะนั้นก็ generate เอง */}
-                        {order.orderNo || `ORD-${order.id}`}
-                      </p>
-                    </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100">
+                        <div>
+                          <p className="flex-1 text-sm text-black mb-1 text-[14px]">
+                            เลขที่คำสั่งซื้อ
+                          </p>
+                          <p className="flex-1  font-medium text-black text-[16px] ">
+                            {/* ถ้ามี orderNo ก็ใช้ มั่ฉะนั้นก็ generate เอง */}
+                            {order.orderNo || `ORD-${order.id}`}
+                          </p>
+                        </div>
                         <div>
                           <p className="flex-1 text-sm text-black mb-1 text-[14px]">
                             วันที่สั่งซื้อ
@@ -216,7 +224,7 @@ const HistoryPage = () => {
                           </div>
                         ) : order.status === "CANCELLED" ? (
                           <div className="mt-4 flex flex-col items-start w-full">
-                            <p className="text-black text-[16px">
+                            <p className="text-black text-[16px]">
                               <span className="font-medium">เหตุผล :</span>{" "}
                               {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
                             </p>
@@ -231,7 +239,7 @@ const HistoryPage = () => {
                                   state: { orderId: order.id },
                                 })
                               }
-                              className="rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
+                              className="cursor-pointer rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
                             >
                               ยกเลิกคำสั่งซื้อ
                             </button>

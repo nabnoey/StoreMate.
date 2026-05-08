@@ -7,9 +7,9 @@ type Props = {
 };
 
 const ProtectedRout = ({ children }: Props) => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
