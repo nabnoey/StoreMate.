@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 
 import logo from "../../assets/logo.png";
 import auth from "../../assets/Auth.png";
+import { jwtDecode } from "jwt-decode";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ function LoginPage() {
     const toastId = toast.loading("กำลังเข้าสู่ระบบ...");
 
     try {
-      const authData = await dispatch(
+      const token = await dispatch(
         login({
           email: email.toLowerCase(),
           password: password,
@@ -53,27 +54,36 @@ function LoginPage() {
         // เก็บ Email และ Password ลง localStorage (เพื่อใช้กรอกฟอร์มครั้งหน้า)
         localStorage.setItem("remember_email", email);
         localStorage.setItem("remember_password", password);
-
-        // เก็บ Auth Data ตาม Logic เดิมของคุณ
-        localStorage.setItem("auth", JSON.stringify(authData));
       } else {
         // ถ้าไม่ได้ติ๊ก ให้ลบข้อมูลที่เคยจำไว้ออก
         localStorage.removeItem("remember_email");
         localStorage.removeItem("remember_password");
-
-        sessionStorage.setItem("auth", JSON.stringify(authData));
       }
 
       toast.dismiss();
       toast.success("เข้าสู่ระบบสำเร็จ", { id: toastId });
 
       setTimeout(() => {
-        // const userRoleName = authData?.roles?.roleName;
+        try {
+          const decoded: any = jwtDecode(token);
+          const userRoles = decoded.roles || [];
 
-        // if (userRoleName === "ADMIN" || userRoleName === "MODERATOR") {
-        //   navigate("admin");
-        // }
-        navigate("/");
+          const isAdminOrMod = userRoles.some(
+            (r: any) =>
+              r === "ADMIN" ||
+              r === "MODERATOR" ||
+              r?.roleName === "ADMIN" ||
+              r?.roleName === "MODERATOR",
+          );
+
+          if (isAdminOrMod) {
+            navigate("/admin");
+          } else {
+            navigate("/");
+          }
+        } catch (decodeError) {
+          navigate("/");
+        }
       }, 1000);
     } catch (error: any) {
       let errorMessage = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";

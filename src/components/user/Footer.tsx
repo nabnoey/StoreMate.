@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
                 className="w-[40px] h-[40px] rounded-full bg-[#142419] border border-[#142419] flex items-center justify-center hover:opacity-80 transition-opacity"
               >
                 <Icon
-                  icon="fa6-brands:instagram"
+                  icon="tdesign:camera-filled"
                   className="text-white text-[20px]"
                 />
               </a>
@@ -120,7 +120,7 @@ const Footer: React.FC = () => {
                 className="w-[40px] h-[40px] rounded-full bg-[#142419] border border-[#142419] flex items-center justify-center hover:opacity-80 transition-opacity"
               >
                 <Icon
-                  icon="fa6-brands:line"
+                  icon="material-symbols:chat"
                   className="text-white text-[20px]"
                 />
               </a>
