@@ -296,14 +296,14 @@ const AddressProfile = () => {
       (t) => (
         <div className="flex flex-col gap-3 items-center p-3">
           <span className="text-gray-800 font-medium text-base">
-            คุณแน่ใจหรือไม่ว่าต้องการลบที่อยู่นี้?
+            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
           </span>
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              ยืนยัน
+              ลบ
             </button>
             <button
               onClick={() => cancelDelete(t.id)}
