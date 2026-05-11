@@ -5,7 +5,7 @@ import ProfileSidebar from "../../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../../../redux/orders/orderReduer";
+import { fetchOrders } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 
