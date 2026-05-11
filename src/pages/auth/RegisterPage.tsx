@@ -296,7 +296,7 @@ function RegisterPage() {
                 data-test="btn-register-submit"
                 type="submit"
                 disabled={loading}
-                className="btn w-full h-[52px] bg-[#16A249]  text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
+                className="btn w-full h-[52px] bg-[#16A249] text-white text-lg font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg"
               >
                 {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
               </button>

@@ -70,9 +70,7 @@ const ordersSlice = createSlice({
           state.orders.push(action.payload);
         }
         state.loading = false;
-      })
-
-    
+      });
   },
 });
 

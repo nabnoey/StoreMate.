@@ -333,7 +333,7 @@ function OrderDetails() {
                       {deliveryAddress.subdistrict && (
                         <>
                           <br />
-                          {deliveryAddress.subdistrict}{" "}
+                          {deliveryAddress.subdistrict}
                           {deliveryAddress.district}
                         </>
                       )}

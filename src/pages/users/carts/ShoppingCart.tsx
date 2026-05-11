@@ -217,7 +217,7 @@ const ShoppingCart = () => {
             </div>
 
             <p className="text-base sm:text-[20px] font-normal text-black mt-1">
-              สินค้าในตะกร้า
+              สินค้าในรถเข็น
             </p>
 
             <div className="hidden md:block w-full border-b border-black mt-4" />
@@ -227,7 +227,7 @@ const ShoppingCart = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center pb-4 border-b border-gray-100">
                 <span className="text-md sm:text-xl font-bold text-gray-700">
-                  สินค้าในตะกร้า
+                  สินค้าในรถเข็น
                 </span>
                 <button
                   onClick={() => handleRemoveSelected()}

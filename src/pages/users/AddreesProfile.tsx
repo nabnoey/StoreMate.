@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
@@ -16,6 +16,7 @@ import type { Address } from "../../types/address";
 import { Icon } from "@iconify/react";
 
 const AddressProfile = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const addresses = useSelector((state: RootState) => state.address.addresses);
   const { provinces, districts, subdistricts } = useSelector(
@@ -295,14 +296,14 @@ const AddressProfile = () => {
       (t) => (
         <div className="flex flex-col gap-3 items-center p-3">
           <span className="text-gray-800 font-medium text-base">
-            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
+            คุณแน่ใจหรือไม่ว่าต้องการลบที่อยู่นี้?
           </span>
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              ลบ
+              ยืนยัน
             </button>
             <button
               onClick={() => cancelDelete(t.id)}
@@ -347,29 +348,47 @@ const AddressProfile = () => {
             </Link>
           </nav>
         </div>
+        <div className="md:hidden bg-white pt-2 pb-4">
+          <div className="flex items-center gap-3">
+            <button
+              className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
+              onClick={() => navigate("/")}
+            >
+              <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
+            </button>
+
+            <div className="flex-1">
+              <h1 className="text-[16px] leading-[28px] font-bold text-black">
+                ที่อยู่ของฉัน
+              </h1>
+            </div>
+          </div>
+
+          <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
+        </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="hidden md:block">
             <ProfileSidebar />
           </div>
 
-          <main className="flex-1 bg-white rounded-lg shadow-sm border border-gray-100 min-h-[500px] overflow-hidden">
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h1 className="text-[20px] sm:text-[20px] font-bold">
+          <main className="flex flex-col flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-sm border-none md:border-gray-100 min-h-[calc(100vh-80px)] md:min-h-[500px] relative">
+            <div className="flex justify-between items-center p-5 border-b border-none md:border-gray-100">
+              <h1 className="hidden md:block text-[20px] sm:text-[20px] font-bold">
                 ที่อยู่ของฉัน
               </h1>
               <button
                 data-test="btn-add-address"
                 onClick={openAddModal}
-                className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm flex items-center gap-1 transition-colors cursor-pointer"
+                className="hidden md:flex bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm items-center gap-1 transition-colors cursor-pointer"
               >
-                <span className="text-xl leading-none ">+</span> เพิ่มที่อยู่
+                <span className="text-xl leading-none">+</span> เพิ่มที่อยู่
               </button>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1 w-full">
               {addresses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 sm:py-28">
+                <div className="flex-1 flex flex-col items-center justify-center p-4">
                   <Icon
                     icon="basil:location-outline"
                     className="w-10 h-10 sm:w-30 sm:h-30 text-black mb-6"
@@ -382,9 +401,10 @@ const AddressProfile = () => {
                 addresses.map((address: Address) => (
                   <div
                     key={address.id}
-                    className="p-5 sm:p-6 flex flex-col sm:flex-row justify-between border-b border-gray-50 last:border-0 gap-4"
+                    className="p-4 sm:p-5 flex flex-col gap-2 sm:gap-3 border-b border-gray-300 last:border-0"
                   >
-                    <div className="flex-1 space-y-2">
+                    {/* แถวที่ 1: ชื่อ | เบอร์โทร และปุ่ม แก้ไข | ลบ */}
+                    <div className="flex justify-between items-start w-full">
                       <div className="flex items-center gap-2 text-sm sm:text-base">
                         <span className="font-medium text-black">
                           {address.receiverName}
@@ -394,27 +414,7 @@ const AddressProfile = () => {
                           {address.receiverPhone}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-500 leading-relaxed">
-                        {address.streetAddress} ต.{address.subdistrict} อ.
-                        {address.district} จ.{address.province}{" "}
-                        {address.zipcode}
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {address.isDefault ? (
-                          <span className="px-2 py-0.5 text-xs bg-white text-blue-500 rounded border border-blue-500">
-                            ค่าเริ่มต้น
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-500 rounded border border-gray-200">
-                            ที่อยู่จัดส่ง
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between min-w-[120px]">
-                      <div className="flex items-center gap-2 text-sm order-2 sm:order-1">
+                      <div className="flex items-center gap-2 text-sm shrink-0 ml-2">
                         <button
                           data-test="btn-edit-address"
                           onClick={() => openEditModal(address)}
@@ -431,62 +431,91 @@ const AddressProfile = () => {
                           ลบ
                         </button>
                       </div>
+                    </div>
+
+                    {/* แถวที่ 2: ที่อยู่ และปุ่ม ตั้งเป็นค่าเริ่มต้น */}
+                    <div className="flex justify-between items-end gap-3 w-full">
+                      <div className="text-sm text-gray-500 leading-relaxed flex-1">
+                        {address.streetAddress} ต.{address.subdistrict} อ.
+                        {address.district} จ.{address.province}{" "}
+                        {address.zipcode}
+                      </div>
                       <button
                         data-test="btn-set-default"
                         disabled={address.isDefault}
                         onClick={() => dispatch(addAdressDefault(address.id))}
-                        className={`order-1 sm:order-2 px-3 py-1 border rounded text-[12px] transition-colors cursor-pointer ${
+                        className={`shrink-0 px-2 py-1 border rounded text-[12px] transition-colors ${
                           address.isDefault
-                            ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                            : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                            ? "bg-white text-gray-400 border-gray-300 cursor-not-allowed"
+                            : "bg-white text-gray-600 border-gray-400 hover:bg-gray-50 cursor-pointer"
                         }`}
                       >
                         ตั้งเป็นค่าเริ่มต้น
                       </button>
                     </div>
+
+                    {/* แถวที่ 3: ป้าย Tag*/}
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {address.isDefault && (
+                        <span className="px-2 py-0.5 text-[12px] bg-white text-[#4285F4] border border-[#4285F4]">
+                          ค่าเริ่มต้น
+                        </span>
+                      )}
+                      <span className="px-2 py-0.5 text-[12px] bg-white text-gray-500 border border-gray-400">
+                        ที่อยู่ในการรับสินค้า
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
+              <div className="md:hidden sticky bottom-0 w-full p-4 bg-white border-t border-gray-100 z-50 mt-auto">
+                <button
+                  data-test="btn-add-address-mobile"
+                  onClick={openAddModal}
+                  className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-2.5 rounded-md text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+                >
+                  <span className="text-xl leading-none mt-[-2px]">+</span>
+                  เพิ่มที่อยู่
+                </button>
+              </div>
             </div>
           </main>
         </div>
+
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-x-0 top-[75px] bottom-0 z-[100] md:inset-0 p-4 flex items-start md:items-center justify-center md:p-6 bg-white md:bg-transparent overflow-y-auto">
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity"
+              className="hidden md:block absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity cursor-pointer"
               onClick={() => setIsModalOpen(false)}
             />
-
-            {/* Modal Container */}
-            <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300">
+            <div className="relative w-full min-h-full md:min-h-0 md:h-auto md:max-w-2xl bg-white md:rounded-xl md:shadow-2xl flex flex-col">
               {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
-                <h2 className="text-xl font-bold text-gray-800 text-[36px] stroke-[600px]">
-                  {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "เพิ่มที่อยู่ใหม่"}
-                </h2>
-                <button
-                  data-test="btn-close-modal"
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <div className="md:hidden bg-white pt-2 pb-4">
+                <div className="flex items-center gap-3 pb-3">
+                  <button
+                    className="text-black p-0 flex-shrink-0"
+                    onClick={() => navigate(-1)}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
+                    <Icon
+                      icon="material-symbols:arrow-back"
+                      className="w-5 h-5"
                     />
-                  </svg>
-                </button>
+                  </button>
+
+                  <h1 className="text-[16px] leading-[28px] font-bold text-black">
+                    {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "ที่อยู่ใหม่"}
+                  </h1>
+                </div>
+                <hr className="sm:hidden border-t-2 border-black w-full" />
+              </div>
+              <div className="hidden md:block px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+                <h2 className="text-xl font-bold text-gray-800 text-[36px] stroke-[600px]">
+                  {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "ที่อยู่ใหม่"}
+                </h2>
               </div>
 
               {/* Body: Scrollable area if content is long */}
-              <div className="p-6 max-h-[70vh] overflow-y-auto">
+              <div className="flex-1 md:flex-none p-4 md:p-6 overflow-y-auto md:max-h-[70vh]">
                 <div className="space-y-5">
                   {/* ที่อยู่รายละเอียด */}
                   <div className="flex flex-col gap-1.5">
@@ -504,16 +533,16 @@ const AddressProfile = () => {
                   </div>
 
                   {/* แถวที่ 1: จังหวัด & อำเภอ */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-gray-700">
+                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
                         จังหวัด
                       </label>
                       <select
                         name="province"
                         value={formData.province}
                         onChange={handleProvinceChange}
-                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none appearance-none cursor-pointer"
                       >
                         <option value={0}>กรุณาเลือกจังหวัด</option>
                         {provinces.map((p: { id: number; name: string }) => (
@@ -525,7 +554,7 @@ const AddressProfile = () => {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-gray-700">
+                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
                         เขต/อำเภอ
                       </label>
                       <select
@@ -552,7 +581,7 @@ const AddressProfile = () => {
                             }),
                           ).unwrap();
                         }}
-                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
                         <option value="">กรุณาเลือกอำเภอ</option>
                         {districts.map((d: { id: number; name: string }) => (
@@ -565,9 +594,9 @@ const AddressProfile = () => {
                   </div>
 
                   {/* แถวที่ 2: ตำบล & รหัสไปรษณีย์ */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-gray-700">
+                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
                         แขวง/ตำบล
                       </label>
                       <select
@@ -602,7 +631,7 @@ const AddressProfile = () => {
                             }));
                           }
                         }}
-                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none bg-white disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
                         <option value="">กรุณาเลือกตำบล</option>
                         {subdistricts.map((s: { id: number; name: string }) => (
@@ -614,7 +643,7 @@ const AddressProfile = () => {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-gray-700">
+                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
                         รหัสไปรษณีย์
                       </label>
                       <select
@@ -630,7 +659,7 @@ const AddressProfile = () => {
                             zipcode: selected?.name || "",
                           }));
                         }}
-                        className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm"
+                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
                         <option value="">กรุณาเลือกรหัสไปรษณีย์</option>
                         {zipcodes.map((z) => (
@@ -643,20 +672,19 @@ const AddressProfile = () => {
                   </div>
                 </div>
               </div>
-
               {/* Footer Actions */}
-              <div className="px-6 py-5 bg-gray-50 flex flex-col-reverse sm:flex-row gap-3 border-t border-gray-100">
+              <div className="p-4 md:px-6 md:py-5 bg-white md:bg-gray-50 flex flex-col-reverse md:flex-row gap-3 border-t border-gray-100 mt-auto">
                 <button
                   data-test="btn-save-address"
                   onClick={handleSaveAddress}
-                  className="cursor-pointer flex-[2] px-4 py-2.5 bg-[#4285F4] text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-200 transition-all active:scale-95"
+                  className="w-full md:flex-[2] py-3 md:py-2.5 bg-green-500 md:bg-green-500 text-white rounded-md md:rounded-lg text-[15px] md:text-sm font-medium md:shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  {isEditMode ? "บันทึกการเปลี่ยนแปลง" : "เพิ่มที่อยู่นี้"}
+                  {isEditMode ? "บันทึก" : "บันทึก"}
                 </button>
                 <button
                   data-test="btn-cancel-address"
                   onClick={() => setIsModalOpen(false)}
-                  className="cursor-pointer flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all active:scale-95"
+                  className="hidden md:block flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all cursor-pointer"
                 >
                   ยกเลิก
                 </button>
