@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrderDetails } from "../../../redux/orders/orderReduer";
+import { fetchOrderDetails } from "../../../redux/orders/orderReducer";
 import Loading from "../../../components/loading/Loading";
 import {
   FiClock,
@@ -18,11 +18,7 @@ import { FaHistory } from "react-icons/fa";
 
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../../redux/store";
-import type { Address } from "../../../types/address";
-import {
-  fetchAllAddresses,
-  fetchAddressDefault,
-} from "../../../redux/address/addressReducer";
+import type { OrderAddress } from "../../../types/orders";
 import { getOrderLabel } from "../../../utils/order";
 
 function StatusStep({
@@ -103,10 +99,6 @@ function OrderDetails() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { orders } = useSelector((state: RootState) => state.orders);
-  const addresses = useSelector((state: RootState) => state.address.addresses);
-  const defaultAddress = useSelector(
-    (state: RootState) => state.address.defaultAddress,
-  );
   const authUser = useSelector((state: RootState) => state.auth.user);
   const order = orders.find((o) => o.orderNo === orderNo);
 
@@ -117,15 +109,6 @@ function OrderDetails() {
       });
     }
   }, [orderNo, dispatch]);
-
-  useEffect(() => {
-    if (!addresses.length) {
-      dispatch(fetchAllAddresses());
-    }
-    if (!defaultAddress) {
-      dispatch(fetchAddressDefault());
-    }
-  }, [addresses.length, defaultAddress, dispatch]);
 
   if (isLoading) {
     return <Loading />;
@@ -147,39 +130,33 @@ function OrderDetails() {
     );
   }
 
-  const orderAddress = order.orderAddress?.[0];
-  const savedAddress = defaultAddress ?? addresses[0];
+  const orderAddress = order.orderAddress?.[0]; 
 
-  const profileName =
-    authUser?.name ||
-    `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim();
+  const recipientName = order.orderRecipient?.fullName || 
+                        `${order.orderRecipient?.firstName ?? ""} ${order.orderRecipient?.lastName ?? ""}`.trim() || 
+                        "ไม่ระบุชื่อผู้รับ";
 
-  const recipientName = savedAddress?.receiverName || "ไม่ระบุ";
+  const recipientPhone = order.orderRecipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
 
-  const recipientPhone = savedAddress?.receiverPhone || "ไม่ระบุ";
-
-  const fallbackAddress: Address = {
+  const fallbackAddress: OrderAddress = {
     id: 0,
-    receiverName: profileName || authUser?.email || "ไม่ระบุ",
-    receiverPhone: authUser?.phone || "ไม่ระบุ",
-    streetAddress: authUser?.address || "ไม่ระบุที่อยู่",
+    streetAddress: authUser?.address ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
     subdistrict: "",
     district: "",
     province: "",
     zipcode: "",
-    zipcodeId: 0,
-    isDefault: false,
   };
 
-  const deliveryAddress = orderAddress?.streetAddress
-    ? orderAddress
-    : savedAddress?.streetAddress
-      ? savedAddress
-      : fallbackAddress;
+
+  const deliveryAddress = orderAddress?.streetAddress ? orderAddress : fallbackAddress;
+  
 
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString("th-TH")
     : new Date().toLocaleDateString("th-TH");
+
+
+    
 
   const steps = [
     { icon: <FiClock />, label: "รอชำระเงิน", status: "PENDING" },

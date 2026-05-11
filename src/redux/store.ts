@@ -7,7 +7,7 @@ import productsReducer from "./products/productReducer";
 import reviewsReducer from "./reviews/reviewsReducer";
 import addressReducer from "./address/addressReducer";
 import paymentReducer from "./payment/paymentReducer";
-import orderReducer from "./orders/orderReduer";
+import orderReducer from "./orders/orderReducer";
 
 const storage = {
   getItem: (key: string) => {
