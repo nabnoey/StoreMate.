@@ -296,14 +296,14 @@ const AddressProfile = () => {
       (t) => (
         <div className="flex flex-col gap-3 items-center p-3">
           <span className="text-gray-800 font-medium text-base">
-            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
+            คุณแน่ใจหรือไม่ว่าต้องการลบที่อยู่นี้?
           </span>
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              ลบ
+              ยืนยัน
             </button>
             <button
               onClick={() => cancelDelete(t.id)}
@@ -483,18 +483,17 @@ const AddressProfile = () => {
         </div>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] p-4 flex items-center justify-center md:p-6 bg-white md:bg-transparent">
+          <div className="fixed inset-x-0 top-[75px] bottom-0 z-[100] md:inset-0 p-4 flex items-start md:items-center justify-center md:p-6 bg-white md:bg-transparent overflow-y-auto">
             <div
               className="hidden md:block absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity cursor-pointer"
               onClick={() => setIsModalOpen(false)}
             />
-
-            <div className="relative w-full h-full md:h-auto md:max-w-2xl bg-white md:rounded-xl md:shadow-2xl flex flex-col transform transition-all animate-in fade-in zoom-in duration-300">
+            <div className="relative w-full min-h-full md:min-h-0 md:h-auto md:max-w-2xl bg-white md:rounded-xl md:shadow-2xl flex flex-col">
               {/* Header */}
               <div className="md:hidden bg-white pt-2 pb-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 pb-3">
                   <button
-                    className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
+                    className="text-black p-0 flex-shrink-0"
                     onClick={() => navigate(-1)}
                   >
                     <Icon
@@ -503,12 +502,11 @@ const AddressProfile = () => {
                     />
                   </button>
 
-                  <div className="flex-1">
-                    <h1 className="text-[16px] leading-[28px] font-bold text-black">
-                      ที่อยู่ใหม่
-                    </h1>
-                  </div>
+                  <h1 className="text-[16px] leading-[28px] font-bold text-black">
+                    {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "ที่อยู่ใหม่"}
+                  </h1>
                 </div>
+                <hr className="sm:hidden border-t-2 border-black w-full" />
               </div>
               <div className="hidden md:block px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
                 <h2 className="text-xl font-bold text-gray-800 text-[36px] stroke-[600px]">
@@ -674,7 +672,6 @@ const AddressProfile = () => {
                   </div>
                 </div>
               </div>
-
               {/* Footer Actions */}
               <div className="p-4 md:px-6 md:py-5 bg-white md:bg-gray-50 flex flex-col-reverse md:flex-row gap-3 border-t border-gray-100 mt-auto">
                 <button
@@ -682,7 +679,7 @@ const AddressProfile = () => {
                   onClick={handleSaveAddress}
                   className="w-full md:flex-[2] py-3 md:py-2.5 bg-green-500 md:bg-green-500 text-white rounded-md md:rounded-lg text-[15px] md:text-sm font-medium md:shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  {isEditMode ? "บันทึกการเปลี่ยนแปลง" : "บันทึก"}
+                  {isEditMode ? "บันทึก" : "บันทึก"}
                 </button>
                 <button
                   data-test="btn-cancel-address"
