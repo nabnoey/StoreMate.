@@ -28,15 +28,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // สั่งเคลียร์ State และ Cookie
       store.dispatch(logout());
-
-      // หน่วงเวลา 1.5 วินาที
-      setTimeout(() => {
-        window.location.replace("/login");
-      }, 1500);
     }
-
     return Promise.reject(error);
   },
 );

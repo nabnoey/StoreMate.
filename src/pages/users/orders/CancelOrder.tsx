@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import toast, { Toaster } from "react-hot-toast";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
@@ -19,9 +20,40 @@ const reasonOptions = [
 ];
 
 const CancelOrderPage = () => {
+  const { orderNo } = useParams();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handleSubmit = async () => {
+    // 1. ดักไว้เผื่อผู้ใช้ยังไม่ได้เลือกเหตุผล
+    if (!selectedReason) {
+      toast.error("กรุณาระบุเหตุผลในการทำรายการ");
+      return;
+    }
+
+    const payload = {
+      orderNo: orderNo,
+      reason: selectedReason,
+      description: description,
+    };
+
+    try {
+      console.log("กำลังส่งข้อมูล...", payload);
+
+      // สมมติว่าตรงนี้คือโค้ดเรียก API
+      // await api.post('/cancel-order', payload);
+
+      toast.success("ส่งคำขอยกเลิกคำสั่งซื้อสำเร็จ");
+
+      setTimeout(() => {
+        navigate(-1);
+      }, 1500);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">

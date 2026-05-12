@@ -114,7 +114,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึกข้อมูล
+              บันทึก
             </button>
 
             <button

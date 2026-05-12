@@ -64,7 +64,7 @@ export interface StatusOrderTabsProps {
 }
 
 export interface RefundRequest {
-  orderNo: string;
+  orderNo: Order["orderNo"];
   reason: string;
   description: string;
 }
