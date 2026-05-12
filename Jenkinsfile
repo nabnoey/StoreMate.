@@ -130,6 +130,17 @@ pipeline {
                 currentBuild.currentResult
             )
         }
+
+        aborted {
+            echo 'Build Aborted!'
+            sendNotificationToN8n(
+                'ABORTED',
+                env.STAGE_NAME ?: 'Unknown Stage',
+                'N/A',
+                'N/A',
+                currentBuild.currentResult
+            )
+        }
     
         always {
             cleanWs()
