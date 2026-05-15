@@ -114,7 +114,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึกข้อมูล
+              บันทึก
             </button>
 
             <button
@@ -369,18 +369,7 @@ const ProfilePage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <span className="text-black">แก้ไขโปรไฟล์</span>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <Link
-            to="/profile"
-            data-test="click-profile"
-            className="transition-colors"
-          >
-            โปรไฟล์
-          </Link>
+          <span className="text-black">โปรไฟล์</span>
         </nav>
 
         <div className="md:hidden bg-white pt-2 pb-4">

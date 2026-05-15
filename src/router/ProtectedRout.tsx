@@ -15,39 +15,28 @@ const ProtectedRout = ({ children }: Props) => {
   );
   const dispatch = useDispatch();
 
-  // เช็คว่ามีข้อมูลไหม
-  if (!isAuthenticated || !token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // สร้างตัวแปรไว้เก็บสถานะว่า Token พังหรือหมดอายุไหม
+  // 1. เช็คสถานะ Token ว่าพังหรือหมดอายุไหม (ทำเป็นตัวแปรไว้ก่อน ยังไม่ return)
   let isTokenInvalid = false;
-
-  try {
-    const decoded: any = jwtDecode(token);
-    // token หมดอายุระหว่างทางอะป่าว
-    if (decoded.exp * 1000 < Date.now()) {
-      isTokenInvalid = true;
+  if (token) {
+    try {
+      const decoded: any = jwtDecode(token);
+      if (decoded.exp * 1000 < Date.now()) {
+        isTokenInvalid = true; // Token หมดอายุ
+      }
+    } catch (error) {
+      isTokenInvalid = true; // ถอดรหัสไม่ได้
     }
-  } catch (error) {
-    // ถอดรหัสไม่ได้ (token พัง/โดนแก้)
-    isTokenInvalid = true;
   }
 
-  //ใช้ useEffect เพื่อ dispatch actiong เวลา token มีปัญหา
   useEffect(() => {
     if (isTokenInvalid) {
-      // เงื่อนไขคือถ้า token หมด ให้เคลียร์ token ใน cookie และ Redux เลยฟริน
       dispatch(logout());
     }
   }, [isTokenInvalid, dispatch]);
 
-  // ถ้า token มีปัญหา ให้เด้งกลับไปหน้า login เลย
-  if (isTokenInvalid) {
+  if (!isAuthenticated || !token || isTokenInvalid) {
     return <Navigate to="/login" replace />;
   }
-
-  // ถ้าผ่านหมดทุกด่าน ก็แสดงผลหน้า Component ปกติเลยฟริน
   return <>{children}</>;
 };
 

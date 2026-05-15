@@ -20,7 +20,6 @@ const orderDetails = async (orderNo: string) => {
   return res.data;
 };
 
-
 export const OrdersService = {
   getOrders,
   getOrdersStatus,

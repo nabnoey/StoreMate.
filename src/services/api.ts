@@ -28,15 +28,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // สั่งเคลียร์ State และ Cookie
-      store.dispatch(logout());
+      const isLoginAPI = error.config.url.includes("/login");
 
-      // หน่วงเวลา 1.5 วินาที
-      setTimeout(() => {
-        window.location.replace("/login");
-      }, 1500);
+      if (!isLoginAPI) {
+        TokenService.removeToken();
+        store.dispatch(logout());
+
+        window.location.href = "/login";
+      }
     }
-
     return Promise.reject(error);
   },
 );

@@ -296,14 +296,14 @@ const AddressProfile = () => {
       (t) => (
         <div className="flex flex-col gap-3 items-center p-3">
           <span className="text-gray-800 font-medium text-base">
-            คุณแน่ใจหรือไม่ว่าต้องการลบที่อยู่นี้?
+            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
           </span>
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              ยืนยัน
+              ลบ
             </button>
             <button
               onClick={() => cancelDelete(t.id)}
@@ -334,25 +334,25 @@ const AddressProfile = () => {
               icon="material-symbols:chevron-right-rounded"
               className="w-5 h-5 mx-1 text-black"
             />
-            <span className="text-black cursor-pointer">แก้ไขโปรไฟล์</span>
+            <Link
+              to="/profile"
+              data-test="click-profile"
+              className="transition-colors cursor-pointer"
+            >
+              โปรไฟล์
+            </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
               className="w-5 h-5 mx-1 text-black"
             />
-            <Link
-              to="/profile"
-              data-test="click-profile"
-              className="transition-colors"
-            >
-              โปรไฟล์
-            </Link>
+            <span className="text-black">จัดการที่อยู่</span>
           </nav>
         </div>
         <div className="md:hidden bg-white pt-2 pb-4">
           <div className="flex items-center gap-3">
             <button
               className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/profile")}
             >
               <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
             </button>
@@ -494,7 +494,7 @@ const AddressProfile = () => {
                 <div className="flex items-center gap-3 pb-3">
                   <button
                     className="text-black p-0 flex-shrink-0"
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("/address-profile")}
                   >
                     <Icon
                       icon="material-symbols:arrow-back"

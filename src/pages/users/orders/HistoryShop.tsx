@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import ProfileSidebar from "../../../components/user/ProfileSidebar";
@@ -17,8 +17,9 @@ const HistoryPage = () => {
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders, error } = useSelector((state: RootState) => state.orders);
-  const dispatch = useDispatch<AppDispatch>();
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { token } = useSelector((state: RootState) => state.auth);
   const formatOrderDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -30,27 +31,24 @@ const HistoryPage = () => {
   };
 
   useEffect(() => {
+    if (!token) return;
     dispatch(fetchOrders(status as any));
+  }, [dispatch, status, token]);
 
-    const interval = setInterval(() => {
-      dispatch(fetchOrders(status as any));
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [dispatch, status]);
-
-  const filteredOrders = orders
-    .filter((order) => {
-      if (status === "ALL") return true;
-      return order.status === status;
-    })
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    return orders
+      .filter((order) => (status === "ALL" ? true : order.status === status))
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+  }, [orders, status]);
 
   const handleTabChange = (nextStatus: string) => {
-    setSearchParams({ status: nextStatus });
+    if (nextStatus !== status) {
+      setSearchParams({ status: nextStatus });
+    }
   };
 
   return (
@@ -68,14 +66,7 @@ const HistoryPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/profile" className="transition-colors cursor-pointer">
-            การซื้อของฉัน
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <span className="text-black">สถานะคำสั่งซื้อ</span>
+          <span className="text-black cursor-pointer">การซื้อของฉัน</span>
         </nav>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -106,17 +97,27 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const color = statusConfig[order.status].color;
-                  const label = getOrderLabel(order.status, order.checkoutType);
+                  // 1. ป้องกัน status ประหลาด หรือ null (ถ้าไม่มีใน config ให้ใช้สีดำ)
+                  const color =
+                    statusConfig[order?.status]?.color || "text-black";
 
+                  // 2. ป้องกันตัวแปรหาย
+                  const label = getOrderLabel(
+                    order?.status,
+                    order?.checkoutType,
+                  );
+
+                  // 3. ป้องกัน orderItems หาย (พังที่ .reduce) ตามที่คุยกันรอบที่แล้ว
                   const orderTotal =
-                    order.totalPrice ||
-                    order.total ||
-                    order.orderItems.reduce(
-                      (sum, item) => sum + item.price * item.quantity,
+                    order?.totalPrice ||
+                    order?.total ||
+                    (order?.orderItems || []).reduce(
+                      (sum, item) =>
+                        sum + (item?.price || 0) * (item?.quantity || 0),
                       0,
                     );
-                  const firstProductId = order.orderItems?.[0]?.id;
+
+                  const firstProductId = order?.orderItems?.[0]?.id;
                   return (
                     <div
                       key={order.id}
@@ -235,9 +236,7 @@ const HistoryPage = () => {
                               data-test="btn-cancel-orders"
                               type="button"
                               onClick={() =>
-                                navigate("/cancel-orders", {
-                                  state: { orderId: order.id },
-                                })
+                                navigate(`/cancel-orders/${order.orderNo}`)
                               }
                               className="cursor-pointer rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
                             >

@@ -125,9 +125,11 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
           <button
             data-test="btn-orders-mobile"
             type="button"
-            onClick={() => handleNavigation("/orders")}
+            onClick={() => handleNavigation("/orders?status=PROCESSING")}
             className={`p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 hover:text-[#0A157A] ${
-              isActive("/orders") ? "bg-gray-100 text-[#0A157A]" : ""
+              isActive("/orders?status=PROCESSING")
+                ? "bg-gray-100 text-[#0A157A]"
+                : ""
             }`}
           >
             <Icon icon="radix-icons:clipboard" width="26" height="26" />
@@ -213,9 +215,9 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-orders"
               type="button"
-              onClick={() => handleNavigation("/orders")}
+              onClick={() => handleNavigation("/orders?status=PROCESSING")}
               className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
-                isActive("/orders") ? "bg-gray-100" : ""
+                isActive("/orders?status=PROCESSING") ? "bg-gray-100" : ""
               }`}
             >
               <div className="relative flex items-center justify-center overflow-hidden">

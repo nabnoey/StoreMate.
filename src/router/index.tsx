@@ -76,6 +76,38 @@ const CancelOrderPage = lazy(() =>
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
+  // {
+  //   path: "register",
+  //   element: (
+  //     <GuestRoute>
+  //       <RegisterPage />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "login",
+  //   element: (
+  //     <GuestRoute>
+  //       <LoginPage />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "forgot-password",
+  //   element: (
+  //     <GuestRoute>
+  //       <ForgotPassword />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "reset-password",
+  //   element: (
+  //     <GuestRoute>
+  //       <ResetPassword />
+  //     </GuestRoute>
+  //   ),
+  // },
   {
     path: "/",
     element: <MainLayout />,

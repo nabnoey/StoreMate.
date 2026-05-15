@@ -62,3 +62,9 @@ export interface StatusOrderTabsProps {
   activeTab: string;
   onTabChange: (tabName: string) => void;
 }
+
+export interface RefundRequest {
+  orderNo: Order["orderNo"];
+  reason: string;
+  description: string;
+}
