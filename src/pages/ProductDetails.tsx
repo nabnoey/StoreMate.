@@ -46,9 +46,6 @@ const ProductDetailPage: React.FC = () => {
   // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  //รูปภาพรายละเอียดสินค้าในมือถือ
-  // const [showAllThumbnails, setShowAllThumbnails] = useState(false);
-
   // จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
   const isLoggedIn = !!token;
@@ -81,7 +78,7 @@ const ProductDetailPage: React.FC = () => {
 
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
-    return cartItems.find((item) => item.productId === Number(id));
+    return cartItems.find((items) => items.productId === Number(id));
   }, [cartItems, id]);
 
   const quantityInCart = itemInCart?.quantity || 0;

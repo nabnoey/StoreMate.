@@ -412,7 +412,7 @@ const ShoppingCart = () => {
               {/* 🟢 ส่วนหลัก (ไอคอน + ข้อความ) */}
               <div className="flex-1 md:flex-none flex flex-col items-center justify-center py-16 sm:py-28">
                 <Icon
-                  icon="mdi-light:cart"
+                  icon="famicons:cart-outline"
                   className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
                 />
                 <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6 md:mb-6">
