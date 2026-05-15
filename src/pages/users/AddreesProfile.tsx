@@ -334,25 +334,25 @@ const AddressProfile = () => {
               icon="material-symbols:chevron-right-rounded"
               className="w-5 h-5 mx-1 text-black"
             />
-            <span className="text-black cursor-pointer">แก้ไขโปรไฟล์</span>
+            <Link
+              to="/profile"
+              data-test="click-profile"
+              className="transition-colors cursor-pointer"
+            >
+              โปรไฟล์
+            </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
               className="w-5 h-5 mx-1 text-black"
             />
-            <Link
-              to="/profile"
-              data-test="click-profile"
-              className="transition-colors"
-            >
-              โปรไฟล์
-            </Link>
+            <span className="text-black">จัดการที่อยู่</span>
           </nav>
         </div>
         <div className="md:hidden bg-white pt-2 pb-4">
           <div className="flex items-center gap-3">
             <button
               className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/profile")}
             >
               <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
             </button>
@@ -494,7 +494,7 @@ const AddressProfile = () => {
                 <div className="flex items-center gap-3 pb-3">
                   <button
                     className="text-black p-0 flex-shrink-0"
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("/address-profile")}
                   >
                     <Icon
                       icon="material-symbols:arrow-back"

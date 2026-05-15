@@ -7,13 +7,12 @@ type Props = {
 };
 
 const GuestRoute = ({ children }: Props) => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, token } = useSelector((state: RootState) => state.auth);
 
-  if (user) {
+  if (user && token) {
     return <Navigate to="/" replace />;
   }
-
-  return children;
+  return <>{children}</>;
 };
 
 export default GuestRoute;

@@ -28,7 +28,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      store.dispatch(logout());
+      const isLoginAPI = error.config.url.includes("/login");
+
+      if (!isLoginAPI) {
+        TokenService.removeToken();
+        store.dispatch(logout());
+
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

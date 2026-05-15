@@ -32,8 +32,7 @@ const HistoryPage = () => {
 
   useEffect(() => {
     if (!token) return;
-    const fetchStatus = status === "ALL" ? undefined : status;
-    dispatch(fetchOrders(fetchStatus as any));
+    dispatch(fetchOrders(status as any));
   }, [dispatch, status, token]);
 
   const filteredOrders = useMemo(() => {
@@ -67,14 +66,7 @@ const HistoryPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/profile" className="transition-colors cursor-pointer">
-            การซื้อของฉัน
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <span className="text-black">สถานะคำสั่งซื้อ</span>
+          <span className="text-black cursor-pointer">การซื้อของฉัน</span>
         </nav>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -105,17 +97,27 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const color = statusConfig[order.status].color;
-                  const label = getOrderLabel(order.status, order.checkoutType);
+                  // 1. ป้องกัน status ประหลาด หรือ null (ถ้าไม่มีใน config ให้ใช้สีดำ)
+                  const color =
+                    statusConfig[order?.status]?.color || "text-black";
 
+                  // 2. ป้องกันตัวแปรหาย
+                  const label = getOrderLabel(
+                    order?.status,
+                    order?.checkoutType,
+                  );
+
+                  // 3. ป้องกัน orderItems หาย (พังที่ .reduce) ตามที่คุยกันรอบที่แล้ว
                   const orderTotal =
-                    order.totalPrice ||
-                    order.total ||
-                    order.orderItems.reduce(
-                      (sum, item) => sum + item.price * item.quantity,
+                    order?.totalPrice ||
+                    order?.total ||
+                    (order?.orderItems || []).reduce(
+                      (sum, item) =>
+                        sum + (item?.price || 0) * (item?.quantity || 0),
                       0,
                     );
-                  const firstProductId = order.orderItems?.[0]?.id;
+
+                  const firstProductId = order?.orderItems?.[0]?.id;
                   return (
                     <div
                       key={order.id}

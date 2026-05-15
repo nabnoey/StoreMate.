@@ -179,6 +179,32 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
   };
 
+  const handleIncreaseQuantity = (
+    productId: number,
+    currentQuantity: number,
+    stockQuantity: number,
+  ) => {
+    // 🚨 ดักเงื่อนไข 1.3: ถ้าจำนวนในตะกร้าปัจจุบัน มากกว่าหรือเท่ากับ สต็อกที่มี
+    if (currentQuantity >= stockQuantity) {
+      toast.error("จำนวนสินค้าในสต๊อกไม่เพียงพอ");
+      return; // สั่งหยุดทำงาน ไม่ให้เพิ่มสินค้าไปที่ Backend
+    }
+
+    // ถ้าสต็อกยังเหลือ ค่อยส่งคำสั่งไปเพิ่มจำนวน
+    dispatch(incrementCartItemThunk(productId));
+  };
+
+  // 🔴 ฟังก์ชันสำหรับกดปุ่มลบ (-) ในหน้าตะกร้า
+  const handleDecreaseQuantity = (
+    productId: number,
+    currentQuantity: number,
+  ) => {
+    // ดักไม่ให้กดลบจนติดลบ (ถ้าเป็น 1 แล้วไม่ให้กดลบต่อ ต้องไปกดปุ่มถังขยะแทน)
+    if (currentQuantity > 1) {
+      dispatch(decrementCartItemThunk(productId));
+    }
+  };
+
   if (cartStatus === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -189,23 +215,45 @@ const ShoppingCart = () => {
 
   return (
     <div className="min-h-screen bg-white py-6 sm:py-12 px-4 font-anuphan">
-      <nav className="flex flex-wrap items-center text-md text-black mb-6 md:mb-8 font-medium ml-4 md:ml-10 lg:ml-20 py-1">
-        <Link
-          data-test="click-home"
-          to="/"
-          className="transition-colors cursor-pointer"
-        >
-          หน้าหลัก
-        </Link>
-        <Icon
-          icon="material-symbols:chevron-right-rounded"
-          className="w-5 h-5 mx-1 text-black"
-        />
-        <span className="text-black">รถเข็น</span>
-      </nav>
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden p-4 sm:p-8 md:p-12">
-          <div className="mb-6 md:mb-10">
+      <div className="hidden md:block">
+        <nav className="flex flex-wrap items-center text-md text-black mb-6 md:mb-8 font-medium ml-4 md:ml-10 lg:ml-20 py-1">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
+            หน้าหลัก
+          </Link>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1 text-black"
+          />
+          <span className="text-black">รถเข็น</span>
+        </nav>
+      </div>
+
+      <div className="md:hidden bg-white pt-2 pb-4">
+        <div className="flex items-center gap-3">
+          <button
+            className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
+            onClick={() => navigate("/profile")}
+          >
+            <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
+          </button>
+
+          <div className="flex-1">
+            <h1 className="text-[16px] leading-[28px] font-bold text-black">
+              รถเข็น
+            </h1>
+          </div>
+        </div>
+
+        <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
+      </div>
+
+      <div className="flex flex-col flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-sm border-none md:border-gray-100 min-h-[calc(100vh-80px)] md:min-h-[500px] relative">
+        <div className="bg-white rounded-xl shadow-none md:shadow-md border border-none md:border-gray-100 overflow-hidden p-4 sm:p-8 md:p-12">
+          <div className="hidden md:block mb-6 md:mb-10">
             <div className="flex items-center gap-3">
               <Icon
                 icon="lucide:shopping-cart"
@@ -225,7 +273,7 @@ const ShoppingCart = () => {
 
           {enrichedCartItems.length > 0 ? (
             <div className="space-y-6">
-              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+              <div className="flex justify-between items-center pb-4 border-b md:border-gray-100">
                 <span className="text-md sm:text-xl font-bold text-gray-700">
                   สินค้าในรถเข็น
                 </span>
@@ -240,7 +288,7 @@ const ShoppingCart = () => {
                 {enrichedCartItems.map((item) => (
                   <div
                     key={item.productId}
-                    className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-gray-50 last:border-0"
+                    className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-[#D1D5DB] last:border-0"
                   >
                     {/* โซนซ้าย: Checkbox + รูปภาพ + ชื่อสินค้า */}
                     <div className="flex items-start md:items-center gap-3 w-full md:w-auto md:flex-1">
@@ -315,13 +363,13 @@ const ShoppingCart = () => {
                         </span>
                         <button
                           data-test="increase-product"
-                          onClick={() =>
-                            dispatch(incrementCartItemThunk(item.productId))
-                          }
-                          disabled={
-                            !item.isAvailable ||
-                            item.quantity >= item.product.stockQuantity
-                          }
+                          onClick={() => {
+                            if (item.quantity >= item.product.stockQuantity) {
+                              toast.error("จำนวนสินค้าในสต๊อกไม่เพียงพอ");
+                              return;
+                            }
+                            dispatch(incrementCartItemThunk(item.productId));
+                          }}
                           className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                         >
                           <Icon icon="lucide:plus" width="14" height="14" />
@@ -384,22 +432,36 @@ const ShoppingCart = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 sm:py-28">
-              <Icon
-                icon="mdi-light:cart"
-                className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
-              />
-              <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6">
-                ไม่มีสินค้าในรถเข็น
-              </p>
-              <button
-                onClick={() => navigate("/")}
-                className="bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
-              >
-                เลือกซื้อสินค้า
-                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-              </button>
-            </div>
+            <>
+              <div className="flex flex-col items-center justify-center py-16 sm:py-28 min-h-[50vh] md:min-h-0">
+                <Icon
+                  icon="mdi-light:cart"
+                  className="w-32 h-32 sm:w-50 sm:h-50 text-black mb-6"
+                />
+                <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6 md:mb-6">
+                  ไม่มีสินค้าในรถเข็น
+                </p>
+                {/* desktop ไม่มีสินค้า */}
+                <button
+                  onClick={() => navigate("/")}
+                  className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* mobile ไม่มีสินค้า */}
+              <div className="md:hidden mt-auto pt-75 w-full flex justify-center">
+                <button
+                  onClick={() => navigate("/")}
+                  className="w-full bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

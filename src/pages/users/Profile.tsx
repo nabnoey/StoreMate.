@@ -369,18 +369,7 @@ const ProfilePage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <span className="text-black">แก้ไขโปรไฟล์</span>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <Link
-            to="/profile"
-            data-test="click-profile"
-            className="transition-colors"
-          >
-            โปรไฟล์
-          </Link>
+          <span className="text-black">โปรไฟล์</span>
         </nav>
 
         <div className="md:hidden bg-white pt-2 pb-4">
