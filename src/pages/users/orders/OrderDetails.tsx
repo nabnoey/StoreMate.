@@ -132,9 +132,7 @@ function OrderDetails() {
 
   const orderAddress = order.orderAddress?.[0]; 
 
-  const recipientName = order.orderRecipient?.fullName || 
-                        `${order.orderRecipient?.firstName ?? ""} ${order.orderRecipient?.lastName ?? ""}`.trim() || 
-                        "ไม่ระบุชื่อผู้รับ";
+  const recipientName = order.orderRecipient?.recipientName 
 
   const recipientPhone = order.orderRecipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
 
