@@ -20,6 +20,7 @@ import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../../redux/store";
 import type { OrderAddress } from "../../../types/orders";
 import { getOrderLabel } from "../../../utils/order";
+import type { PaymentMethod } from "../../../types/payment";
 
 function StatusStep({
   icon: Icon,
@@ -130,9 +131,9 @@ function OrderDetails() {
     );
   }
 
-  const orderAddress = order.orderAddress?.[0]; 
+  const orderAddress = order.orderAddress?.[0];
 
-  const recipientName = order.orderRecipient?.recipientName 
+  const recipientName = order.orderRecipient?.recipientName;
 
   const recipientPhone = order.orderRecipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
 
@@ -145,16 +146,13 @@ function OrderDetails() {
     zipcode: "",
   };
 
-
-  const deliveryAddress = orderAddress?.streetAddress ? orderAddress : fallbackAddress;
-  
+  const deliveryAddress = orderAddress?.streetAddress
+    ? orderAddress
+    : fallbackAddress;
 
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString("th-TH")
     : new Date().toLocaleDateString("th-TH");
-
-
-    
 
   const steps = [
     { icon: <FiClock />, label: "รอชำระเงิน", status: "PENDING" },
@@ -164,6 +162,12 @@ function OrderDetails() {
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
+
+  const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+    DESTINATION: "เก็บเงินปลายทาง (COD)",
+    PROMPTPAY: "พร้อมเพย์ (PromptPay)",
+    CARD: "บัตรเครดิต / เดบิต",
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full mt-0 lg:mt-10">
@@ -222,18 +226,30 @@ function OrderDetails() {
                 />
               ))}
 
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-sm font-bold text-gray-600">
-                  ราคาสุทธิรวมภาษี
-                </span>
-                <div className="text-right">
-                  <p className="text-xl font-black text-gray-900">
-                    ฿ {order.total.toLocaleString()}
-                  </p>
-                  <p className="text-[10px] text-gray-400 font-bold">THB</p>
-                </div>
-              </div>
-            </div>
+
+              <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
+  <div className="flex justify-between items-center">
+    <span className="text-[16px] font-medium text-gray-600">ราคารวม</span>
+    <div className="text-right">
+      <p className="text-xl text-blue-500 font-bold">
+        ฿ {order.total.toLocaleString()}
+      </p>
+      <p className="text-[10px] text-gray-400 font-bold">THB</p>
+    </div>
+  </div>
+
+  <div className="flex justify-between items-center border-t border-gray-50">
+    <span className="text-[16px] font-medium text-gray-600">ช่องทางชำระเงิน</span>
+    <div className="text-right">
+      <p className="text-[16px] font-medium text-gray-900">
+        {PAYMENT_METHOD_LABELS[order.checkoutType] || order.checkoutType}
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+
+    
 
             {/* History */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -248,7 +264,7 @@ function OrderDetails() {
                     สถานะปัจจุบัน:{" "}
                     {getOrderLabel(
                       order.status,
-                      order.checkoutType || "DESTINATION",
+                      order.checkoutType ,
                     )}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
