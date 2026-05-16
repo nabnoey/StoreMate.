@@ -27,11 +27,10 @@ export interface OrderItem {
 }
 
 export interface OrderRecipient {
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
+  recipientName?: string;
   phone?: string;
 }
+
 
 export interface Order {
   id: number;

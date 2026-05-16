@@ -544,7 +544,7 @@ const AddressProfile = () => {
                         onChange={handleProvinceChange}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none appearance-none cursor-pointer"
                       >
-                        <option value={0}>กรุณาเลือกจังหวัด</option>
+                        <option value={0} hidden>กรุณาเลือกจังหวัด</option>
                         {provinces.map((p: { id: number; name: string }) => (
                           <option key={p.id} value={p.id}>
                             {p.name}
@@ -583,7 +583,7 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="">กรุณาเลือกอำเภอ</option>
+                        <option value="" hidden>กรุณาเลือกอำเภอ</option>
                         {districts.map((d: { id: number; name: string }) => (
                           <option key={d.id} value={d.id}>
                             {d.name}
@@ -633,7 +633,7 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="">กรุณาเลือกตำบล</option>
+                        <option value="" hidden>กรุณาเลือกตำบล</option>
                         {subdistricts.map((s: { id: number; name: string }) => (
                           <option key={s.id} value={s.id}>
                             {s.name}
@@ -661,7 +661,7 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="">กรุณาเลือกรหัสไปรษณีย์</option>
+                        <option value="" hidden>กรุณาเลือกรหัสไปรษณีย์</option>
                         {zipcodes.map((z) => (
                           <option key={z.id} value={z.id}>
                             {z.name}
