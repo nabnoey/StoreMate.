@@ -41,6 +41,10 @@ const PaymentQRInner = () => {
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
   useEffect(() => {
+    if (orderNo) {
+      localStorage.setItem("orderNo", orderNo);
+    }
+
     const savedOrderNo = localStorage.getItem("orderNo");
     if (!savedOrderNo) return;
 
@@ -77,12 +81,10 @@ const PaymentQRInner = () => {
     };
 
     checkStatusOnRefresh();
-  }, [dispatch]);
+  }, [dispatch, orderNo]);
 
-  // ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
   useEffect(() => {
     if (paymentStatus === "PAYMENT_SUCCESS") {
-      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
       navigate("/history-shop", { replace: true });
@@ -92,7 +94,7 @@ const PaymentQRInner = () => {
   }, [paymentStatus, navigate, dispatch]);
 
   useEffect(() => {
-    if (!stripe || !clientSecret || hasRequestedQR.current) return;
+    if (!stripe || !clientSecretState || hasRequestedQR.current) return;
 
     const generateQR = async () => {
       hasRequestedQR.current = true;
