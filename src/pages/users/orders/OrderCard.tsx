@@ -8,6 +8,7 @@ const OrderCard = ({ order }: { order: Order }) => {
     navigate(`/orders/${order.orderNo}`);
   };
 
+  
   return (
     <div
       onClick={handleOrderClick}

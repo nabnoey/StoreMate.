@@ -97,7 +97,6 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  // 1. ป้องกัน status ประหลาด หรือ null (ถ้าไม่มีใน config ให้ใช้สีดำ)
                   const color =
                     statusConfig[order?.status]?.color || "text-black";
 
@@ -107,7 +106,7 @@ const HistoryPage = () => {
                     order?.checkoutType,
                   );
 
-                  // 3. ป้องกัน orderItems หาย (พังที่ .reduce) ตามที่คุยกันรอบที่แล้ว
+                
                   const orderTotal =
                     order?.totalPrice ||
                     order?.total ||
@@ -168,13 +167,13 @@ const HistoryPage = () => {
                             />
 
                             <div className="flex flex-col flex-1 gap-1 not-last:text-left">
-                              <div className="font-bold text-[20px] font-anuphan text-black line-clamp-3">
+                              <div className="font-bold text-[16px] font-anuphan text-black line-clamp-3">
                                 {item.productName}
                               </div>
-                              <div className="text-black text-[16px]">
+                              <div className="text-black text-[14px]">
                                 ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
                               </div>
-                              <div className="text-black text-[16px]">
+                              <div className="text-black text-[14px]">
                                 จำนวน x {item.quantity}
                               </div>
                             </div>
@@ -238,7 +237,7 @@ const HistoryPage = () => {
                               onClick={() =>
                                 navigate(`/cancel-orders/${order.orderNo}`)
                               }
-                              className="cursor-pointer rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
+                              className="cursor-pointer rounded-md  bg-blue-500 px-2 py-2 text-[16px] font-medium text-white transition"
                             >
                               ยกเลิกคำสั่งซื้อ
                             </button>

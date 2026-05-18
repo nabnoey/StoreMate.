@@ -17,6 +17,25 @@ export type OrderStatus =
   | "CANCELLED"
   | "REFUND";
 
+  export const statusConfig: Record<OrderStatus, { label: string; color: string }> = {
+  PENDING: { label: "ที่ต้องชำระ", color: "text-blue-500" },
+  PROCESSING: { label: "ที่ต้องจัดส่ง", color: "text-yellow-500" },
+  RECEIVE: { label: "ที่ต้องได้รับ", color: "text-orange-500" },
+  COMPLETED: { label: "สำเร็จแล้ว", color: "text-green-500" },
+  CANCELLED: { label: "ยกเลิกแล้ว", color: "text-red-500" },
+  REFUND: { label: "คืนเงินแล้ว", color: "text-purple-500" },
+  ALL: { label: "ทั้งหมด", color: "text-black" },
+};
+
+export const getOrderLabel = (status: OrderStatus, checkoutType?: string): string => {
+  if (status === "PROCESSING" && checkoutType === "COD") {
+    return "ที่ต้องจัดส่ง (COD)";
+  }
+  
+  // ดึงคำแปลภาษาไทยออกไปตาม Key ได้ทันที อ่านง่าย บรรทัดเดียวจบ
+  return statusConfig[status]?.label || status;
+};
+
 export interface OrderItem {
   id: number;
   productName: string;
@@ -27,11 +46,10 @@ export interface OrderItem {
 }
 
 export interface OrderRecipient {
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
+  recipientName?: string;
   phone?: string;
 }
+
 
 export interface Order {
   id: number;

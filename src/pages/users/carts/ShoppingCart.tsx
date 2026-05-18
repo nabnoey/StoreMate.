@@ -285,7 +285,7 @@ const ShoppingCart = () => {
                       </div>
 
                       <div className="flex-1 min-w-0 px-2">
-                        <h3 className="text-md font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
+                        <h3 className="text-[16px] font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
                           {item.product.productName}
                         </h3>
 
