@@ -1,0 +1,39 @@
+import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
+import {ModeratorService} from "../../services/moderator.service";
+import type {Order} from "../../types/orders";
+
+interface ModeratorState {
+    orders: Order[];
+    loading: boolean;
+    error: string | null;
+}
+
+const initialState: ModeratorState = {
+    orders: [],
+    loading: false,
+    error: null,
+};
+
+export const fetchAllOrders = createAsyncThunk(
+    "moderator/fetchAllOrders",
+    async () => {
+        const res = await ModeratorService.getAllOrders();
+        return res;
+    });
+
+const moderatorSlice = createSlice({
+    name: "moderator",
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+           
+            .addCase(fetchAllOrders.fulfilled, (state, action) => {
+                state.loading = false;
+                state.orders = action.payload;
+            })
+          
+    }
+});
+
+export default moderatorSlice.reducer;

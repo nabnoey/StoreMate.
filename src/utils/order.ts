@@ -31,16 +31,26 @@ export const getOrderLabel = (
   status: OrderStatus,
   paymentMethod: PaymentMethod,
 ) => {
-  //ปลายทาง ถ้ายังไม่ถึงสถานะ จัดส่งสำเร็จ มันจะยังขึ้นสถานะว่า รอชำระเงินไปก่อน
+  // สำหรับการชำระเงินปลายทาง ให้แสดงว่าเป็นรายการที่ต้องจัดส่ง
   if (paymentMethod === "DESTINATION") {
-    if (status === "COMPLETED") {
-      return "จัดส่งสำเร็จ";
+    switch (status) {
+      case "PENDING":
+      case "PROCESSING":
+        return "ที่ต้องจัดส่ง";
+      case "RECEIVE":
+        return "ที่ต้องได้รับ";
+      case "COMPLETED":
+        return "จัดส่งสำเร็จ";
+      case "CANCELLED":
+        return "ยกเลิกคำสั่งซื้อ";
+      case "REFUND":
+        return "คืนเงิน/คืนสินค้า";
+      default:
+        return "-";
     }
-    // return "รอการชำระเงิน";
-    return "ที่ต้องชำระ";
   }
 
-  //พร้อมเพย์ กับ บัตรเครดิต
+  // พร้อมเพย์ กับ บัตรเครดิต
   switch (status) {
     case "PENDING":
       return "ที่ต้องชำระ";

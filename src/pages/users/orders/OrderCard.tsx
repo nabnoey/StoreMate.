@@ -1,6 +1,13 @@
 import type { Order } from "../../../types/orders";
 import { useNavigate } from "react-router-dom";
 
+  const STATUS_LABELS: Record<string, string> = {
+  PENDING: "รอชำระ",
+  TO_SHIP: "ต้องจัดส่ง",
+  SHIPPING: "กำลังจัดส่ง",
+  COMPLETED: "สำเร็จ",
+  CANCELLED: "ยกเลิก",
+};
 const OrderCard = ({ order }: { order: Order }) => {
   const navigate = useNavigate();
 
@@ -8,7 +15,7 @@ const OrderCard = ({ order }: { order: Order }) => {
     navigate(`/orders/${order.orderNo}`);
   };
 
-  
+
   return (
     <div
       onClick={handleOrderClick}
@@ -19,7 +26,7 @@ const OrderCard = ({ order }: { order: Order }) => {
         <span className="text-sm text-gray-600">
           {order.orderItems.length} รายการ
         </span>
-        <span className="text-sm font-medium text-blue-600">{order.status}</span>
+        <span className="text-sm font-medium text-blue-600">  {STATUS_LABELS[order.status]}</span>
       </div>
 
       {order.orderItems.map((item) => (

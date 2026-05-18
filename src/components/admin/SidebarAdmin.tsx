@@ -71,7 +71,7 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/orders")}
+              onClick={() => navigate("/moderator/orders")}
             >
               <ShoppingCart size={18} />
               จัดการคำสั่งซื้อ

@@ -25,15 +25,21 @@ const PaymentQRInner = () => {
   const { id } = useParams();
   const location = useLocation();
 
-  const clientSecret = location.state?.clientSecret;
-  const totalPrice = location.state?.totalPrice || 0;
+  const orderNo = location.state?.orderNo;
+  const initialClientSecret = location.state?.clientSecret;
+  const initialTotalPrice = location.state?.totalPrice || 0;
 
+  const [clientSecretState, setClientSecretState] = useState<string | null>(
+    initialClientSecret || null,
+  );
+  const [totalPrice, setTotalPrice] = useState<number>(initialTotalPrice);
   const [showQR] = useState(true);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
 
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [refId, setRefId] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(true);
+  const [isPreparingIntent, setIsPreparingIntent] = useState(false);
   const hasRequestedQR = useRef(false);
 
   usePaymentSocket();
@@ -41,6 +47,10 @@ const PaymentQRInner = () => {
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
   useEffect(() => {
+    if (orderNo) {
+      localStorage.setItem("orderNo", orderNo);
+    }
+
     const savedOrderNo = localStorage.getItem("orderNo");
     if (!savedOrderNo) return;
 
@@ -77,12 +87,10 @@ const PaymentQRInner = () => {
     };
 
     checkStatusOnRefresh();
-  }, [dispatch]);
+  }, [dispatch, orderNo]);
 
-  // ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
   useEffect(() => {
     if (paymentStatus === "PAYMENT_SUCCESS") {
-      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
       navigate("/history-shop", { replace: true });
@@ -92,7 +100,56 @@ const PaymentQRInner = () => {
   }, [paymentStatus, navigate, dispatch]);
 
   useEffect(() => {
-    if (!stripe || !clientSecret || hasRequestedQR.current) return;
+    if (clientSecretState || !orderNo || isPreparingIntent) return;
+
+    const preparePaymentIntent = async () => {
+      setIsPreparingIntent(true);
+
+      try {
+        const order = await OrdersService.orderDetails(orderNo);
+        const calculatedTotal =
+          order?.totalPrice ||
+          order?.total ||
+          (order?.orderItems || []).reduce(
+            (sum: number, item: any) => sum + (item?.price || 0) * (item?.quantity || 0),
+            0,
+          );
+
+        setTotalPrice(calculatedTotal);
+
+        if (order?.checkoutType !== "PROMPTPAY") {
+          toast.error("ไม่สามารถสร้างการชำระเงินสำหรับคำสั่งซื้อนี้ได้");
+          navigate("/orders");
+          return;
+        }
+
+        const payload: any = {
+          checkoutType: "PROMPTPAY",
+          orderNo,
+        };
+
+        const response = await PaymentService.createPaymentIntent(payload);
+
+        if (response?.clientSecret) {
+          setClientSecretState(response.clientSecret);
+        } else {
+          toast.error("ไม่สามารถสร้างข้อมูลการชำระเงินได้");
+          navigate("/orders");
+        }
+      } catch (err) {
+        console.error("ไม่สามารถดึงข้อมูลคำสั่งซื้อหรือสร้าง QR ได้", err);
+        toast.error("ไม่สามารถสร้างข้อมูลการชำระเงินได้");
+        navigate("/orders");
+      } finally {
+        setIsPreparingIntent(false);
+      }
+    };
+
+    preparePaymentIntent();
+  }, [clientSecretState, orderNo, isPreparingIntent, navigate]);
+
+  useEffect(() => {
+    if (!stripe || !clientSecretState || hasRequestedQR.current) return;
 
     const generateQR = async () => {
       hasRequestedQR.current = true;

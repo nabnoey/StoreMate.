@@ -28,11 +28,10 @@ export type OrderStatus =
 };
 
 export const getOrderLabel = (status: OrderStatus, checkoutType?: string): string => {
-  if (status === "PROCESSING" && checkoutType === "COD") {
+  if (status === "PROCESSING" && checkoutType === "DISTINATION") {
     return "ที่ต้องจัดส่ง (COD)";
   }
   
-  // ดึงคำแปลภาษาไทยออกไปตาม Key ได้ทันที อ่านง่าย บรรทัดเดียวจบ
   return statusConfig[status]?.label || status;
 };
 

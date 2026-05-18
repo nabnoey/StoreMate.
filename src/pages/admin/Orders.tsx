@@ -1,244 +1,245 @@
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
-import {
-  FiArrowLeft,
-  FiClock,
-  FiPackage,
-  FiTruck,
-  FiCheckCircle,
-  FiUser,
-  FiPhone,
-  FiMapPin,
-  FiBox,
-  FiClipboard,
-} from "react-icons/fi";
-import { FaHistory } from "react-icons/fa";
-import { Users } from "lucide-react";
+import type { AppDispatch, RootState } from "../../redux/store";
+import { fetchAllOrders } from "../../redux/moderator/ModeratorReducer";
+
+import { STATUS_STYLES, type OrderMod } from "../../types/moderator/ordersMod";
+
+const formatDateTime = (isoString: string) => {
+  if (!isoString) return { dateStr: "-", timeStr: "-" };
+  try {
+    const dateObj = new Date(isoString);
+    const dateStr = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear() + 543}`;
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    return { dateStr, timeStr: `${hours}.${minutes} น.` };
+  } catch (error) {
+    return { dateStr: "-", timeStr: "-" };
+  }
+};
 
 function Orders() {
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // จัดการเรื่อง Type ตีกันโดยระบุโครงสร้างเป็นแผงข้อมูลประเภท OrderMod
+  const { orders } = useSelector((state: RootState) => state.moderator) 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchDate, setSearchDate] = useState("");
+  const [timeFilter, setTimeFilter] = useState("วันนี้");
+
+  // 1. ⚙️ เพิ่ม State สำหรับระบบ Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // กำหนดให้โชว์หน้าละ 5 รายการตามต้องการ
+
+  useEffect(() => {
+    dispatch(fetchAllOrders());
+  }, [dispatch]);
+
+  // เมื่อข้อมูล orders มีการเปลี่ยนแปลงหรือมีการค้นหา ให้รีเซ็ตกลับไปหน้า 1 เสมอเพื่อกันเอ๋อ
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [orders, searchTerm, searchDate, timeFilter]);
+
+  // 2. 🧮 คำนวณหาจุดตัดของข้อมูล (Pagination Logic)
+  const safeOrders = orders || [];
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  
+  // ข้อมูลที่จะถูกดึงมาแสดงในตารางเฉพาะหน้านั้นๆ (ดึงมาทีละ 5 ตัว)
+  const currentItems = safeOrders.slice(indexOfFirstItem, indexOfLastItem);
+
+  // คำนวณจำนวนหน้าทั้งหมดจากจำนวนข้อมูลที่มีจริง
+  const totalPages = Math.ceil(safeOrders.length / itemsPerPage);
+
+  // ฟังก์ชันสลับหน้าอย่างปลอดภัย
+  const handlePageChange = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // สร้างอาเรย์ตัวเลขหน้าสำหรับการสร้างปุ่ม เช่น [1, 2, 3, 4, 5]
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full">
       <HeaderAdmin
         title="จัดการคำสั่งซื้อ"
-        subtitle="ตรวจสอบ ติดตามสถานะ และดำเนินการจัดการคำสั่งซื้อ"
+        subtitle="ตรวจสอบและจัดการรายการคำสั่งซื้อทั้งหมดในระบบ"
       />
 
       <div className="p-6 w-full text-[#374151] max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <button
-            type="button"
-            className="flex items-center gap-4 hover:opacity-70 transition-opacity text-left"
-          >
-            <FiArrowLeft className="text-xl text-gray-700" />
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          
+          {/* Action Bar ด้านบน */}
+          <div className="flex flex-col gap-4 mb-6">
             <div>
-              <h2 className="text-lg font-bold text-[#0F172A]">
-                รายละเอียดคำสั่งซื้อ
-              </h2>
-              <p className="text-sm text-[#64748B]">ORD-2024-001</p>
+              <button
+                type="button"
+                className="bg-black hover:opacity-80 text-white text-xs font-medium py-2 px-4 rounded flex items-center gap-2"
+              >
+                <span>🖨️</span> ปริ้นใบปะหน้าที่เลือก ( 0 )
+              </button>
             </div>
-          </button>
-          <span className="bg-[#BFDBFE] text-[#2563EB] px-4 py-1.5 rounded-full text-sm font-semibold border border-blue-100">
-            กำลังเตรียมสินค้า
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative">
-              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-gray-200 z-0"></div>
-
-              <div className="flex justify-between items-center relative z-10">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-gray-800 text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm">
-                    <FiClock />
-                  </div>
-                  <span className="text-xs font-medium text-gray-500">
-                    รอชำระเงิน
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-black text-black w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm">
-                    <FiClipboard />
-                  </div>
-                  <span className="text-xs font-bold text-gray-800">
-                    กำลังเตรียมสินค้า
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-[#F1F5F9] text-black w-10 h-10 rounded-full flex items-center justify-center text-lg">
-                    <FiTruck />
-                  </div>
-                  <span className="text-xs font-medium text-gray-400">
-                    จัดส่งแล้ว
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-[#F1F5F9] text-black w-10 h-10 rounded-full flex items-center justify-center text-lg">
-                    <FiCheckCircle />
-                  </div>
-                  <span className="text-xs font-medium text-gray-400">
-                    สำเร็จแล้ว
-                  </span>
-                </div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <input
+                  type="text"
+                  placeholder="ค้นหาโดย ชื่อ, เบอร์โทร, "
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
+                />
+                <input
+                  type="date"
+                  value={searchDate}
+                  onChange={(e) => setSearchDate(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-400"
+                />
               </div>
-            </div>
 
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiClipboard className="text-lg" /> เปลี่ยนสถานะคำสั่งซื้อ
-              </h3>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="status-select"
-                    className="block text-xs text-[#94A3B8] mb-1 font-bold"
-                  >
-                    เลือกสถานะใหม่
-                  </label>
-                  <select
-                    id="status-select"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  >
-                    <option>กำลังเตรียมสินค้า</option>
-                    <option>จัดส่งแล้ว</option>
-                    <option>สำเร็จแล้ว</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
+              <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
+                {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
                   <button
+                    key={tab}
                     type="button"
-                    className="bg-gray-500 hover:bg-gray-600 transition-colors text-white px-6 py-2.5 rounded-md text-sm font-medium flex items-center gap-2 w-full sm:w-auto justify-center"
+                    onClick={() => setTimeFilter(tab)}
+                    className={`px-4 py-2 border-r last:border-r-0 transition-colors ${
+                      timeFilter === tab ? "bg-gray-100 text-black" : "bg-white text-gray-500 hover:bg-gray-50"
+                    }`}
                   >
-                    <FiCheckCircle /> บันทึกการเปลี่ยนแปลง
+                    {tab}
                   </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiBox className="text-lg" /> รายการสินค้า ( 1 )
-              </h3>
-
-              <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 text-2xl">
-                    <FiPackage />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800 text-sm">
-                      น้ำมะม่วงหาวมะนาวโห่
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">จำนวน: 1</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-800">฿ 4,990</p>
-                  <p className="text-[10px] text-gray-400 font-medium">
-                    UNIT PRICE
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-sm font-bold text-gray-600">
-                  ราคาสุทธิรวมภาษี
-                </span>
-                <div className="text-right">
-                  <p className="text-xl font-black text-gray-900">฿ 4,990</p>
-                  <p className="text-[10px] text-gray-400 font-bold">THB</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
-                <FaHistory className="text-lg" /> ประวัติการเปลี่ยนแปลง
-              </h3>
-
-              <div className="relative border-l-2 border-gray-100 ml-3 space-y-6">
-                <div className="relative pl-6">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100"></div>
-                  <p className="font-bold text-sm text-gray-800">
-                    อัปเดตสถานะเป็น: กำลังเตรียมสินค้า
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    วันนี้, 14:02 น. โดย Admin Root
-                  </p>
-                </div>
-
-                <div className="relative pl-6">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-gray-300 rounded-full ring-4 ring-gray-100"></div>
-                  <p className="font-medium text-sm text-gray-500">
-                    รับคำสั่งซื้อเข้าระบบ
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    2024-05-15 14:30 น.
-                  </p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* ---------------- Right Column (Sidebar Content) ---------------- */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-6">
-              <div className="bg-[#0B1A28] text-white px-5 py-3 flex items-center gap-2">
-                <Users className="text-lg" />
-                <h3 className="font-bold text-sm">ข้อมูลผู้รับ</h3>
-              </div>
+          <h3 className="text-base font-bold text-gray-800 mb-4">คำสั่งซื้อ</h3>
 
-              <div className="p-5 flex flex-col gap-5">
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    ชื่อผู้สั่งซื้อ
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
-                      <FiUser />
-                    </div>
-                    <p className="font-bold text-sm text-[#0F172A]">
-                      สมชาย ใจดี
-                    </p>
-                  </div>
-                </div>
+          {/* ตารางแสดงข้อมูล */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead>
+                {/* 🎨 ปรับสีตัวอักษรและน้ำหนักหัวตารางให้ดูสะอาดตาตาม Figma */}
+                <tr className="border-b border-gray-200 text-gray-400 text-xs font-normal">
+                  <th className="pb-3 font-medium px-2">เลขที่คำสั่งซื้อ</th>
+                  <th className="pb-3 font-medium px-2">ชื่อผู้สั่งซื้อ</th>
+                  <th className="pb-3 font-medium px-2">เบอร์โทร</th>
+                  <th className="pb-3 font-medium px-2">วันที่สั่งซื้อ</th>
+                  <th className="pb-3 font-medium px-2">ยอดรวม</th>
+                  <th className="pb-3 font-medium px-2">สั่งจาก</th>
+                  <th className="pb-3 font-medium px-2">สถานะคำสั่งซื้อ</th>
+                  <th className="pb-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {currentItems.length > 0 ? (
+                  // เปลี่ยนจากดึงจาก orders ตรงๆ มาดึงจากรายการที่กรองตามหน้าปัจจุบัน (currentItems)
+                  currentItems.map((order: OrderMod) => {
+                    const { dateStr, timeStr } = formatDateTime(order.createdAt);
 
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    เบอร์โทรศัพท์
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
-                      <FiPhone />
-                    </div>
-                    <p className="font-bold text-sm text-[#0F172A]">
-                      081-234-5678
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    ที่อยู่สำหรับการจัดส่ง
-                  </p>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black shrink-0">
-                      <FiMapPin />
-                    </div>
-                    <p className="font-sans text-sm text-black leading-relaxed">
-                      116/1 ม.1 ต.ห้วยขวาง
-                      <br />
-                      อ.กำแพงแสน จ.นครปฐม
-                      <br />
-                      73140
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    return (
+                      <tr key={order.id || order.orderNo} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-4 px-2 text-gray-600 font-medium">{order.orderNo}</td>
+                        <td className="py-4 px-2 text-gray-800 font-medium">{order.recipientName}</td>
+                        <td className="py-4 px-2 text-gray-500">{order.phone}</td>
+                        <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
+                          {dateStr}<br />
+                          <span className="text-gray-400">{timeStr}</span>
+                        </td>
+                        <td className="py-4 px-2 font-bold text-gray-800">
+                          ฿ {(order.total || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-2 text-gray-500">{order.shippingFrom || "website"}</td>
+                        <td className="py-4 px-2">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                              STATUS_STYLES[order.status] || "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="py-4 text-right text-xs space-x-3 pr-2">
+                          {order.is_printed && (
+                            <span className="text-blue-400 font-medium">printed</span>
+                          )}
+                          <button
+                            type="button"
+                            className="text-blue-600 hover:underline font-medium"
+                            onClick={() => console.log("คลิกจัดการออเดอร์:", order.orderNo)}
+                          >
+                            จัดการ
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-gray-400 font-medium">
+                      ไม่มีรายการคำสั่งซื้อในระบบ
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
+
+          {/* 🎨 ส่วนของ Pagination ท้ายตาราง (ปรับปรุงดีไซน์ให้ตรงตาม UI รูปภาพ) */}
+          <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-xs">
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                currentPage === 1 ? "text-gray-300 cursor-not-allowed border-gray-200" : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              ก่อนหน้า
+            </button>
+            
+            <div className="flex gap-1">
+              {pageNumbers.length > 0 ? (
+                pageNumbers.map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => handlePageChange(page)}
+                    className={`w-7 h-7 rounded flex items-center justify-center font-medium transition-colors ${
+                      page === currentPage 
+                        ? "text-blue-600 font-bold bg-transparent" // หน้าปัจจุบันจะเป็นสีน้ำเงิน ไม่มีสีพื้นหลังทึบแบบเดิมตามดีไซน์รูปภาพ
+                        : "text-gray-500 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))
+              ) : (
+                <button type="button" className="w-7 h-7 text-blue-600 font-bold">1</button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                currentPage === totalPages || totalPages === 0
+                  ? "text-gray-300 cursor-not-allowed border-gray-200" 
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              ต่อไป
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
