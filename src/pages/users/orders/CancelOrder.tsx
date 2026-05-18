@@ -33,7 +33,7 @@ const CancelOrderPage = () => {
 
   const currentLabel = getOrderLabel(orderStatus, paymentMethod);
 
-  const isPendingPayment = currentLabel === "รอการชำระเงิน";
+  const isPendingPayment = currentLabel === "ที่ต้องชำระ";
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
