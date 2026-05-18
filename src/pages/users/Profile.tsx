@@ -478,7 +478,7 @@ const ProfilePage = () => {
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
                         {tempData.email.replace(
-                          /(.{3})(.*)(@.*)/,
+                          /(.{3})([^@]*)(@.*)/,
                           "$1******$3",
                         )}
                       </div>

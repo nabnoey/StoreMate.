@@ -27,14 +27,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       const isLoginAPI = error.config.url.includes("/login");
 
       if (!isLoginAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
 
-        window.location.href = "/login";
+        globalThis.location.href = "/login";
       }
     }
     return Promise.reject(error);

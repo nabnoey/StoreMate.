@@ -155,7 +155,7 @@ const PaymentQRInner = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
-        navigate(`/payment/cancel`);
+        navigate(`/orders`);
         return;
       }
       const timerId = setInterval(() => {
@@ -201,7 +201,7 @@ const PaymentQRInner = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-white lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
       {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
         <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
@@ -234,15 +234,13 @@ const PaymentQRInner = () => {
       </div>
 
       {/* --- MOBILE HEADER --- */}
-      <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30 mb-2">
+      <div className="lg:hidden w-full flex items-center bg-white p-4 pt-10 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
           icon="lucide:arrow-left"
           className="w-6 h-6 mr-3 text-black cursor-pointer"
           onClick={() => navigate(-1)}
         />
-        <span className="text-lg font-bold text-black">
-          ชำระเงินผ่าน QR Code
-        </span>
+        <span className="text-lg font-bold text-black">ข้อมูลการชำระเงิน</span>
       </div>
 
       <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm p-4 sm:p-10 lg:mt-6 lg:mb-10">
@@ -258,12 +256,12 @@ const PaymentQRInner = () => {
         </button>
 
         {/* ส่วนแสดงราคาและเวลา */}
-        <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 border-b border-gray-100 lg:border-none pb-4">
+        <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 pb-4">
           <div className="flex justify-between w-full max-w-[400px] items-center  px-4 ">
             <span className="text-black font-bold text-[15px] sm:text-base">
               ยอดชำระเงินทั้งหมด
             </span>
-            <span className="text-black font-bold text-lg sm:text-xl">
+            <span className="text-blue-500 font-bold text-lg sm:text-xl">
               ฿ {totalPrice.toLocaleString()}
             </span>
           </div>
@@ -271,7 +269,7 @@ const PaymentQRInner = () => {
             <span className="text-black font-medium text-[15px] sm:text-base">
               กรุณาชำระภายใน
             </span>
-            <span className="text-black font-bold text-lg sm:text-xl animate-pulse">
+            <span className="text-blue-500 font-bold text-lg sm:text-xl">
               {formatTime(timeLeft)}
             </span>
           </div>
@@ -317,31 +315,38 @@ const PaymentQRInner = () => {
 
             <div className="flex flex-col gap-5">
               {[
-                { text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ' },
-                { text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน" },
                 {
+                  id: "step-1",
+                  icon: "ph:number-circle-one-fill",
+                  text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ',
+                },
+                {
+                  id: "step-2",
+                  icon: "ph:number-circle-two-fill",
+                  text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน",
+                },
+                {
+                  id: "step-3",
+                  icon: "ph:number-circle-three-fill",
                   text: "คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ หรือภายใน 24 ชั่วโมง ในกรณีที่มีธุรกรรมจำนวนมาก",
                 },
                 {
+                  id: "step-4",
+                  icon: "ph:number-circle-four-fill",
                   text: 'เลือกไปที่ปุ่ม "สแกน" หรือ "QR Code" และกดที่ "รูปภาพ" เลือกรูปภาพที่ท่านแคปไว้และทำการชำระเงิน โดยกรุณาเช็คชื่อบัญชีผู้รับคือ "บริษัท สโตร์เมท จำกัด"',
                   boldWords: ['"บริษัท สโตร์เมท จำกัด"'],
                 },
                 {
+                  id: "step-5",
+                  icon: "ph:number-circle-five-fill",
                   text: "QR สามารถสแกนได้ 1 ครั้งต่อ 1 การชำระเงินเท่านั้น หากต้องการสแกนใหม่ โปรดรีเฟรช QR อีกครั้ง",
                 },
-              ].map((item, index) => {
-                const icons = [
-                  "ph:number-circle-one-fill",
-                  "ph:number-circle-two-fill",
-                  "ph:number-circle-three-fill",
-                  "ph:number-circle-four-fill",
-                  "ph:number-circle-five-fill",
-                ];
+              ].map((item) => {
                 return (
-                  <div key={index} className="flex gap-4 items-start">
+                  <div key={item.id} className="flex gap-4 items-start">
                     <div className="flex-shrink-0 mt-0.5">
                       <Icon
-                        icon={icons[index]}
+                        icon={item.icon}
                         className="w-7 h-7 sm:w-8 sm:h-8 text-black opacity-80"
                       />
                     </div>
@@ -363,16 +368,16 @@ const PaymentQRInner = () => {
             </div>
           </div>
 
-          {/* ปุ่มยืนยัน
+          {/* สำหรับคนที่ไม่อยากจ่ายเงินตอนนี้ มันจะไปที่หน้าออเดอร์และจะมีปุ่มชำระเงินมาให้อีกที แต่ถ้าจะจ่ายตังเลยก็ได้ */}
           <div className="flex justify-center mt-4 lg:mt-8 px-4 lg:px-0">
             <button
               data-test="confirm-paid-btn"
-              onClick={handleConfirmPaid}
+              onClick={() => navigate("/orders")}
               className="cursor-pointer w-full max-w-[400px] bg-black text-white font-bold py-3.5 sm:py-4 rounded-xl hover:bg-[#3367d6] transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
             >
-              ยืนยัน
+              ตกลง
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

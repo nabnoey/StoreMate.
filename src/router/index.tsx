@@ -241,7 +241,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "cancel-orders",
+        path: "cancel-orders/:orderNo",
         element: (
           <ProtectedRout>
             <CancelOrderPage />

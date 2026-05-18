@@ -110,11 +110,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      console.log("🚨🚨🚨 มีคนสั่ง LOGOUT ทำงาน!!!");
-      console.trace(
-        "🕵️‍♂️ ตามจับมือมืด: ดูบรรทัดล่างๆ ของกล่องนี้ว่ามาจากไฟล์ไหน",
-      );
-
       state.token = "";
       state.isAuthenticated = false;
       state.user = null;
