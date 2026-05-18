@@ -21,7 +21,7 @@ const removeToken = (): void => {
 };
 
 export const TokenService = {
- getAccessToken: getToken,
+  getAccessToken: getToken,
   setToken,
   removeToken,
 };

@@ -114,7 +114,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึกข้อมูล
+              บันทึก
             </button>
 
             <button
@@ -369,40 +369,33 @@ const ProfilePage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <span className="text-black">แก้ไขโปรไฟล์</span>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <Link
-            to="/profile"
-            data-test="click-profile"
-            className="transition-colors"
-          >
-            โปรไฟล์
-          </Link>
+          <span className="text-black">โปรไฟล์</span>
         </nav>
 
-        <div className="md:hidden bg-white px-4 pt-6 pb-4">
-          <div className="flex items-start gap-3">
+        <div className="md:hidden bg-white pt-2 pb-4">
+          <div className="flex items-center gap-3">
             <button
-              className="mt-0.5 text-black hover:bg-gray-200 p-1 rounded-full"
+              className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
               onClick={() => navigate("/")}
             >
-              <Icon icon="material-symbols:arrow-back" className="w-7 h-7" />
+              <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
             </button>
 
             <div className="flex-1">
-              <h1 className="text-[20px] leading-[28px] font-bold text-black">
+
+              <h1 className="text-[16px] leading-[28px] font-bold text-black">
                 ข้อมูลของฉัน
               </h1>
-              <p className="text-[14px] leading-[20px] text-[#3F3F46] mt-[2px]">
+              <p className="text-black text-[14px] font-anuphan font-normal leading-[24px] break-words mt-[2px]">
+
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
-              <div className="w-full border-t border-black mt-5" />
             </div>
           </div>
+
+          <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
         </div>
+
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
@@ -435,7 +428,7 @@ const ProfilePage = () => {
                 <button
                   data-test="btn-open-image-modal"
                   onClick={() => setIsImageModalOpen(true)}
-                  className="cursor-pointer border border-gray-300 bg-white px-5 py-1.5 text-[14px] sm:text-[16px] text-black rounded hover:bg-gray-50 transition-colors shadow-sm font-medium mb-4 font-['Anuphan']"
+                  className="cursor-pointer w-[110px] h-[44px] inline-flex items-center justify-center gap-[10px] bg-white border border-[#D9D9D9] rounded-[5px] p-[10px] text-[16px] leading-[24px] font-normal text-black font-anuphan mb-4 hover:bg-gray-50 transition-colors"
                 >
                   เลือกรูป
                 </button>

@@ -36,13 +36,14 @@ export const getOrderLabel = (
     if (status === "COMPLETED") {
       return "จัดส่งสำเร็จ";
     }
-    return "รอการชำระเงิน";
+    // return "รอการชำระเงิน";
+    return "ที่ต้องชำระ";
   }
 
   //พร้อมเพย์ กับ บัตรเครดิต
   switch (status) {
     case "PENDING":
-      return "รอการชำระเงิน"; //ตรง return คือ label
+      return "ที่ต้องชำระ";
     case "PROCESSING":
       return "ที่ต้องจัดส่ง";
     case "RECEIVE":

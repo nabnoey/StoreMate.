@@ -67,12 +67,47 @@ const HistoryPage = lazy(() =>
   lazyDelay(() => import("../pages/users/orders/HistoryShop"), 1200),
 );
 
+const OderDetails = lazy(() =>
+  lazyDelay(() => import("../pages/users/orders/OrderDetails"), 1200),
+);
 const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
 import Stock from "../pages/admin/Stock";
 
 const router = createBrowserRouter([
+  // {
+  //   path: "register",
+  //   element: (
+  //     <GuestRoute>
+  //       <RegisterPage />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "login",
+  //   element: (
+  //     <GuestRoute>
+  //       <LoginPage />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "forgot-password",
+  //   element: (
+  //     <GuestRoute>
+  //       <ForgotPassword />
+  //     </GuestRoute>
+  //   ),
+  // },
+  // {
+  //   path: "reset-password",
+  //   element: (
+  //     <GuestRoute>
+  //       <ResetPassword />
+  //     </GuestRoute>
+  //   ),
+  // },
   {
     path: "/",
     element: <MainLayout />,
@@ -190,7 +225,20 @@ const router = createBrowserRouter([
 
       {
         path: "/orders",
-        element: <HistoryPage />,
+        element: (
+          <ProtectedRout>
+            <HistoryPage />
+          </ProtectedRout>
+        ),
+      },
+
+      {
+        path: "/orders/:orderNo",
+        element: (
+          <ProtectedRout>
+            <OderDetails />
+          </ProtectedRout>
+        ),
       },
       {
         path: "cancel-orders",

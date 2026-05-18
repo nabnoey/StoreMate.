@@ -85,22 +85,6 @@ const ProfileSidebar = () => {
             >
               {user?.name || "กำลังโหลด..."}
             </p>
-            <div className="flex items-center gap-1">
-              <Icon
-                icon="ph:pencil-simple"
-                width="14"
-                height="14"
-                className="cursor-pointer"
-                data-test="btn-edit-profile"
-              />
-              <button
-                data-test="btn-edit-profile-mobile"
-                className="cursor-pointer text-black text-xs flex items-center gap-1.5 transition-colors font-medium hover:text-[#4285F4]"
-                onClick={() => navigate("/profile")}
-              >
-                แก้ไขโปรไฟล์
-              </button>
-            </div>
           </div>
         </div>
 

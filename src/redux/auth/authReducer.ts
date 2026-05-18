@@ -17,7 +17,12 @@ const getUserFromToken = (tokenStr: string) => {
   if (!tokenStr) return null;
   try {
     const decoded: any = jwtDecode(tokenStr);
-    //ดึงมาจาก backend ดูที่ jwt.io
+    //เช็คว่า token หมดวัยรึยัง
+    if (decoded.exp * 1000 < Date.now()) {
+      TokenService.removeToken();
+      return null;
+    }
+
     return {
       userId: decoded.userId,
       email: decoded.sub,
@@ -105,6 +110,11 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+      console.log("🚨🚨🚨 มีคนสั่ง LOGOUT ทำงาน!!!");
+      console.trace(
+        "🕵️‍♂️ ตามจับมือมืด: ดูบรรทัดล่างๆ ของกล่องนี้ว่ามาจากไฟล์ไหน",
+      );
+
       state.token = "";
       state.isAuthenticated = false;
       state.user = null;

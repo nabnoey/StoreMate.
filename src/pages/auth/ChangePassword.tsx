@@ -106,7 +106,7 @@ function ChangePassword() {
             <div className="mb-4">
               <label
                 htmlFor="old-password"
-                className="font-medium lg:font-semibold text-[16px] text-black"
+                className="font-medium lg:font-medium font-anuphan text-[16px] text-[#1F2937]"
               >
                 รหัสผ่านเดิม
               </label>
@@ -143,7 +143,7 @@ function ChangePassword() {
             <div className="mb-4">
               <label
                 htmlFor="new-password"
-                className="font-medium lg:font-semibold text-[16px] text-black"
+                className="font-medium lg:font-medium font-anuphan -[16px] text-[#1F2937]"
               >
                 รหัสผ่านใหม่
               </label>
@@ -180,7 +180,7 @@ function ChangePassword() {
             <div className="mb-4">
               <label
                 htmlFor="confirm-password"
-                className="font-medium lg:font-semibold text-[16px] text-black"
+                className="font-medium lg:font-medium font-anuphan text-[16px] text-[#1F2937]"
               >
                 ยืนยันรหัสผ่านใหม่
               </label>
@@ -219,14 +219,14 @@ function ChangePassword() {
                 )}
             </div>
 
-            <div className="mt-auto lg:mt-10 flex flex-col gap-3 pb-0 pt-6 lg:pt-0">
+            <div className="mt-auto lg:mt-2 flex flex-col gap-5 pb-0 pt-3">
               <button
                 data-test="submit-btn"
                 type="submit"
                 disabled={loading}
-                className="mx-auto btn bg-[#16A249] border-0 text-white mt-4 transition-colors disabled:opacity-50 w-full max-w-[368px] h-[52px] rounded-[8px] p-[10px] flex items-center justify-center gap-[10px]"
+                className="cursor-pointer btn w-full h-[48px] rounded-md bg-[#16A249] hover:bg-[#158d40] text-white text-[16px] font-bold border-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? "กำลังเปลี่ยนรหัสผ่าน..." : "เปลี่ยนรหัสผ่าน"}
+                {loading ? "กำลังเปลี่ยนรหัสผ่าน..." : "ยืนยัน"}
               </button>
             </div>
           </form>

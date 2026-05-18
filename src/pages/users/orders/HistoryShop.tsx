@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import ProfileSidebar from "../../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../../../redux/orders/orderReduer";
+import { fetchOrders } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 
@@ -16,10 +16,10 @@ const HistoryPage = () => {
   const rawStatus = searchParams.get("status") as OrderStatus | null;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
-
   const { orders, error } = useSelector((state: RootState) => state.orders);
-  const dispatch = useDispatch<AppDispatch>();
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { token } = useSelector((state: RootState) => state.auth);
   const formatOrderDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -31,16 +31,24 @@ const HistoryPage = () => {
   };
 
   useEffect(() => {
+    if (!token) return;
     dispatch(fetchOrders(status as any));
-  }, [dispatch, status]);
+  }, [dispatch, status, token]);
 
-  const filteredOrders = orders.filter((order) => {
-    if (status === "ALL") return true;
-    return order.status === status;
-  });
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    return orders
+      .filter((order) => (status === "ALL" ? true : order.status === status))
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+  }, [orders, status]);
 
   const handleTabChange = (nextStatus: string) => {
-    setSearchParams({ status: nextStatus });
+    if (nextStatus !== status) {
+      setSearchParams({ status: nextStatus });
+    }
   };
 
   return (
@@ -58,14 +66,7 @@ const HistoryPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/profile" className="transition-colors cursor-pointer">
-            การซื้อของฉัน
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <span className="text-black">สถานะคำสั่งซื้อ</span>
+          <span className="text-black cursor-pointer">การซื้อของฉัน</span>
         </nav>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -96,31 +97,43 @@ const HistoryPage = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const color = statusConfig[order.status].color;
-                  const label = getOrderLabel(order.status, order.checkoutType);
+                  const color =
+                    statusConfig[order?.status]?.color || "text-black";
 
+                  // 2. ป้องกันตัวแปรหาย
+                  const label = getOrderLabel(
+                    order?.status,
+                    order?.checkoutType,
+                  );
+
+                
                   const orderTotal =
-                    order.totalPrice ||
-                    order.total ||
-                    order.orderItems.reduce(
-                      (sum, item) => sum + item.price * item.quantity,
+                    order?.totalPrice ||
+                    order?.total ||
+                    (order?.orderItems || []).reduce(
+                      (sum, item) =>
+                        sum + (item?.price || 0) * (item?.quantity || 0),
                       0,
                     );
-                  const firstProductId = order.orderItems?.[0]?.id;
+
+                  const firstProductId = order?.orderItems?.[0]?.id;
                   return (
-                    <div key={order.id} className="mb-8 w-full">
-                      {/* <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100"> */}
+                    <div
+                      key={order.id}
+                      className="mb-8 w-full cursor-pointer hover:shadow-md transition-shadow rounded-lg p-4 bg-white border border-gray-100"
+                      onClick={() => {
+                        const orderNo = order.orderNo || `ORD-${order.id}`;
+                        navigate(`/orders/${orderNo}`);
+                      }}
+                    >
                       <div className="flex flex-col sm:flex-row sm:justify-between gap-4 pb-4 border-b border-gray-100">
                         <div>
                           <p className="flex-1 text-sm text-black mb-1 text-[14px]">
                             เลขที่คำสั่งซื้อ
                           </p>
                           <p className="flex-1  font-medium text-black text-[16px] ">
-                            {/* .padStart() ใช้เติมเลขข้างหน้าที่ต้องการ
-                                newDate().getFullYear() เอาไว้ดึงค.ศ. ปัจจุบัน*/}
-
-                            {/* เขียนแบบนี้เรียกว่า Template Strings */}
-                            {`ORD-${new Date().getFullYear()}-${String(order.id).padStart(3, "0")}`}
+                            {/* ถ้ามี orderNo ก็ใช้ มั่ฉะนั้นก็ generate เอง */}
+                            {order.orderNo || `ORD-${order.id}`}
                           </p>
                         </div>
                         <div>
@@ -154,13 +167,13 @@ const HistoryPage = () => {
                             />
 
                             <div className="flex flex-col flex-1 gap-1 not-last:text-left">
-                              <div className="font-bold text-[20px] font-anuphan text-black line-clamp-3">
+                              <div className="font-bold text-[16px] font-anuphan text-black line-clamp-3">
                                 {item.productName}
                               </div>
-                              <div className="text-black text-[16px]">
+                              <div className="text-black text-[14px]">
                                 ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
                               </div>
-                              <div className="text-black text-[16px]">
+                              <div className="text-black text-[14px]">
                                 จำนวน x {item.quantity}
                               </div>
                             </div>
@@ -211,7 +224,7 @@ const HistoryPage = () => {
                           </div>
                         ) : order.status === "CANCELLED" ? (
                           <div className="mt-4 flex flex-col items-start w-full">
-                            <p className="text-black text-[16px">
+                            <p className="text-black text-[16px]">
                               <span className="font-medium">เหตุผล :</span>{" "}
                               {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
                             </p>
@@ -222,11 +235,9 @@ const HistoryPage = () => {
                               data-test="btn-cancel-orders"
                               type="button"
                               onClick={() =>
-                                navigate("/cancel-orders", {
-                                  state: { orderId: order.id },
-                                })
+                                navigate(`/cancel-orders/${order.orderNo}`)
                               }
-                              className="rounded-md  bg-blue-500 px-4 py-2 text-[16px] font-medium text-white transition"
+                              className="cursor-pointer rounded-md  bg-blue-500 px-2 py-2 text-[16px] font-medium text-white transition"
                             >
                               ยกเลิกคำสั่งซื้อ
                             </button>

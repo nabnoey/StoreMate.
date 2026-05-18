@@ -93,7 +93,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
         <div className="flex items-center gap-3">
           <div
             data-test="btn-user-profile-mobile"
-            className="cursor-pointer w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
+            className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200"
           >
             {user?.image_url || user?.image ? (
               <img
@@ -125,9 +125,11 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
           <button
             data-test="btn-orders-mobile"
             type="button"
-            onClick={() => handleNavigation("/orders")}
+            onClick={() => handleNavigation("/orders?status=PROCESSING")}
             className={`p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 hover:text-[#0A157A] ${
-              isActive("/orders") ? "bg-gray-100 text-[#0A157A]" : ""
+              isActive("/orders?status=PROCESSING")
+                ? "bg-gray-100 text-[#0A157A]"
+                : ""
             }`}
           >
             <Icon icon="radix-icons:clipboard" width="26" height="26" />
@@ -213,9 +215,9 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-orders"
               type="button"
-              onClick={() => handleNavigation("/orders")}
+              onClick={() => handleNavigation("/orders?status=PROCESSING")}
               className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
-                isActive("/orders") ? "bg-gray-100" : ""
+                isActive("/orders?status=PROCESSING") ? "bg-gray-100" : ""
               }`}
             >
               <div className="relative flex items-center justify-center overflow-hidden">

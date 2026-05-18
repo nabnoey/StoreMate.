@@ -332,7 +332,7 @@ const PaymentShopping = () => {
                     <button
                       data-test="btn-select-payment-method-mobile"
                       onClick={() => setPaymentMethod(method.id)}
-                      className={`cursor-pointer flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
+                      className={`cursor-pointer  font-anuphan flex items-center text-left gap-4 w-[585px] h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
                         paymentMethod === method.id
                           ? "border-black bg-[#EAEAEA]"
                           : "border-gray-200 bg-white"
@@ -342,10 +342,10 @@ const PaymentShopping = () => {
                         <Icon icon={method.icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-['Anuphan'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
+                        <p className="font-anuphan text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
                           {method.title}
                         </p>
-                        <p className="font-['Anuphan'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
+                        <p className="font-anuphan text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
                           {method.desc}
                         </p>
                       </div>
@@ -439,7 +439,7 @@ const PaymentShopping = () => {
                       disabled={isLoading}
                       className="cursor-pointer w-[146px] h-[29px] bg-[#4285F4] rounded-[7px] shadow-md font-anuphan text-[16px] font-normal text-[#FCFCFC] leading-[24px] break-words"
                     >
-                      {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
+                      {isLoading ? "กำลังดำเนินการ" : "ยืนยันการสั่งซื้อ"}
                     </button>
                   </div>
                 </div>
@@ -549,10 +549,10 @@ const PaymentShopping = () => {
                       <Icon icon={method.icon} className="w-5 h-5 " />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="font-['Inter'] text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
+                      <p className="font-anuphan text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
                         {method.title}
                       </p>
-                      <p className="font-['Inter'] text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
+                      <p className="font-anuphan text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
                         {method.desc}
                       </p>
                     </div>
@@ -662,7 +662,7 @@ const PaymentShopping = () => {
             disabled={isLoading}
             className="cursor-pointer bg-blue-500 active:bg-blue-600 text-[#FCFCFC] h-[60px] px-8 font-normal text-[16px] font-anuphan transition-colors flex-shrink-0"
           >
-            {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
+            {isLoading ? "กำลังดำเนินการ" : "ยืนยันการสั่งซื้อ"}
           </button>
         </div>
       </div>

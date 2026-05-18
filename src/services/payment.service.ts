@@ -1,5 +1,7 @@
 import api from "./api";
 import type { PaymentIntentPayload, PaymentNowPayload } from "../types/payment";
+import type { RefundRequest } from "../types/orders";
+
 const createPaymentIntent = async (data: PaymentIntentPayload) => {
   const res = await api.post(
     `${import.meta.env.VITE_ORDER_API}/${import.meta.env.VITE_PAYMENT_API}/intent`,
@@ -16,7 +18,16 @@ const paymentNow = async (data: PaymentNowPayload) => {
   return res.data;
 };
 
+const sendRefund = async (data: RefundRequest) => {
+  const res = await api.post(
+    `${import.meta.env.VITE_PAYMENT_API}/refund-request/send`,
+    data,
+  );
+  return res.data;
+};
+
 export const PaymentService = {
   createPaymentIntent,
   paymentNow,
+  sendRefund,
 };

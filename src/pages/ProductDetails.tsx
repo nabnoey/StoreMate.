@@ -43,6 +43,9 @@ const ProductDetailPage: React.FC = () => {
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
+  // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
   // จำกัดสิทธิ์
   const token = TokenService.getAccessToken();
   const isLoggedIn = !!token;
@@ -75,7 +78,7 @@ const ProductDetailPage: React.FC = () => {
 
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
-    return cartItems.find((item) => item.productId === Number(id));
+    return cartItems.find((items) => items.productId === Number(id));
   }, [cartItems, id]);
 
   const quantityInCart = itemInCart?.quantity || 0;
@@ -296,7 +299,7 @@ const ProductDetailPage: React.FC = () => {
             <span className="text-black">{productDetail.productName}</span>
           </nav>
 
-          <div className="lg:hidden w-full flex items-center bg-white px-4 pt-4 pb-1 top-0 z-30">
+          <div className="lg:hidden w-full flex items-center bg-white px-4 pt-2 pb-1 top-0 z-30 -mt-2 md:-mt-0">
             <Icon
               icon="lucide:arrow-left"
               className="w-6 h-6 mr-3 text-black cursor-pointer"
@@ -306,13 +309,13 @@ const ProductDetailPage: React.FC = () => {
 
           <div
             id="product-info-section"
-            className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16 mt-0"
+            className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16 -mt-2 md:mt-0"
           >
             <div
               id="product-image-container"
               className="flex flex-col items-center"
             >
-              <div className="w-full max-w-[450px] aspect-[4/5] flex items-center justify-center mb-4 bg-white">
+              <div className="w-[80%] md:w-full max-w-[320px] md:max-w-[450px] aspect-[4/5] flex items-center justify-center mb-4 bg-white">
                 <img
                   src={
                     activeImage ||
@@ -326,39 +329,26 @@ const ProductDetailPage: React.FC = () => {
 
               <div
                 id="product-thumbnails"
-                className="flex gap-3 overflow-x-auto md:overflow-x-auto justify-center w-full"
+                className="flex gap-3  md:overflow-x-auto justify-center w-full"
               >
-                {productDetail.productImages?.map((img, index, arr) => {
-                  const extraCount = arr.length - 2;
-                  const showOverlayOnMobile = index === 2 && arr.length > 3;
-
-                  return (
-                    <button
-                      type="button"
-                      key={img.id}
-                      onClick={() => setActiveImage(img.imageUrl)}
-                      className={`relative w-20 h-24 shrink-0 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
-                        activeImage === img.imageUrl
-                          ? "border-b-4 border-gray-800 opacity-100"
-                          : ""
-                      } ${index >= 3 ? "hidden md:block" : "block"}`}
-                    >
-                      <img
-                        src={img.imageUrl}
-                        className="w-full h-full object-cover"
-                        alt="thumbnail"
-                      />
-
-                      {showOverlayOnMobile && (
-                        <div className="absolute inset-0 bg-[#E2E4E9] flex items-center justify-center md:hidden">
-                          <span className="text-black font-semibold text-[15px]">
-                            + {extraCount}
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+                {productDetail.productImages?.map((img) => (
+                  <button
+                    type="button"
+                    key={img.id}
+                    onClick={() => setActiveImage(img.imageUrl)}
+                    className={`relative w-15 h-20 md:w-20 md:h-24 shrink-0 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
+                      activeImage === img.imageUrl
+                        ? "border-b-4 border-gray-800 opacity-100"
+                        : ""
+                    }`}
+                  >
+                    <img
+                      src={img.imageUrl}
+                      className="w-full h-full object-cover"
+                      alt="thumbnail"
+                    />
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -426,19 +416,40 @@ const ProductDetailPage: React.FC = () => {
               </div>
 
               <div className="order-6 md:order-4 bg-[#F3F4F6] md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none w-full mt-6 md:mt-0 mb-8 md:mb-6 text-left">
-                <h3 className="font-medium mb-2 md:mb-3 text-[30px] md:text-xl text-[#111827]">
+                <h3 className="font-medium mb-2 md:mb-3 text-[30px] md:text-[30px] text-[#111827]">
                   รายละเอียดสินค้า
                 </h3>
-                <div className="text-gray-700 text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left">
+                <div
+                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left transition-all duration-300 ${
+                    !isDescriptionExpanded
+                      ? "line-clamp-3 md:line-clamp-none"
+                      : ""
+                  }`}
+                >
                   {productDetail.description || "ไม่มีรายละเอียด"}
                 </div>
+
+                {productDetail.description && (
+                  <div className="md:hidden w-full flex justify-end mt-2">
+                    <button
+                      data-test="btn-description"
+                      type="button"
+                      onClick={() =>
+                        setIsDescriptionExpanded(!isDescriptionExpanded)
+                      }
+                      className="text-[#4B5563] font-medium text-[12px]"
+                    >
+                      {isDescriptionExpanded ? "แสดงน้อยลง" : "แสดงเพิ่มเติม"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div
                 id="product-actions"
                 className="order-5 md:order-5 w-full md:max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 pt-0 md:pt-4 mb-2 md:mb-2"
               >
-                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-20 w-full md:w-auto">
                   <div className="flex items-center gap-4 justify-center w-full md:w-auto">
                     <span className="font-bold text-[#2C2221] text-[16px] md:text-base">
                       จำนวน
@@ -449,7 +460,6 @@ const ProductDetailPage: React.FC = () => {
                     >
                       <button
                         type="button"
-                        data-test="btn-decrease"
                         onClick={handleDecrease}
                         className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                       >
@@ -475,13 +485,13 @@ const ProductDetailPage: React.FC = () => {
 
                 <div
                   data-test="container-cart-actions"
-                  className="flex flex-row md:flex-row gap-2 md:gap-3 w-full md:w-auto md:mt-2"
+                  className="flex flex-row justify-center md:justify-start gap-2 md:gap-3 w-full md:w-auto md:-translate-y-2 md:-translate-x-20"
                 >
                   <button
                     type="button"
                     data-test="btn-add-to-cart"
                     onClick={() => handleAddToCart(false)}
-                    className="flex-1 md:flex-none md:w-[160px] h-[44px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded-md md:rounded-xl font-semibold md:font-semibold text-[15px] md:text-md transition-colors shadow-sm"
+                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
                   </button>
@@ -490,7 +500,7 @@ const ProductDetailPage: React.FC = () => {
                     type="button"
                     data-test="btn-buy-cart"
                     onClick={handleBuyNow}
-                    className="flex-1 md:flex-none md:w-[160px] h-[44px] md:h-[52px] flex items-center justify-center gap-2 p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded-md md:rounded-xl font-semibold md:font-semibold text-[15px] md:text-md transition-colors shadow-sm"
+                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
                   >
                     {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
                   </button>
@@ -498,8 +508,6 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
-
-          <hr className="hidden md:block w-full max-w-[744px] ml-auto my-10 border-gray-200" />
 
           {/* ส่วนรีวิว */}
           <div className="max-w-4xl mx-auto">

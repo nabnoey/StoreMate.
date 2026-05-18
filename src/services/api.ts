@@ -1,6 +1,9 @@
 import { TokenService } from "./token.service";
 import axios from "axios";
 
+import { store } from "../redux/store";
+import { logout } from "../redux/auth/authReducer";
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
@@ -20,4 +23,22 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      const isLoginAPI = error.config.url.includes("/login");
+
+      if (!isLoginAPI) {
+        TokenService.removeToken();
+        store.dispatch(logout());
+
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default api;

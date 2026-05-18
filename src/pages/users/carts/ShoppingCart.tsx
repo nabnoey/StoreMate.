@@ -179,6 +179,28 @@ const ShoppingCart = () => {
     toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
   };
 
+  const handleIncreaseQuantity = (
+    productId: number,
+    currentQuantity: number,
+    stockQuantity: number,
+  ) => {
+    if (currentQuantity >= stockQuantity) {
+      toast.error("จำนวนสินค้าในสต๊อกไม่เพียงพอ");
+      return;
+    }
+    dispatch(incrementCartItemThunk(productId));
+  };
+
+  const handleDecreaseQuantity = (
+    productId: number,
+    currentQuantity: number,
+  ) => {
+    if (currentQuantity === 1) {
+    } else {
+      dispatch(decrementCartItemThunk(productId));
+    }
+  };
+
   if (cartStatus === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -217,7 +239,7 @@ const ShoppingCart = () => {
             </div>
 
             <p className="text-base sm:text-[20px] font-normal text-black mt-1">
-              สินค้าในตะกร้า
+              สินค้าในรถเข็น
             </p>
 
             <div className="hidden md:block w-full border-b border-black mt-4" />
@@ -227,7 +249,7 @@ const ShoppingCart = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center pb-4 border-b border-gray-100">
                 <span className="text-md sm:text-xl font-bold text-gray-700">
-                  สินค้าในตะกร้า
+                  สินค้าในรถเข็น
                 </span>
                 <button
                   onClick={() => handleRemoveSelected()}
@@ -263,7 +285,7 @@ const ShoppingCart = () => {
                       </div>
 
                       <div className="flex-1 min-w-0 px-2">
-                        <h3 className="text-md font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
+                        <h3 className="text-[16px] font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
                           {item.product.productName}
                         </h3>
 
@@ -297,14 +319,12 @@ const ShoppingCart = () => {
                       <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
                         <button
                           data-test="decrease-product"
-                          onClick={() => {
-                            if (item.quantity === 1) {
-                              handleRemoveItem(item.productId);
-                              return;
-                            }
-
-                            dispatch(decrementCartItemThunk(item.productId));
-                          }}
+                          onClick={() =>
+                            handleDecreaseQuantity(
+                              item.productId,
+                              item.quantity,
+                            )
+                          }
                           disabled={!item.isAvailable}
                           className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                         >
@@ -316,7 +336,11 @@ const ShoppingCart = () => {
                         <button
                           data-test="increase-product"
                           onClick={() =>
-                            dispatch(incrementCartItemThunk(item.productId))
+                            handleIncreaseQuantity(
+                              item.productId,
+                              item.quantity,
+                              item.product.stockQuantity,
+                            )
                           }
                           disabled={
                             !item.isAvailable ||
@@ -384,21 +408,35 @@ const ShoppingCart = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 sm:py-28">
-              <Icon
-                icon="mdi-light:cart"
-                className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
-              />
-              <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6">
-                ไม่มีสินค้าในรถเข็น
-              </p>
-              <button
-                onClick={() => navigate("/")}
-                className="bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
-              >
-                เลือกซื้อสินค้า
-                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-              </button>
+            <div className="flex flex-col h-full min-h-[60vh] md:min-h-0 bg-white">
+              {/* 🟢 ส่วนหลัก (ไอคอน + ข้อความ) */}
+              <div className="flex-1 md:flex-none flex flex-col items-center justify-center py-16 sm:py-28">
+                <Icon
+                  icon="famicons:cart-outline"
+                  className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
+                />
+                <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6 md:mb-6">
+                  ไม่มีสินค้าในรถเข็น
+                </p>
+
+                <button
+                  onClick={() => navigate("/")}
+                  className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="md:hidden p-4 bg-white border-t border-gray-100 mt-auto">
+                <button
+                  onClick={() => navigate("/")}
+                  className="w-full py-3 bg-[#4a89f3] hover:bg-blue-600 text-white rounded-md text-[15px] font-medium transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
