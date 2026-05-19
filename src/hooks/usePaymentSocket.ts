@@ -29,6 +29,7 @@ const usePaymentSocket = () => {
     console.log("CONNECT SOCKET WITH TOKEN");
 
     const client = new Client({
+      //https://api.store-mate-api.me/ws
       webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL),
 
       reconnectDelay: 5000,
