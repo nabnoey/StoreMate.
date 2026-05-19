@@ -100,13 +100,11 @@ const HistoryPage = () => {
                   const color =
                     statusConfig[order?.status]?.color || "text-black";
 
-              
                   const label = getOrderLabel(
                     order?.status,
                     order?.checkoutType,
                   );
 
-                
                   const orderTotal =
                     order?.totalPrice ||
                     order?.total ||
@@ -197,105 +195,110 @@ const HistoryPage = () => {
                           </div>
                         </div>
 
-                      
-
                         {order.status === "COMPLETED" ? (
-  <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
-    <button
-      type="button"
-      data-test="btn-add-orders"
-    onClick={(e) => {
-  e.stopPropagation();
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
+                            <button
+                              type="button"
+                              data-test="btn-add-orders"
+                              onClick={(e) => {
+                                e.stopPropagation();
 
-  if (firstProductId) {
-    navigate(`/product/${firstProductId}`);
-  }
-}}
-      className="rounded-md border border-blue-500 bg-white px-4 py-2 text-sm font-medium text-blue-500 transition hover:bg-blue-50"
-    >
-      ซื้ออีกครั้ง
-    </button>
-    <button
-      type="button"
-      data-test="btn-review-orders"
-     onClick={(e) => {
-  e.stopPropagation();
+                                if (firstProductId) {
+                                  navigate(`/product/${firstProductId}`);
+                                }
+                              }}
+                              className="rounded-md border border-blue-500 bg-white px-4 py-2 text-sm font-medium text-blue-500 transition hover:bg-blue-50"
+                            >
+                              ซื้ออีกครั้ง
+                            </button>
+                            <button
+                              type="button"
+                              data-test="btn-review-orders"
+                              onClick={(e) => {
+                                e.stopPropagation();
 
-  if (firstProductId) {
-    navigate(`/product/${firstProductId}`);
-  }
-}}
-      className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
-    >
-      เขียนรีวิว
-    </button>
-  </div>
-) : order.status === "CANCELLED" ? (
-  <div className="mt-4 flex flex-col items-start w-full">
-    <p className="text-black text-[16px]">
-      <span className="font-medium">เหตุผล :</span>{" "}
-      {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
-    </p>
-  </div>
-) : order.status === "PENDING" && order.checkoutType === "PROMPTPAY" ? (
-  <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end items-center">
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigate("/payment-qr", {
-          state: {
-            orderNo: order.orderNo || `ORD-${order.id}`,
-            totalPrice: orderTotal,
-          },
-        });
-      }}
-      className="cursor-pointer rounded-md bg-blue-500 px-6 py-2 text-[14px] font-medium text-white transition hover:bg-blue-600"
-    >
-      ชำระเงินอีกครั้ง
-    </button>
-    <button
-      data-test="btn-cancel-orders"
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigate(`/cancel-orders/${order.orderNo || `ORD-${order.id}`}`);
-      }}
-      className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
-    >
-      ยกเลิกคำสั่งซื้อ / ขอเงินคืน
-    </button>
-  </div>
-) : order.status === "PENDING" ? (
-  <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end items-center">
-    <button
-      data-test="btn-cancel-orders"
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigate(`/cancel-orders/${order.orderNo || `ORD-${order.id}`}`);
-      }}
-      className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
-    >
-      ยกเลิกคำสั่งซื้อ / ขอเงินคืน
-    </button>
-  </div>
-) : order.status !== "RECEIVE" ? (
-  <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
-    <button
-      data-test="btn-cancel-orders"
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        navigate(`/cancel-orders/${order.orderNo || `ORD-${order.id}`}`);
-      }}
-      className="cursor-pointer rounded-md w-40 h-10 bg-[#1E40AF] px-2 text-[16px] font-medium text-white transition hover:bg-blue-600 flex items-center justify-center"
-    >
-      ยกเลิกคำสั่งซื้อ
-    </button>
-  </div>
-) : null}
+                                if (firstProductId) {
+                                  navigate(`/product/${firstProductId}`);
+                                }
+                              }}
+                              className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600"
+                            >
+                              เขียนรีวิว
+                            </button>
+                          </div>
+                        ) : order.status === "CANCELLED" ? (
+                          <div className="mt-4 flex flex-col items-start w-full">
+                            <p className="text-black text-[16px]">
+                              <span className="font-medium">เหตุผล :</span>{" "}
+                              {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
+                            </p>
+                          </div>
+                        ) : order.status === "PENDING" &&
+                          order.checkoutType === "PROMPTPAY" ? (
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end items-center">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate("/payment-qr", {
+                                  state: {
+                                    orderNo: order.orderNo || `ORD-${order.id}`,
+                                    totalPrice: orderTotal,
 
+                                  },
+                                });
+                              }}
+                              className="cursor-pointer rounded-md bg-blue-500 px-6 py-2 text-[14px] font-medium text-white transition hover:bg-blue-600"
+                            >
+                              ชำระเงินอีกครั้ง
+                            </button>
+                            <button
+                              data-test="btn-cancel-orders"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                );
+                              }}
+                              className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
+                            >
+                              ยกเลิกคำสั่งซื้อ / ขอเงินคืน
+                            </button>
+                          </div>
+                        ) : order.status === "PENDING" ? (
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end items-center">
+                            <button
+                              data-test="btn-cancel-orders"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                );
+                              }}
+                              className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
+                            >
+                              ยกเลิกคำสั่งซื้อ / ขอเงินคืน
+                            </button>
+                          </div>
+                        ) : order.status !== "RECEIVE" ? (
+                          <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-start sm:justify-end">
+                            <button
+                              data-test="btn-cancel-orders"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                );
+                              }}
+                              className="cursor-pointer rounded-md w-40 h-10 bg-[#1E40AF] px-2 text-[16px] font-medium text-white transition hover:bg-blue-600 flex items-center justify-center"
+                            >
+                              ยกเลิกคำสั่งซื้อ
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   );
