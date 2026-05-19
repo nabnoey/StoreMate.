@@ -1,9 +1,9 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import {ModeratorService} from "../../services/moderator.service";
-import type {Order} from "../../types/orders";
+import type { OrderMod } from "../../types/moderator/ordersMod";
 
 interface ModeratorState {
-    orders: Order[];
+    orders: OrderMod[];
     loading: boolean;
     error: string | null;
 }
