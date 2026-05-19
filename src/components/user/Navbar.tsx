@@ -15,9 +15,6 @@ const Navbar: React.FC = () => {
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
 
-  const searchResult = useSelector(
-    (state: RootState) => state.products.searchResult,
-  );
   const isAuthentication = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
   );
@@ -145,6 +142,7 @@ const Navbar: React.FC = () => {
             <>
               <input
                 type="text"
+                
                 data-test="search-input"
                 placeholder="ค้นหาสินค้า..."
                 value={inputValue}
@@ -163,24 +161,6 @@ const Navbar: React.FC = () => {
                 className="absolute right-8 -top-2 input input-bordered bg-white w-35 sm:w-40 md:w-48 h-10 text-[#74768f] z-50"
                 autoFocus
               />
-              {inputValue && searchResult.length > 0 && (
-                <div className="absolute right-0 mt-3 text-black w-64 bg-white shadow-lg rounded-md z-50 divide-y max-h-60 overflow-y-auto">
-                  {searchResult.map((product) => (
-                    <button
-                      data-test="click-to-product"
-                      key={product.id}
-                      className="w-full text-left block p-3 hover:bg-gray-100 cursor-pointer text-sm"
-                      onClick={() => {
-                        navigate(`/product/${product.id}`);
-                        setOpenSearch(false);
-                        setInputValue("");
-                      }}
-                    >
-                      {product.productName}
-                    </button>
-                  ))}
-                </div>
-              )}
             </>
           )}
         </div>

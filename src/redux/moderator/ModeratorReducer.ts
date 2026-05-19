@@ -27,12 +27,18 @@ const moderatorSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-           
+            .addCase(fetchAllOrders.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
                 state.orders = action.payload;
             })
-          
+            .addCase(fetchAllOrders.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+            });
     }
 });
 
