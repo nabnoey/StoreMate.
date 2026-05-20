@@ -25,20 +25,75 @@ const PaymentQRInner = () => {
   const { id } = useParams();
   const location = useLocation();
 
-  const clientSecret = location.state?.clientSecret;
-  const totalPrice = location.state?.totalPrice || 0;
+  const [clientSecret] = useState<string>(() => {
+    const stateSecret = location.state?.clientSecret;
+    if (stateSecret) {
+      localStorage.setItem("payment_client_secret", stateSecret);
+      return stateSecret;
+    }
+    return localStorage.getItem("payment_client_secret") || "";
+  });
+
+  const [totalPrice] = useState<number>(() => {
+    const statePrice = location.state?.totalPrice;
+    if (statePrice !== undefined) {
+      localStorage.setItem("payment_total_price", String(statePrice));
+      return statePrice;
+    }
+    return Number(localStorage.getItem("payment_total_price")) || 0;
+  });
 
   const [showQR] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
 
-  const [qrImage, setQrImage] = useState<string | null>(null);
-  const [refId, setRefId] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(true);
-  const hasRequestedQR = useRef(false);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedTimestamp = localStorage.getItem("payment_expiry_timestamp");
+    if (savedTimestamp) {
+      const remaining = Math.floor(
+        (Number(savedTimestamp) - Date.now()) / 1000,
+      );
+      return remaining > 0 ? remaining : 0;
+    }
+    return 15 * 60;
+  });
+
+  const [qrImage, setQrImage] = useState<string | null>(() =>
+    localStorage.getItem("payment_qr_image"),
+  );
+  const [refId, setRefId] = useState<string>(
+    () => localStorage.getItem("payment_ref_id") || "",
+  );
+  const [isGenerating, setIsGenerating] = useState(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+    if (savedQR && savedExpiry) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      return remaining <= 0;
+    }
+    return true;
+  });
+
+  const initialHasRequested = (() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+    if (savedExpiry && savedQR) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      return remaining > 0;
+    }
+    return false;
+  })();
+
+  const hasRequestedQR = useRef<boolean>(initialHasRequested);
 
   usePaymentSocket();
 
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
+
+  const clearPaymentSession = () => {
+    localStorage.removeItem("orderNo");
+    localStorage.removeItem("payment_expiry_timestamp");
+    localStorage.removeItem("payment_qr_image");
+    localStorage.removeItem("payment_ref_id");
+  };
 
   useEffect(() => {
     const savedOrderNo = localStorage.getItem("orderNo");
@@ -79,10 +134,8 @@ const PaymentQRInner = () => {
     checkStatusOnRefresh();
   }, [dispatch]);
 
-  // ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
   useEffect(() => {
     if (paymentStatus === "PAYMENT_SUCCESS") {
-      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
       navigate("/orders", { replace: true });
@@ -92,6 +145,15 @@ const PaymentQRInner = () => {
   }, [paymentStatus, navigate, dispatch]);
 
   useEffect(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+    if (savedExpiry && savedQR) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setIsGenerating(false);
+        return;
+      }
+    }
     if (!stripe || !clientSecret || hasRequestedQR.current) return;
 
     const generateQR = async () => {
@@ -118,19 +180,39 @@ const PaymentQRInner = () => {
 
         if (error) {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
+          hasRequestedQR.current = false;
         } else {
           if (paymentIntent?.id) {
-            // ดึง 6 ตัวอักษรสุดท้ายจาก pi_... มาทำเป็นตัวพิมพ์ใหญ่
             const shortRef = paymentIntent.id.slice(-6).toUpperCase();
             setRefId(shortRef);
+            localStorage.setItem("payment_ref_id", shortRef);
           }
 
           const nextAction: any = paymentIntent?.next_action;
           const qrData =
             nextAction?.promptpay_display_qr_code?.image_url_svg ||
             nextAction?.promptpay_display_qr_code?.image_url_png;
+
+          const stripeExpiresAt =
+            nextAction?.promptpay_display_qr_code?.expires_at;
+
+          if (stripeExpiresAt) {
+            const expiryTimestampMs = stripeExpiresAt * 1000;
+
+            localStorage.setItem(
+              "payment_expiry_timestamp",
+              String(expiryTimestampMs),
+            );
+
+            const remaining = Math.floor(
+              (expiryTimestampMs - Date.now()) / 1000,
+            );
+            setTimeLeft(remaining > 0 ? remaining : 0);
+          }
+
           if (qrData) {
             setQrImage(qrData);
+            localStorage.setItem("payment_qr_image", qrData);
           } else {
             toast.error("ไม่พบข้อมูล QR Code จากระบบ");
           }
@@ -155,15 +237,28 @@ const PaymentQRInner = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
+        clearPaymentSession(); // อย่าลืมเคลียร์ session ตอนหมดเวลาด้วยครับ
         navigate(`/orders`);
         return;
       }
+
       const timerId = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+        if (savedExpiry) {
+          // คำนวณเวลาจาก Timestamp ปัจจุบัน เผื่อผู้ใช้พับจอ เวลาจะได้ไม่เพี้ยน
+          const remaining = Math.floor(
+            (Number(savedExpiry) - Date.now()) / 1000,
+          );
+          setTimeLeft(remaining > 0 ? remaining : 0);
+        } else {
+          setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        }
       }, 1000);
+
+      // เอา timeLeft ออกจาก Dependency array เพื่อไม่ให้ setInterval โดนรีเซ็ตทุกวินาที
       return () => clearInterval(timerId);
     }
-  }, [timeLeft, navigate, id, totalPrice, showQR, clientSecret]);
+  }, [navigate, id, totalPrice, showQR, clientSecret, timeLeft <= 0]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
