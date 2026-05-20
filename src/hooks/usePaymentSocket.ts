@@ -7,6 +7,7 @@ import { setPaymentStatus } from "../redux/payment/paymentReducer";
 import type { RootState } from "../redux/store";
 
 let globalClient: Client | null = null;
+let currentToken: string | null = null;
 
 const usePaymentSocket = () => {
   const dispatch = useDispatch();
@@ -21,16 +22,22 @@ const usePaymentSocket = () => {
     }
 
     // ✅ reuse connection
-    if (globalClient) {
+    if (globalClient && currentToken === token) {
       console.log("REUSE SOCKET");
       return;
+    }
+
+    if (globalClient && currentToken !== token) {
+      console.log("TOKEN CHANGED, RECONNECTING...");
+      globalClient.deactivate();
+      globalClient = null;
     }
 
     console.log("CONNECT SOCKET WITH TOKEN");
 
     const client = new Client({
       //https://api.store-mate-api.me/ws
-      webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL),
+      webSocketFactory: () => new SockJS(import.meta.env.VITE_SOCKET_URL, null),
 
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -90,6 +97,7 @@ const usePaymentSocket = () => {
       onWebSocketClose: () => {
         console.log("SOCKET CLOSED");
         globalClient = null;
+        currentToken = null;
       },
 
       onStompError: (frame) => {

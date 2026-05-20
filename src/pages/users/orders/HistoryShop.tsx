@@ -20,6 +20,7 @@ const HistoryPage = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
+
   const formatOrderDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -38,7 +39,23 @@ const HistoryPage = () => {
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
     return orders
-      .filter((order) => (status === "ALL" ? true : order.status === status))
+      .filter((order) => {
+        // 1. ถ้าอยู่แท็บ "ทั้งหมด" ให้โชว์ออเดอร์ทุกสถานะ
+        if (status === "ALL") return true;
+
+        // 2. 🟢 ถ้าอยู่แท็บ "ยกเลิก" ให้โชว์เฉพาะออเดอร์ที่ยกเลิกแล้วจริงๆ เท่านั้น
+        if (status === "CANCELLED") {
+          return order.status === "CANCELLED";
+        }
+
+        // 3. 🟢 ถ้าอยู่แท็บ "คืนเงิน/คืนสินค้า" ให้โชว์เฉพาะออเดอร์ที่ถูกเคลมเงินคืน
+        if (status === "REFUND") {
+          return order.status === "REFUND";
+        }
+
+        // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVE, COMPLETED)
+        return order.status === status;
+      })
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -244,7 +261,6 @@ const HistoryPage = () => {
                                   state: {
                                     orderNo: order.orderNo || `ORD-${order.id}`,
                                     totalPrice: orderTotal,
-
                                   },
                                 });
                               }}
@@ -259,6 +275,12 @@ const HistoryPage = () => {
                                 e.stopPropagation();
                                 navigate(
                                   `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                  {
+                                    state: {
+                                      status: order.status,
+                                      paymentMethod: order.checkoutType,
+                                    },
+                                  },
                                 );
                               }}
                               className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
@@ -275,6 +297,12 @@ const HistoryPage = () => {
                                 e.stopPropagation();
                                 navigate(
                                   `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                  {
+                                    state: {
+                                      status: order.status,
+                                      paymentMethod: order.checkoutType,
+                                    },
+                                  },
                                 );
                               }}
                               className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-2 text-[14px] font-medium text-gray-700 transition hover:bg-gray-50"
@@ -291,6 +319,12 @@ const HistoryPage = () => {
                                 e.stopPropagation();
                                 navigate(
                                   `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                  {
+                                    state: {
+                                      status: order.status,
+                                      paymentMethod: order.checkoutType,
+                                    },
+                                  },
                                 );
                               }}
                               className="cursor-pointer rounded-md w-40 h-10 bg-[#1E40AF] px-2 text-[16px] font-medium text-white transition hover:bg-blue-600 flex items-center justify-center"

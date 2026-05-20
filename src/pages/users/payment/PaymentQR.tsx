@@ -85,7 +85,7 @@ const PaymentQRInner = () => {
       // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
-      navigate("/history-shop", { replace: true });
+      navigate("/orders", { replace: true });
     } else if (paymentStatus === "PAYMENT_FAILS") {
       dispatch(resetPaymentStatus());
     }

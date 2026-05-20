@@ -33,7 +33,8 @@ const CancelOrderPage = () => {
 
   const currentLabel = getOrderLabel(orderStatus, paymentMethod);
 
-  const isPendingPayment = currentLabel === "ที่ต้องชำระ";
+  const isPendingPayment =
+    orderStatus === "PENDING" && paymentMethod !== "DESTINATION";
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
@@ -62,23 +63,35 @@ const CancelOrderPage = () => {
       await PaymentService.sendRefund(payload);
 
       if (isPendingPayment) {
-        toast.success("ยกเลิกคำสั่งซื้อสำเร็จ");
-      } else {
-        toast.success(
-          "ส่งคำขอยกเลิกคำสั่งซื้อสำเร็จ กรุณารอการอนุมัติจากแอดมิน",
-        );
-      }
+        toast.success("ส่งคำขอยกเลิก/คืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ");
 
-      setTimeout(() => {
-        navigate(-1);
-      }, 1500);
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+        setTimeout(() => {
+          navigate("/orders?status=CANCELLED");
+        }, 1500);
+      } else {
+        toast.success("ส่งคำขอยกเลิกสำเร็จ");
+        setTimeout(() => {
+          navigate("/orders?status=CANCELLED");
+        }, 1500);
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message;
+
+      if (errorMessage === "Refund exist") {
+        toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว");
+      } else if (errorMessage === "Can't refund this order") {
+        // 🟢 เปลี่ยนข้อความเตือนให้เคลียร์ขึ้น เผื่อส่งให้เพื่อนทีม Backend ดู
+        toast.error(
+          "หลังบ้านยังไม่ได้ปรับสิทธิ์: ออเดอร์ PENDING ไม่ต้องวิ่งเข้าฟังก์ชัน Refund",
+        );
+      } else {
+        toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+      }
     } finally {
+      // 🟢 เพิ่มกลับเข้ามาเพื่อคืนสถานะปุ่มกดเมื่อทำงานเสร็จสิ้น ไม่ว่าจะสำเร็จหรือพังก็ตาม
       setIsSubmitting(false);
     }
-  };
-
+  }; //
   return (
     <div className="min-h-screen flex flex-col bg-white font-anuphan text-gray-950 pt-4 md:pt-20 pb-4 md:pb-20">
       <Toaster position="top-center" reverseOrder={false} />
@@ -136,35 +149,19 @@ const CancelOrderPage = () => {
 
           <div className="bg-white rounded-lg md:rounded-none shadow-sm md:shadow-none border border-gray-200 md:border-none p-4 md:p-0 mx-4 md:mx-0 flex flex-col gap-5 md:gap-6">
             {/* Warning Box (ปรับข้อความให้ตรงตามสถานะจริงไดนามิก) */}
-            <div
-              className={`rounded-lg p-4 flex items-start gap-3 ${isPendingPayment ? "bg-[#FFEB55]" : "bg-[#FFEB55]"}`}
-            >
+            <div className="rounded-lg p-4 flex items-start gap-3 bg-[#FFEB55]">
               <Icon
                 icon="lucide:info"
-                className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isPendingPayment ? "text-black" : "text-black"}`}
+                className="w-5 h-5 mt-0.5 flex-shrink-0 text-black"
               />
               <div>
-                <h3
-                  className={`text-[14px] md:text-[15px] font-semibold mb-1 ${isPendingPayment ? "text-yellow-900" : "text-yellow-900"}`}
-                >
+                <h3 className="text-[14px] md:text-[15px] font-semibold mb-1text-yellow-900">
                   เงื่อนไขการทำรายการ
                 </h3>
-                <p
-                  className={`text-[13px] md:text-[14px] leading-relaxed ${isPendingPayment ? "text-[#B45309]" : "text-[#B45309]"}`}
-                >
-                  {isPendingPayment ? (
-                    <>
-                      การยกเลิกสินค้าสามารถทำได้เฉพาะรายการที่สถานะเป็น
-                      "รอดำเนินการ" เท่านั้น <br className="hidden sm:block" />
-                      สำหรับการคืนสินค้าสาารถทำได้ภายใน 7 วันหลังจากได้รับสินค้า
-                    </>
-                  ) : (
-                    <>
-                      การยกเลิกสินค้าสามารถทำได้เฉพาะรายการที่สถานะเป็น
-                      "รอดำเนินการ" เท่านั้น <br className="hidden sm:block" />
-                      สำหรับการคืนสินค้าสาารถทำได้ภายใน 7 วันหลังจากได้รับสินค้า
-                    </>
-                  )}
+                <p className="text-[13px] md:text-[14px] leading-relaxed text-[#B45309]">
+                  การยกเลิกสินค้าสามารถทำได้เฉพาะรายการที่สถานะเป็น
+                  "รอดำเนินการ" เท่านั้น <br className="hidden sm:block" />
+                  สำหรับการคืนสินค้าสาารถทำได้ภายใน 7 วันหลังจากได้รับสินค้า
                 </p>
               </div>
             </div>
