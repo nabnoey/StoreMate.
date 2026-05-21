@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 import toast, { Toaster } from "react-hot-toast";
 // import { useSelector } from "react-redux";
 // import type { RootState } from "../../../redux/store";
-import { getOrderLabel } from "../../../utils/order";
+// import { getOrderLabel } from "../../../utils/order";
 import { PaymentService } from "../../../services/payment.service";
 
 const reasonOptions = [
@@ -31,7 +31,7 @@ const CancelOrderPage = () => {
   const orderStatus = location.state?.status || "PENDING";
   const paymentMethod = location.state?.paymentMethod || "PROMPTPAY";
 
-  const currentLabel = getOrderLabel(orderStatus, paymentMethod);
+  // const currentLabel = getOrderLabel(orderStatus, paymentMethod);
 
   const isPendingPayment =
     orderStatus === "PENDING" && paymentMethod !== "DESTINATION";
