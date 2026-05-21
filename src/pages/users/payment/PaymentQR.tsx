@@ -528,7 +528,7 @@ const PaymentQRInner = () => {
             <button
               data-test="confirm-paid-btn"
               onClick={handleConfirmButtonClick}
-              className="cursor-pointer w-full max-w-[400px] bg-black text-white font-bold py-3.5 sm:py-4 rounded-xl transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
+              className="cursor-pointer w-full max-w-[400px] bg-[#1E40AF] text-white font-bold py-3.5 sm:py-4 rounded-xl transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
             >
               ตกลง
             </button>

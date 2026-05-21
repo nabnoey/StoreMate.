@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import toast, { Toaster } from "react-hot-toast";
-// import { useSelector } from "react-redux";
-// import type { RootState } from "../../../redux/store";
-// import { getOrderLabel } from "../../../utils/order";
 import { PaymentService } from "../../../services/payment.service";
 
 const reasonOptions = [
@@ -31,8 +28,6 @@ const CancelOrderPage = () => {
   const orderStatus = location.state?.status || "PENDING";
   const paymentMethod = location.state?.paymentMethod || "PROMPTPAY";
 
-  // const currentLabel = getOrderLabel(orderStatus, paymentMethod);
-
   const isPendingPayment =
     orderStatus === "PENDING" && paymentMethod !== "DESTINATION";
 
@@ -48,7 +43,7 @@ const CancelOrderPage = () => {
     }
 
     if (!orderNo) {
-      toast.error("ไม่พบหมายเลขคำสั่งซื้อ");
+      toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
       return;
     }
 
@@ -63,10 +58,10 @@ const CancelOrderPage = () => {
       await PaymentService.sendRefund(payload);
 
       if (isPendingPayment) {
-        toast.success("ส่งคำขอยกเลิก/คืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ");
+        toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวสอบ");
 
         setTimeout(() => {
-          navigate("/orders?status=CANCELLED");
+          navigate("/orders?status=REFUND");
         }, 1500);
       } else {
         toast.success("ส่งคำขอยกเลิกสำเร็จ");
@@ -76,11 +71,16 @@ const CancelOrderPage = () => {
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message;
+      const statusCode = error?.response?.status;
 
-      if (errorMessage === "Refund exist") {
+      if (
+        statusCode === 404 ||
+        errorMessage?.toLowerCase().includes("not found")
+      ) {
+        toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
+      } else if (errorMessage === "Refund exist") {
         toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว");
       } else if (errorMessage === "Can't refund this order") {
-        // 🟢 เปลี่ยนข้อความเตือนให้เคลียร์ขึ้น เผื่อส่งให้เพื่อนทีม Backend ดู
         toast.error(
           "หลังบ้านยังไม่ได้ปรับสิทธิ์: ออเดอร์ PENDING ไม่ต้องวิ่งเข้าฟังก์ชัน Refund",
         );
@@ -88,10 +88,9 @@ const CancelOrderPage = () => {
         toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
       }
     } finally {
-      // 🟢 เพิ่มกลับเข้ามาเพื่อคืนสถานะปุ่มกดเมื่อทำงานเสร็จสิ้น ไม่ว่าจะสำเร็จหรือพังก็ตาม
       setIsSubmitting(false);
     }
-  }; //
+  };
   return (
     <div className="min-h-screen flex flex-col bg-white font-anuphan text-gray-950 pt-4 md:pt-20 pb-4 md:pb-20">
       <Toaster position="top-center" reverseOrder={false} />

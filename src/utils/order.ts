@@ -40,7 +40,7 @@ export const getOrderLabel = (
       case "RECEIVE":
         return "ที่ต้องได้รับ";
       case "COMPLETED":
-        return "จัดส่งสำเร็จ";
+        return "คำสั่งซื้อสำเร็จ";
       case "CANCELLED":
         return "ยกเลิกคำสั่งซื้อ";
       case "REFUND":
@@ -59,7 +59,7 @@ export const getOrderLabel = (
     case "RECEIVE":
       return "ที่ต้องได้รับ";
     case "COMPLETED":
-      return "จัดส่งสำเร็จ";
+      return "คำสั่งซื้อสำเร็จ";
     case "CANCELLED":
       return "ยกเลิกคำสั่งซื้อ";
     case "REFUND":
