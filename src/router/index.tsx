@@ -36,6 +36,7 @@ const CancelOrderPage = lazy(
 );
 import Stock from "../pages/admin/Stock";
 import Order from "../pages/admin/Orders";
+import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 
 const router = createBrowserRouter([
   {
@@ -196,6 +197,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <Order />,
+      },
+      {
+        path: "refund",
+        element: <RefundModeratorPage />,
       },
     ],
   },
