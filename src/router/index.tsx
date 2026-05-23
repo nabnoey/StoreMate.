@@ -190,6 +190,10 @@ const router = createBrowserRouter([
     ),
     children: [
       {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
         path: "stock",
         element: <Stock />,
       },

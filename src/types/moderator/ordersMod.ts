@@ -15,7 +15,7 @@ export interface OrderMod {
 
 export const STATUS_LABELS: Record<string, string> = {
   PROCESSING: "ที่ต้องจัดส่ง",
-  SUCCESS: "สำเร็จ",
+  COMPLETED: "สั่งซื้อสำเร็จ",
   PAID: "ชำระเงินแล้ว",
   PENDING: "รอชำระเงิน",
   REFUND: "คืนเงิน/คืนสินค้า",
@@ -25,7 +25,7 @@ export const STATUS_LABELS: Record<string, string> = {
 
 export const STATUS_STYLES: Record<string, string> = {
   PROCESSING: "bg-blue-100 text-blue-700",
-  SUCCESS: "bg-green-100 text-green-700",
+  COMPLETED: "bg-green-100 text-green-700",
   PAID: "bg-emerald-100 text-emerald-700",
   PENDING: "bg-amber-100 text-amber-700",
   REFUND: "bg-red-100 text-red-600",

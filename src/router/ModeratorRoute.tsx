@@ -14,6 +14,9 @@ const ModeratorRoute = ({ children }: Props) => {
     (state: RootState) => state.auth,
   );
 
+  //   console.log("USER =", user);
+  // console.log("ROLES =", user?.roles);
+
   const dispatch = useDispatch();
 
   let isTokenInvalid = false;
@@ -21,6 +24,8 @@ const ModeratorRoute = ({ children }: Props) => {
   if (token) {
     try {
       const decoded: { exp: number } = jwtDecode(token);
+
+      // console.log("decoded", decoded)
 
       if (decoded.exp * 1000 < Date.now()) {
         isTokenInvalid = true;
@@ -41,8 +46,13 @@ const ModeratorRoute = ({ children }: Props) => {
     return <Navigate to="/login" replace />;
   }
 
-  // ไม่มี role moderator
-  if (!user?.roles.includes("MODERATOR")) {
+  const isModerator = Array.isArray(user?.roles)
+    ? user.roles.some(
+        (role: any) => role === "MODERATOR" ,
+      )
+    : false;
+
+  if (!isModerator) {
     return <Navigate to="/" replace />;
   }
 
