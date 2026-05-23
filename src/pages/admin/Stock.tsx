@@ -1,7 +1,10 @@
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit } from "react-icons/fi";
-
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../redux/store";
+import type { Product } from "../../types/product";
+import { addProduct } from "../../redux/moderator/ModeratorReducer";
 
 function Stock() {
   const products = [
@@ -47,6 +50,32 @@ function Stock() {
     },
   ];
 
+  const dispatch = useDispatch<AppDispatch>();
+//   type NewProduct = {
+//   id: string;
+//   name: string;
+//   category: string;
+//   price: number;
+//   stock: number;
+//   status: string;
+// };
+
+  const handleAddProduct = () => {
+    const newProduct: Product = {
+      id: 6,
+      productName: "สินค้าใหม่",
+      imageUrl: "https://example.com/image.jpg",
+      price: 0,
+      categoryName: "หมวดหมู่ใหม่",
+      sammary: "สรุปสินค้าใหม่",
+      description: "รายละเอียดสินค้าใหม่",
+      status: "ACTIVE",
+      createAt: new Date().toISOString(),
+      stockQuantity: 0,
+    }
+    dispatch(addProduct(newProduct));
+  }
+
   return (
     <div className="max-h-screen bg-[#F8F9FA] flex flex-col w-full p-0 ">
       <HeaderAdmin
@@ -68,9 +97,10 @@ function Stock() {
                 placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
-            </div>j
+            </div>
             <button
               type="button"
+              onClick={handleAddProduct}
               className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium"
             >
               <span>+</span> เพิ่มสินค้า
@@ -90,7 +120,14 @@ function Stock() {
                   ชื่อสินค้า
                 </th>
                 <th className="pb-4 font-normal whitespace-nowrap">หมวดหมู่</th>
-                <th className="pb-4 font-normal whitespace-nowrap">ราคา</th>
+                <th className="pb-4 
+                
+                
+                
+                
+                
+                
+                font-normal whitespace-nowrap">ราคา</th>
                 <th className="pb-4 font-normal whitespace-nowrap">
                   จำนวนคงเหลือ
                 </th>

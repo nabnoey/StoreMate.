@@ -263,14 +263,13 @@ const router = createBrowserRouter([
       </ModeratorRoute>
       ,
     children: [
+       {
+        path: "ordersMod",
+        element: <Order />,
+      },
       {
         path: "stock",
         element: <Stock />,
-      },
-
-      {
-        path: "orders",
-        element: <Order />,
       }
     ],
   },

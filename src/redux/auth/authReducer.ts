@@ -13,6 +13,24 @@ interface AuthState {
   error: string | null;
 }
 
+const normalizeRoles = (roles: any): string[] => {
+  if (!roles) return [];
+
+  if (Array.isArray(roles)) {
+    return roles
+      .map((role) => {
+        if (typeof role === "string") return role;
+        if (typeof role === "object" && role?.roleName) return role.roleName;
+        return undefined;
+      })
+      .filter((role): role is string => Boolean(role));
+  }
+
+  if (typeof roles === "string") return [roles];
+
+  return [];
+};
+
 const getUserFromToken = (tokenStr: string) => {
   if (!tokenStr) return null;
   try {
@@ -26,7 +44,7 @@ const getUserFromToken = (tokenStr: string) => {
     return {
       userId: decoded.userId,
       email: decoded.sub,
-      roles: decoded.roles,
+      roles: normalizeRoles(decoded.roles),
     };
   } catch (error) {
     console.error("ถอดรหัส Token ไม่สำเร็จ", error);
@@ -124,9 +142,10 @@ const authSlice = createSlice({
 
     setToken: (state, action) => {
       const token = action.payload;
+      const tokenUser = getUserFromToken(token);
       state.token = token;
-      state.user = getUserFromToken(token);
-      state.isAuthenticated = true;
+      state.user = tokenUser;
+      state.isAuthenticated = Boolean(tokenUser);
     },
   },
   extraReducers: (builder) => {
@@ -137,9 +156,10 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, action) => {
       state.loading = false;
       const newToken = action.payload;
+      const tokenUser = getUserFromToken(newToken);
       state.token = newToken;
-      state.user = { ...state.user, ...getUserFromToken(newToken) };
-      state.isAuthenticated = true;
+      state.user = tokenUser;
+      state.isAuthenticated = Boolean(tokenUser);
       state.error = null;
     });
     builder.addCase(login.rejected, (state, action) => {
