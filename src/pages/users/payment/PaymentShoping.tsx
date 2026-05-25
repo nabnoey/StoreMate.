@@ -4,7 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import { toast } from "react-hot-toast";
-import { useStripe } from "@stripe/react-stripe-js";
+
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, useStripe } from "@stripe/react-stripe-js";
 
 import type {
   PaymentIntentPayload,
@@ -19,7 +21,9 @@ import { addSavedCard } from "../../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../../redux/carts/CartReducer";
 import { PAYMENT_OPTIONS } from "../../../constants/payment";
 
-const PaymentShopping = () => {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const PaymentContent = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -633,6 +637,13 @@ const PaymentShopping = () => {
         </div>
       </div>
     </div>
+  );
+};
+const PaymentShopping = () => {
+  return (
+    <Elements stripe={stripePromise}>
+      <PaymentContent />
+    </Elements>
   );
 };
 
