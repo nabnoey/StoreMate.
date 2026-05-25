@@ -6,7 +6,9 @@ import {
 import type {
   RefundItem,
   RefundsResponse,
-} from "../../types/moderator/refundMod"; // ปรับ path ตามจริง
+} from "../../types/moderator/refundMod";
+
+import { ModeratorService } from "../../services/moderator.service";
 
 export interface RefundState {
   refunds: RefundItem[];
@@ -28,7 +30,6 @@ const initialState: RefundState = {
   error: null,
 };
 
-// --- Async Thunks ---
 export const fetchRefunds = createAsyncThunk(
   "refunds/fetchRefunds",
   async (
@@ -36,13 +37,12 @@ export const fetchRefunds = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await fetch(
-        `/api/v1/moderator/orders/refund?page=${page}&size=${size}`,
-      );
-      if (!response.ok) throw new Error("เรียกข้อมูลล้มเหลว");
-      return (await response.json()) as RefundsResponse;
+      const data = await ModeratorService.getRefunds(page, size);
+      return data;
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "เรียกข้อมูลล้มเหลว",
+      );
     }
   },
 );
@@ -51,11 +51,12 @@ export const fetchRefundDetail = createAsyncThunk(
   "refunds/fetchRefundDetail",
   async (refundNo: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/v1/moderator/orders/${refundNo}`);
-      if (!response.ok) throw new Error("ไม่พบรายละเอียดคำขอ");
-      return (await response.json()) as RefundItem;
+      const data = await ModeratorService.getRefundDetail(refundNo);
+      return data;
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "ไม่พบรายละเอียดคำขอ",
+      );
     }
   },
 );
@@ -64,16 +65,12 @@ export const approveRefund = createAsyncThunk(
   "refunds/approveRefund",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `/api/v1/payment/refund-request/${id}/approve`,
-        {
-          method: "POST",
-        },
-      );
-      if (!response.ok) throw new Error("ไม่สามารถอนุมัติได้");
+      await ModeratorService.approveRefund(id);
       return id;
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "ไม่สามารถอนุมัติได้",
+      );
     }
   },
 );
@@ -82,21 +79,16 @@ export const rejectRefund = createAsyncThunk(
   "refunds/rejectRefund",
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `/api/v1/payment/refund-request/${id}/reject`,
-        {
-          method: "POST",
-        },
-      );
-      if (!response.ok) throw new Error("ไม่สามารถปฏิเสธได้");
+      await ModeratorService.rejectRefund(id);
       return id;
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "ไม่สามารถปฏิเสธได้",
+      );
     }
   },
 );
 
-// --- Slice ---
 const refundSlice = createSlice({
   name: "refunds",
   initialState,
@@ -107,7 +99,6 @@ const refundSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch List
       .addCase(fetchRefunds.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -125,14 +116,12 @@ const refundSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      // Fetch Detail
       .addCase(
         fetchRefundDetail.fulfilled,
         (state, action: PayloadAction<RefundItem>) => {
           state.selectedRefund = action.payload;
         },
       )
-      // Actions
       .addMatcher(
         (action) =>
           action.type.endsWith("/pending") && action.type.includes("Refund"),
@@ -150,9 +139,9 @@ const refundSlice = createSlice({
       .addMatcher(
         (action) =>
           action.type.endsWith("/rejected") && action.type.includes("Refund"),
-        (state, action) => {
+        (state, action: PayloadAction<any>) => {
           state.isSubmitting = false;
-          state.error = action.payload;
+          state.error = action.payload || "เกิดข้อผิดพลาดในการส่งข้อมูล";
         },
       );
   },

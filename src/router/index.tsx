@@ -35,7 +35,7 @@ const CancelOrderPage = lazy(
   () => import("./../pages/users/orders/CancelOrder"),
 );
 import Stock from "../pages/admin/Stock";
-import Order from "../pages/admin/Orders";
+// import Order from "../pages/admin/Orders";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 
 const router = createBrowserRouter([
@@ -189,19 +189,19 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
-      {
-        path: "ordersMod",
-        element: <Order />,
-      },
+      // {
+      //   path: "ordersMod",
+      //   element: <Order />,
+      // },
       {
         path: "stock",
         element: <Stock />,
       },
 
-      {
-        path: "orders",
-        element: <Order />,
-      },
+      // {
+      //   path: "orders",
+      //   element: <Order />,
+      // },
       {
         path: "refund",
         element: <RefundModeratorPage />,

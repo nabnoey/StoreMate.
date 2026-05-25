@@ -14,7 +14,7 @@ const getRefunds = async (
   page: number,
   size: number,
 ): Promise<RefundsResponse> => {
-  const res = await api.get(`${import.meta.env.VITE_PAYMENT_REFUND}/refund`, {
+  const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders/refund`, {
     params: { page, size },
   });
   return res.data;

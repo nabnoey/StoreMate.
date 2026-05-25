@@ -5,7 +5,10 @@ import ProfileSidebar from "../../../components/user/ProfileSidebar";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../../../redux/orders/orderReducer";
+import {
+  fetchOrders,
+  fetchOrderDetails,
+} from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 import type { CreateReviewPayload } from "../../../types/review";
@@ -25,13 +28,18 @@ const HistoryPage = () => {
 
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
-    null,
-  );
-  const [reviewScore, setReviewScore] = useState<number>(0); // ตรงตาม Pick<Review, 'reviewScore'>
-  const [message, setMessage] = useState<string>(""); // ตรงตาม Pick<Review, 'message'>
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [reviewScore, setReviewScore] = useState<number>(0);
+  const [message, setMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [isFetchingDetail, setIsFetchingDetail] = useState<boolean>(false);
+
+  const [isSelectModalOpen, setIsSelectModalOpen] = useState<boolean>(false);
+  const [orderForReview, setOrderForReview] = useState<any>(null);
+  const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
+    null,
+  );
   const { isLoading: isReviewSubmitting } = useSelector(
     (state: RootState) => state.reviews ?? { isLoading: false },
   );
@@ -98,17 +106,9 @@ const HistoryPage = () => {
     }
   };
 
-  // เพิ่มรีวิว คือรับจาก productId
-  const handleOpenReviewModal = (productId: number) => {
-    setSelectedProductId(productId);
-    setReviewScore(0);
-    setMessage("");
-    setErrorMessage(null);
-    setIsReviewModalOpen(true);
-  };
-
+  // ตอนนี้ติดปัญหาดึง productId มาไม่ได้
   const handleReviewSubmit = async () => {
-    if (!selectedProductId) return;
+    if (!selectedItem?.productId) return;
 
     if (reviewScore === 0) {
       setErrorMessage("กรุณากรอกคะแนนความพึงพอใจ");
@@ -123,9 +123,14 @@ const HistoryPage = () => {
     try {
       setErrorMessage(null);
       await dispatch(
-        submitProductReview({ id: selectedProductId, payload }),
+        submitProductReview({ id: selectedItem.productId, payload }),
       ).unwrap();
       setIsReviewModalOpen(false);
+
+      setReviewScore(0);
+      setMessage("");
+      setSelectedItem(null);
+
       dispatch(fetchOrders(status as any));
     } catch (err) {
       console.error("Review error:", err);
@@ -133,10 +138,52 @@ const HistoryPage = () => {
     }
   };
 
+  const handleConfirmProductSelection = async () => {
+    if (!orderForReview || !localSelectedItemId) return;
+
+    const selectedItemFromList = orderForReview.orderItems?.find(
+      (item: any) => item.id === localSelectedItemId,
+    );
+
+    if (!selectedItemFromList) return;
+
+    try {
+      setIsFetchingDetail(true);
+      setErrorMessage(null);
+      setIsSelectModalOpen(false);
+
+      const orderNo = orderForReview.orderNo || `ORD-${orderForReview.id}`;
+
+      const orderDetailData = await dispatch(
+        fetchOrderDetails(orderNo),
+      ).unwrap();
+      const matchedItemDetail = orderDetailData?.orderItems?.find(
+        (detailItem: any) => detailItem.id === selectedItemFromList.id,
+      );
+
+      const actualProductId =
+        matchedItemDetail?.productId || matchedItemDetail?.id;
+
+      if (matchedItemDetail && actualProductId) {
+        setSelectedItem({
+          ...selectedItemFromList,
+          productId: actualProductId,
+        });
+        setIsReviewModalOpen(true);
+      } else {
+        alert("ไม่พบข้อมูลรหัสสินค้า (Product ID) สำหรับรายการนี้");
+      }
+    } catch (error) {
+      console.error("Fetch order details error in select modal:", error);
+      alert("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsFetchingDetail(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-6 sm:pt-20 pb-20 w-full overflow-x-hidden">
       <div className="max-w-[1200px] mx-auto px-4 w-full">
-        {/* Navigation สำหรับ Desktop & Tablet */}
         <nav className="hidden md:flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-6 font-medium">
           <Link
             data-test="click-home"
@@ -152,7 +199,6 @@ const HistoryPage = () => {
           <span className="text-black cursor-pointer">การซื้อของฉัน</span>
         </nav>
 
-        {/* Header สำหรับ Mobile */}
         <div className="md:hidden bg-white pt-2 pb-4">
           <div className="flex items-center gap-3">
             <button
@@ -170,13 +216,11 @@ const HistoryPage = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* Sidebar สำหรับ หน้าจอใหญ่ */}
           <div className="hidden md:block w-full md:w-64 flex-shrink-0">
             <ProfileSidebar />
           </div>
 
           <main className="flex-1 w-full min-h-[500px]">
-            {/* แถบสถานะ (รองรับการเลื่อนสไลด์ซ้าย-ขวาบน Mobile) */}
             <StatusOrderTabs activeTab={status} onTabChange={handleTabChange} />
 
             <div className="flex flex-col gap-4 py-4 w-full bg-white">
@@ -225,7 +269,6 @@ const HistoryPage = () => {
                         navigate(`/orders/${orderNo}`);
                       }}
                     >
-                      {/* ส่วนหัวรายละเอียดคำสั่งซื้อ (ปรับเป็น Grid 3 คอลัมน์บน Mobile เพื่อความขนานตามภาพ image_cdb743.png) */}
                       <div className="grid grid-cols-3 sm:flex sm:justify-between gap-2 pb-4 border-b border-gray-100">
                         <div>
                           <p className="text-[11px] sm:text-sm text-gray-500 mb-1">
@@ -255,10 +298,8 @@ const HistoryPage = () => {
                         </div>
                       </div>
 
-                      {/* รายการสินค้า */}
                       <div className="flex flex-col gap-2 py-3 border-b border-gray-100 w-full">
                         {order.orderItems?.map((item, index) => {
-                          // เช็คเงื่อนไขซ่อนสินค้าชิ้นที่ 2 เป็นต้นไป (index > 0) เฉพาะบน Mobile เมื่อยังไม่ได้กดขยาย
                           const isExpanded = expandedOrders[order.id];
                           const shouldHideOnMobile = index > 0 && !isExpanded;
 
@@ -319,11 +360,8 @@ const HistoryPage = () => {
                         </div>
                       )}
 
-                      {/* ยอดรวมสุทธิและปุ่มแอคชัน */}
                       <div className="mt-3">
-                        {/* แก้ไขบรรทัดนี้: เพิ่มความยืดหยุ่นให้ Mobile อยู่ตรงกลาง แต่ Desktop/Tablet ชิดซ้ายขวาตามเดิม */}
                         <div className="flex justify-center md:justify-between items-center gap-4 rounded-lg bg-[#F9FAFB] px-4 py-3">
-                          {/* Wrapper ครอบเพื่อให้ข้อความและตัวเลขเกาะกลุ่มกันตรงกลางบน Mobile */}
                           <div className="flex items-center gap-3 md:w-full md:justify-between">
                             <span className="text-black font-bold text-[15px] sm:text-[18px]">
                               ยอดรวมสุทธิ
@@ -335,7 +373,6 @@ const HistoryPage = () => {
                         </div>
 
                         {order.status === "COMPLETED" ? (
-                          /* บน Mobile แบ่งครึ่งคนละ 50/50 เท่ากันพอดีเป๊ะตามดีไซน์ และขยายฟิกซ์ขนาดบน Desktop/Tablet */
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
@@ -353,8 +390,11 @@ const HistoryPage = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (firstProductId)
-                                  handleOpenReviewModal(firstProductId);
+                                setOrderForReview(order);
+                                setLocalSelectedItemId(
+                                  order.orderItems?.[0]?.id || null,
+                                );
+                                setIsSelectModalOpen(true);
                               }}
                               className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                             >
@@ -442,6 +482,114 @@ const HistoryPage = () => {
         </div>
       </div>
 
+      {/* --- POPUP: เลือกรีวิว (Responsive for Mobile, Tablet, Desktop) --- */}
+      {isSelectModalOpen && orderForReview && (
+        <div className="fixed inset-0 z-50 flex flex-col md:bg-black/50 md:items-center md:justify-center md:p-4">
+          {/* พื้นหลัง Modal บน mobile จะเป็นสีขาวเต็มหน้าจอ (ไม่ใช้ md:pattern) | Tablet/Desktop จะเป็นกล่องขนาด 700px */}
+          <div className="w-full h-full md:h-auto md:min-h-0 md:max-h-[85vh] md:max-w-[700px] bg-white md:rounded-xl md:shadow-2xl overflow-hidden flex flex-col">
+            {/* 🟢 Mobile Header (Arrow + title + separator) - ซ่อนบน Desktop/Tablet */}
+            <div className="md:hidden flex items-center gap-4 p-5 border-b border-gray-100 bg-white flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsSelectModalOpen(false)}
+                className="text-black p-1 cursor-pointer"
+              >
+                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              </button>
+              <h2 className="text-[18px] md:text-[22px] font-bold text-gray-950">
+                เลือกรีวิว
+              </h2>
+            </div>
+
+            {/* 🟢 Desktop/Tablet Header (Simple title) - ซ่อนบน Mobile */}
+            <div className="hidden md:block p-5 border-b border-gray-100 flex-shrink-0">
+              <h3 className="text-[20px] font-bold text-gray-900">
+                เลือกรีวิว
+              </h3>
+            </div>
+
+            {/* รายการสินค้าในออเดอร์ให้กดเลือก (ปรับ padding และ gap) */}
+            <div className="p-4 md:p-5 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
+              {orderForReview.orderItems?.map((item: any) => {
+                const isSelected = localSelectedItemId === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => setLocalSelectedItemId(item.id)}
+                    className={`flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-white rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-blue-500 ring-2 ring-blue-500/20 shadow-md"
+                        : "border-gray-200 hover:border-gray-300 shadow-sm"
+                    }`}
+                  >
+                    {/* รูปภาพสินค้า (ปรับขนาด responsive) */}
+                    <img
+                      src={item.imageUrl || ""}
+                      alt={item.productName}
+                      className="w-14 h-14 md:w-20 md:h-20 object-contain rounded-lg border border-gray-100 flex-shrink-0 bg-white"
+                    />
+
+                    {/* รายละเอียดสินค้า */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-[14px] md:text-[15px] text-gray-950 line-clamp-2 leading-snug">
+                        {item.productName}
+                      </p>
+                      <div className="flex gap-4 mt-2 text-[12px] md:text-[13px] text-gray-500">
+                        <p>ราคา ฿{item.price?.toLocaleString()}</p>
+                        <p>จำนวน x{item.quantity}</p>
+                      </div>
+                    </div>
+
+                    {/* วงกลมติ๊กเลือก */}
+                    <div className="flex-shrink-0 pr-1 md:pr-2">
+                      <div
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-500"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 🟢 Footer (Responsive: สแต็คแนวตั้งบน mobile / แนวนอนขวาบน desktop) */}
+            <div className="p-4 md:p-5 border-t border-gray-100 flex flex-col gap-3 bg-white md:flex-row-reverse md:justify-start md:gap-3 flex-shrink-0">
+              {/* 🟢 ใช้ md:flex-row-reverse และ HTML order: ["เลือก", "ยกเลิก"] 
+               เพื่อให้ mobile แสดง "เลือก" บน "ยกเลิก" และ desktop แสดง [ยกเลิก | เลือก] */}
+
+              {/* ปุ่ม เลือก (w-full on mobile, taller size) */}
+              <button
+                type="button"
+                onClick={handleConfirmProductSelection}
+                disabled={isFetchingDetail} // ป้องกันกดเบิ้ลระหว่างรอโหลด API
+                className={`w-full md:w-auto px-6 py-3 md:py-2.5 rounded-lg bg-black text-white font-medium text-[14px] hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 cursor-pointer ${isFetchingDetail ? "bg-gray-400 cursor-not-allowed" : ""}`}
+              >
+                {isFetchingDetail ? "กำลังโหลด..." : "เลือก"}
+              </button>
+
+              {/* ปุ่ม ยกเลิก (w-full on mobile) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSelectModalOpen(false);
+                  setOrderForReview(null);
+                }}
+                className="w-full md:w-auto px-6 py-3 md:py-2.5 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium text-[14px] hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- RESPONSIVE REVIEW WINDOW OVERLAY (ปรับปรุงตาม image_cdba86.png) --- */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 bg-white md:bg-black/50 z-50 flex items-start md:items-center justify-center overflow-y-auto">
@@ -463,7 +611,7 @@ const HistoryPage = () => {
             {/* กล่องแสดงรายละเอียดสินค้าด้านบนรีวิว */}
             {filteredOrders.map((order) => {
               const matchedItem = order.orderItems?.find(
-                (item) => item.id === selectedProductId,
+                (item) => item.id === selectedItem?.id,
               );
               if (!matchedItem) return null;
               return (
