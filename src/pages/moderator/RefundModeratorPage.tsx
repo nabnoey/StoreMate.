@@ -77,26 +77,25 @@ const RefundModeratorPage = () => {
   };
 
   const totalPages = useMemo(() => Math.ceil(total / pageSize), [total]);
-
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col w-full">
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col w-full font-['Anuphan']">
       <HeaderAdmin
         title="จัดการคำขอคืนเงิน"
         subtitle="ตรวจสอบและจัดการรายการการคำขอคืนเงิน"
       />
 
       <div className="p-6 w-full flex flex-col flex-1">
-        <main className="w-full bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col flex-1">
+        <main className="w-full bg-[#FCFCFC] rounded-lg shadow-[0px_4px_4px_rgba(0,0,0,0.25)] p-6 flex flex-col flex-1">
           <div className="flex items-center gap-2 mb-5">
-            <div className="px-2.5 py-1 bg-[#f9fafb] text-gray-500 rounded-lg text-xs font-medium border border-gray-200">
-              ทั้งหมด:{" "}
-              <span className="font-semibold text-gray-800">{total}</span>
+            <div className="px-4 py-2 border border-black/10 text-[#0A0A0A] rounded-lg text-xs font-medium bg-white">
+              ทั้งหมด: <span className="font-semibold">{total}</span>
             </div>
-            <div className="px-2.5 py-1 bg-[#fffbeb] text-[#b45309] rounded-lg text-xs font-medium border border-[#fef3c7]">
+            <div className="px-4 py-2 bg-[#FEFCE8] border border-black/10 text-[#0A0A0A] rounded-lg text-xs font-medium">
               รอดำเนินการ: <span className="font-semibold">{pendingCount}</span>
             </div>
           </div>
 
+          {/* ส่วนค้นหาและฟิลเตอร์ */}
           <div className="flex flex-wrap gap-3 items-center mb-5">
             <div className="relative max-w-sm w-full">
               <input
@@ -106,7 +105,7 @@ const RefundModeratorPage = () => {
               />
             </div>
             <div className="relative">
-              <select className="bg-white border border-gray-200 rounded-xl pl-3 pr-8 py-1.5 text-xs text-gray-600 font-medium focus:outline-none appearance-none cursor-pointer">
+              <select className="bg-white border border-gray-200 rounded-xl pl-3 pr-8 py-1.5 text-md text-black font-medium focus:outline-none appearance-none cursor-pointer">
                 <option>สถานะทั้งหมด</option>
                 <option>อนุมัติ</option>
                 <option>รอดำเนินการ</option>
@@ -119,17 +118,18 @@ const RefundModeratorPage = () => {
             </div>
           </div>
 
-          <div className="w-full overflow-x-auto border border-gray-100 rounded-xl flex-1">
+          {/* กล่องครอบตาราง ปรับตาม Figma [padding: 16px, background: white, border-radius: 14px, outline: 0.8px black/10] */}
+          <div className="w-full overflow-x-auto bg-white p-4 rounded-[14px] border border-black/10 flex-1">
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-400 text-xs font-semibold bg-[#fafafa]">
-                  <th className="px-4 py-3 font-semibold">หมายเลขคำขอ</th>
-                  <th className="px-4 py-3 font-semibold">ชื่อลูกค้า</th>
-                  <th className="px-4 py-3 font-semibold">หมายเลขคำสั่งซื้อ</th>
-                  <th className="px-4 py-3 font-semibold">จำนวนเงิน</th>
-                  <th className="px-4 py-3 font-semibold">เหตุผล</th>
-                  <th className="px-4 py-3 font-semibold">วันที่ยื่นคำขอ</th>
-                  <th className="px-4 py-3 font-semibold">สถานะ</th>
+                <tr className="border-b border-gray-100 text-black text-[16px] font-medium bg-[#fafafa]">
+                  <th className="px-4 py-3 font-medium">หมายเลขคำขอ</th>
+                  <th className="px-4 py-3 font-medium">ชื่อลูกค้า</th>
+                  <th className="px-4 py-3 font-medium">หมายเลขคำสั่งซื้อ</th>
+                  <th className="px-4 py-3 font-medium">จำนวนเงิน</th>
+                  <th className="px-4 py-3 font-medium">เหตุผล</th>
+                  <th className="px-4 py-3 font-medium">วันที่ยื่นคำขอ</th>
+                  <th className="px-4 py-3 font-medium">สถานะ</th>
                   <th className="px-4 py-3 text-center w-36 font-semibold">
                     การดำเนินการ
                   </th>
@@ -157,37 +157,39 @@ const RefundModeratorPage = () => {
                       key={row.orderNo}
                       className="hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="px-4 py-4 text-gray-400 font-normal">
+                      <td className="px-4 py-4 text-black font-normal text-[16px]">
                         {row.refundNo || "ไม่มีข้อมูลหมายเลข"}
                       </td>
-                      <td className="px-4 py-4 text-gray-800 font-medium">
+                      <td className="px-4 py-4 text-black font-medium text-[16px]">
                         {row.receiverName}
                       </td>
-                      <td className="px-4 py-4 text-gray-400">{row.orderNo}</td>
-                      <td className="px-4 py-4 text-gray-800 font-medium">
+                      <td className="px-4 py-4 text-black text-[16px]">
+                        {row.orderNo}
+                      </td>
+                      <td className="px-4 py-4 text-black font-medium text-[16px]">
                         ฿{row.total.toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-gray-400 max-w-[300px] truncate">
+                      <td className="px-4 py-4 text-black max-w-[300px] truncate text-[16px]">
                         {row.reason || "-"}
                       </td>
-                      <td className="px-4 py-4 text-gray-400">
+                      <td className="px-4 py-4 text-black text-[16px]">
                         {row.requestedAt}
                       </td>
                       <td className="px-4 py-4">
                         {row.status === "APPROVED" && (
-                          <span className="inline-flex px-2.5 py-0.5 text-[11px] font-medium bg-[#10b981] text-white rounded-md">
+                          <div className="inline-flex w-full p-[10px] bg-[#10b981] rounded-[8px] justify-center items-center gap-[10px] text-white text-[14px] font-normal leading-[24px] break-words">
                             อนุมัติ
-                          </span>
+                          </div>
                         )}
                         {row.status === "PENDING" && (
-                          <span className="inline-flex px-2.5 py-0.5 text-[11px] font-medium bg-[#f59e0b] text-white rounded-md">
+                          <div className="inline-flex w-full p-[10px] bg-[#D4AF37] rounded-[8px] justify-center items-center gap-[10px] text-white text-[14px] font-normal leading-[24px] break-words">
                             รอดำเนินการ
-                          </span>
+                          </div>
                         )}
                         {row.status === "REJECTED" && (
-                          <span className="inline-flex px-2.5 py-0.5 text-[11px] font-medium bg-[#ef4444] text-white rounded-md">
+                          <div className="inline-flex w-full p-[10px] bg-[#ef4444] rounded-[8px] justify-center items-center gap-[10px] text-white text-[14px] font-normal leading-[24px] break-words">
                             ปฏิเสธ
-                          </span>
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-4">
@@ -197,7 +199,7 @@ const RefundModeratorPage = () => {
                             onClick={() =>
                               handleOpenModal("VIEW", row.refundNo, row.orderNo)
                             }
-                            className="hover:text-gray-700 transition-colors cursor-pointer"
+                            className="text-gray-700 transition-colors cursor-pointer"
                           >
                             <Icon icon="lucide:eye" className="w-4 h-4" />
                           </button>
@@ -213,7 +215,7 @@ const RefundModeratorPage = () => {
                                     row.orderNo,
                                   )
                                 }
-                                className="hover:text-green-500 transition-colors cursor-pointer"
+                                className="text-green-500 transition-colors cursor-pointer"
                               >
                                 <Icon icon="lucide:check" className="w-4 h-4" />
                               </button>
@@ -226,7 +228,7 @@ const RefundModeratorPage = () => {
                                     row.orderNo,
                                   )
                                 }
-                                className="hover:text-red-500 transition-colors cursor-pointer"
+                                className="text-red-500 transition-colors cursor-pointer"
                               >
                                 <Icon icon="lucide:x" className="w-4 h-4" />
                               </button>
@@ -241,12 +243,13 @@ const RefundModeratorPage = () => {
             </table>
           </div>
 
+          {/* ส่วนควบคุมหน้า (Pagination) */}
           <div className="mt-5 flex justify-end items-center gap-1 text-xs">
             <button
               type="button"
               disabled={currentPage === 1}
               onClick={() => setSearchParams({ page: String(currentPage - 1) })}
-              className="px-3 py-1.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 font-medium disabled:opacity-40 transition-colors cursor-pointer mr-2"
+              className="px-3 py-1.5 border border-gray-200 rounded-xl text-black hover:bg-gray-50 font-medium text-[16px] text-black disabled:opacity-40 transition-colors cursor-pointer mr-2"
             >
               ก่อนหน้า
             </button>
@@ -256,10 +259,10 @@ const RefundModeratorPage = () => {
                 key={idx}
                 type="button"
                 onClick={() => setSearchParams({ page: String(idx + 1) })}
-                className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-7 h-7 flex items-center justify-center rounded-lg text-[16px] font-medium transition-colors cursor-pointer ${
                   currentPage === idx + 1
                     ? "text-blue-600 bg-transparent font-semibold"
-                    : "text-gray-400 hover:bg-gray-50"
+                    : "text-black hover:bg-gray-50"
                 }`}
               >
                 {idx + 1}
@@ -270,7 +273,7 @@ const RefundModeratorPage = () => {
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setSearchParams({ page: String(currentPage + 1) })}
-              className="px-3 py-1.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 font-medium disabled:opacity-40 transition-colors cursor-pointer ml-2"
+              className="px-3 py-1.5 border border-gray-200 rounded-xl text-black hover:bg-gray-50 font-medium text-[16px] disabled:opacity-40 transition-colors cursor-pointer ml-2"
             >
               ถัดไป
             </button>
@@ -278,6 +281,7 @@ const RefundModeratorPage = () => {
         </main>
       </div>
 
+      {/* ส่วนของ Modal รายละเอียด */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/25 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
           <div className="bg-white p-6 max-w-[420px] w-full rounded-2xl shadow-xl relative flex flex-col border border-gray-100">

@@ -56,9 +56,11 @@ const getoOrder = async (orderNo: number) => {
 };
 
 const getoOrderByOrderNo = async (orderNo: number) => {
-    const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders/orderNo/${orderNo}`)
-    return res.data
-}
+  const res = await api.get(
+    `${import.meta.env.VITE_MOD_API}/orders/orderNo/${orderNo}`,
+  );
+  return res.data;
+};
 
 const addProduct = async (data: Product) => {
   const res = await api.post(`${import.meta.env.VITE_MOD_API}/products`, data);
@@ -66,7 +68,6 @@ const addProduct = async (data: Product) => {
 };
 
 export const ModeratorService = {
-
   getAllOrders,
   shippingOrder,
   getoOrder,
@@ -75,5 +76,5 @@ export const ModeratorService = {
   getRefundDetail,
   approveRefund,
   rejectRefund,
-  getoOrderByOrderNo
-
+  getoOrderByOrderNo,
+};

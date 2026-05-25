@@ -41,7 +41,6 @@ import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -193,10 +192,10 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
-      // {
-      //   path: "ordersMod",
-      //   element: <Order />,
-      // },
+      {
+        path: "ordersMod",
+        element: <Order />,
+      },
       {
         path: "ordersMod/:orderNo",
         element: <OrderDetail />,
