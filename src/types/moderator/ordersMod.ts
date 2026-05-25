@@ -1,16 +1,44 @@
-// ordersMod.ts
+export interface OrderAddress {
+  streetAddress: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  zipcode: string;
+}
 
-// export interface OrderMod {
-//   id: string;
-//   orderNo: string;
-//   recipientName: string;
-//   phone: string;
-//   total: number;
-//   shippingFrom: string;
-//   status: string;
-//   is_printed: boolean;
-//   createdAt: string;
-// }
+export interface OrderItem {
+  id: number;
+  productName?: string;
+  imageUrl?: string;
+  quantity: number;
+  price: number;
+}
+
+export interface OrderMod {
+  id: number;
+  orderNo: number;
+
+  recipientName: string;
+  phone: string;
+
+  status: string;
+  total: number;
+
+  orderAddress: OrderAddress[];
+
+  shippingFrom: string;
+  is_printed: boolean;
+  createdAt: string;
+
+  checkoutType?: string;
+
+  orderItems?: OrderItem[];
+
+  orderRecipient?: {
+    recipientName?: string;
+    phone?: string;
+  };
+}
 
 export interface OrderMod {
   id: number;
@@ -19,7 +47,7 @@ export interface OrderMod {
   phone: string;
   status: string;
   total: number;
-  orderAddress: string;
+  // orderAddress: string;
   shippingFrom: string;
   is_printed: boolean;
   createdAt: string;
