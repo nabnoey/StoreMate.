@@ -5,6 +5,7 @@ import ProtectedRout from "./ProtectedRout";
 import { lazyDelay } from "../utils/lazyDelay";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import ModeratorRoute from "./ModeratorRoute";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -74,6 +75,8 @@ const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
 import Stock from "../pages/admin/Stock";
+import Order from "../pages/admin/Orders";
+import OrderDetail from "../pages/admin/OrderDetail";
 
 const router = createBrowserRouter([
   // {
@@ -252,13 +255,27 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/admin",
-    element: <AdminLayout />,
+    path: "/moderator",
+    
+    element: 
+      <ModeratorRoute>
+
+ <AdminLayout />
+      </ModeratorRoute>
+      ,
     children: [
+       {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
       {
         path: "stock",
         element: <Stock />,
-      },
+      }
     ],
   },
 ]);

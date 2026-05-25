@@ -4,12 +4,14 @@ import type { Order, OrderStatus } from "../../types/orders";
 
 interface OrdersState {
   orders: Order[];
+  orderDetail: Order | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: OrdersState = {
   orders: [],
+  orderDetail: null,
   loading: false,
   error: null,
 };
@@ -50,28 +52,14 @@ const ordersSlice = createSlice({
         state.error = action.error.message || "เกิดข้อผิดพลาด";
       })
 
-      // ✅ จัดการ fetchOrderDetails
       .addCase(fetchOrderDetails.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOrderDetails.fulfilled, (state, action) => {
-        const orderIndex = state.orders.findIndex(
-          (order) => order.orderNo === action.payload.orderNo,
-        );
-        if (orderIndex !== -1) {
-          // ถ้าพบอันที่เหมือน ให้อัพเดท
-          state.orders[orderIndex] = {
-            ...state.orders[orderIndex],
-            ...action.payload,
-          };
-        } else {
-          // ถ้าไม่พบ ให้เพิ่มใหม่
-          state.orders.push(action.payload);
-        }
-        state.loading = false;
-      });
-  },
+      state.orderDetail = action.payload;
+      })
+    }
 });
-
+  
 export default ordersSlice.reducer;
