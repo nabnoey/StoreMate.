@@ -8,6 +8,7 @@ import reviewsReducer from "./reviews/reviewsReducer";
 import addressReducer from "./address/addressReducer";
 import paymentReducer from "./payment/paymentReducer";
 import orderReducer from "./orders/orderReducer";
+import moderatorReducer from "./moderator/ModeratorReducer";
 
 const storage = {
   getItem: (key: string) => {
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   address: addressReducer,
   payment: paymentReducer,
   orders: orderReducer,
+  moderator: moderatorReducer,
 });
 
 const persistConfig = {

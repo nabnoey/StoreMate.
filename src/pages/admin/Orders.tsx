@@ -1,245 +1,355 @@
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
-import {
-  FiArrowLeft,
-  FiClock,
-  FiPackage,
-  FiTruck,
-  FiCheckCircle,
-  FiUser,
-  FiPhone,
-  FiMapPin,
-  FiBox,
-  FiClipboard,
-} from "react-icons/fi";
-import { FaHistory } from "react-icons/fa";
-import { Users } from "lucide-react";
+import type { AppDispatch, RootState } from "../../redux/store";
+import { fetchAllOrders } from "../../redux/moderator/ModeratorReducer";
+import { STATUS_LABELS, STATUS_STYLES, type OrderMod } from "../../types/moderator/ordersMod";
+import { InvoicePrint } from "../../components/admin/InvoicePrint";
+
+const formatDateTime = (isoString: string) => {
+  if (!isoString) return { dateStr: "-", timeStr: "-" };
+  const dateObj = new Date(isoString);
+  const dateStr = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear() + 543}`;
+  const hours = String(dateObj.getHours()).padStart(2, "0");
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+  return { dateStr, timeStr: `${hours}.${minutes} น.` };
+};
 
 function Orders() {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchDate, setSearchDate] = useState("");
+  const [timeFilter, setTimeFilter] = useState("วันนี้");
+  const printRef = useRef<HTMLDivElement>(null);
+  const [printData, setPrintData] = useState<OrderMod[]>([]);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const rawOrders = useSelector((state: RootState) => state.moderator.orders);
+  const orders = Array.isArray(rawOrders) ? rawOrders : [];
+
+  useEffect(() => {
+    dispatch(fetchAllOrders());
+  }, [dispatch]);
+
+  // trigger print หลัง printData render เสร็จ
+  useEffect(() => {
+    if (isPrinting && printData.length > 0) {
+      const timer = setTimeout(() => {
+        window.print();
+        setIsPrinting(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isPrinting, printData]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = orders.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const handleSelectOrder = (orderNo: string) => {
+    const key = String(orderNo);
+    setSelectedOrders((prev) =>
+      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key]
+    );
+  };
+
+  // กดปุ่ม "ปริ้นใบปะหน้า" → เข้าโหมดเลือก
+  const handleEnterPrintMode = () => {
+    setSelectedOrders([]);
+    setIsPrintMode(true);
+  };
+
+  // กดปุ่ม "ยกเลิก" → ออกจากโหมดเลือก
+  const handleCancelPrintMode = () => {
+    setSelectedOrders([]);
+    setIsPrintMode(false);
+  };
+
+  // กดปุ่ม "ยืนยัน" → print order ที่เลือกไว้
+  const handleConfirmPrint = () => {
+    const selectedData = orders.filter((o) =>
+      selectedOrders.includes(String(o.orderNo))
+    );
+    if (selectedData.length === 0) return;
+    setPrintData(selectedData);
+    setIsPrinting(true);
+  };
+
+  const maxVisiblePages = 5;
+  const getVisiblePages = () => {
+    const start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    const end = Math.min(totalPages, start + maxVisiblePages - 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
+
+  const visiblePages = getVisiblePages();
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full">
-      <HeaderAdmin
-        title="จัดการคำสั่งซื้อ"
-        subtitle="ตรวจสอบ ติดตามสถานะ และดำเนินการจัดการคำสั่งซื้อ"
-      />
+      <div className="w-full flex flex-col items-start print:hidden">
+        <HeaderAdmin
+          title="จัดการคำสั่งซื้อ"
+          subtitle="ตรวจสอบและจัดการรายการคำสั่งซื้อทั้งหมดในระบบ"
+        />
 
-      <div className="p-6 w-full text-[#374151] max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <button
-            type="button"
-            className="flex items-center gap-4 hover:opacity-70 transition-opacity text-left"
-          >
-            <FiArrowLeft className="text-xl text-gray-700" />
-            <div>
-              <h2 className="text-lg font-bold text-[#0F172A]">
-                รายละเอียดคำสั่งซื้อ
-              </h2>
-              <p className="text-sm text-[#64748B]">ORD-2024-001</p>
-            </div>
-          </button>
-          <span className="bg-[#BFDBFE] text-[#2563EB] px-4 py-1.5 rounded-full text-sm font-semibold border border-blue-100">
-            กำลังเตรียมสินค้า
-          </span>
-        </div>
+        <div className="p-6 w-full text-[#374151] max-w-7xl mx-auto">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative">
-              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-gray-200 z-0"></div>
-
-              <div className="flex justify-between items-center relative z-10">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-gray-800 text-black w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm">
-                    <FiClock />
-                  </div>
-                  <span className="text-xs font-medium text-gray-500">
-                    รอชำระเงิน
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-black text-black w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm">
-                    <FiClipboard />
-                  </div>
-                  <span className="text-xs font-bold text-gray-800">
-                    กำลังเตรียมสินค้า
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-[#F1F5F9] text-black w-10 h-10 rounded-full flex items-center justify-center text-lg">
-                    <FiTruck />
-                  </div>
-                  <span className="text-xs font-medium text-gray-400">
-                    จัดส่งแล้ว
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="bg-white border-2 border-[#F1F5F9] text-black w-10 h-10 rounded-full flex items-center justify-center text-lg">
-                    <FiCheckCircle />
-                  </div>
-                  <span className="text-xs font-medium text-gray-400">
-                    สำเร็จแล้ว
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiClipboard className="text-lg" /> เปลี่ยนสถานะคำสั่งซื้อ
-              </h3>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="status-select"
-                    className="block text-xs text-[#94A3B8] mb-1 font-bold"
-                  >
-                    เลือกสถานะใหม่
-                  </label>
-                  <select
-                    id="status-select"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  >
-                    <option>กำลังเตรียมสินค้า</option>
-                    <option>จัดส่งแล้ว</option>
-                    <option>สำเร็จแล้ว</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
+            <div className="flex flex-col gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                {!isPrintMode ? (
+                  /* ─── โหมดปกติ: แสดงแค่ปุ่มปริ้นใบปะหน้า ─── */
                   <button
                     type="button"
-                    className="bg-gray-500 hover:bg-gray-600 transition-colors text-white px-6 py-2.5 rounded-md text-sm font-medium flex items-center gap-2 w-full sm:w-auto justify-center"
+                    onClick={handleEnterPrintMode}
+                    className="h-[40px] px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                   >
-                    <FiCheckCircle /> บันทึกการเปลี่ยนแปลง
+                    <span>🖨️</span>
+                    ปริ้นใบปะหน้า
                   </button>
+                ) : (
+                  /* ─── โหมดเลือกปริ้น: แสดงจำนวน + ยืนยัน + ยกเลิก ─── */
+                  <>
+                    <div className="h-[40px] px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                      <span>🖨️</span>
+                      ปริ้นใบปะหน้าที่เลือก ({selectedOrders.length})
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleConfirmPrint}
+                      disabled={selectedOrders.length === 0}
+                      className="h-[40px] w-[100px] bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                    >
+                      ยืนยัน
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelPrintMode}
+                      className="h-[40px] w-[100px] rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
+                    >
+                      ยกเลิก
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  <input
+                    type="text"
+                    placeholder="ค้นหาโดย ชื่อ, เบอร์โทร, "
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
+                  />
+                  <input
+                    type="date"
+                    value={searchDate}
+                    onChange={(e) => setSearchDate(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-400"
+                  />
+                </div>
+
+                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
+                  {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setTimeFilter(tab)}
+                      className={`px-4 py-2 border-r last:border-r-0 transition-colors ${
+                        timeFilter === tab
+                          ? "bg-gray-100 text-black"
+                          : "bg-white text-gray-500 hover:bg-gray-50"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiBox className="text-lg" /> รายการสินค้า ( 1 )
-              </h3>
+            <h3 className="text-base font-bold text-gray-800 mb-4">คำสั่งซื้อ</h3>
 
-              <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 text-2xl">
-                    <FiPackage />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800 text-sm">
-                      น้ำมะม่วงหาวมะนาวโห่
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">จำนวน: 1</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-800">฿ 4,990</p>
-                  <p className="text-[10px] text-gray-400 font-medium">
-                    UNIT PRICE
-                  </p>
-                </div>
-              </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200 text-[#9CA3AF] text-[13px] font-medium">
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">เลขที่คำสั่งซื้อ</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">ชื่อผู้สั่งซื้อ</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">เบอร์โทร</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">วันที่สั่งซื้อ</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">ยอดรวม</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">สั่งจาก</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">สถานะคำสั่งซื้อ</th>
+                    <th className="py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {currentItems.length > 0 ? (
+                    currentItems.map((order: OrderMod) => {
+                      const { dateStr, timeStr } = formatDateTime(order.createdAt);
+                      const isSelected = selectedOrders.includes(String(order.orderNo));
 
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-sm font-bold text-gray-600">
-                  ราคาสุทธิรวมภาษี
-                </span>
-                <div className="text-right">
-                  <p className="text-xl font-black text-gray-900">฿ 4,990</p>
-                  <p className="text-[10px] text-gray-400 font-bold">THB</p>
-                </div>
-              </div>
+                      return (
+                       <tr
+  key={order.id || order.orderNo}
+  onClick={() => {
+    if (!isPrintMode) {
+      navigate(`/moderator/ordersMod/${order.orderNo}`);
+    }
+  }}
+  className={`hover:bg-gray-50/50 transition-colors cursor-pointer ${
+    isPrintMode && isSelected ? "bg-blue-50" : ""
+  }`}
+>
+                          <td className="py-4 px-2">
+                            <div className="flex items-center gap-3">
+                              {/* วงกลมติ๊ก: โชว์เฉพาะตอนอยู่ในโหมดปริ้น */}
+                              {isPrintMode && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectOrder(String(order.orderNo))}
+                                  className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
+                                    isSelected
+                                      ? "bg-blue-700 border-blue-700"
+                                      : "border-gray-300 bg-white"
+                                  }`}
+                                >
+                                  {isSelected && (
+                                    <span className="text-white text-[10px]">✓</span>
+                                  )}
+                                </button>
+                              )}
+                              <span className="text-gray-600 font-medium">{order.orderNo}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-2 text-gray-800 font-medium">{order.recipientName}</td>
+                          <td className="py-4 px-2 text-gray-500">{order.phone}</td>
+                          <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
+                            {dateStr}<br />
+                            <span className="text-gray-400">{timeStr}</span>
+                          </td>
+                          <td className="py-4 px-2 font-bold text-gray-800">
+                            ฿ {(order.total || 0).toLocaleString(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })}
+                          </td>
+                          <td className="py-4 px-2 text-gray-500">{order.shippingFrom || "website"}</td>
+                          <td className="py-4 px-2">
+                            <span className={`inline-flex items-center px-3 py-[4px] rounded-full text-[11px] font-medium whitespace-nowrap ${
+                              STATUS_STYLES[order.status] || "bg-gray-100 text-gray-600"
+                            }`}>
+                              {STATUS_LABELS[order.status] || order.status}
+                            </span>
+                          </td>
+                          <td className="py-4 text-right text-xs space-x-3 pr-2">
+                            {order.is_printed && (
+                              <span className="text-[#60A5FA] text-xs font-medium">printed</span>
+                            )}
+                            {isPrintMode ? (
+                              <button
+                                type="button"
+                                onClick={() => handleSelectOrder(String(order.orderNo))}
+                                className="text-blue-600 hover:underline font-medium"
+                              >
+                                {isSelected ? "ยกเลิก" : "เลือก"}
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/moderator/ordersMod/${order.orderNo}`)}
+                                className="text-blue-600 hover:underline font-medium"
+                              >
+                                จัดการ
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-gray-400 font-medium">
+                        ไม่มีรายการคำสั่งซื้อในระบบ
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
-                <FaHistory className="text-lg" /> ประวัติการเปลี่ยนแปลง
-              </h3>
+            {/* Pagination Controls */}
+            <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-gray-100 text-xs">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                ก่อนหน้า
+              </button>
 
-              <div className="relative border-l-2 border-gray-100 ml-3 space-y-6">
-                <div className="relative pl-6">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100"></div>
-                  <p className="font-bold text-sm text-gray-800">
-                    อัปเดตสถานะเป็น: กำลังเตรียมสินค้า
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    วันนี้, 14:02 น. โดย Admin Root
-                  </p>
-                </div>
-
-                <div className="relative pl-6">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-gray-300 rounded-full ring-4 ring-gray-100"></div>
-                  <p className="font-medium text-sm text-gray-500">
-                    รับคำสั่งซื้อเข้าระบบ
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    2024-05-15 14:30 น.
-                  </p>
-                </div>
+              <div className="flex font-normal font-['Anuphan'] items-center">
+                {visiblePages.length > 0 ? (
+                  visiblePages.map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-7 h-7 rounded flex items-center justify-center font-medium transition-colors ${
+                        page === currentPage
+                          ? "text-blue-600 font-bold bg-transparent"
+                          : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))
+                ) : (
+                  <button type="button" className="w-7 h-7 text-blue-600 font-bold">1</button>
+                )}
               </div>
-            </div>
-          </div>
 
-          {/* ---------------- Right Column (Sidebar Content) ---------------- */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-6">
-              <div className="bg-[#0B1A28] text-white px-5 py-3 flex items-center gap-2">
-                <Users className="text-lg" />
-                <h3 className="font-bold text-sm">ข้อมูลผู้รับ</h3>
-              </div>
-
-              <div className="p-5 flex flex-col gap-5">
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    ชื่อผู้สั่งซื้อ
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
-                      <FiUser />
-                    </div>
-                    <p className="font-bold text-sm text-[#0F172A]">
-                      สมชาย ใจดี
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    เบอร์โทรศัพท์
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
-                      <FiPhone />
-                    </div>
-                    <p className="font-bold text-sm text-[#0F172A]">
-                      081-234-5678
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs text-[#94A3B8] font-normal mb-2 block">
-                    ที่อยู่สำหรับการจัดส่ง
-                  </p>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black shrink-0">
-                      <FiMapPin />
-                    </div>
-                    <p className="font-sans text-sm text-black leading-relaxed">
-                      116/1 ม.1 ต.ห้วยขวาง
-                      <br />
-                      อ.กำแพงแสน จ.นครปฐม
-                      <br />
-                      73140
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <button
+                type="button"
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                  currentPage === totalPages || totalPages === 0
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                ต่อไป
+              </button>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ส่วนที่ใช้สำหรับ Print */}
+      <div className="hidden print:block w-full absolute top-0 left-0 bg-white">
+        <InvoicePrint ref={printRef} data={printData} />
       </div>
     </div>
   );

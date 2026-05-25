@@ -1,8 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrderDetails } from "../../../redux/orders/orderReducer";
-import Loading from "../../../components/loading/Loading";
 import {
   FiClock,
   FiClipboard,
@@ -97,23 +96,21 @@ function OrderDetails() {
   const { orderNo } = useParams<{ orderNo: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [isLoading, setIsLoading] = useState(true);
 
-  const { orders } = useSelector((state: RootState) => state.orders);
   const authUser = useSelector((state: RootState) => state.auth.user);
-  const order = orders.find((o) => o.orderNo === orderNo);
+ const { orderDetail } = useSelector(
+  (state: RootState) => state.orders
+);
 
-  useEffect(() => {
-    if (orderNo) {
-      dispatch(fetchOrderDetails(orderNo)).finally(() => {
-        setIsLoading(false);
-      });
-    }
-  }, [orderNo, dispatch]);
+const order = orderDetail;
 
-  if (isLoading) {
-    return <Loading />;
+useEffect(() => {
+  if (orderNo) {
+    dispatch(fetchOrderDetails(orderNo));
   }
+}, [orderNo, dispatch]);
+
+console.log("order", order)
 
   if (!order) {
     return (
@@ -252,7 +249,9 @@ function OrderDetails() {
     
 
             {/* History */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+           {authUser?.role === "MODERATOR" && (
+             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
                 <FaHistory className="text-lg" /> ประวัติการเปลี่ยนแปลง
               </h3>
@@ -273,7 +272,12 @@ function OrderDetails() {
                 </div>
               </div>
             </div>
-          </div>
+         
+
+          ) }
+             </div>
+          
+           
 
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-6">

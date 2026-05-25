@@ -191,15 +191,31 @@ const ShoppingCart = () => {
     dispatch(incrementCartItemThunk(productId));
   };
 
-  const handleDecreaseQuantity = (
-    productId: number,
-    currentQuantity: number,
-  ) => {
-    if (currentQuantity === 1) {
-    } else {
-      dispatch(decrementCartItemThunk(productId));
-    }
-  };
+  const handleDecreaseQuantity = async (
+  productId: number,
+  currentQuantity: number,
+) => {
+  if (currentQuantity === 1) {
+    const isConfirmed = await confirmAction(
+      "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
+    );
+
+    if (!isConfirmed) return;
+
+    dispatch(deleteCartItemThunk(productId));
+
+    setSelectedItems((prev) =>
+      prev.filter((id) => id !== productId),
+    );
+
+    toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+
+    return;
+  }
+
+  dispatch(decrementCartItemThunk(productId));
+};
+
 
   if (cartStatus === "loading") {
     return (
@@ -420,7 +436,7 @@ const ShoppingCart = () => {
                 </p>
 
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/search")}
                   className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
                 >
                   เลือกซื้อสินค้า
@@ -430,7 +446,7 @@ const ShoppingCart = () => {
 
               <div className="md:hidden p-4 bg-white border-t border-gray-100 mt-auto">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/search")}
                   className="w-full py-3 bg-[#4a89f3] hover:bg-blue-600 text-white rounded-md text-[15px] font-medium transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   เลือกซื้อสินค้า
