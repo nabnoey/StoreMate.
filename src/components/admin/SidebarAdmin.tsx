@@ -61,7 +61,7 @@ function SidebarAdmin() {
   };
 
   return (
-    <div className="w-72 h-screen bg-[#ffffff] text-black  p-4 flex flex-col">
+    <div className="w-72 h-screen bg-[#ffffff] text-black p-4 flex flex-col print:hidden">
       {/* TOP */}
       <div>
         {/* LOGO */}
@@ -89,7 +89,7 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/admin/dashboard")}
+              onClick={() => navigate("/moderator/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -100,7 +100,7 @@ function SidebarAdmin() {
             <button
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/stock")}
+              onClick={() => navigate("/moderator/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
@@ -109,7 +109,7 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/stock")}
+              onClick={() => navigate("/moderator/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
@@ -119,7 +119,7 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/orders")}
+              onClick={() => navigate("/moderator/ordersMod")}
             >
               <ShoppingCart size={18} />
               จัดการคำสั่งซื้อ

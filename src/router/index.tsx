@@ -6,6 +6,7 @@ import AdminRoute from "./AdminRoute";
 import { lazyDelay } from "../utils/lazyDelay";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import ModeratorRoute from "./ModeratorRoute";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -75,8 +76,10 @@ const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
 import Stock from "../pages/admin/Stock";
-import Dashboard from "../pages/admin/Dashboard";
 
+import Dashboard from "../pages/admin/Dashboard";
+import Order from "../pages/admin/Orders";
+import OrderDetail from "../pages/admin/OrderDetail";
 const router = createBrowserRouter([
   // {
   //   path: "register",
@@ -254,13 +257,25 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/admin",
-    element: (
-      <AdminRoute>
-        <AdminLayout />
-      </AdminRoute>
-    ),
+
+    path: "/moderator",
+    
+    element: 
+      <ModeratorRoute>
+
+ <AdminLayout />
+      </ModeratorRoute>
+      ,
+
     children: [
+       {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
       {
         index: true,
         element: <Navigate to="dashboard" replace />
@@ -272,7 +287,7 @@ const router = createBrowserRouter([
       {
         path: "stock",
         element: <Stock />,
-      },
+      }
     ],
   },
 ]);
