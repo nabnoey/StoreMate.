@@ -1,7 +1,8 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
 import ProtectedRout from "./ProtectedRout";
+import AdminRoute from "./AdminRoute";
 import { lazyDelay } from "../utils/lazyDelay";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -74,6 +75,7 @@ const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
 import Stock from "../pages/admin/Stock";
+import Dashboard from "../pages/admin/Dashboard";
 
 const router = createBrowserRouter([
   // {
@@ -253,8 +255,20 @@ const router = createBrowserRouter([
 
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
       {
         path: "stock",
         element: <Stock />,

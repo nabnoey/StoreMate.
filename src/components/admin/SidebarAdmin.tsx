@@ -8,9 +8,57 @@ import {
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/auth/authReducer";
+import { TokenService } from "../../services/token.service";
+import { toast } from "react-hot-toast";
 
 function SidebarAdmin() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-2">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการออกจากระบบใช่หรือไม่?
+          </span>
+          <div className="flex gap-3 mt-2">
+            <button
+              data-test="btn-confirm-logout-admin"
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                TokenService.removeToken();
+                dispatch(logout());
+
+                toast.dismiss();
+                toast.success("ออกจากระบบสำเร็จ");
+                navigate("/login");
+              }}
+              className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              ออกจากระบบ
+            </button>
+            <button
+              data-test="btn-cancel-logout-admin"
+              type="button"
+              onClick={() => toast.dismiss(t.id)}
+              className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+        id: "logout-confirm",
+      },
+    );
+  };
 
   return (
     <div className="w-72 h-screen bg-[#ffffff] text-black  p-4 flex flex-col">
@@ -115,6 +163,7 @@ function SidebarAdmin() {
         </div>
 
         <button
+          onClick={handleLogout}
           data-test="logout-button"
           className=" cursor-pointer btn btn-ghost hover:bg-blue-100 hover:text-blue-600 w-full justify-start text-gray-600 border-amber-50"
         >

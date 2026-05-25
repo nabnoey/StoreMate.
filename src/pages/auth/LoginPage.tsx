@@ -77,7 +77,7 @@ function LoginPage() {
           );
 
           if (isAdminOrMod) {
-            navigate("/admin");
+            navigate("/admin/dashboard");
           } else {
             navigate("/");
           }
