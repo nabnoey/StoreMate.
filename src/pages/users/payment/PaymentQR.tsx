@@ -276,6 +276,7 @@ const PaymentQRInner = () => {
     if (showQR) {
       if (timeLeft <= 0) {
         clearPaymentSession();
+
         navigate(`/orders`);
         return;
       }

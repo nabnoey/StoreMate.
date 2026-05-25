@@ -38,6 +38,10 @@ import Stock from "../pages/admin/Stock";
 // import Order from "../pages/admin/Orders";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 
+import Order from "../pages/admin/Orders";
+import OrderDetail from "../pages/admin/OrderDetail";
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -193,6 +197,10 @@ const router = createBrowserRouter([
       //   path: "ordersMod",
       //   element: <Order />,
       // },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
       {
         path: "stock",
         element: <Stock />,

@@ -267,6 +267,7 @@ const AddCreditCardFormInner = () => {
             type="submit"
             disabled={!stripe || isProcessing}
             className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
+
           >
             {isProcessing ? "กำลังประมวลผล..." : "ยืนยันการเพิ่มบัตร"}
           </button>

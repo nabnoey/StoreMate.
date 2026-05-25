@@ -28,8 +28,10 @@ const CancelOrderPage = () => {
   const orderStatus = location.state?.status || "PENDING";
   const paymentMethod = location.state?.paymentMethod || "PROMPTPAY";
 
+
   const isPendingPayment =
     orderStatus === "PENDING" && paymentMethod !== "DESTINATION";
+
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
@@ -43,7 +45,9 @@ const CancelOrderPage = () => {
     }
 
     if (!orderNo) {
+
       toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
+
       return;
     }
 

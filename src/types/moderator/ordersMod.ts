@@ -1,15 +1,34 @@
 // ordersMod.ts
 
+// export interface OrderMod {
+//   id: string;
+//   orderNo: string;
+//   recipientName: string;
+//   phone: string;
+//   total: number;
+//   shippingFrom: string;
+//   status: string;
+//   is_printed: boolean;
+//   createdAt: string;
+// }
+
 export interface OrderMod {
-  id: string;
-  orderNo: string;
+  id: number;
+  orderNo: number;
   recipientName: string;
   phone: string;
-  total: number;
-  shippingFrom: string;
   status: string;
+  total: number;
+  orderAddress: string;
+  shippingFrom: string;
   is_printed: boolean;
   createdAt: string;
+  
+
+  orderRecipient?: {
+    recipientName?: string;
+    phone?: string;
+  };
 }
 
 
