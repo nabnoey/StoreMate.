@@ -15,7 +15,7 @@ import {
 import { FaHistory } from "react-icons/fa";
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../redux/store";
-import { STATUS_LABELS } from "../../types/moderator/ordersMod";
+import { STATUS_LABELS, type OrderItem } from "../../types/moderator/ordersMod";
 // import type {orderMod} from "../../types/moderator/ordersMod";
 
 function StatusStep({
@@ -97,7 +97,9 @@ function OrderDetail() {
   const { orderToPrint, loading } = useSelector((state: RootState) => state.moderator);
   const order = orderToPrint && orderToPrint.length > 0 ? orderToPrint[0] : null;
 
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+const [selectedStatus, setSelectedStatus] = useState(
+  order?.status || ""
+);
 
   useEffect(() => {
     if (orderNo) {
@@ -105,11 +107,7 @@ function OrderDetail() {
     }
   }, [orderNo, dispatch]);
 
-  useEffect(() => {
-    if (order) {
-      setSelectedStatus(order.status);
-    }
-  }, [order]);
+;
 
   if (loading) {
     return (
@@ -157,9 +155,9 @@ function OrderDetail() {
     zipcode: orderAddress.zipcode || "",
   };
 
-  const orderDate = order.createdAt
-    ? new Date(order.createdAt).toLocaleDateString("th-TH")
-    : new Date().toLocaleDateString("th-TH");
+  // const orderDate = order.createdAt
+  //   ? new Date(order.createdAt).toLocaleDateString("th-TH")
+  //   : new Date().toLocaleDateString("th-TH");
   const orderTime = order.createdAt
     ? new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' }) + " น."
     : "";
@@ -285,11 +283,11 @@ function OrderDetail() {
                 รายการสินค้า ({items.length})
               </h3>
 
-              {items.map((item: any) => (
+              {items.map((item: OrderItem) => (
                 <OrderItemRow
                   key={item.id}
-                  image={item.imageUrl || item.image}
-                  name={item.productName || item.name}
+                  image={item.imageUrl || "https://via.placeholder.com/150"}
+                  name={item.productName || "ไม่ระบุชื่อสินค้า"}
                   quantity={item.quantity}
                   price={item.price}
                 />
