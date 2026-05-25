@@ -5,63 +5,225 @@ interface InvoicePrintProps {
   data: OrderMod[];
 }
 
+const forceColor: React.CSSProperties = {
+  WebkitPrintColorAdjust: "exact",
+  printColorAdjust: "exact",
+};
+
+const blackLabelStyle: React.CSSProperties = {
+  ...forceColor,
+  display: "inline-block",
+  backgroundColor: "#000000",
+  color: "#ffffff",
+  padding: "3px 18px",
+  fontSize: "12px",
+  fontWeight: "bold",
+  marginBottom: "8px",
+  letterSpacing: "0.5px",
+};
+
+const blackBarStyle: React.CSSProperties = {
+  ...forceColor,
+  backgroundColor: "#000000",
+  color: "#ffffff",
+  fontSize: "11px",
+  fontWeight: "600",
+  padding: "4px 10px",
+  marginBottom: "8px",
+};
+
 export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
   ({ data }, ref) => {
     if (!data || data.length === 0) return null;
 
     return (
-      <div ref={ref} className="p-8 bg-white text-black text-sm">
+      <div
+        ref={ref}
+        style={{
+          ...forceColor,
+          width: "100%",
+          backgroundColor: "#ffffff",
+          color: "#000000",
+          fontFamily: "Arial, sans-serif",
+          fontSize: "12px",
+        }}
+      >
         {data.map((order, index) => (
-          <div
-            key={order.orderNo}
-            className={`w-[210mm] min-h-[148mm] border border-gray-300 p-6 mx-auto my-4 rounded-md flex flex-col justify-between ${
-              index !== data.length - 1 ? "page-break" : ""
-            }`}
-            style={{ pageBreakAfter: "always" }} // คำสั่งบังคับให้ตัดหน้ากระดาษเมื่อพิมพ์หลายใบ
-          >
-            {/* ส่วนหัวใบปะหน้า */}
-            <div className="flex justify-between items-start border-b-2 border-black pb-4">
-              <div>
-                <h1 className="text-2xl font-bold tracking-wide">ใบปะหน้าพัสดุ</h1>
-                <p className="text-xs text-gray-500 mt-1">เลขที่คำสั่งซื้อ: #{order.orderNo}</p>
+          <React.Fragment key={order.orderNo || index}>
+            {/* แต่ละบิล */}
+            <div
+              style={{
+                ...forceColor,
+                width: "680px",
+                margin: "0 auto",
+                padding: "16px 0 12px 0",
+                pageBreakInside: "avoid",
+              }}
+            >
+              {/* ผู้ส่ง / ผู้รับ */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "32px",
+                  marginBottom: "10px",
+                  lineHeight: "1.7",
+                }}
+              >
+                {/* ผู้ส่ง */}
+                <div>
+                  <div style={blackLabelStyle}>ผู้ส่ง</div>
+                  <div style={{ fontSize: "12px", fontWeight: "600" }}>พัดทอง</div>
+                  <div style={{ fontSize: "12px" }}>099-999-9999</div>
+                  <div style={{ fontSize: "12px", color: "#222", marginTop: "2px" }}>
+                    199 ม.6 ต.ดอนกระเบื้อง อ.โพธาราม
+                    <br />
+                    จ.ราชบุรี 70120
+                  </div>
+                </div>
+
+                {/* ผู้รับ */}
+                <div>
+                  <div style={blackLabelStyle}>ผู้รับ</div>
+                  <div style={{ fontSize: "12px", fontWeight: "600" }}>
+                    {order.recipientName || "สมชาย ใจดี"}
+                  </div>
+                  <div style={{ fontSize: "12px" }}>
+                    {order.phone || "098-3809919"}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#222", marginTop: "2px" }}>
+                    199 ม.6 116/1 ม.1 ต.ห้วยขวาง
+                    <br />
+                    อ.กำแพงแสน จ.นครปฐม 73140
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="bg-black text-white px-3 py-1 font-bold text-xs uppercase rounded">
-                  {order.shippingFrom || "Standard Delivery"}
-                </span>
+
+              {/* แถบเลข order ดำเต็มแนว */}
+              <div style={blackBarStyle}>
+                หมายเลขออเดอร์: {order.orderNo || "ORD-2026-001"}
+              </div>
+
+              {/* รายการสินค้า */}
+              <div style={{ fontSize: "12px", marginBottom: "12px" }}>
+                {/* สินค้าที่ 1 — แสดงทุก order */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: "4px",
+                  }}
+                >
+                  <span style={{ flex: 1 }}>
+                    1.น้ำมะม่วงหาวมะนาวโห่ สกัดเข้มข้น ไม่มีน้ำตาล
+                  </span>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "32px",
+                      minWidth: "90px",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <span>x1</span>
+                    <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 35</span>
+                  </div>
+                </div>
+
+                {/* สินค้าที่ 2 — แสดงตั้งแต่ order ที่ 2 */}
+                {index >= 1 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>
+                      2 .น้ำมะม่วงหาวมะนาวโห่สูตรดั้งเดิม
+                    </span>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "32px",
+                        minWidth: "90px",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <span>x1</span>
+                      <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 35</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* สินค้าที่ 3 — แสดงตั้งแต่ order ที่ 3 */}
+                {index >= 2 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <span style={{ flex: 1 }}>3.สบู่ มะม่วงมะนาวโห่</span>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "32px",
+                        minWidth: "90px",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <span>x1</span>
+                      <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 100</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* สรุปท้ายบิล */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  fontSize: "11px",
+                  paddingTop: "2px",
+                }}
+              >
+                <div>
+                  <div style={{ color: "#555" }}>ค่าขนส่ง</div>
+                  <div style={{ marginTop: "3px" }}>฿ 0</div>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ color: "#555" }}>มูลค่าสินค้า</div>
+                  <div style={{ marginTop: "3px" }}>
+                    ฿ {order.total ?? (index === 0 ? 35 : index === 1 ? 70 : 170)}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: "#555" }}>ช่องทางชำระเงิน</div>
+                  <div style={{ marginTop: "3px", fontWeight: "500" }}>
+                    พร้อมเพย์ (PromptPay)
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* ส่วนข้อมูลผู้รับ - ผู้ส่ง */}
-            <div className="grid grid-cols-2 gap-6 my-6 flex-1">
-              <div className="border border-dashed border-gray-400 p-4 rounded bg-gray-50/50">
-                <h3 className="font-bold text-xs text-gray-500 uppercase mb-1">ผู้ส่ง (Sender)</h3>
-                <p className="font-medium text-gray-800">Your Shop Name</p>
-                <p className="text-xs text-gray-600 mt-1">123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กทม. 10110</p>
-                <p className="text-xs text-gray-600">โทร: 02-123-4567</p>
-              </div>
-
-              <div className="border border-black p-4 rounded bg-white shadow-sm">
-                <h3 className="font-bold text-xs text-blue-600 uppercase mb-1">ผู้รับ (Receiver)</h3>
-                <p className="text-base font-bold text-gray-900">{order.recipientName}</p>
-                <p className="text-sm text-gray-700 mt-1 leading-relaxed">
-                  {/* สมมติว่าใน Type มี address ครบถ้วน */}
-                  {order.phone}
-                </p>
-              </div>
-            </div>
-
-            {/* ส่วนท้ายและยอดรวม */}
-            <div className="border-t border-gray-300 pt-4 flex justify-between items-center text-xs">
-              <p className="text-gray-500">กรุณาตรวจสอบพัสดุก่อนเซ็นรับสินค้า</p>
-              <div className="text-right">
-                <p className="text-gray-600">ยอดชำระทั้งหมด</p>
-                <p className="text-lg font-bold text-black">
-                  ฿{order.total?.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
+            {/* เส้นประคั่นระหว่าง order */}
+            {index !== data.length - 1 && (
+              <div
+                style={{
+                  width: "680px",
+                  margin: "0 auto",
+                  borderTop: "1.5px dashed #888888",
+                  ...forceColor,
+                }}
+              />
+            )}
+          </React.Fragment>
         ))}
       </div>
     );

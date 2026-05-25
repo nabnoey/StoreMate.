@@ -13,7 +13,7 @@ function SidebarAdmin() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-72 h-screen bg-[#ffffff] text-black  p-4 flex flex-col">
+    <div className="w-72 h-screen bg-[#ffffff] text-black p-4 flex flex-col print:hidden">
       {/* TOP */}
       <div>
         {/* LOGO */}
