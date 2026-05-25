@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
-import { TrendingUp, TrendingDown, Star, StarHalf, ChevronRight } from 'lucide-react';
+import { TrendingUp, Star, StarHalf, ChevronRight } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -171,7 +171,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="bg-[#fef3c7] p-6 rounded-xl flex flex-col justify-between">
-          <h3 className="text-gray-800 font-semibold mb-2">เข้าใช้ตอนนี้ (Active Users)</h3>
+          <h3 className="text-gray-800 font-semibold mb-2">เข้าใช้ตอนนี้</h3>
           <div className="flex justify-between items-end">
             <span className="text-3xl font-bold text-gray-800">
               {(dashData.activeUsers || 0).toLocaleString()}
