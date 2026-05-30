@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import type { AppDispatch, RootState } from "../../redux/store";
@@ -19,6 +19,7 @@ const formatDateTime = (isoString: string) => {
 function Orders() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,17 +29,24 @@ function Orders() {
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
+  const totalPages = useSelector((state: RootState) => state.moderator.totalPages)
 
-  useEffect(() => {
-    dispatch(fetchAllOrders());
-  }, [dispatch]);
+  const PAGE_SIZE = 10; 
 
-  // trigger print หลัง printData render เสร็จ
+
+useEffect(() => {
+  
+    dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+    setSearchParams({ page: String(currentPage), size: String(PAGE_SIZE) });
+  }, [dispatch, currentPage, setSearchParams]);
+
+ const currentItems = Array.isArray(orders) ? orders.slice(0, PAGE_SIZE) : []
+
   useEffect(() => {
     if (isPrinting && printData.length > 0) {
       const timer = setTimeout(() => {
@@ -48,11 +56,6 @@ function Orders() {
       return () => clearTimeout(timer);
     }
   }, [isPrinting, printData]);
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = orders.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -67,19 +70,18 @@ function Orders() {
     );
   };
 
-  // กดปุ่ม "ปริ้นใบปะหน้า" → เข้าโหมดเลือก
   const handleEnterPrintMode = () => {
     setSelectedOrders([]);
     setIsPrintMode(true);
   };
 
-  // กดปุ่ม "ยกเลิก" → ออกจากโหมดเลือก
+
   const handleCancelPrintMode = () => {
     setSelectedOrders([]);
     setIsPrintMode(false);
   };
 
-  // กดปุ่ม "ยืนยัน" → print order ที่เลือกไว้
+ 
   const handleConfirmPrint = () => {
     const selectedData = orders.filter((o) =>
       selectedOrders.includes(String(o.orderNo))
@@ -89,11 +91,24 @@ function Orders() {
     setIsPrinting(true);
   };
 
-  const maxVisiblePages = 5;
+const maxVisiblePages = 5; // แสดงปุ่มตัวเลขทีละ 5 ปุ่ม
+  
   const getVisiblePages = () => {
-    const start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    const end = Math.min(totalPages, start + maxVisiblePages - 1);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    // พยายามให้หน้าที่เลือกอยู่ตรงกลาง
+    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let end = start + maxVisiblePages - 1;
+
+    // ถ้าหน้าขวาสุด (end) เกินจำนวนหน้าทั้งหมด ให้ปรับลดลงมา
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisiblePages + 1);
+    }
+
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   };
 
   const visiblePages = getVisiblePages();
@@ -202,7 +217,7 @@ function Orders() {
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {currentItems.length > 0 ? (
                     currentItems.map((order: OrderMod) => {
-                      const { dateStr, timeStr } = formatDateTime(order.createdAt);
+                      const { dateStr, timeStr } = formatDateTime(order.createdAt || "");
                       const isSelected = selectedOrders.includes(String(order.orderNo));
 
                       return (
@@ -210,7 +225,7 @@ function Orders() {
   key={order.id || order.orderNo}
   onClick={() => {
     if (!isPrintMode) {
-      navigate(`/moderator/ordersMod/${order.orderNo}`);
+      navigate(`/moderator/orders/${order.orderNo}`);
     }
   }}
   className={`hover:bg-gray-50/50 transition-colors cursor-pointer ${
@@ -238,8 +253,8 @@ function Orders() {
                               <span className="text-gray-600 font-medium">{order.orderNo}</span>
                             </div>
                           </td>
-                          <td className="py-4 px-2 text-gray-800 font-medium">{order.recipientName}</td>
-                          <td className="py-4 px-2 text-gray-500">{order.phone}</td>
+                          <td className="py-4 px-2 text-gray-800 font-medium">{order.orderRecipient?.recipientName}</td>
+                          <td className="py-4 px-2 text-gray-500">{order.orderRecipient?.phone}</td>
                           <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
                             {dateStr}<br />
                             <span className="text-gray-400">{timeStr}</span>
@@ -273,7 +288,7 @@ function Orders() {
                             ) : (
                               <button
                                 type="button"
-                                onClick={() => navigate(`/moderator/ordersMod/${order.orderNo}`)}
+                                onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
                                 className="text-blue-600 hover:underline font-medium"
                               >
                                 จัดการ
@@ -295,12 +310,12 @@ function Orders() {
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-gray-100 text-xs">
+            <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
               <button
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => handlePageChange(currentPage - 1)}
-                className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
                   currentPage === 1
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-600 hover:bg-gray-50"
@@ -309,16 +324,16 @@ function Orders() {
                 ก่อนหน้า
               </button>
 
-              <div className="flex font-normal font-['Anuphan'] items-center">
+              <div className="flex font-normal font-['Anuphan'] items-center gap-1">
                 {visiblePages.length > 0 ? (
                   visiblePages.map((page) => (
                     <button
                       key={page}
                       type="button"
                       onClick={() => handlePageChange(page)}
-                      className={`w-7 h-7 rounded flex items-center justify-center font-medium transition-colors ${
+                      className={`w-8 h-8 rounded-md flex items-center justify-center font-medium transition-colors ${
                         page === currentPage
-                          ? "text-blue-600 font-bold bg-transparent"
+                          ? "text-blue-500 font-bold bg-transparent"
                           : "text-gray-500 hover:bg-gray-100"
                       }`}
                     >
@@ -326,7 +341,7 @@ function Orders() {
                     </button>
                   ))
                 ) : (
-                  <button type="button" className="w-7 h-7 text-blue-600 font-bold">1</button>
+                  <button type="button" className="w-8 h-8 text-blue-500 font-bold">1</button>
                 )}
               </div>
 
@@ -334,7 +349,7 @@ function Orders() {
                 type="button"
                 disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => handlePageChange(currentPage + 1)}
-                className={`border border-gray-300 rounded px-3 py-1.5 font-medium transition-colors ${
+                className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
                   currentPage === totalPages || totalPages === 0
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-600 hover:bg-gray-50"

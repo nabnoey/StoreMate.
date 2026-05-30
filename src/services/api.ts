@@ -12,17 +12,22 @@ api.interceptors.request.use((config) => {
   const token = TokenService.getAccessToken();
 
   if (
+    
     token &&
     !config.url?.includes("login") &&
     !config.url?.includes("register") &&
     !config.url?.includes("forgot-password") &&
     !config.url?.includes("reset-password")
+    
+    
   ) {
     config.headers.Authorization = `Bearer ${token}`;
+    
   }
 
   return config;
 });
+
 
 api.interceptors.response.use(
   (response) => response,
@@ -35,6 +40,7 @@ api.interceptors.response.use(
         store.dispatch(logout());
 
         window.location.href = "/login";
+        
       }
     }
     return Promise.reject(error);

@@ -265,11 +265,11 @@ const router = createBrowserRouter([
       ,
     children: [
        {
-        path: "ordersMod",
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {

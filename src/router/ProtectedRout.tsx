@@ -15,7 +15,7 @@ const ProtectedRout = ({ children }: Props) => {
   );
   const dispatch = useDispatch();
 
-  // 1. เช็คสถานะ Token ว่าพังหรือหมดอายุไหม (ทำเป็นตัวแปรไว้ก่อน ยังไม่ return)
+
   let isTokenInvalid = false;
   if (token) {
     try {

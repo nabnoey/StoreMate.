@@ -1,64 +1,36 @@
-export interface OrderAddress {
-  streetAddress: string;
-  subdistrict: string;
-  district: string;
-  province: string;
-  zipcode: string;
-}
-
 export interface OrderItem {
   id: number;
   productName?: string;
   imageUrl?: string;
   quantity: number;
   price: number;
+  subTotal?: number; // แอบเห็นใน swagger มี subTotal ด้วย เติมเผื่อไว้ครับ
 }
 
 export interface OrderMod {
   id: number;
-  orderNo: number;
-
-  recipientName: string;
-  phone: string;
-
+  orderNo: string; 
   status: string;
   total: number;
 
-  orderAddress: OrderAddress[];
-
-  shippingFrom: string;
-  is_printed: boolean;
-  createdAt: string;
-
+  shippingFrom?: string;
+  is_printed?: boolean;
+  createdAt?: string;
   checkoutType?: string;
 
   orderItems?: OrderItem[];
 
+  // ปรับโครงสร้างตรงนี้ให้ตรงกับ Backend
   orderRecipient?: {
     recipientName?: string;
     phone?: string;
+    streetAddress?: string;
+    subdistrict?: string;
+    district?: string;
+    province?: string;
+    zipcode?: string;
   };
 }
-
-export interface OrderMod {
-  id: number;
-  orderNo: number;
-  recipientName: string;
-  phone: string;
-  status: string;
-  total: number;
-  // orderAddress: string;
-  shippingFrom: string;
-  is_printed: boolean;
-  createdAt: string;
-  
-
-  orderRecipient?: {
-    recipientName?: string;
-    phone?: string;
-  };
-}
-
 
 export const STATUS_LABELS: Record<string, string> = {
   PROCESSING: "ที่ต้องจัดส่ง",
@@ -68,7 +40,6 @@ export const STATUS_LABELS: Record<string, string> = {
   REFUND: "คืนเงิน/คืนสินค้า",
   APPROVE: "รอการอนุมัติ",
 };
-
 
 export const STATUS_STYLES: Record<string, string> = {
   PROCESSING: "bg-blue-100 text-blue-700",

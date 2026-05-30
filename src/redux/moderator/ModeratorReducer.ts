@@ -8,6 +8,7 @@ interface ModeratorState {
     orderToPrint: OrderMod[];
     loading: boolean;
     error: string | null;
+    totalPages: number;
 }
 
 const initialState: ModeratorState = {
@@ -15,25 +16,26 @@ const initialState: ModeratorState = {
     orderToPrint: [],
     loading: false,
     error: null,
+    totalPages: 0,
 };
 
 
 
 export const fetchAllOrders = createAsyncThunk(
     "moderator/fetchAllOrders",
-    async () => {
-        const res = await ModeratorService.getAllOrders();
+    async ({page, size}: { page: number; size: number }) => {
+        const res = await ModeratorService.getAllOrders(page, size);
         return res;
     });
 
     export const shippingOrder = createAsyncThunk(
     "moderator/shippingOrder",
-    async (orderNo: number) => {
+    async (orderNo: string) => {
         const res = await ModeratorService.shippingOrder(orderNo);
         return res;
     }); 
 
-    export const getoOrder = createAsyncThunk(
+    export const getOrder = createAsyncThunk(
         "moderator/getoOrder",
         async (orderNo: number) => {
             const res = await ModeratorService.getoOrder(orderNo);
@@ -42,7 +44,7 @@ export const fetchAllOrders = createAsyncThunk(
 
 export const getoOrderByOrderNo = createAsyncThunk(
     "moderator/getoOrderByOrderNo",
-    async (orderNo: number) => {
+    async (orderNo: string) => {
         const res = await ModeratorService.getoOrderByOrderNo(orderNo);
         return res;
     }
@@ -72,6 +74,7 @@ const moderatorSlice = createSlice({
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
                 state.orders = action.payload.content;
+                state.totalPages = action.payload.totalPages
                 console.log("Orders fetched successfully:", state.orders);
             })
             .addCase(fetchAllOrders.rejected, (state, action) => {
