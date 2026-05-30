@@ -80,6 +80,9 @@ import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
+import UserEdit from "../pages/admin/UserEdit";
+import StoreEdit from "../pages/admin/StoreEdit";
+
 const router = createBrowserRouter([
   // {
   //   path: "register",
@@ -288,6 +291,24 @@ const router = createBrowserRouter([
         path: "stock",
         element: <Stock />,
       }
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
+    children: [
+      {
+        path: "user-edit",
+        element: <UserEdit />,
+      },
+      {
+        path: "store-edit",
+        element: <StoreEdit />,
+      },
     ],
   },
 ]);

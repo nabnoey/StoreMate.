@@ -69,13 +69,15 @@ function LoginPage() {
           const userRoles = decoded.roles || [];
 
           const isAdminOrMod = userRoles.some(
-            (role: any) =>role === "MODERATOR" 
-           
+            (role: any) =>
+              role === "MODERATOR" ||
+              role === "ADMIN" ||
+              role?.roleName === "MODERATOR" ||
+              role?.roleName === "ADMIN"
           );
 
           if (isAdminOrMod) {
-
-            navigate("/moderator/stock");
+            navigate("/moderator/dashboard");
           } else {
             navigate("/");
           }
