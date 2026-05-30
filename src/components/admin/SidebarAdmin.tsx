@@ -1,10 +1,13 @@
 import {
   LayoutDashboard,
   Package,
-  ShoppingCart,
   Users,
   Settings,
   LogOut,
+  TrendingUp,
+  Truck,
+  CircleDollarSign,
+  Bell,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
@@ -102,13 +105,15 @@ function SidebarAdmin() {
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/moderator/stock")}
             >
-              <Package size={18} />
-              จัดการสินค้าในคลัง
+              <TrendingUp size={18} />
+              รายงานยอดขาย
             </button>
           </li>
+
           <li>
             <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              data-test="stock-button"
+              className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/moderator/stock")}
             >
               <Package size={18} />
@@ -121,8 +126,18 @@ function SidebarAdmin() {
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() => navigate("/moderator/ordersMod")}
             >
-              <ShoppingCart size={18} />
+              <Truck size={18} />
               จัดการคำสั่งซื้อ
+            </button>
+          </li>
+
+          <li>
+            <button
+              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              onClick={() => navigate("/moderator/refund")}
+            >
+              <CircleDollarSign size={18} />
+              จัดการคำขอคืนเงิน
             </button>
           </li>
 
@@ -143,6 +158,16 @@ function SidebarAdmin() {
             >
               <Settings size={18} />
               ตั้งค่าร้านค้า
+            </button>
+          </li>
+
+          <li>
+            <button
+              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              onClick={() => navigate("/admin/store-edit")}
+            >
+              <Bell size={18} />
+              จัดการแจ้งเตือน
             </button>
           </li>
         </ul>
