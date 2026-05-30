@@ -11,14 +11,20 @@ import {
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
+import type { RootState } from "../../redux/store";
 
 function SidebarAdmin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { user } = useSelector((state: RootState) => state.auth);
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
+    : false;
 
   const handleLogout = () => {
     toast(
@@ -92,7 +98,7 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/moderator/dashboard")}
+              onClick={() => navigate(isAdmin ? "/admin/dashboard" : "/moderator/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -103,7 +109,7 @@ function SidebarAdmin() {
             <button
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/moderator/stock")}
+              onClick={() => navigate(isAdmin ? "/admin/stock" : "/moderator/stock")}
             >
               <TrendingUp size={18} />
               รายงานยอดขาย
@@ -114,7 +120,7 @@ function SidebarAdmin() {
             <button
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/moderator/stock")}
+              onClick={() => navigate(isAdmin ? "/admin/stock" : "/moderator/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
@@ -124,7 +130,7 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/moderator/ordersMod")}
+              onClick={() => navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")}
             >
               <Truck size={18} />
               จัดการคำสั่งซื้อ
@@ -134,42 +140,46 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/moderator/refund")}
+              onClick={() => navigate(isAdmin ? "/admin/refund" : "/moderator/refund")}
             >
               <CircleDollarSign size={18} />
               จัดการคำขอคืนเงิน
             </button>
           </li>
 
-          <li>
-            <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/user-edit")}
-            >
-              <Users size={18} />
-              จัดการผู้ใช้
-            </button>
-          </li>
+          {isAdmin && (
+            <>
+              <li>
+                <button
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/admin/user-edit")}
+                >
+                  <Users size={18} />
+                  จัดการผู้ใช้
+                </button>
+              </li>
 
-          <li>
-            <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/store-edit")}
-            >
-              <Settings size={18} />
-              ตั้งค่าร้านค้า
-            </button>
-          </li>
+              <li>
+                <button
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/admin/store-edit")}
+                >
+                  <Settings size={18} />
+                  ตั้งค่าร้านค้า
+                </button>
+              </li>
 
-          <li>
-            <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/store-edit")}
-            >
-              <Bell size={18} />
-              จัดการแจ้งเตือน
-            </button>
-          </li>
+              <li>
+                <button
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/admin/store-edit")}
+                >
+                  <Bell size={18} />
+                  จัดการแจ้งเตือน
+                </button>
+              </li>
+            </>
+          )}
         </ul>
       </div>
 

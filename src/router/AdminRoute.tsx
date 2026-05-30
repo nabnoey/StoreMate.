@@ -16,7 +16,7 @@ const AdminRoute = ({ children }: Props) => {
   const dispatch = useDispatch();
 
   let isTokenInvalid = false;
-  let isAdminOrMod = false;
+  let isAdmin = false;
 
   if (token) {
     try {
@@ -25,12 +25,10 @@ const AdminRoute = ({ children }: Props) => {
         isTokenInvalid = true; // Token หมดอายุ
       } else {
         const userRoles = decoded.roles || [];
-        isAdminOrMod = userRoles.some(
+        isAdmin = userRoles.some(
           (r: any) =>
             r === "ADMIN" ||
-            r === "MODERATOR" ||
-            r?.roleName === "ADMIN" ||
-            r?.roleName === "MODERATOR"
+            r?.roleName === "ADMIN"
         );
       }
     } catch (error) {
@@ -50,8 +48,8 @@ const AdminRoute = ({ children }: Props) => {
     return <Navigate to="/login" replace />;
   }
 
-  // กรณีล็อกอินแล้ว แต่ไม่ใช่ Admin หรือ Moderator ให้เตะกลับไปหน้าแรก (Home)
-  if (!isAdminOrMod) {
+  // กรณีล็อกอินแล้ว แต่ไม่ใช่ Admin ให้เตะกลับไปหน้าแรก (Home)
+  if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
 

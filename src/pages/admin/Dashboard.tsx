@@ -16,6 +16,9 @@ import {
 import ReactGA from 'react-ga4';
 import { DashboardService } from "../../services/dashboard.service";
 import Loading from "../../components/loading/Loading";
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../redux/store';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 const REGION_COLORS = ['bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-purple-400', 'bg-pink-400'];
@@ -48,6 +51,12 @@ const getReviewColor = (score: number) => {
 };
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
+    : false;
+
   const [loading, setLoading] = useState(true);
   const [dashData, setDashData] = useState<any>(null);
   const [salesData, setSalesData] = useState<any>(null);
@@ -228,7 +237,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">คำสั่งซื้อล่าสุด</h3>
-            <a href="#" className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></a>
+            <button onClick={() => navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-700">
@@ -333,7 +342,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100 lg:col-span-7">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">สินค้าในสต็อก</h3>
-            <a href="#" className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></a>
+            <button onClick={() => navigate(isAdmin ? "/admin/stock" : "/moderator/stock")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <table className="w-full text-left text-sm text-gray-700">
             <thead>

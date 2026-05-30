@@ -6,7 +6,6 @@ import { store, persistor } from "./redux/store";
 import router from "./router";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
-import Loading from "./components/loading/Loading";
 import ReactGA from "react-ga4";
 
 import { PersistGate } from "redux-persist/integration/react";
