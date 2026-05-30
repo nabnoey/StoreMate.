@@ -196,9 +196,6 @@ const router = createBrowserRouter([
       <ModeratorRoute>
         <AdminLayout />
       </ModeratorRoute>
-      ,
-
-
     ),
 
     children: [
