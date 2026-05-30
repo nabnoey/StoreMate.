@@ -142,7 +142,6 @@ const Navbar: React.FC = () => {
             <>
               <input
                 type="text"
-                
                 data-test="search-input"
                 placeholder="ค้นหาสินค้า..."
                 value={inputValue}

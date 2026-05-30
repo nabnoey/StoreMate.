@@ -33,7 +33,6 @@ api.interceptors.response.use(
       if (!isLoginAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
-
         globalThis.location.href = "/login";
       }
     }
