@@ -347,8 +347,8 @@ const ProfilePage = () => {
 
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
-
-    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+    // ถ้าอยากได้ พ.ศ. ปัจจุบัน ให้บวก 543
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
   if (loading) return <Loading />;

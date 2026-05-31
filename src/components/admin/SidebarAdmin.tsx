@@ -16,7 +16,7 @@ function SidebarAdmin() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-72 h-screen bg-[#ffffff] text-black p-4 flex flex-col print:hidden">
+    <div className="w-72 h-screen bg-[#ffffff] text-black p-4 flex flex-col justify-between border-r border-[#6B7280] print:hidden">
       {/* TOP */}
       <div>
         {/* LOGO */}
@@ -44,7 +44,7 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/moderator/dashboard")}
+              onClick={() => navigate("/admin/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -116,7 +116,8 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() => navigate("/admin/store-edit")}
+              // onClick={() => navigate("/admin/notify")}
+              onClick={() => navigate("/admin/notification")}
             >
               <Bell size={18} />
               จัดการแจ้งเตือน

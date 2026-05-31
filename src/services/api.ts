@@ -11,6 +11,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = TokenService.getAccessToken();
 
+  console.log("Token from TokenService:", token);
+  console.log("Request URL:", config.url);
+
   if (
     token &&
     !config.url?.includes("login") &&
@@ -28,13 +31,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const isLoginAPI = error.config.url.includes("/login");
-
-      if (!isLoginAPI) {
-        TokenService.removeToken();
-        store.dispatch(logout());
-        globalThis.location.href = "/login";
-      }
+      // const isLoginAPI = error.config.url.includes("/login");
+      // if (!isLoginAPI) {
+      //   TokenService.removeToken();
+      //   store.dispatch(logout());
+      //   globalThis.location.href = "/login";
+      // }
     }
     return Promise.reject(error);
   },

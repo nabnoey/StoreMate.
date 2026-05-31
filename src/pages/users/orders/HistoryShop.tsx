@@ -123,7 +123,7 @@ const HistoryPage = () => {
     try {
       setErrorMessage(null);
       await dispatch(
-        submitProductReview({ id: selectedItem.productId, payload }),
+        submitProductReview({ orderItemId: selectedItem.productId, payload }),
       ).unwrap();
       setIsReviewModalOpen(false);
 
@@ -157,21 +157,30 @@ const HistoryPage = () => {
       const orderDetailData = await dispatch(
         fetchOrderDetails(orderNo),
       ).unwrap();
+
       const matchedItemDetail = orderDetailData?.orderItems?.find(
-        (detailItem: any) => detailItem.id === selectedItemFromList.id,
+        (detailItem: any) =>
+          detailItem.productId === selectedItemFromList.id ||
+          detailItem.id === selectedItemFromList.id ||
+          detailItem.productName === selectedItemFromList.productName,
       );
 
       const actualProductId =
-        matchedItemDetail?.productId || matchedItemDetail?.id;
+        matchedItemDetail?.productId ||
+        matchedItemDetail?.id ||
+        selectedItemFromList.id;
+      const actualOrderItemId =
+        matchedItemDetail?.id || selectedItemFromList.id;
 
-      if (matchedItemDetail && actualProductId) {
+      if (actualProductId) {
         setSelectedItem({
           ...selectedItemFromList,
           productId: actualProductId,
+          orderItemId: actualOrderItemId,
         });
         setIsReviewModalOpen(true);
       } else {
-        alert("ไม่พบข้อมูลรหัสสินค้า (Product ID) สำหรับรายการนี้");
+        ("ไม่พบข้อมูลรหัสสินค้า (Product ID) สำหรับรายการนี้");
       }
     } catch (error) {
       console.error("Fetch order details error in select modal:", error);
@@ -449,7 +458,7 @@ const HistoryPage = () => {
                             </button>
                           </div>
                         ) : order.status === "PENDING" ||
-                          order.status !== "RECEIVE" ? (
+                          order.status !== "RECEIVED" ? (
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               data-test="btn-cancel-orders"

@@ -68,13 +68,14 @@ function LoginPage() {
           const decoded: any = jwtDecode(token);
           const userRoles = decoded.roles || [];
 
-          const isAdminOrMod = userRoles.some(
-            (role: any) =>role === "MODERATOR" 
-           
+          const roles = userRoles.map((role: any) =>
+            typeof role === "object" && role?.roleName ? role.roleName : role,
           );
 
-          if (isAdminOrMod) {
-            navigate("/moderator/stock");
+          if (roles.includes("ADMIN")) {
+            navigate("/admin/dashboard");
+          } else if (roles.includes("MODERATOR")) {
+            navigate("/moderator/dashboard");
           } else {
             navigate("/");
           }

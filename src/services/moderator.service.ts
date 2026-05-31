@@ -22,21 +22,21 @@ const getRefunds = async (
 
 const getRefundDetail = async (refundNo: string): Promise<RefundItem> => {
   const res = await api.get(
-    `${import.meta.env.VITE_MOD_API}/orders/${refundNo}`,
+    `${import.meta.env.VITE_MOD_API}/orders/refund/${refundNo}`,
   );
   return res.data;
 };
 
-const approveRefund = async (id: string): Promise<void> => {
-  const res = await api.post(
-    `${import.meta.env.VITE_PAYMENT_REFUND}/${id}/approve`,
+const approveRefund = async (refundNo: string): Promise<void> => {
+  const res = await api.get(
+    `${import.meta.env.VITE_PAYMENT_REFUND}/${refundNo}/approve`,
   );
   return res.data;
 };
 
-const rejectRefund = async (id: string): Promise<void> => {
-  const res = await api.post(
-    `${import.meta.env.VITE_PAYMENT_REFUND}/${id}/reject`,
+const rejectRefund = async (refundNo: string): Promise<void> => {
+  const res = await api.get(
+    `${import.meta.env.VITE_PAYMENT_REFUND}/${refundNo}/reject`,
   );
   return res.data;
 };

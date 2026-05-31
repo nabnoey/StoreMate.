@@ -1,8 +1,9 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
 import ProtectedRout from "./ProtectedRout";
 import ModeratorRoute from "./ModeratorRoute";
+import AdminRoute from "./AdminRoute";
 
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
 const Home = lazy(() => import("../pages/HomePage"));
@@ -34,12 +35,18 @@ const OderDetails = lazy(() => import("../pages/users/orders/OrderDetails"));
 const CancelOrderPage = lazy(
   () => import("./../pages/users/orders/CancelOrder"),
 );
+const NotificationPage = lazy(() => import("./../pages/users/Notification"));
+
 import Stock from "../pages/admin/Stock";
 // import Order from "../pages/admin/Orders";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
+import Notification from "../pages/admin/Notification";
+import UserEdit from "../pages/admin/UserEdit";
+import StoreEdit from "../pages/admin/StoreEdit";
+import Dashboard from "../pages/admin/Dashboard";
 
 const router = createBrowserRouter([
   {
@@ -180,18 +187,37 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
+      {
+        path: "notify",
+        element: (
+          <ProtectedRout>
+            <NotificationPage />
+          </ProtectedRout>
+        ),
+      },
     ],
   },
 
   {
     path: "/moderator",
-
     element: (
       <ModeratorRoute>
         <AdminLayout />
       </ModeratorRoute>
     ),
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "stock",
+        element: <Stock />,
+      },
       {
         path: "ordersMod",
         element: <Order />,
@@ -201,17 +227,54 @@ const router = createBrowserRouter([
         element: <OrderDetail />,
       },
       {
+        path: "refund",
+        element: <RefundModeratorPage />,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
         path: "stock",
         element: <Stock />,
       },
-
-      // {
-      //   path: "orders",
-      //   element: <Order />,
-      // },
+      {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
       {
         path: "refund",
         element: <RefundModeratorPage />,
+      },
+      {
+        path: "user-edit",
+        element: <UserEdit />,
+      },
+      {
+        path: "store-edit",
+        element: <StoreEdit />,
+      },
+      {
+        path: "notification",
+        element: <Notification />,
       },
     ],
   },
