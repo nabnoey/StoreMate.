@@ -26,9 +26,7 @@ const AdminRoute = ({ children }: Props) => {
       } else {
         const userRoles = decoded.roles || [];
         isAdmin = userRoles.some(
-          (r: any) =>
-            r === "ADMIN" ||
-            r?.roleName === "ADMIN"
+          (r: any) => r === "ADMIN" || r?.roleName === "ADMIN",
         );
       }
     } catch (error) {

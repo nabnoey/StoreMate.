@@ -75,6 +75,7 @@ const OderDetails = lazy(() =>
 const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
+
 import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
@@ -232,10 +233,9 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
-
       {
         index: true,
-        element: <Navigate to="dashboard" replace />
+        element: <Navigate to="dashboard" replace />,
       },
       {
         path: "dashboard",
@@ -246,8 +246,6 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-        path: "ordersMod",
-       {
         path: "orders",
         element: <Order />,
       },
@@ -271,7 +269,50 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="dashboard" replace />
+        element: <Navigate to="dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "stock",
+        element: <Stock />,
+      },
+
+      {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
+      {
+        path: "refund",
+        element: <RefundModeratorPage />,
+      },
+      {
+        path: "user-edit",
+        element: <UserEdit />,
+      },
+      {
+        path: "store-edit",
+        element: <StoreEdit />,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
       },
       {
         path: "dashboard",
@@ -305,5 +346,4 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
 export default router;

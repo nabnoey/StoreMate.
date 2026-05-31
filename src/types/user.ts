@@ -1,6 +1,6 @@
 export interface Role {
   id: number;
-  roleName: "MODERATOR" | "USER";
+  roleName: "MODERATOR" | "USER" | "ADMIN";
 }
 
 export interface User {
