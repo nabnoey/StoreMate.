@@ -85,7 +85,7 @@ import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
-import Notification from "../pages/admin/Notification";
+import AdminNotificationPage from "../pages/admin/Notification";
 
 const router = createBrowserRouter([
   {
@@ -270,7 +270,7 @@ const router = createBrowserRouter([
       },
       {
         path: "notification",
-        element: <Notification />,
+        element: <AdminNotificationPage />,
       },
     ],
   },
@@ -318,7 +318,7 @@ const router = createBrowserRouter([
       },
       {
         path: "notification",
-        element: <Notification />,
+        element: <AdminNotificationPage />,
       },
     ],
   },

@@ -16,7 +16,7 @@ interface NotificationFormData {
   recipients: string;
 }
 
-const Notification: React.FC = () => {
+const AdminNotificationPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const notifications = useSelector(
@@ -325,4 +325,4 @@ const Notification: React.FC = () => {
   );
 };
 
-export default Notification;
+export default AdminNotificationPage;
