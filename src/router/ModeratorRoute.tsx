@@ -14,8 +14,6 @@ const ModeratorRoute = ({ children }: Props) => {
     (state: RootState) => state.auth,
   );
 
-  //   console.log("USER =", user);
-  // console.log("ROLES =", user?.roles);
 
   const dispatch = useDispatch();
 
@@ -25,7 +23,6 @@ const ModeratorRoute = ({ children }: Props) => {
     try {
       const decoded: { exp: number } = jwtDecode(token);
 
-      // console.log("decoded", decoded)
 
       if (decoded.exp * 1000 < Date.now()) {
         isTokenInvalid = true;

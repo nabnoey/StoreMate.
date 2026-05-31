@@ -130,7 +130,9 @@ function SidebarAdmin() {
           <li>
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+
               onClick={() => navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")}
+              onClick={() => navigate("/moderator/orders?page=0&size=10")}
             >
               <Truck size={18} />
               จัดการคำสั่งซื้อ

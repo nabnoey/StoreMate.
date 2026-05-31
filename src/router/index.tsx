@@ -232,6 +232,7 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
+
       {
         index: true,
         element: <Navigate to="dashboard" replace />
@@ -246,10 +247,13 @@ const router = createBrowserRouter([
       },
       {
         path: "ordersMod",
+=======
+       {
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {
@@ -278,6 +282,7 @@ const router = createBrowserRouter([
         path: "stock",
         element: <Stock />,
       },
+
       {
         path: "ordersMod",
         element: <Order />,
