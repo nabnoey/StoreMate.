@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getoOrderByOrderNo, shippingOrder } from "../../redux/moderator/ModeratorReducer";
+import { changeStatus, getoOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -16,7 +16,7 @@ import { FaHistory } from "react-icons/fa";
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../redux/store";
 import { STATUS_LABELS, type OrderItem } from "../../types/moderator/ordersMod";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type {PaymentMethod} from "../../types/payment";
 // import type {orderMod} from "../../types/moderator/ordersMod";
 
@@ -141,31 +141,30 @@ const [selectedStatus, setSelectedStatus] = useState(
     );
   }
 
-//  const handleUpdateStatus = () => {
-//     if (orderNo && orderNo !== "undefined") { 
-//       dispatch(shippingOrder(orderNo)).then(() => {
-//         dispatch(getoOrderByOrderNo(orderNo)); 
-//       });
-//     }
-//   };
+
 
 const handleUpdateStatus = () => {
-    if (orderNo && orderNo !== "undefined") {
-      dispatch(shippingOrder(orderNo)).then(() => {
-        // 1. แจ้งเตือน Toast
-        toast.success("ยืนยันสำเร็จ");
-
-        // 2. เช็คว่าเป็นเก็บเงินปลายทาง (DESTINATION) หรือไม่
-        if (order.checkoutType === "DESTINATION") {
-          // ถ้าใช่ ให้เด้งกลับไปหน้าจัดการคำสั่งซื้อ
-          navigate("/moderator/orders");
-        } else {
-          // ถ้าไม่ใช่ ให้รีเฟรชข้อมูลสถานะในหน้าเดิม
-          dispatch(getoOrderByOrderNo(orderNo)); 
-        }
+    // บันทึกข้อมูลส่งไปยัง Redux ทันทีโดยไม่มีเงื่อนไขดักล่วงหน้า
+    dispatch(changeStatus({ orderNo: order.orderNo, status: selectedStatus }))
+      .unwrap()
+      .then(() => {
+        // แสดงแจ้งเตือนสำเร็จ
+        toast.success("อัพเดทสถานะคำสั่งซื้อเรียบร้อยแล้ว");
+        // เปลี่ยนหน้าไปยังหน้าจัดการคำสั่งซื้อทั้งหมด
+        navigate("/moderator/orders"); 
+      })
+      .catch((error) => {
+        console.error("Error updating order status:", error);
+        toast.error("เกิดข้อผิดพลาดในการอัพเดทสถานะคำสั่งซื้อ");
       });
-    }
-  };
+};
+
+
+
+
+
+
+
   const recipientName = order.orderRecipient?.recipientName 
   const recipientPhone = order.orderRecipient?.phone 
   
@@ -219,7 +218,7 @@ const recipient = order.orderRecipient || {};
       <div className="bg-white border-b border-gray-200 w-full p-6">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <button
-            onClick={() => navigate("/moderator/ordersMod")}
+            onClick={() => navigate("/moderator/orders")}
             className="hover:opacity-70 transition-opacity text-gray-700"
             type="button"
           >

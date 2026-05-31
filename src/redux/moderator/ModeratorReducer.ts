@@ -57,6 +57,22 @@ export const getoOrderByOrderNo = createAsyncThunk(
                 return res;
             }
         )
+
+        export const updateOrderStatus = createAsyncThunk(
+            "moderator/updateOrderStatus",
+            async ({ orderNo, status }: { orderNo: string; status: string }) => {
+                const res = await ModeratorService.updateOrderStatus(orderNo, status);
+                return res;
+            }
+        );
+
+        export const changeStatus = createAsyncThunk(
+    "moderator/changeStatus",
+    async ({ orderNo, status }: { orderNo: string; status: string }) => {
+        const res = await ModeratorService.changeStatus(orderNo, status);
+        return res;
+    }
+        )
     
 
 
@@ -101,12 +117,35 @@ const moderatorSlice = createSlice({
                 
             });
 
+        builder
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                state.orders = state.orders.map(order =>
+                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+                );
+                state.loading = false;
+            })
+            .addCase(updateOrderStatus.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
+            });
+
             
       builder
       .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
         state.orderToPrint = [action.payload];
-      })     
+      })  
+      
+      
+.addCase(changeStatus.fulfilled, (state, action) => {
+    state.orders = state.orders.map(order =>
+        order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+    );
+    state.loading = false;
+})
     }
+
+    
+    
 
     
 });

@@ -223,11 +223,7 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
                       return (
                        <tr
   key={order.id || order.orderNo}
-  onClick={() => {
-    if (!isPrintMode) {
-      navigate(`/moderator/orders/${order.orderNo}`);
-    }
-  }}
+ 
   className={`hover:bg-gray-50/50 transition-colors cursor-pointer ${
     isPrintMode && isSelected ? "bg-blue-50" : ""
   }`}

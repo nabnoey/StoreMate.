@@ -41,10 +41,24 @@ const addProduct = async (data: Product) => {
     return res.data
 }
 
+const updateOrderStatus = async (orderNo: string, status: string) => {
+    // Note: Assuming the backend uses PATCH or PUT for updating status.
+    const res = await api.patch(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`, { status })
+    return res.data
+}
+
+export const changeStatus = async (orderNo: string, status: string) => {
+    const res = await api.patch(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`, { status })
+    return res.data
+}
+
 export const ModeratorService = {
     getAllOrders,
     shippingOrder,
+    updateOrderStatus,
     getoOrder,
     addProduct,
-    getoOrderByOrderNo
+    getoOrderByOrderNo,
+    changeStatus
+
 }
