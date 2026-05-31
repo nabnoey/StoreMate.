@@ -75,7 +75,9 @@ const OderDetails = lazy(() =>
 const CancelOrderPage = lazy(() =>
   lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
-
+const NotificationPage = lazy(() =>
+  lazyDelay(() => import("./../pages/users/Notification"), 1200),
+);
 import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
@@ -83,6 +85,7 @@ import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
+import Notification from "../pages/admin/Notification";
 
 const router = createBrowserRouter([
   {
@@ -223,6 +226,14 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
+      {
+        path: "notification",
+        element: (
+          <ProtectedRout>
+            <NotificationPage />
+          </ProtectedRout>
+        ),
+      },
     ],
   },
   {
@@ -257,8 +268,13 @@ const router = createBrowserRouter([
         path: "refund",
         element: <RefundModeratorPage />,
       },
+      {
+        path: "notification",
+        element: <Notification />,
+      },
     ],
   },
+
   {
     path: "/admin",
     element: (
@@ -300,48 +316,9 @@ const router = createBrowserRouter([
         path: "store-edit",
         element: <StoreEdit />,
       },
-    ],
-  },
-  {
-    path: "/admin",
-    element: (
-      <AdminRoute>
-        <AdminLayout />
-      </AdminRoute>
-    ),
-    children: [
       {
-        index: true,
-        element: <Navigate to="dashboard" replace />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "stock",
-        element: <Stock />,
-      },
-
-      {
-        path: "ordersMod",
-        element: <Order />,
-      },
-      {
-        path: "ordersMod/:orderNo",
-        element: <OrderDetail />,
-      },
-      {
-        path: "refund",
-        element: <RefundModeratorPage />,
-      },
-      {
-        path: "user-edit",
-        element: <UserEdit />,
-      },
-      {
-        path: "store-edit",
-        element: <StoreEdit />,
+        path: "notification",
+        element: <Notification />,
       },
     ],
   },

@@ -139,7 +139,7 @@ function SidebarAdmin() {
               onClick={() =>
                 navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")
               }
-              onClick={() => navigate("/moderator/orders?page=0&size=10")}
+              // onClick={() => navigate("/moderator/orders?page=0&size=10")}
             >
               <Truck size={18} />
               จัดการคำสั่งซื้อ
@@ -184,7 +184,13 @@ function SidebarAdmin() {
                 <button
                   className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
                   // onClick={() => navigate("/admin/notify")}
-                  onClick={() => navigate("/admin/notification")}
+                  onClick={() =>
+                    navigate(
+                      isAdmin
+                        ? "/admin/notification"
+                        : "/moderator/notification",
+                    )
+                  }
                 >
                   <Bell size={18} />
                   จัดการแจ้งเตือน

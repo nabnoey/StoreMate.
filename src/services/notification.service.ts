@@ -1,5 +1,5 @@
 import api from "./api";
-import type { NoificationRequest } from "../types/notification";
+import type { NotificationRequest } from "../types/notification";
 
 const getNotifyUser = async () => {
   const res = await api.get(`/notify`);
@@ -11,7 +11,7 @@ const getNotifyOwner = async () => {
   return res.data;
 };
 
-const createNotifyOwner = async (data: NoificationRequest) => {
+const createNotifyOwner = async (data: NotificationRequest) => {
   const res = await api.post(`${import.meta.env.VITE_NOTIFY_API}/send`, data);
   return res.data;
 };
@@ -23,7 +23,7 @@ const deleteNotify = async (notifyId: number) => {
   return res.data;
 };
 
-export const NotifyService = {
+export const NotificationService = {
   getNotifyUser,
   createNotifyOwner,
   getNotifyOwner,

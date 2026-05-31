@@ -1,12 +1,4 @@
-//เพิ่มแจ้งเตือน
-export interface NoificationRequest {
-  title: string;
-  message: string;
-  sendTo: string;
-}
-
-//ดูการแจ้งเตือน
-export interface Noification {
+export interface Notification {
   id: number;
   title: string;
   message: string;
@@ -14,4 +6,17 @@ export interface Noification {
   createdAt: string;
 }
 
-export type UserNotifyResponse = Omit<Noification, "sendTo">;
+export interface NotificationResponse {
+  id: number;
+  title: string;
+  message: string;
+  createdAt: string;
+  type: string; // จำลอง: 'orders' | 'refunds' | 'shop'
+  isRead: boolean; // จำลองผ่าน localStorage
+}
+
+export interface NotificationRequest {
+  title: string;
+  message: string;
+  sendTo: string;
+}
