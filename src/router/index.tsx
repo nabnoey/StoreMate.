@@ -7,7 +7,6 @@ import { lazyDelay } from "../utils/lazyDelay";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import ModeratorRoute from "./ModeratorRoute";
-import AdminRoute from "./AdminRoute";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -84,10 +83,6 @@ import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
-<<<<<<< HEAD
-import Dashboard from "../pages/admin/Dashboard";
-=======
->>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
 
 const router = createBrowserRouter([
   {
@@ -238,16 +233,9 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
-<<<<<<< HEAD
       {
         index: true,
         element: <Navigate to="dashboard" replace />,
-=======
-
-      {
-        index: true,
-        element: <Navigate to="dashboard" replace />
->>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
       },
       {
         path: "dashboard",
@@ -258,12 +246,6 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-<<<<<<< HEAD
-=======
-        path: "ordersMod",
-=======
-       {
->>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
         path: "orders",
         element: <Order />,
       },
@@ -272,8 +254,6 @@ const router = createBrowserRouter([
         element: <OrderDetail />,
       },
       {
-<<<<<<< HEAD
-=======
         path: "refund",
         element: <RefundModeratorPage />,
       },
@@ -289,7 +269,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="dashboard" replace />
+        element: <Navigate to="dashboard" replace />,
       },
       {
         path: "dashboard",
@@ -309,7 +289,6 @@ const router = createBrowserRouter([
         element: <OrderDetail />,
       },
       {
->>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
         path: "refund",
         element: <RefundModeratorPage />,
       },
