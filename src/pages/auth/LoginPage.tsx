@@ -67,7 +67,6 @@ function LoginPage() {
         try {
           const decoded: any = jwtDecode(token);
           const userRoles = decoded.roles || [];
-
           const roles = userRoles.map((role: any) =>
             typeof role === "object" && role?.roleName ? role.roleName : role,
           );

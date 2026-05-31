@@ -6,8 +6,14 @@ import { store, persistor } from "./redux/store";
 import router from "./router";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
+import ReactGA from "react-ga4";
 
 import { PersistGate } from "redux-persist/integration/react";
+
+const TRACKING_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+if (TRACKING_ID) {
+  ReactGA.initialize(TRACKING_ID);
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

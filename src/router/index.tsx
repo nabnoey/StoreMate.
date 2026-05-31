@@ -2,49 +2,92 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy } from "react";
 import GuestRoute from "./GuestRoute";
 import ProtectedRout from "./ProtectedRout";
+import AdminRoute from "./AdminRoute";
+import { lazyDelay } from "../utils/lazyDelay";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import ModeratorRoute from "./ModeratorRoute";
 import AdminRoute from "./AdminRoute";
 
-const MainLayout = lazy(() => import("../layouts/MainLayout"));
-const Home = lazy(() => import("../pages/HomePage"));
-const ShoppingCartPage = lazy(
-  () => import("../pages/users/carts/ShoppingCart"),
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const Home = lazy(() => lazyDelay(() => import("../pages/HomePage"), 3000));
+const ShoppingCartPage = lazy(() =>
+  lazyDelay(() => import("../pages/users/carts/ShoppingCart"), 1200),
 );
-const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
-const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
-const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
-const Profile = lazy(() => import("../pages/users/Profile"));
-const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
-const ChangePassword = lazy(() => import("../pages/auth/ChangePassword"));
-const ProductDetailPage = lazy(() => import("../pages/ProductDetails"));
-const PaymentShoping = lazy(
-  () => import("../pages/users/payment/PaymentShoping"),
+const RegisterPage = lazy(() =>
+  lazyDelay(() => import("../pages/auth/RegisterPage"), 1200),
 );
-const SearchPage = lazy(() => import("../pages/SearchPage"));
-const CategoryPage = lazy(() => import("../pages/CategoryPage"));
-const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
-const AboutUs = lazy(() => import("../pages/AboutAs"));
-const Contact = lazy(() => import("../pages/Contact"));
-const AddCreditCard = lazy(
-  () => import("../pages/users/payment/AddCreditCard"),
+const LoginPage = lazy(() =>
+  lazyDelay(() => import("../pages/auth/LoginPage"), 1200),
 );
-const AdminLayout = lazy(() => import("../layouts/AdminLayout"));
-const PaymentQR = lazy(() => import("../pages/users/payment/PaymentQR"));
-const HistoryPage = lazy(() => import("../pages/users/orders/HistoryShop"));
-const OderDetails = lazy(() => import("../pages/users/orders/OrderDetails"));
-const CancelOrderPage = lazy(
-  () => import("./../pages/users/orders/CancelOrder"),
+const ForgotPassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ForgotPassword"), 1200),
+);
+const Profile = lazy(() =>
+  lazyDelay(() => import("../pages/users/Profile"), 1200),
+);
+const ResetPassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ResetPassword"), 1200),
+);
+const ChangePassword = lazy(() =>
+  lazyDelay(() => import("../pages/auth/ChangePassword"), 1200),
+);
+const ProductDetailPage = lazy(() =>
+  lazyDelay(() => import("../pages/ProductDetails"), 1200),
+);
+const PaymentShoping = lazy(() =>
+  lazyDelay(() => import("../pages/users/payment/PaymentShoping"), 1200),
+);
+const SearchPage = lazy(() =>
+  lazyDelay(() => import("../pages/SearchPage"), 1200),
+);
+const CategoryPage = lazy(() =>
+  lazyDelay(() => import("../pages/CategoryPage"), 1200),
+);
+const AddressProfile = lazy(() =>
+  lazyDelay(() => import("../pages/users/AddreesProfile"), 1200),
+);
+const AboutUs = lazy(() => lazyDelay(() => import("../pages/AboutAs"), 1200));
+const Contact = lazy(() => lazyDelay(() => import("../pages/Contact")));
+const MainLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/MainLayout"), 1200),
+);
+
+const AddCreditCard = lazy(() =>
+  lazyDelay(() => import("../pages/users/payment/AddCreditCard"), 1200),
+);
+
+const AdminLayout = lazy(() =>
+  lazyDelay(() => import("../layouts/AdminLayout"), 1200),
+);
+
+const PaymentQR = lazy(() =>
+  lazyDelay(() => import("../pages/users/payment/PaymentQR"), 1200),
+);
+
+const HistoryPage = lazy(() =>
+  lazyDelay(() => import("../pages/users/orders/HistoryShop"), 1200),
+);
+
+const OderDetails = lazy(() =>
+  lazyDelay(() => import("../pages/users/orders/OrderDetails"), 1200),
+);
+const CancelOrderPage = lazy(() =>
+  lazyDelay(() => import("./../pages/users/orders/CancelOrder"), 1200),
 );
 
 import Stock from "../pages/admin/Stock";
-// import Order from "../pages/admin/Orders";
+import Dashboard from "../pages/admin/Dashboard";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
-
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
+<<<<<<< HEAD
 import Dashboard from "../pages/admin/Dashboard";
+=======
+>>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
 
 const router = createBrowserRouter([
   {
@@ -67,7 +110,9 @@ const router = createBrowserRouter([
         path: "payment",
         element: (
           <ProtectedRout>
-            <PaymentShoping />
+            <Elements stripe={stripePromise}>
+              <PaymentShoping />
+            </Elements>
           </ProtectedRout>
         ),
       },
@@ -159,7 +204,6 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
-
       {
         path: "/orders",
         element: (
@@ -168,7 +212,6 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
-
       {
         path: "/orders/:orderNo",
         element: (
@@ -187,7 +230,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-
   {
     path: "/moderator",
     element: (
@@ -196,9 +238,16 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
+<<<<<<< HEAD
       {
         index: true,
         element: <Navigate to="dashboard" replace />,
+=======
+
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />
+>>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
       },
       {
         path: "dashboard",
@@ -209,6 +258,12 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
+<<<<<<< HEAD
+=======
+        path: "ordersMod",
+=======
+       {
+>>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
         path: "orders",
         element: <Order />,
       },
@@ -217,8 +272,54 @@ const router = createBrowserRouter([
         element: <OrderDetail />,
       },
       {
+<<<<<<< HEAD
+=======
         path: "refund",
         element: <RefundModeratorPage />,
+      },
+    ],
+  },
+  {
+    path: "/admin",
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "stock",
+        element: <Stock />,
+      },
+
+      {
+        path: "ordersMod",
+        element: <Order />,
+      },
+      {
+        path: "ordersMod/:orderNo",
+        element: <OrderDetail />,
+      },
+      {
+>>>>>>> 198d50887f6b074bb27fb907dece0cecea276ad5
+        path: "refund",
+        element: <RefundModeratorPage />,
+      },
+      {
+        path: "user-edit",
+        element: <UserEdit />,
+      },
+      {
+        path: "store-edit",
+        element: <StoreEdit />,
       },
     ],
   },
