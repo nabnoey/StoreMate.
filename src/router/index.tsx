@@ -247,7 +247,6 @@ const router = createBrowserRouter([
       },
       {
         path: "ordersMod",
-=======
        {
         path: "orders",
         element: <Order />,
