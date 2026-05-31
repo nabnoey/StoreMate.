@@ -84,7 +84,7 @@ const AddCreditCardFormInner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-10 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-white lg:bg-white pb-10 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
       <div className="w-[1136px] hidden lg:block">
         <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
           <Link to="/" className="cursor-pointer">
@@ -112,13 +112,24 @@ const AddCreditCardFormInner = () => {
         </nav>
       </div>
 
-      <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30 mb-2">
-        <Icon
-          icon="lucide:arrow-left"
-          className="w-6 h-6 mr-3 text-black cursor-pointer"
-          onClick={() => navigate(-1)}
-        />
-        <span className="text-lg font-bold text-black">เพิ่มบัตรใหม่</span>
+      <div className="md:hidden bg-white pt-10 pb-4">
+        <div className="flex items-center gap-3">
+          <button
+            className="mt-[2px] text-black p-0 flex-shrink-0 -ml-30"
+            onClick={() => navigate("/payment")}
+          >
+            <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
+          </button>
+
+          <div className="flex-1">
+            <h1 className="text-[16px] leading-[28px] font-bold text-black">
+              เพิ่มบัตรใหม่
+            </h1>
+            <p className="text-gray-400 text-[14px] font-anuphan font-normal leading-[24px] break-words mt-[2px]">
+              เพิ่มบัตรเครดิตหรือเดบิตสำหรับการชำระเงิน
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="w-full max-w-[700px] mx-auto bg-white lg:rounded-xl lg:shadow-sm lg:border border-gray-200 overflow-hidden p-4 sm:p-6 lg:p-10 lg:mb-10 lg:mt-6">
@@ -170,6 +181,7 @@ const AddCreditCardFormInner = () => {
           </div>
         </div>
 
+        {/* --- FORM SECTION --- */}
         <form
           onSubmit={handleSubmit}
           className="space-y-5 max-w-[500px] mx-auto px-1 sm:px-0"
@@ -229,32 +241,37 @@ const AddCreditCardFormInner = () => {
             </div>
           </div>
 
+          {/* --- ย้ายกล่องข้อความความปลอดภัยมาไว้ตรงนี้ (ก่อนปุ่ม) --- */}
+          <div className="bg-[#F3F4F6] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mt-6">
+            <Icon
+              icon="lucide:shield-check"
+              className="w-5 h-5 flex-shrink-0 text-black mt-0.5"
+            />
+            <div className="flex flex-col">
+              <strong className="text-gray-900 font-bold mb-1 text-[13px]">
+                การเชื่อมต่อที่ปลอดภัย
+              </strong>
+              <p className="leading-relaxed">
+                ระบบของเราจะไม่มีการบันทึกข้อมูลบัตรเครดิต/เดบิต และรหัส CVC
+                ไว้ในระบบ ข้อมูลทั้งหมดจะถูกเข้ารหัสผ่านโปรโตคอล 256-bit SSL
+                ในขณะทำรายการเท่านั้น
+                เพื่อป้องกันความเสี่ยงจากการรั่วไหลของข้อมูล
+                คุณจำเป็นต้องกรอกข้อมูลบัตรใหม่ทุกครั้งที่ทำรายการสั่งซื้อ
+              </p>
+            </div>
+          </div>
+
+          {/* --- ปุ่มยืนยันย้ายมาอยู่ล่างสุดของฟอร์ม --- */}
           <button
             data-test="confirm-add-card-btn"
             type="submit"
             disabled={!stripe || isProcessing}
-            className="cursor-pointer w-full bg-black text-white font-bold py-3.5 rounded-lg mt-8  transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
+            className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
+
           >
             {isProcessing ? "กำลังประมวลผล..." : "ยืนยันการเพิ่มบัตร"}
           </button>
         </form>
-
-        <div className="max-w-[500px] mx-auto mt-8 bg-#F3F4F6] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mx-1 sm:mx-auto">
-          <Icon
-            icon="lucide:shield-check"
-            className="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5"
-          />
-          <div className="flex flex-col">
-            <strong className="text-gray-900 font-bold mb-1 text-[13px]">
-              การรับรองความปลอดภัย
-            </strong>
-            <p className="leading-relaxed">
-              ระบบจะทำการเข้ารหัสข้อมูลบัตรของคุณ และรหัส CVC จะไม่ถูกจัดเก็บ
-              ข้อมูลทั้งหมดจะถูกส่งด้วยเทคโนโลยีการเข้ารหัส 256-bit SSL
-              เพื่อความปลอดภัยสูงสุด
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -15,19 +15,22 @@ const shippingOrder = async (orderNo: string) => {
 }
 
 const getoOrder = async (orderNo: number) => {
-    const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}`)
-    return res.data
-}
+  const res = await api.get(
+    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}`,
+  );
+  return res.data;
+};
 
 const getoOrderByOrderNo = async (orderNo: string) => {
     const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}`)
     return res.data
 }
 
+
 const addProduct = async (data: Product) => {
-    const res = await api.post (`${import.meta.env.VITE_MOD_API}/products`, data,)
-    return res.data
-}
+  const res = await api.post(`${import.meta.env.VITE_MOD_API}/products`, data);
+  return res.data;
+};
 
 const updateOrderStatus = async (orderNo: string, status: string) => {
     const res = await api.put(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`, { status })
@@ -49,3 +52,4 @@ export const ModeratorService = {
     changeStatus
 
 }
+

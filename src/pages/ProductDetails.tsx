@@ -104,7 +104,10 @@ const ProductDetailPage: React.FC = () => {
           }
         }
       } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error);
+
         toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
+
         setTimeout(() => {
           navigate("/");
         }, 1000);
@@ -274,7 +277,7 @@ const ProductDetailPage: React.FC = () => {
         className="bg-white min-h-screen pb-20 pt-4 md:pt-5 text-gray-800"
       >
         <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
-          <nav className="hidden md:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+          <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
             <Link
               data-test="click-home"
               to="/"
@@ -329,14 +332,14 @@ const ProductDetailPage: React.FC = () => {
 
               <div
                 id="product-thumbnails"
-                className="flex gap-3  md:overflow-x-auto justify-center w-full"
+                className="flex gap-3 justify-center w-full max-w-[320px] sm:max-w-[400px] md:max-w-full mx-auto overflow-x-auto px-2"
               >
                 {productDetail.productImages?.map((img) => (
                   <button
                     type="button"
                     key={img.id}
                     onClick={() => setActiveImage(img.imageUrl)}
-                    className={`relative w-15 h-20 md:w-20 md:h-24 shrink-0 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
+                    className={`relative w-14 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24 shrink-0 cursor-pointer overflow-hidden transition-all opacity-80 hover:opacity-100 ${
                       activeImage === img.imageUrl
                         ? "border-b-4 border-gray-800 opacity-100"
                         : ""
@@ -354,7 +357,7 @@ const ProductDetailPage: React.FC = () => {
 
             <div
               id="product-details-container"
-              className="flex flex-col mt-4 md:mt-0 h-full w-full"
+              className="flex flex-col mt-4 md:mt-0 h-full w-full md:border md:border-gray-100 md:rounded-xl md:p-6 md:shadow-lg"
             >
               <h1 className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight">
                 {productDetail.productName}
@@ -449,7 +452,7 @@ const ProductDetailPage: React.FC = () => {
                 id="product-actions"
                 className="order-5 md:order-5 w-full md:max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 pt-0 md:pt-4 mb-2 md:mb-2"
               >
-                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-20 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row items-center gap-2 tablet:gap-6 md:gap-10 lg:gap-20 w-full md:w-auto">
                   <div className="flex items-center gap-4 justify-center w-full md:w-auto">
                     <span className="font-bold text-[#2C2221] text-[16px] md:text-base">
                       จำนวน
@@ -485,7 +488,7 @@ const ProductDetailPage: React.FC = () => {
 
                 <div
                   data-test="container-cart-actions"
-                  className="flex flex-row justify-center md:justify-start gap-2 md:gap-3 w-full md:w-auto md:-translate-y-2 md:-translate-x-20"
+                  className="flex flex-row justify-center md:justify-start gap-2 md:gap-3 w-full md:w-auto md:mr-auto md:pl-4 md:-ml-5 lg:ml-20"
                 >
                   <button
                     type="button"

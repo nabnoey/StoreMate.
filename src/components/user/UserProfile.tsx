@@ -20,30 +20,24 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // เช็คว่า Path ปัจจุบันตรงกับเมนูไหน
   const isActive = (path: string) => location.pathname === path;
-
-  // ฟังก์ชันสำหรับปิดเมนู ครอบคลุมทั้ง Desktop (DaisyUI Dropdown) และ Mobile
   const closeMenu = () => {
-    // บังคับให้ Dropdown ของ DaisyUI เสีย Focus เพื่อให้เมนูหุบกลับทันที
     const elem = document.activeElement as HTMLElement;
     if (elem) {
       elem.blur();
     }
-    // ถ้ามีฟังก์ชันปิดเมนูสำหรับ Mobile (เช่น ปิด Sidebar/Drawer) ให้เรียกใช้งานด้วย
     if (onCloseMenu) {
       onCloseMenu();
     }
   };
 
-  // ฟังก์ชันรวมสำหรับการเปลี่ยนหน้าและปิดเมนู
   const handleNavigation = (path: string) => {
-    navigate(path);
     closeMenu();
+    navigate(path);
   };
 
   const handleLogout = () => {
-    closeMenu(); // ปิดเมนูก่อนแสดง Popup ยืนยัน
+    closeMenu();
 
     toast(
       (t) => (
@@ -59,6 +53,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
                 toast.dismiss(t.id);
                 TokenService.removeToken();
                 dispatch(logout());
+
                 toast.dismiss();
                 toast.success("ออกจากระบบสำเร็จ");
                 navigate("/login");
@@ -125,11 +120,9 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
           <button
             data-test="btn-orders-mobile"
             type="button"
-            onClick={() => handleNavigation("/orders?status=PROCESSING")}
+            onClick={() => handleNavigation("/orders?status=ALL")}
             className={`p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 hover:text-[#0A157A] ${
-              isActive("/orders?status=PROCESSING")
-                ? "bg-gray-100 text-[#0A157A]"
-                : ""
+              isActive("/orders?status=ALL") ? "bg-gray-100 text-[#0A157A]" : ""
             }`}
           >
             <Icon icon="radix-icons:clipboard" width="26" height="26" />
@@ -182,9 +175,7 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
       </button>
 
       <div className="relative">
-        {/* เปลี่ยน z-50 เป็น z-[9999] ป้องกัน dropdown โดนบัง */}
         <ul className="dropdown-content menu p-2 shadow-xl bg-white rounded-lg w-56 mt-4 border border-gray-100 z-[9999]">
-          {/* แก้ไขโปรไฟล์ */}
           <li>
             <button
               data-test="btn-edit-profile"
@@ -210,14 +201,13 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
 
           <hr className="my-1 border-gray-50" />
 
-          {/* การซื้อของฉัน */}
           <li>
             <button
               data-test="btn-orders"
               type="button"
-              onClick={() => handleNavigation("/orders?status=PROCESSING")}
+              onClick={() => handleNavigation("/orders?status=ALL")}
               className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
-                isActive("/orders?status=PROCESSING") ? "bg-gray-100" : ""
+                isActive("/orders?status=ALL") ? "bg-gray-100" : ""
               }`}
             >
               <div className="relative flex items-center justify-center overflow-hidden">
@@ -236,7 +226,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
 
           <hr className="my-1 border-gray-50" />
 
-          {/* ลงชื่อออกจากระบบ */}
           <li>
             <button
               data-test="btn-logout"
