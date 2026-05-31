@@ -35,7 +35,6 @@ const OderDetails = lazy(() => import("../pages/users/orders/OrderDetails"));
 const CancelOrderPage = lazy(
   () => import("./../pages/users/orders/CancelOrder"),
 );
-const NotificationPage = lazy(() => import("./../pages/users/Notification"));
 
 import Stock from "../pages/admin/Stock";
 // import Order from "../pages/admin/Orders";
@@ -43,7 +42,6 @@ import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
-import Notification from "../pages/admin/Notification";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
 import Dashboard from "../pages/admin/Dashboard";
@@ -187,14 +185,6 @@ const router = createBrowserRouter([
           </ProtectedRout>
         ),
       },
-      {
-        path: "notify",
-        element: (
-          <ProtectedRout>
-            <NotificationPage />
-          </ProtectedRout>
-        ),
-      },
     ],
   },
 
@@ -219,11 +209,11 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-        path: "ordersMod",
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {
@@ -252,6 +242,7 @@ const router = createBrowserRouter([
         path: "stock",
         element: <Stock />,
       },
+
       {
         path: "ordersMod",
         element: <Order />,
@@ -272,12 +263,7 @@ const router = createBrowserRouter([
         path: "store-edit",
         element: <StoreEdit />,
       },
-      {
-        path: "notification",
-        element: <Notification />,
-      },
     ],
   },
 ]);
-
 export default router;

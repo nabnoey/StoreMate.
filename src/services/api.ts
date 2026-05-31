@@ -31,12 +31,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // const isLoginAPI = error.config.url.includes("/login");
-      // if (!isLoginAPI) {
-      //   TokenService.removeToken();
-      //   store.dispatch(logout());
-      //   globalThis.location.href = "/login";
-      // }
+      const isLoginAPI = error.config.url.includes("/login");
+
+      if (!isLoginAPI) {
+        TokenService.removeToken();
+        store.dispatch(logout());
+
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

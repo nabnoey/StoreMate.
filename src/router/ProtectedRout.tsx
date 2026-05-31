@@ -14,7 +14,6 @@ const ProtectedRout = ({ children }: Props) => {
     (state: RootState) => state.auth,
   );
   const dispatch = useDispatch();
-
   let isTokenInvalid = false;
   if (token) {
     try {
