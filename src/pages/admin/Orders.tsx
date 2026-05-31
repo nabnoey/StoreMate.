@@ -4,7 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { fetchAllOrders } from "../../redux/moderator/ModeratorReducer";
-import { STATUS_LABELS, STATUS_STYLES, type OrderMod } from "../../types/moderator/ordersMod";
+import {
+  STATUS_LABELS,
+  STATUS_STYLES,
+  type OrderMod,
+} from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 
 const formatDateTime = (isoString: string) => {
@@ -66,7 +70,7 @@ useEffect(() => {
   const handleSelectOrder = (orderNo: string) => {
     const key = String(orderNo);
     setSelectedOrders((prev) =>
-      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key],
     );
   };
 
@@ -84,7 +88,7 @@ useEffect(() => {
  
   const handleConfirmPrint = () => {
     const selectedData = orders.filter((o) =>
-      selectedOrders.includes(String(o.orderNo))
+      selectedOrders.includes(String(o.orderNo)),
     );
     if (selectedData.length === 0) return;
     setPrintData(selectedData);
@@ -123,7 +127,6 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
 
         <div className="p-6 w-full text-[#374151] max-w-7xl mx-auto">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-
             <div className="flex flex-col gap-4 mb-6">
               <div className="flex items-center gap-3">
                 {!isPrintMode ? (
@@ -198,25 +201,42 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
               </div>
             </div>
 
-            <h3 className="text-base font-bold text-gray-800 mb-4">คำสั่งซื้อ</h3>
+            <h3 className="text-base font-bold text-gray-800 mb-4">
+              คำสั่งซื้อ
+            </h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left border-collapse">
                 <thead>
                   <tr className="border-b border-gray-200 text-[#9CA3AF] text-[13px] font-medium">
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">เลขที่คำสั่งซื้อ</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">ชื่อผู้สั่งซื้อ</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">เบอร์โทร</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">วันที่สั่งซื้อ</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">ยอดรวม</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">สั่งจาก</th>
-                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">สถานะคำสั่งซื้อ</th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      เลขที่คำสั่งซื้อ
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      ชื่อผู้สั่งซื้อ
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      เบอร์โทร
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      วันที่สั่งซื้อ
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      ยอดรวม
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      สั่งจาก
+                    </th>
+                    <th className="py-3 text-gray-600 text-base font-normal font-['Anuphan']">
+                      สถานะคำสั่งซื้อ
+                    </th>
                     <th className="py-3"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {currentItems.length > 0 ? (
                     currentItems.map((order: OrderMod) => {
+
                       const { dateStr, timeStr } = formatDateTime(order.createdAt || "");
                       const isSelected = selectedOrders.includes(String(order.orderNo));
 
@@ -228,13 +248,16 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
     isPrintMode && isSelected ? "bg-blue-50" : ""
   }`}
 >
+
                           <td className="py-4 px-2">
                             <div className="flex items-center gap-3">
                               {/* วงกลมติ๊ก: โชว์เฉพาะตอนอยู่ในโหมดปริ้น */}
                               {isPrintMode && (
                                 <button
                                   type="button"
-                                  onClick={() => handleSelectOrder(String(order.orderNo))}
+                                  onClick={() =>
+                                    handleSelectOrder(String(order.orderNo))
+                                  }
                                   className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
                                     isSelected
                                       ? "bg-blue-700 border-blue-700"
@@ -242,41 +265,58 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
                                   }`}
                                 >
                                   {isSelected && (
-                                    <span className="text-white text-[10px]">✓</span>
+                                    <span className="text-white text-[10px]">
+                                      ✓
+                                    </span>
                                   )}
                                 </button>
                               )}
-                              <span className="text-gray-600 font-medium">{order.orderNo}</span>
+                              <span className="text-gray-600 font-medium">
+                                {order.orderNo}
+                              </span>
                             </div>
                           </td>
+
                           <td className="py-4 px-2 text-gray-800 font-medium">{order.orderRecipient?.recipientName}</td>
                           <td className="py-4 px-2 text-gray-500">{order.orderRecipient?.phone}</td>
+
                           <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
-                            {dateStr}<br />
+                            {dateStr}
+                            <br />
                             <span className="text-gray-400">{timeStr}</span>
                           </td>
                           <td className="py-4 px-2 font-bold text-gray-800">
-                            ฿ {(order.total || 0).toLocaleString(undefined, {
+                            ฿{" "}
+                            {(order.total || 0).toLocaleString(undefined, {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 2,
                             })}
                           </td>
-                          <td className="py-4 px-2 text-gray-500">{order.shippingFrom || "website"}</td>
+                          <td className="py-4 px-2 text-gray-500">
+                            {order.shippingFrom || "website"}
+                          </td>
                           <td className="py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-[4px] rounded-full text-[11px] font-medium whitespace-nowrap ${
-                              STATUS_STYLES[order.status] || "bg-gray-100 text-gray-600"
-                            }`}>
+                            <span
+                              className={`inline-flex items-center px-3 py-[4px] rounded-full text-[11px] font-medium whitespace-nowrap ${
+                                STATUS_STYLES[order.status] ||
+                                "bg-gray-100 text-gray-600"
+                              }`}
+                            >
                               {STATUS_LABELS[order.status] || order.status}
                             </span>
                           </td>
                           <td className="py-4 text-right text-xs space-x-3 pr-2">
                             {order.is_printed && (
-                              <span className="text-[#60A5FA] text-xs font-medium">printed</span>
+                              <span className="text-[#60A5FA] text-xs font-medium">
+                                printed
+                              </span>
                             )}
                             {isPrintMode ? (
                               <button
                                 type="button"
-                                onClick={() => handleSelectOrder(String(order.orderNo))}
+                                onClick={() =>
+                                  handleSelectOrder(String(order.orderNo))
+                                }
                                 className="text-blue-600 hover:underline font-medium"
                               >
                                 {isSelected ? "ยกเลิก" : "เลือก"}
@@ -285,6 +325,7 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
                               <button
                                 type="button"
                                 onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
+
                                 className="text-blue-600 hover:underline font-medium"
                               >
                                 จัดการ
@@ -296,7 +337,10 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
                     })
                   ) : (
                     <tr>
-                      <td colSpan={8} className="py-8 text-center text-gray-400 font-medium">
+                      <td
+                        colSpan={8}
+                        className="py-8 text-center text-gray-400 font-medium"
+                      >
                         ไม่มีรายการคำสั่งซื้อในระบบ
                       </td>
                     </tr>
@@ -337,6 +381,7 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
                     </button>
                   ))
                 ) : (
+
                   <button type="button" className="w-8 h-8 text-blue-500 font-bold">1</button>
                 )}
               </div>

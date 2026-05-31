@@ -20,7 +20,7 @@ const paymentNow = async (data: PaymentNowPayload) => {
 
 const sendRefund = async (data: RefundRequest) => {
   const res = await api.post(
-    `${import.meta.env.VITE_PAYMENT_API}/refund-request/send`,
+    `${import.meta.env.VITE_PAYMENT_REFUND}/send`,
     data,
   );
   return res.data;

@@ -142,7 +142,6 @@ const Navbar: React.FC = () => {
             <>
               <input
                 type="text"
-                
                 data-test="search-input"
                 placeholder="ค้นหาสินค้า..."
                 value={inputValue}
@@ -240,7 +239,7 @@ const Navbar: React.FC = () => {
           {isAuthenticated ? (
             <UserProfile
               variant="mobile"
-              onCloseMenu={() => setOpenMenu(true)}
+              onCloseMenu={() => setOpenMenu(false)}
             />
           ) : (
             <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-100">

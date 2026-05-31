@@ -25,21 +25,99 @@ const PaymentQRInner = () => {
   const { id } = useParams();
   const location = useLocation();
 
-  const clientSecret = location.state?.clientSecret;
-  const totalPrice = location.state?.totalPrice || 0;
+  // ลบข้อมูลออกจาก local
+  const clearPaymentSession = () => {
+    localStorage.removeItem("orderNo");
+    localStorage.removeItem("payment_expiry_timestamp");
+    localStorage.removeItem("payment_qr_image");
+    localStorage.removeItem("payment_ref_id");
+    localStorage.removeItem("payment_total_price");
+    localStorage.removeItem("payment_client_secret");
+  };
+
+  const [clientSecret] = useState<string>(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const isStillValid = savedExpiry && Number(savedExpiry) > Date.now();
+    const savedSecret = localStorage.getItem("payment_client_secret");
+
+    if (isStillValid && savedSecret) {
+      return savedSecret;
+    }
+
+    const stateSecret = location.state?.clientSecret;
+    if (stateSecret) {
+      localStorage.setItem("payment_client_secret", stateSecret);
+      return stateSecret;
+    }
+    return savedSecret || "";
+  });
+
+  const [totalPrice] = useState<number>(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const isStillValid = savedExpiry && Number(savedExpiry) > Date.now();
+    const savedPrice = localStorage.getItem("payment_total_price");
+
+    if (isStillValid && savedPrice) {
+      return Number(savedPrice);
+    }
+
+    const statePrice = location.state?.totalPrice;
+    if (statePrice !== undefined) {
+      localStorage.setItem("payment_total_price", String(statePrice));
+      return statePrice;
+    }
+    return Number(savedPrice) || 0;
+  });
 
   const [showQR] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(15 * 60);
 
-  const [qrImage, setQrImage] = useState<string | null>(null);
-  const [refId, setRefId] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(true);
-  const hasRequestedQR = useRef(false);
+  // ถ้ารีหน้า เวลาต้องนับต่อห้ามนับใหม่
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedTimestamp = localStorage.getItem("payment_expiry_timestamp");
+    if (savedTimestamp) {
+      const remaining = Math.floor(
+        (Number(savedTimestamp) - Date.now()) / 1000,
+      );
+      return remaining > 0 ? remaining : 0;
+    }
+    // อันนี้คือตอนเข้ามาหน้า qr
+    return 15 * 60;
+  });
+
+  const [qrImage, setQrImage] = useState<string | null>(() =>
+    localStorage.getItem("payment_qr_image"),
+  );
+  const [refId, setRefId] = useState<string>(
+    () => localStorage.getItem("payment_ref_id") || "",
+  );
+
+  const [isGenerating, setIsGenerating] = useState(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+    if (savedQR && savedExpiry) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      return remaining <= 0;
+    }
+    return true;
+  });
+
+  const initialHasRequested = (() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+    if (savedExpiry && savedQR) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      return remaining > 0;
+    }
+    return false;
+  })();
+
+  const hasRequestedQR = useRef<boolean>(initialHasRequested);
 
   usePaymentSocket();
 
   const paymentStatus = useSelector((state: RootState) => state.payment.status);
 
+  // เช็คว่่ามีสถานะจาก api อะป่าวหลังรีหน้า
   useEffect(() => {
     const savedOrderNo = localStorage.getItem("orderNo");
     if (!savedOrderNo) return;
@@ -53,7 +131,6 @@ const PaymentQRInner = () => {
           data.paymentStatus === "PAYMENT_SUCCESS"
         ) {
           toast.success("ชำระเงินสำเร็จ");
-
           dispatch(
             setPaymentStatus({
               status: "PAYMENT_SUCCESS",
@@ -79,19 +156,37 @@ const PaymentQRInner = () => {
     checkStatusOnRefresh();
   }, [dispatch]);
 
-  // ดักจับสถานะจาก Redux เพื่อจัดการเปลี่ยนหน้าและลบ localStorage
+  // ตรงนี้เช็คว่าจ่ายตังได้ป่าว
   useEffect(() => {
+    // เงื่อนไขตรงนี้จ่ายตังได้ -> ล้าง local เลย
     if (paymentStatus === "PAYMENT_SUCCESS") {
-      // ลบ orderNo ทิ้งเมื่อจ่ายสำเร็จ
+      clearPaymentSession();
       localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
-      navigate("/history-shop", { replace: true });
+      navigate("/orders", { replace: true });
     } else if (paymentStatus === "PAYMENT_FAILS") {
+      // เงื่อนไขตรงนี้จ่ายตังไม่ได้ -> ล้าง local เหมือนกันค่อยให้ข้อมูลมาตอนชำระใหม่อีกที
+      clearPaymentSession();
       dispatch(resetPaymentStatus());
+      navigate("/orders", { replace: true });
     }
   }, [paymentStatus, navigate, dispatch]);
 
+  // สร้าง qr
   useEffect(() => {
+    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+    const savedQR = localStorage.getItem("payment_qr_image");
+
+    if (savedExpiry && savedQR) {
+      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setIsGenerating(false);
+        // ห้ามปิ้วๆ qr ซ้ำหลังจากรีหน้าจัง
+        hasRequestedQR.current = true;
+        return;
+      }
+    }
+
     if (!stripe || !clientSecret || hasRequestedQR.current) return;
 
     const generateQR = async () => {
@@ -118,19 +213,42 @@ const PaymentQRInner = () => {
 
         if (error) {
           toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
+          // ปิ้วๆ qr ใหม่ได้ถ้าพัง
+          hasRequestedQR.current = false;
         } else {
           if (paymentIntent?.id) {
-            // ดึง 6 ตัวอักษรสุดท้ายจาก pi_... มาทำเป็นตัวพิมพ์ใหญ่
             const shortRef = paymentIntent.id.slice(-6).toUpperCase();
             setRefId(shortRef);
+            localStorage.setItem("payment_ref_id", shortRef);
           }
 
           const nextAction: any = paymentIntent?.next_action;
           const qrData =
             nextAction?.promptpay_display_qr_code?.image_url_svg ||
             nextAction?.promptpay_display_qr_code?.image_url_png;
+
+          const stripeExpiresAt =
+            nextAction?.promptpay_display_qr_code?.expires_at;
+
+          let expiryTimestampMs: number;
+
+          if (stripeExpiresAt) {
+            expiryTimestampMs = stripeExpiresAt * 1000;
+          } else {
+            expiryTimestampMs = Date.now() + 15 * 60 * 1000;
+          }
+
+          localStorage.setItem(
+            "payment_expiry_timestamp",
+            String(expiryTimestampMs),
+          );
+
+          const remaining = Math.floor((expiryTimestampMs - Date.now()) / 1000);
+          setTimeLeft(remaining > 0 ? remaining : 0);
+
           if (qrData) {
             setQrImage(qrData);
+            localStorage.setItem("payment_qr_image", qrData);
           } else {
             toast.error("ไม่พบข้อมูล QR Code จากระบบ");
           }
@@ -146,24 +264,51 @@ const PaymentQRInner = () => {
     generateQR();
   }, [stripe, clientSecret]);
 
+  // เรื่องเวลาถอยหลัง และจัดการตอนเบิ่ดเวลา
   useEffect(() => {
     if (!clientSecret || !totalPrice) {
       toast.error("ข้อมูลการชำระเงินไม่ครบถ้วน");
+      clearPaymentSession();
       navigate("/shopping-cart");
       return;
     }
 
     if (showQR) {
       if (timeLeft <= 0) {
-        navigate(`/payment/cancel`);
+        clearPaymentSession();
+
+        navigate(`/orders`);
         return;
       }
+
       const timerId = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
+        if (savedExpiry) {
+          const remaining = Math.floor(
+            (Number(savedExpiry) - Date.now()) / 1000,
+          );
+          if (remaining <= 0) {
+            clearInterval(timerId);
+            clearPaymentSession();
+            navigate(`/orders`);
+          } else {
+            setTimeLeft(remaining);
+          }
+        } else {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(timerId);
+              clearPaymentSession();
+              navigate(`/orders`);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }
       }, 1000);
       return () => clearInterval(timerId);
     }
-  }, [timeLeft, navigate, id, totalPrice, showQR, clientSecret]);
+  }, [navigate, id, totalPrice, showQR, clientSecret, timeLeft <= 0]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
@@ -200,8 +345,13 @@ const PaymentQRInner = () => {
     );
   }
 
+  const handleConfirmButtonClick = () => {
+    clearPaymentSession();
+    navigate("/orders");
+  };
+
   return (
-    <div className="min-h-screen bg-[#f5f5f5] lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-white lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
       {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
         <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
@@ -234,22 +384,26 @@ const PaymentQRInner = () => {
       </div>
 
       {/* --- MOBILE HEADER --- */}
-      <div className="lg:hidden w-full flex items-center bg-white p-4 shadow-sm sticky top-0 z-30 mb-2">
+      <div className="lg:hidden w-full flex items-center bg-white p-4 pt-10 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
           icon="lucide:arrow-left"
           className="w-6 h-6 mr-3 text-black cursor-pointer"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            clearPaymentSession();
+            navigate(-1);
+          }}
         />
-        <span className="text-lg font-bold text-black">
-          ชำระเงินผ่าน QR Code
-        </span>
+        <span className="text-lg font-bold text-black">ข้อมูลการชำระเงิน</span>
       </div>
 
       <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm p-4 sm:p-10 lg:mt-6 lg:mb-10">
         {/* Title (Desktop Only) */}
         <button
           className="hidden lg:flex items-center gap-2 mb-6 cursor-pointer w-full border-b border-gray-200 pb-6 hover:text-[#4285F4] transition-colors"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            clearPaymentSession();
+            navigate(-1);
+          }}
         >
           <Icon icon="lucide:arrow-left" className="w-6 h-6" />
           <span className="font-bold text-xl text-black">
@@ -258,12 +412,12 @@ const PaymentQRInner = () => {
         </button>
 
         {/* ส่วนแสดงราคาและเวลา */}
-        <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 border-b border-gray-100 lg:border-none pb-4">
+        <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 pb-4">
           <div className="flex justify-between w-full max-w-[400px] items-center  px-4 ">
             <span className="text-black font-bold text-[15px] sm:text-base">
               ยอดชำระเงินทั้งหมด
             </span>
-            <span className="text-black font-bold text-lg sm:text-xl">
+            <span className="text-blue-500 font-bold text-lg sm:text-xl">
               ฿ {totalPrice.toLocaleString()}
             </span>
           </div>
@@ -271,7 +425,7 @@ const PaymentQRInner = () => {
             <span className="text-black font-medium text-[15px] sm:text-base">
               กรุณาชำระภายใน
             </span>
-            <span className="text-black font-bold text-lg sm:text-xl animate-pulse">
+            <span className="text-blue-500 font-bold text-lg sm:text-xl">
               {formatTime(timeLeft)}
             </span>
           </div>
@@ -317,31 +471,38 @@ const PaymentQRInner = () => {
 
             <div className="flex flex-col gap-5">
               {[
-                { text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ' },
-                { text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน" },
                 {
+                  id: "step-1",
+                  icon: "ph:number-circle-one-fill",
+                  text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ',
+                },
+                {
+                  id: "step-2",
+                  icon: "ph:number-circle-two-fill",
+                  text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน",
+                },
+                {
+                  id: "step-3",
+                  icon: "ph:number-circle-three-fill",
                   text: "คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ หรือภายใน 24 ชั่วโมง ในกรณีที่มีธุรกรรมจำนวนมาก",
                 },
                 {
+                  id: "step-4",
+                  icon: "ph:number-circle-four-fill",
                   text: 'เลือกไปที่ปุ่ม "สแกน" หรือ "QR Code" และกดที่ "รูปภาพ" เลือกรูปภาพที่ท่านแคปไว้และทำการชำระเงิน โดยกรุณาเช็คชื่อบัญชีผู้รับคือ "บริษัท สโตร์เมท จำกัด"',
                   boldWords: ['"บริษัท สโตร์เมท จำกัด"'],
                 },
                 {
+                  id: "step-5",
+                  icon: "ph:number-circle-five-fill",
                   text: "QR สามารถสแกนได้ 1 ครั้งต่อ 1 การชำระเงินเท่านั้น หากต้องการสแกนใหม่ โปรดรีเฟรช QR อีกครั้ง",
                 },
-              ].map((item, index) => {
-                const icons = [
-                  "ph:number-circle-one-fill",
-                  "ph:number-circle-two-fill",
-                  "ph:number-circle-three-fill",
-                  "ph:number-circle-four-fill",
-                  "ph:number-circle-five-fill",
-                ];
+              ].map((item) => {
                 return (
-                  <div key={index} className="flex gap-4 items-start">
+                  <div key={item.id} className="flex gap-4 items-start">
                     <div className="flex-shrink-0 mt-0.5">
                       <Icon
-                        icon={icons[index]}
+                        icon={item.icon}
                         className="w-7 h-7 sm:w-8 sm:h-8 text-black opacity-80"
                       />
                     </div>
@@ -363,16 +524,16 @@ const PaymentQRInner = () => {
             </div>
           </div>
 
-          {/* ปุ่มยืนยัน
+          {/* สำหรับคนที่ไม่อยากจ่ายเงินตอนนี้ มันจะไปที่หน้าออเดอร์และจะมีปุ่มชำระเงินมาให้อีกที แต่ถ้าจะจ่ายตังเลยก็ได้ */}
           <div className="flex justify-center mt-4 lg:mt-8 px-4 lg:px-0">
             <button
               data-test="confirm-paid-btn"
-              onClick={handleConfirmPaid}
-              className="cursor-pointer w-full max-w-[400px] bg-black text-white font-bold py-3.5 sm:py-4 rounded-xl hover:bg-[#3367d6] transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
+              onClick={handleConfirmButtonClick}
+              className="cursor-pointer w-full max-w-[400px] bg-[#1E40AF] text-white font-bold py-3.5 sm:py-4 rounded-xl transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
             >
-              ยืนยัน
+              ตกลง
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

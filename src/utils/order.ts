@@ -8,14 +8,14 @@ export const statusConfig = {
     tab: "คำสั่งซื้อสำเร็จ",
     color: "text-green-500",
   },
-  PENDING: { tab: "ที่ต้องชำระ", color: "text-blue-500" },
+  PENDING: { tab: "ที่ต้องชำระ", color: "text-[#1E40AF]" },
   PROCESSING: {
     tab: "ที่ต้องจัดส่ง",
     color: "text-blue-500",
   },
   RECEIVE: {
     tab: "ที่ต้องได้รับ",
-    color: "text-green-500",
+    color: "text-[#1E40AF]",
   },
   CANCELLED: {
     tab: "ยกเลิก",
@@ -40,7 +40,7 @@ export const getOrderLabel = (
       case "RECEIVE":
         return "ที่ต้องได้รับ";
       case "COMPLETED":
-        return "จัดส่งสำเร็จ";
+        return "คำสั่งซื้อสำเร็จ";
       case "CANCELLED":
         return "ยกเลิกคำสั่งซื้อ";
       case "REFUND":
@@ -59,7 +59,7 @@ export const getOrderLabel = (
     case "RECEIVE":
       return "ที่ต้องได้รับ";
     case "COMPLETED":
-      return "จัดส่งสำเร็จ";
+      return "คำสั่งซื้อสำเร็จ";
     case "CANCELLED":
       return "ยกเลิกคำสั่งซื้อ";
     case "REFUND":
