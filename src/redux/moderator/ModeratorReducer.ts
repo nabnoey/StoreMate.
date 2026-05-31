@@ -119,9 +119,11 @@ const moderatorSlice = createSlice({
 
         builder
             .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                const updatedOrder = action.payload;
                 state.orders = state.orders.map(order =>
-                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+                    order.orderNo === updatedOrder.orderNo ? { ...order, ...updatedOrder } : order
                 );
+                state.orderToPrint = updatedOrder ? [updatedOrder] : state.orderToPrint;
                 state.loading = false;
             })
             .addCase(updateOrderStatus.rejected, (state, action) => {
@@ -129,19 +131,16 @@ const moderatorSlice = createSlice({
                 state.error = action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
             });
 
-            
-      builder
-      .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
-        state.orderToPrint = [action.payload];
-      })  
-      
-      
-.addCase(changeStatus.fulfilled, (state, action) => {
-    state.orders = state.orders.map(order =>
-        order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
-    );
-    state.loading = false;
-})
+        builder
+            .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
+                state.orderToPrint = [action.payload];
+            })
+            .addCase(changeStatus.fulfilled, (state, action) => {
+                state.orders = state.orders.map(order =>
+                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+                );
+                state.loading = false;
+            })
     }
 
     

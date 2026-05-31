@@ -4,8 +4,12 @@ import axios from "axios";
 import { store } from "../redux/store";
 import { logout } from "../redux/auth/authReducer";
 
+const baseURL = import.meta.env.VITE_BASE_URL
+  ? import.meta.env.VITE_BASE_URL.replace(/\/+$/, "") + "/"
+  : undefined;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {

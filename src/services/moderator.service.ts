@@ -1,18 +1,6 @@
 import api from "./api";
 import type { Product } from "../types/product";
 
-// const getAllOrders = async (
-//     page?: number,
-//     size?: number
-// ) => {
-//     const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders`),{
-//         params: {
-//            page,
-//            size
-//         }
-//     });
-//     return res.data
-// }
 
 const getAllOrders = async (page?: number, size?: number) => {
     const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders`, {
@@ -42,13 +30,12 @@ const addProduct = async (data: Product) => {
 }
 
 const updateOrderStatus = async (orderNo: string, status: string) => {
-    // Note: Assuming the backend uses PATCH or PUT for updating status.
-    const res = await api.patch(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`, { status })
+    const res = await api.put(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`, { status })
     return res.data
 }
 
 export const changeStatus = async (orderNo: string, status: string) => {
-    const res = await api.patch(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`, { status })
+    const res = await api.put(`${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`, { status })
     return res.data
 }
 
