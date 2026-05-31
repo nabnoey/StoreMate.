@@ -192,12 +192,12 @@ const router = createBrowserRouter([
       </ModeratorRoute>
     ),
     children: [
-      {
-        path: "ordersMod",
+       {
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {
@@ -205,10 +205,6 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
 
-      // {
-      //   path: "orders",
-      //   element: <Order />,
-      // },
       {
         path: "refund",
         element: <RefundModeratorPage />,

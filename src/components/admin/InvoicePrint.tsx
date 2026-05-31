@@ -86,15 +86,17 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
                 <div>
                   <div style={blackLabelStyle}>ผู้รับ</div>
                   <div style={{ fontSize: "12px", fontWeight: "600" }}>
-                    {order.recipientName || "สมชาย ใจดี"}
+                    {order.orderRecipient?.recipientName || "สมชาย ใจดี"}
                   </div>
                   <div style={{ fontSize: "12px" }}>
-                    {order.phone || "098-3809919"}
+                    {order.orderRecipient?.phone || "098-3809919"}
                   </div>
                   <div style={{ fontSize: "12px", color: "#222", marginTop: "2px" }}>
-                    199 ม.6 116/1 ม.1 ต.ห้วยขวาง
+                    {order.orderRecipient?.district || "199 ม.6 116/1 ม.1 ต.ห้วยขวาง"}
                     <br />
-                    อ.กำแพงแสน จ.นครปฐม 73140
+                    {order.orderRecipient?.district && order.orderRecipient?.province && order.orderRecipient?.zipcode
+                      ? `${order.orderRecipient.district} ${order.orderRecipient.province} ${order.orderRecipient.zipcode}`
+                      : "อ.กำแพงแสน จ.นครปฐม 73140"}
                   </div>
                 </div>
               </div>

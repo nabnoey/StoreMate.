@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getoOrderByOrderNo, shippingOrder } from "../../redux/moderator/ModeratorReducer";
+import { changeStatus, getoOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -16,6 +16,8 @@ import { FaHistory } from "react-icons/fa";
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../redux/store";
 import { STATUS_LABELS, type OrderItem } from "../../types/moderator/ordersMod";
+import { toast } from "react-hot-toast";
+import type {PaymentMethod} from "../../types/payment";
 // import type {orderMod} from "../../types/moderator/ordersMod";
 
 function StatusStep({
@@ -101,13 +103,17 @@ const [selectedStatus, setSelectedStatus] = useState(
   order?.status || ""
 );
 
+ 
+
   useEffect(() => {
-    if (orderNo) {
-      dispatch(getoOrderByOrderNo(Number(orderNo)));
+    if (orderNo && orderNo !== "undefined") {
+      dispatch(getoOrderByOrderNo(orderNo)); 
+    } else {
+      console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
     }
   }, [orderNo, dispatch]);
 
-;
+
 
   if (loading) {
     return (
@@ -125,7 +131,7 @@ const [selectedStatus, setSelectedStatus] = useState(
         <div className="text-center">
           <p className="text-gray-600 mb-4">ไม่พบข้อมูลคำสั่งซื้อ</p>
           <button
-            onClick={() => navigate("/moderator/ordersMod")}
+            onClick={() => navigate("/moderator/orders")}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
             กลับไปที่จัดการคำสั่งซื้อ
@@ -135,24 +141,41 @@ const [selectedStatus, setSelectedStatus] = useState(
     );
   }
 
-  const handleUpdateStatus = () => {
-    if (orderNo) {
-      dispatch(shippingOrder(Number(orderNo))).then(() => {
-        dispatch(getoOrderByOrderNo(Number(orderNo))); // refresh after update
-      });
-    }
-  };
 
-  const recipientName = order.recipientName || order.orderRecipient?.recipientName || "ไม่ระบุชื่อ";
-  const recipientPhone = order.phone || order.orderRecipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
+
+const handleUpdateStatus = () => {
+    // บันทึกข้อมูลส่งไปยัง Redux ทันทีโดยไม่มีเงื่อนไขดักล่วงหน้า
+    dispatch(changeStatus({ orderNo: order.orderNo, status: selectedStatus }))
+      .unwrap()
+      .then(() => {
+        // แสดงแจ้งเตือนสำเร็จ
+        toast.success("อัพเดทสถานะคำสั่งซื้อเรียบร้อยแล้ว");
+        // เปลี่ยนหน้าไปยังหน้าจัดการคำสั่งซื้อทั้งหมด
+        navigate("/moderator/orders"); 
+      })
+      .catch((error) => {
+        console.error("Error updating order status:", error);
+        toast.error("เกิดข้อผิดพลาดในการอัพเดทสถานะคำสั่งซื้อ");
+      });
+};
+
+
+
+
+
+
+
+  const recipientName = order.orderRecipient?.recipientName 
+  const recipientPhone = order.orderRecipient?.phone 
   
-  const orderAddress = order.orderAddress?.[0] || {};
+const recipient = order.orderRecipient || {};
+  
   const deliveryAddress = {
-    streetAddress: orderAddress.streetAddress || "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
-    subdistrict: orderAddress.subdistrict || "",
-    district: orderAddress.district || "",
-    province: orderAddress.province || "",
-    zipcode: orderAddress.zipcode || "",
+    streetAddress: recipient.streetAddress || "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
+    subdistrict: recipient.subdistrict || "",
+    district: recipient.district || "",
+    province: recipient.province || "",
+    zipcode: recipient.zipcode || "",
   };
 
   // const orderDate = order.createdAt
@@ -182,13 +205,11 @@ const [selectedStatus, setSelectedStatus] = useState(
     }
   ];
 
-  const checkoutTypeLabel = order.checkoutType === "PROMPTPAY" 
-    ? "พร้อมเพย์ (PromptPay)" 
-    : order.checkoutType === "DESTINATION"
-    ? "เก็บเงินปลายทาง (COD)"
-    : order.checkoutType === "CARD"
-    ? "บัตรเครดิต / เดบิต"
-    : order.checkoutType || "ไม่ระบุ";
+ const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+    DESTINATION: "เก็บเงินปลายทาง (COD)",
+    PROMPTPAY: "พร้อมเพย์ (PromptPay)",
+    CARD: "บัตรเครดิต / เดบิต",
+  };
 
   const progressWidth = currentStepIndex > 0 ? `${(currentStepIndex / (steps.length - 1)) * 100}%` : "0%";
 
@@ -197,7 +218,7 @@ const [selectedStatus, setSelectedStatus] = useState(
       <div className="bg-white border-b border-gray-200 w-full p-6">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <button
-            onClick={() => navigate("/moderator/ordersMod")}
+            onClick={() => navigate("/moderator/orders")}
             className="hover:opacity-70 transition-opacity text-gray-700"
             type="button"
           >
@@ -241,6 +262,7 @@ const [selectedStatus, setSelectedStatus] = useState(
               </div>
                   
 
+                  {order.status !== "COMPLETED" && (
               <div className="mt-8 border-t border-gray-100 pt-6">
                 <h3 className="font-bold text-gray-800 mb-4">เปลี่ยนสถานะคำสั่งซื้อ</h3>
                 <div className="flex items-end gap-4">
@@ -275,7 +297,11 @@ const [selectedStatus, setSelectedStatus] = useState(
                   </button>
                 </div>
               </div>
+            )}
             </div>
+
+            
+
 
             {/* Items */}
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -308,7 +334,7 @@ const [selectedStatus, setSelectedStatus] = useState(
                   <span className="text-[16px] font-medium text-gray-600">ช่องทางชำระเงิน</span>
                   <div className="text-right">
                     <p className="text-[16px] font-medium text-gray-900">
-                      {checkoutTypeLabel}
+                       {PAYMENT_METHOD_LABELS[order.checkoutType as PaymentMethod] || order.checkoutType || "ไม่ระบุช่องทางชำระเงิน"}
                     </p>
                   </div>
                 </div>
