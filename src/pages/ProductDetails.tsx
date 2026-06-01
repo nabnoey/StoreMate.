@@ -43,6 +43,12 @@ const ProductDetailPage: React.FC = () => {
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
+  // แก้ไข และ ลบรีวิว
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [selectedReview, setSelectedReview] = useState<any>(null);
+  const [editScore, setEditScore] = useState<number>(0);
+  const [editMessage, setEditMessage] = useState<string>("");
+
   // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 

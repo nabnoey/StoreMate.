@@ -13,6 +13,7 @@ import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 import type { CreateReviewPayload } from "../../../types/review";
 import { submitProductReview } from "../../../redux/reviews/reviewsReducer";
+import { toast } from "react-hot-toast";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ const HistoryPage = () => {
           return order.status === "REFUND";
         }
 
-        // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVE, COMPLETED)
+        // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVED, COMPLETED)
         return order.status === status;
       })
       .sort(
@@ -106,12 +107,11 @@ const HistoryPage = () => {
     }
   };
 
-  // ตอนนี้ติดปัญหาดึง productId มาไม่ได้
   const handleReviewSubmit = async () => {
     if (!selectedItem?.productId) return;
 
     if (reviewScore === 0) {
-      setErrorMessage("กรุณากรอกคะแนนความพึงพอใจ");
+      toast.error("กรุณากรอกคะแนนความพึงพอใจ");
       return;
     }
 
@@ -120,11 +120,17 @@ const HistoryPage = () => {
       message: message,
     };
 
+    const loadingToast = toast.loading("กำลังส่งรีวิวของคุณ");
+
     try {
       setErrorMessage(null);
       await dispatch(
         submitProductReview({ orderItemId: selectedItem.productId, payload }),
       ).unwrap();
+
+      toast.dismiss(loadingToast);
+      toast.success("ขอบคุณสำหรับรีวิว");
+
       setIsReviewModalOpen(false);
 
       setReviewScore(0);
@@ -134,7 +140,7 @@ const HistoryPage = () => {
       dispatch(fetchOrders(status as any));
     } catch (err) {
       console.error("Review error:", err);
-      setErrorMessage("ไม่สามารถส่งรีวิวได้ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ไม่สามารถส่งรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
   };
 
@@ -180,11 +186,11 @@ const HistoryPage = () => {
         });
         setIsReviewModalOpen(true);
       } else {
-        ("ไม่พบข้อมูลรหัสสินค้า (Product ID) สำหรับรายการนี้");
+        toast.error("ไม่พบข้อมูลรหัสคำสั่งซื้อสำหรับรายการนี้");
       }
     } catch (error) {
       console.error("Fetch order details error in select modal:", error);
-      alert("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsFetchingDetail(false);
     }
