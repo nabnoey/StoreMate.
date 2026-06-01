@@ -3,7 +3,10 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import { NotificationService } from "../../services/notification.service"; // ปรับ path ให้ตรงกับไฟล์ Service ของคุณ
+import {
+  NotificationService,
+  type FetchNotifyParams,
+} from "../../services/notification.service"; // ปรับ path ให้ตรงกับไฟล์ Service ของคุณ
 import type {
   Notification,
   NotificationRequest,
@@ -11,8 +14,8 @@ import type {
 
 export const fetchOwnerNotify = createAsyncThunk(
   "notification/fetchOwner",
-  async () => {
-    return await NotificationService.getNotifyOwner();
+  async (params: FetchNotifyParams) => {
+    return await NotificationService.getNotifyOwner(params);
   },
 );
 
@@ -41,11 +44,15 @@ export const deleteNotify = createAsyncThunk(
 interface NotificationState {
   items: Notification[];
   isLoading: boolean;
+  totalPages: number;
+  currentPage: number;
 }
 
 const initialState: NotificationState = {
   items: [],
   isLoading: false,
+  totalPages: 0,
+  currentPage: 0,
 };
 
 const notificationSlice = createSlice({
@@ -64,7 +71,9 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchOwnerNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload;
+        state.items = action.payload.content || [];
+        state.totalPages = action.payload.totalPages || 0;
+        state.currentPage = action.payload.number || 0;
       })
       .addCase(fetchUserNotify.fulfilled, (state, action) => {
         state.items = action.payload;

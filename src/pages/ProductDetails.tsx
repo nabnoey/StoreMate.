@@ -555,7 +555,7 @@ const ProductDetailPage: React.FC = () => {
                             })}
                           </div>
 
-                          {isLoggedIn &&
+                          {/* {isLoggedIn &&
                             currentUserId === review.reviewer?.id && (
                               <div className="relative">
                                 <Icon
@@ -587,8 +587,8 @@ const ProductDetailPage: React.FC = () => {
                                     </button>
                                   </div>
                                 )}
-                              </div>
-                            )}
+                              </div> */}
+                          {/* )} */}
                         </div>
                       </div>
                       <p className="text-gray-600 text-sm mt-2">

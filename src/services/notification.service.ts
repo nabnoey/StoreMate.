@@ -6,11 +6,15 @@ const getNotifyUser = async () => {
   return res.data;
 };
 
-const getNotifyOwner = async () => {
-  const res = await api.get(`${import.meta.env.VITE_NOTIFY_API}`);
+export interface FetchNotifyParams {
+  keyword?: string;
+  page?: number;
+  size?: number;
+}
+const getNotifyOwner = async (params?: FetchNotifyParams) => {
+  const res = await api.get(`${import.meta.env.VITE_NOTIFY_API}`, { params });
   return res.data;
 };
-
 const createNotifyOwner = async (data: NotificationRequest) => {
   const res = await api.post(`${import.meta.env.VITE_NOTIFY_API}/send`, data);
   return res.data;

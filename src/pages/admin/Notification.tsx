@@ -27,7 +27,17 @@ const AdminNotificationPage: React.FC = () => {
     (state: RootState) => state.notification.isLoading,
   );
 
+  const totalPages = useSelector(
+    (state: RootState) => state.notification.totalPages,
+  );
+  const currentPage = useSelector(
+    (state: RootState) => state.notification.currentPage,
+  );
+
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>(""); // สำหรับหน่วงเวลาค้นหา
+  const [page, setPage] = useState<number>(0);
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -37,12 +47,22 @@ const AdminNotificationPage: React.FC = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchOwnerNotify());
-  }, [dispatch]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(0);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const filteredNotifications = notifications.filter((item) =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  useEffect(() => {
+    dispatch(
+      fetchOwnerNotify({
+        keyword: debouncedSearch,
+        page: page,
+        size: 10,
+      }),
+    );
+  }, [dispatch, debouncedSearch, page]);
 
   const getRecipientLabel = (sendTo: string) => {
     if (sendTo.includes("moderator")) return "พนักงาน";
@@ -189,8 +209,8 @@ const AdminNotificationPage: React.FC = () => {
                         กำลังโหลดข้อมูลระบบ...
                       </td>
                     </tr>
-                  ) : filteredNotifications.length > 0 ? (
-                    filteredNotifications.map((noti) => (
+                  ) : notifications && notifications.length > 0 ? (
+                    notifications.map((noti) => (
                       <tr
                         key={noti.id}
                         className="hover:bg-gray-50 transition-colors group"
@@ -246,6 +266,43 @@ const AdminNotificationPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
+
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm font-medium">
+                  <span className="text-gray-500">
+                    แสดงหน้า {page + 1} จาก {totalPages} หน้า
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                      disabled={page === 0}
+                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
+                    >
+                      <Icon icon="lucide:chevron-left" width="18" height="18" />
+                    </button>
+
+                    <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs">
+                      {page + 1}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPage((prev) => Math.min(prev + 1, totalPages - 1))
+                      }
+                      disabled={page >= totalPages - 1}
+                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
+                    >
+                      <Icon
+                        icon="lucide:chevron-right"
+                        width="18"
+                        height="18"
+                      />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
