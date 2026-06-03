@@ -18,6 +18,7 @@ const Loading: React.FC<LoadingProps> = ({
 
   return (
     <div
+      data-test="loading-screen"
       className={`flex items-center justify-center ${
         fullScreen
           ? "fixed inset-0 z-[100] bg-white/90 backdrop-blur-sm"

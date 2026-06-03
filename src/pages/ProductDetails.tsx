@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { Icon } from "@iconify/react";
 
 import type { RootState, AppDispatch } from "../redux/store";
@@ -44,10 +44,10 @@ const ProductDetailPage: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
   // แก้ไข และ ลบรีวิว
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  const [selectedReview, setSelectedReview] = useState<any>(null);
-  const [editScore, setEditScore] = useState<number>(0);
-  const [editMessage, setEditMessage] = useState<string>("");
+  // const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  // const [selectedReview, setSelectedReview] = useState<any>(null);
+  // const [editScore, setEditScore] = useState<number>(0);
+  // const [editMessage, setEditMessage] = useState<string>("");
 
   // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -68,19 +68,19 @@ const ProductDetailPage: React.FC = () => {
     indexOfLastReview,
   );
 
-  type JwtPayload = {
-    userId: number;
-  };
+  // type JwtPayload = {
+  //   userId: number;
+  // };
 
-  const currentUserId = useMemo(() => {
-    if (!token) return null;
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      return decoded.userId;
-    } catch {
-      return null;
-    }
-  }, [token]);
+  // const currentUserId = useMemo(() => {
+  //   if (!token) return null;
+  //   try {
+  //     const decoded = jwtDecode<JwtPayload>(token);
+  //     return decoded.userId;
+  //   } catch {
+  //     return null;
+  //   }
+  // }, [token]);
 
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
@@ -396,35 +396,7 @@ const ProductDetailPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="order-4 md:hidden flex flex-col gap-3 mb-6 px-2 text-[13px] text-gray-700">
-                <div className="flex items-start gap-3">
-                  <Icon
-                    icon="mdi:truck-outline"
-                    className="w-5 h-5 text-black"
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-medium text-[16px] text-[#2C2221]">
-                      ส่งฟรี
-                    </span>
-                    <span className="text-[#5C6670] font-medium text-[16px] mt-0.5">
-                      ถึงใน 2-3 วัน
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon icon="pajamas:redo" className="w-4 h-4 text-black" />
-                  <div className="flex flex-col">
-                    <span className="font-medium text-[16px] text-[#2C2221]">
-                      คืนสินค้า
-                    </span>
-                    <span className="text-[#5C6670] font-medium text-[16px] mt-0.5">
-                      ภายใน 7 วัน
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="order-6 md:order-4 bg-[#F3F4F6] md:bg-transparent p-4 md:p-0 rounded-lg md:rounded-none w-full mt-6 md:mt-0 mb-8 md:mb-6 text-left">
+              <div className="order-5 md:order-4 bg-[#F3F4F6] md:bg-transparent p-2 md:p-0 rounded-lg md:rounded-none w-full md:mt-0 mb-8 md:mb-6 text-left">
                 <h3 className="font-medium mb-2 md:mb-3 text-[30px] md:text-[30px] text-[#111827]">
                   รายละเอียดสินค้า
                 </h3>
@@ -456,7 +428,7 @@ const ProductDetailPage: React.FC = () => {
 
               <div
                 id="product-actions"
-                className="order-5 md:order-5 w-full md:max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 pt-0 md:pt-4 mb-2 md:mb-2"
+                className="order-6 md:order-5 w-full md:max-w-[723px] mx-auto flex flex-col items-center md:items-start lg:items-center gap-5 pt-0 md:pt-4 mb-2 md:mb-2"
               >
                 <div className="flex flex-col md:flex-row items-center gap-2 tablet:gap-6 md:gap-10 lg:gap-20 w-full md:w-auto">
                   <div className="flex items-center gap-4 justify-center w-full md:w-auto">

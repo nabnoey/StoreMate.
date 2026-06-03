@@ -21,7 +21,7 @@ export const statusConfig = {
     tab: "ยกเลิก",
     color: "text-red-500",
   },
-  REFUND: {
+  REFUNDED: {
     tab: "คืนเงิน/คืนสินค้า",
     color: "text-red-500",
   },
@@ -43,7 +43,7 @@ export const getOrderLabel = (
         return "คำสั่งซื้อสำเร็จ";
       case "CANCELLED":
         return "ยกเลิกคำสั่งซื้อ";
-      case "REFUND":
+      case "REFUNDED":
         return "คืนเงิน/คืนสินค้า";
       default:
         return "-";
@@ -62,7 +62,7 @@ export const getOrderLabel = (
       return "คำสั่งซื้อสำเร็จ";
     case "CANCELLED":
       return "ยกเลิกคำสั่งซื้อ";
-    case "REFUND":
+    case "REFUNDED":
       return "คืนเงิน/คืนสินค้า";
     default:
       return "-";

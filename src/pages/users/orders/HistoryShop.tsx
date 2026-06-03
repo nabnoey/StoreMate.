@@ -98,8 +98,8 @@ const HistoryPage = () => {
         }
 
         // 3. 🟢 ถ้าอยู่แท็บ "คืนเงิน/คืนสินค้า" ให้โชว์เฉพาะออเดอร์ที่ถูกเคลมเงินคืน
-        if (status === "REFUND") {
-          return order.status === "REFUND";
+        if (status === "REFUNDED") {
+          return order.status === "REFUNDED";
         }
 
         // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVED, COMPLETED)
@@ -295,7 +295,7 @@ const HistoryPage = () => {
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-6 sm:pt-20 pb-20 w-full overflow-x-hidden">
       <div className="max-w-[1200px] mx-auto px-4 w-full">
-        <nav className="hidden md:flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-6 font-medium">
+        <nav className="hidden lg:flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-6 font-medium">
           <Link
             data-test="click-home"
             to="/"
@@ -310,7 +310,7 @@ const HistoryPage = () => {
           <span className="text-black cursor-pointer">การซื้อของฉัน</span>
         </nav>
 
-        <div className="md:hidden bg-white pt-2 pb-4">
+        <div className="lg:hidden bg-white pt-2 pb-4">
           <div className="flex items-center gap-3">
             <button
               className="mt-[2px] text-black p-0 flex-shrink-0"
@@ -326,8 +326,9 @@ const HistoryPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <div className="hidden md:block w-full md:w-64 flex-shrink-0">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="hidden lg:block w-full lg:w-64 flex-shrink-0">
+            {" "}
             <ProfileSidebar />
           </div>
 

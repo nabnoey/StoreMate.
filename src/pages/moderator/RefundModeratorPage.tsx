@@ -12,7 +12,7 @@ import {
 } from "../../redux/moderator/refundReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 
-type ModalType = "PENDING" | "APPROVED" | "REJECTED" | null;
+type ModalType = "ALL" | "PENDING" | "APPROVED" | "REJECTED" | null;
 
 const RefundModeratorPage = () => {
   const dispatch = useDispatch<AppDispatch>();
