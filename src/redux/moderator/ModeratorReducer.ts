@@ -30,8 +30,8 @@ export const fetchAllOrders = createAsyncThunk(
 
     export const shippingOrder = createAsyncThunk(
     "moderator/shippingOrder",
-    async (orderNo: string) => {
-        const res = await ModeratorService.shippingOrder(orderNo);
+    async (ids: number[]) => {
+        const res = await ModeratorService.shippingOrder(ids);
         return res;
     }); 
 
@@ -52,9 +52,26 @@ export const getoOrderByOrderNo = createAsyncThunk(
 
         export const addProduct = createAsyncThunk(
             "moderator/addProduct",
-            async (data: Product) => {
+            async (data: FormData) => {
                 const res = await ModeratorService.addProduct(data);
                 return res;
+            }
+        )
+
+        export const updateProduct = createAsyncThunk(
+            "moderator/updateProduct",
+            async ({ id, data }: { id: number; data: FormData }) => {
+                const res = await ModeratorService.updateProduct(id, data);
+                return res;
+            }
+        )
+
+        export const deleteProduct = createAsyncThunk(
+            "moderator/deleteProduct",
+            async (id: number) => {
+                const res = await ModeratorService.deleteProduct(id);
+                // Return id so reducer can filter it out if we store products
+                return id;
             }
         )
 
@@ -100,9 +117,13 @@ const moderatorSlice = createSlice({
         builder
           
             .addCase(shippingOrder.fulfilled, (state, action) => {
-                state.orders = state.orders.map(order =>
-                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
-                );
+                // If it returns an array of updated orders, update them
+                if (Array.isArray(action.payload)) {
+                    const updatedIds = action.payload.map((o: any) => o.id);
+                    state.orders = state.orders.map(order => 
+                        updatedIds.includes(order.id) ? action.payload.find((o: any) => o.id === order.id) : order
+                    );
+                }
                 state.loading = false;
             })
 
