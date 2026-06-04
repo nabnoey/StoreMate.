@@ -36,15 +36,9 @@ function Stock() {
 
   const dispatch = useDispatch<AppDispatch>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState<any>(null);
 
   const handleAddProduct = () => {
-    setProductToEdit(null);
-    setIsAddModalOpen(true);
-  };
 
-  const handleEditProduct = (product: any) => {
-    setProductToEdit({ ...product, id: parseInt(product.id.split("-")[1]) || 1 });
     setIsAddModalOpen(true);
   };
 
@@ -141,7 +135,7 @@ function Stock() {
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => handleEditProduct(product)}
+                        // onClick={() => handleEditProduct(product)}
                         className="text-blue-600 flex items-center gap-1.5 hover:underline font-medium bg-transparent border-none p-0"
                       >
                         <FiEdit className="text-blue-600" /> แก้ไข
@@ -164,7 +158,6 @@ function Stock() {
       <AddProductModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
-        productToEdit={productToEdit}
       />
     </div>
   );
