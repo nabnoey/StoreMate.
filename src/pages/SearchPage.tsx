@@ -240,6 +240,7 @@ const SearchPage = () => {
           <div className="flex items-center gap-3 mt-1 text-black">
             <input
               data-test="input-min-price"
+              min="0"
               type="number"
               placeholder="฿"
               value={minPriceInput}
@@ -249,11 +250,12 @@ const SearchPage = () => {
             <span className="text-lg py-1">—</span>
             <input
               data-test="input-max-price"
+              min="0"
               type="number"
               placeholder="฿"
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
-              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black relative z-10"
+              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black relative z-10 "
             />
           </div>
           <div className="flex gap-2 mt-4 max-w-[275px]">
@@ -266,13 +268,13 @@ const SearchPage = () => {
                 if (category !== "") params.category = category;
                 setSearchParams(params);
               }}
-              className="flex-1 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="flex-1 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
             >
               ยกเลิก
             </button>
             <button
               onClick={() => handleApplyPrice()}
-              className="flex-1 py-1.5 rounded text-white bg-[#0f3d8c] hover:bg-[#0b2f6b] transition-colors"
+              className="flex-1 py-1.5 rounded text-white bg-[#0f3d8c] hover:bg-[#0b2f6b] transition-colors cursor-pointer"
             >
               ค้นหา
             </button>
