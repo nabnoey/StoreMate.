@@ -224,9 +224,7 @@ const ShoppingCart = () => {
 
   return (
     <div className="min-h-screenbg-white py-6 sm:py-12 px-4 font-anuphan">
-      {/* 🟢 NAVIGATION & MOBILE HEADER */}
       <div className="max-w-5xl mx-auto mb-4 md:mb-8">
-        {/* Desktop & Tablet Breadcrumb */}
         <nav className="hidden md:flex flex-wrap items-center text-md text-black font-medium py-1">
           <Link
             data-test="click-home"
@@ -262,10 +260,8 @@ const ShoppingCart = () => {
         <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
       </div>
 
-      {/* 🟢 MAIN CARD CONTAINER */}
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-8 md:p-12">
-          {/* Title Header (Desktop) */}
           <div className="hidden md:block mb-6 md:mb-10">
             <div className="flex items-center gap-3">
               <Icon
@@ -284,7 +280,6 @@ const ShoppingCart = () => {
 
           {enrichedCartItems.length > 0 ? (
             <div className="space-y-4 md:space-y-6">
-              {/* รายการหัวข้อหลัก */}
               <div className="flex justify-between items-center pb-3 border-b border-gray-100">
                 <span className="text-md sm:text-xl font-bold text-gray-800">
                   สินค้าในรถเข็น
@@ -297,15 +292,12 @@ const ShoppingCart = () => {
                 </button>
               </div>
 
-              {/* 🟢 LIST ITEMS CONTAINER */}
-              {/* กำหนดพื้นที่ Scroll ภายในตัว Card เมื่อมีของเยอะ บน Desktop และ Tablet */}
               <div className="space-y-1 max-h-[400px] md:max-h-[480px] overflow-y-auto pr-0 md:pr-2">
                 {enrichedCartItems.map((item) => (
                   <div
                     key={item.productId}
                     className="flex items-center gap-3 md:gap-6 py-4 border-b border-gray-100 last:border-0 bg-white"
                   >
-                    {/* Checkbox (อยู่กึ่งกลางแนวตั้งเสมอในทุกหน้าจอ) */}
                     <div className="flex items-center flex-shrink-0">
                       <input
                         type="checkbox"
@@ -316,9 +308,7 @@ const ShoppingCart = () => {
                       />
                     </div>
 
-                    {/* กล่องรายละเอียดสินค้าแบบยืดหยุ่นตามเบรกพอยต์ */}
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-6 min-w-0">
-                      {/* ส่วนรูปภาพ + ชื่อสินค้า */}
                       <div className="flex gap-3 flex-1 items-start sm:items-center min-w-0">
                         <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 bg-gray-50">
                           <img
@@ -344,7 +334,6 @@ const ShoppingCart = () => {
                                 ? "พร้อมจำหน่าย"
                                 : "ไม่พร้อมจำหน่าย"}
                             </span>
-                            {/* ราคาเดี่ยวโชว์เฉพาะจอเล็ก */}
                             <span className="text-[#4a89f3] font-semibold text-sm sm:hidden">
                               ฿ {item.product.price}
                             </span>
@@ -352,14 +341,11 @@ const ShoppingCart = () => {
                         </div>
                       </div>
 
-                      {/* ตัวนับจำนวน + ราคารวม (ฝั่งขวา) */}
                       <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 w-full sm:w-auto">
-                        {/* ราคาต่อชิ้น โชว์เมื่อเข้าสู่หน้าจอ Tablet ขึ้นไป */}
                         <div className="hidden sm:block text-md font-medium text-gray-700 w-16 md:w-20 text-center">
                           ฿ {item.product.price}
                         </div>
 
-                        {/* ปุ่มบวกลบจำนวนชิ้น */}
                         <div className="flex items-center border border-gray-200 rounded-md h-8 sm:h-9 bg-white overflow-hidden flex-shrink-0">
                           <button
                             data-test="decrease-product"
@@ -396,7 +382,6 @@ const ShoppingCart = () => {
                           </button>
                         </div>
 
-                        {/* ราคารวมของรายการชิ้นนั้น */}
                         <div className="text-[#4a89f3] font-semibold text-sm sm:text-md w-20 md:w-24 text-right sm:text-center">
                           ฿{" "}
                           {(
@@ -404,7 +389,6 @@ const ShoppingCart = () => {
                           ).toLocaleString()}
                         </div>
 
-                        {/* ปุ่มลบถังขยะ */}
                         <button
                           data-test="btn-remove-item"
                           onClick={() => handleRemoveItem(item.productId)}
@@ -418,10 +402,8 @@ const ShoppingCart = () => {
                 ))}
               </div>
 
-              {/* 🟢 BOTTOM CONTROL ZONE (วางอยู่ที่เดิม ไม่เกาะขอบจอ) */}
               <div className="pt-6 border-t border-gray-200 mt-6">
                 <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-                  {/* ฝั่งซ้าย: ปุ่มเลือกทั้งหมด */}
                   <div className="flex items-center gap-3">
                     <input
                       data-test="radio-all-product"
@@ -435,9 +417,6 @@ const ShoppingCart = () => {
                     </span>
                   </div>
 
-                  {/* ฝั่งขวา: ยอดรวมรวมถึงจำนวนชิ้น + ปุ่มสั่งซื้อสินค้า */}
-                  {/* บน Mobile (flex-col) ข้อมูลราคาจะยืดเต็มบรรทัด และปุ่มจะลงมาอยู่ข้างล่างอย่างสมดุล */}
-                  {/* บน Tablet/iPad (sm:flex-row) และ Desktop ทุกอย่างจะเรียงแนวนอนสวยงาม */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 md:gap-8 w-full md:w-auto">
                     <div className="flex items-center justify-between sm:justify-end gap-6 text-gray-700 font-medium w-full sm:w-auto">
                       <span className="text-sm sm:text-md text-gray-600">
@@ -461,18 +440,17 @@ const ShoppingCart = () => {
               </div>
             </div>
           ) : (
-            /* ส่วนแสดงผลกรณีไม่มีสินค้า */
-            <div className="flex flex-col min-h-[350px] justify-center items-center py-8 px-4 bg-white">
+            <div className="flex flex-col items-center justify-center py-16 bg-white">
               <Icon
                 icon="famicons:cart-outline"
-                className="w-40 h-40 text-gray-300 mb-4"
+                className="w-36 h-36 text-gray-200 mb-4"
               />
-              <p className="text-xl font-medium text-gray-900 mb-6">
+              <p className="text-lg font-medium text-gray-700 mb-6">
                 ไม่มีสินค้าในรถเข็น
               </p>
               <button
                 onClick={() => navigate("/search")}
-                className="bg-[#4a89f3] hover:bg-blue-600 text-white px-10 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all text-sm cursor-pointer"
+                className="w-full sm:w-auto bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 เลือกซื้อสินค้า
                 <Icon icon="lucide:arrow-right" className="w-4 h-4" />
@@ -481,7 +459,6 @@ const ShoppingCart = () => {
           )}
         </div>
       </div>
-
       {isBlocking && (
         <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
       )}
