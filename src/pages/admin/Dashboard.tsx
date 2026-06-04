@@ -19,6 +19,31 @@ import Loading from "../../components/loading/Loading";
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../redux/store';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix Leaflet default marker icon path in Vite
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+const REGION_COORDINATES: { [key: string]: [number, number] } = {
+  "กรุงเทพและปริมณฑล": [13.7563, 100.5018],
+  "ภาคกลาง": [14.5268, 100.6143],
+  "ภาคใต้": [8.6400, 99.4180],
+  "ภาคตะวันออก": [12.8222, 101.4499],
+  "ภาคเหนือ": [18.7883, 98.9853],
+  "ภาคตะวันออกเฉียงเหนือ": [16.4322, 102.8236],
+  "ภาคอีสาน": [16.4322, 102.8236],
+};
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 const REGION_COLORS = ['bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-purple-400', 'bg-pink-400'];
@@ -312,8 +337,32 @@ function Dashboard() {
           {/* Revenue by area */}
           <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
             <h3 className="font-semibold text-gray-800 mb-4 text-center">รายได้ในพื้นที่</h3>
-            <div className="w-full h-28 bg-blue-50/50 rounded-lg mb-6 flex items-center justify-center overflow-hidden border border-blue-100">
-               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Thailand_location_map.svg/500px-Thailand_location_map.svg.png" alt="Map" className="h-full object-contain opacity-40 mix-blend-multiply" />
+            <div className="w-full h-48 rounded-lg mb-6 overflow-hidden border border-gray-200 z-0 relative">
+              <MapContainer
+                center={[13.7563, 100.5018]}
+                zoom={5}
+                scrollWheelZoom={false}
+                className="w-full h-full"
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {revenueByArea.map((area: any, idx: number) => {
+                  const coords = REGION_COORDINATES[area.name];
+                  if (!coords) return null;
+                  return (
+                    <Marker key={idx} position={coords}>
+                      <Popup>
+                        <div className="text-xs">
+                          <p className="font-semibold">{area.name}</p>
+                          <p>สัดส่วนรายได้: {area.value}</p>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
             </div>
             <div className="space-y-4 text-xs">
               {revenueByArea.map((area: any, idx: number) => (
