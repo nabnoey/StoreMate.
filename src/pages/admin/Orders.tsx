@@ -104,7 +104,7 @@ useEffect(() => {
     
     try {
       if (ids.length > 0) {
-        await dispatch(shippingOrder(ids)).unwrap();
+        await dispatch(shippingOrder(ids[0])).unwrap();
         dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);
