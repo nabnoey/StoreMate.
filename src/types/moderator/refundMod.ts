@@ -16,4 +16,4 @@ export interface RefundsResponse {
   total: number;
 }
 
-export type ModalType = "VIEW" | "APPROVE" | "REJECT" | null;
+export type ModalType = "PENDING" | "APPROVED" | "REJECTED" | null;

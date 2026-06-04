@@ -1,26 +1,20 @@
-
-
 type Props = {
   readonly title: string;
   readonly subtitle?: string;
 };
 
-//OMGGGG 
+//OMGGGG
 
 function HeaderAdmin({ title, subtitle }: Props) {
   return (
-    <div className="w-full  bg-white border-b p-8 py-4 shadow-sm ">
+    <div className="w-full bg-white border-b border-black p-8 py-4 shadow-none ">
       <div className="flex flex-col gap-1">
         {/* title */}
-        <h1 className="text-3xl font-bold text-black">
-          {title}
-        </h1>
+        <h1 className="text-[36px] font-bold text-black">{title}</h1>
 
         {/* subtitle */}
         {subtitle && (
-          <p className="text-md font-bold text-black mt-">
-            {subtitle}
-          </p>
+          <p className="text-[20px] font-bold text-black mt-">{subtitle}</p>
         )}
       </div>
     </div>
