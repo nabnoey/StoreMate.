@@ -10,7 +10,6 @@ const MainLayout = () => {
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   useEffect(() => {
-    setIsPageTransitioning(true);
 
     const timer = setTimeout(() => {
       setIsPageTransitioning(false);
@@ -18,7 +17,7 @@ const MainLayout = () => {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [location.pathname, location.search]);
+  }, [location.pathname]);
   return (
     <div className="flex flex-col min-h-screen">
       {/* NavBar */}
@@ -35,8 +34,10 @@ const MainLayout = () => {
           <Outlet />
         </Suspense>
       </main>
-
-      <Footer />
+<div className="mt-25 lg:mt-35">
+   <Footer /> 
+   </div>
+     
     </div>
   );
 };

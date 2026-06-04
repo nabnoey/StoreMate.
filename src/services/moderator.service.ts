@@ -1,5 +1,4 @@
 import api from "./api";
-import type { Product } from "../types/product";
 
 
 const getAllOrders = async (page?: number, size?: number) => {
@@ -62,8 +61,18 @@ const getoOrderByOrderNo = async (orderNo: string) => {
   return res.data;
 };
 
-const addProduct = async (data: Product) => {
+const addProduct = async (data: FormData) => {
   const res = await api.post(`${import.meta.env.VITE_MOD_API}/products`, data);
+  return res.data;
+};
+
+const updateProduct = async (id: number, data: FormData) => {
+  const res = await api.put(`${import.meta.env.VITE_MOD_API}/products/${id}`, data);
+  return res.data;
+};
+
+const deleteProduct = async (id: number) => {
+  const res = await api.delete(`${import.meta.env.VITE_MOD_API}/products/${id}`);
   return res.data;
 };
 
@@ -79,6 +88,8 @@ export const changeStatus = async (orderNo: string, status: string) => {
 
 export const ModeratorService = {
   getAllOrders,
+  updateProduct,
+  deleteProduct,
   shippingOrder,
   updateOrderStatus,
   getoOrder,

@@ -1,80 +1,65 @@
+import React, { useState } from "react";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
-import { FiEdit } from "react-icons/fi";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import type { Product } from "../../types/product";
-import { addProduct } from "../../redux/moderator/ModeratorReducer";
+import { AddProductModal } from "../../components/admin/AddProductModal";
+import { deleteProduct } from "../../redux/moderator/ModeratorReducer";
+import { toast } from "react-hot-toast";
 
 function Stock() {
-  const products = [
+  const [products, setProducts] = useState([
     {
       id: "PRD-001",
       name: "แชมพูสูตรฟื้นฟู",
-      category: "เครื่องดื่ม",
+      categoryId: 4,
+      category: "Shampoo",
       price: 100,
       stock: 999,
+      statusId: 1,
       status: "พร้อมจำหน่าย",
+      description: "แชมพูบำรุงผม",
     },
     {
       id: "PRD-002",
       name: "ครีมนวดผมสมุนไพร",
-      category: "ผลิตภัณฑ์ดูแลผม",
+      categoryId: 4,
+      category: "Shampoo",
       price: 100,
       stock: 999,
+      statusId: 1,
       status: "พร้อมจำหน่าย",
+      description: "ครีมนวดบำรุงผม",
     },
-    {
-      id: "PRD-003",
-      name: "น้ำมะม่วงหาวมะนาวโห่",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-004",
-      name: "น้ำสมุนไพรสูตรน้ำผึ้ง",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "ไม่พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-005",
-      name: "มะม่วงหาวแช่อิ่ม",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "ไม่พร้อมจำหน่าย",
-    },
-  ];
+  ]);
 
   const dispatch = useDispatch<AppDispatch>();
-//   type NewProduct = {
-//   id: string;
-//   name: string;
-//   category: string;
-//   price: number;
-//   stock: number;
-//   status: string;
-// };
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<any>(null);
 
   const handleAddProduct = () => {
-    const newProduct: Product = {
-      id: 6,
-      productName: "สินค้าใหม่",
-      imageUrl: "https://example.com/image.jpg",
-      price: 0,
-      categoryName: "หมวดหมู่ใหม่",
-      sammary: "สรุปสินค้าใหม่",
-      description: "รายละเอียดสินค้าใหม่",
-      status: "ACTIVE",
-      createAt: new Date().toISOString(),
-      stockQuantity: 0,
+    setProductToEdit(null);
+    setIsAddModalOpen(true);
+  };
+
+  const handleEditProduct = (product: any) => {
+    setProductToEdit({ ...product, id: parseInt(product.id.split("-")[1]) || 1 });
+    setIsAddModalOpen(true);
+  };
+
+  const handleDeleteProduct = async (idStr: string) => {
+    if (window.confirm("คุณต้องการลบสินค้านี้ใช่หรือไม่?")) {
+      try {
+        const numericId = parseInt(idStr.split("-")[1]) || 1;
+        await dispatch(deleteProduct(numericId)).unwrap();
+        toast.success("ลบสินค้าสำเร็จ");
+        setProducts(products.filter((p) => p.id !== idStr));
+      } catch (error: any) {
+        toast.error(error.message || "ลบสินค้าไม่สำเร็จ");
+      }
     }
-    dispatch(addProduct(newProduct));
-  }
+  };
 
   return (
     <div className="max-h-screen bg-[#F8F9FA] flex flex-col w-full p-0 ">
@@ -95,7 +80,7 @@ function Stock() {
               <input
                 type="text"
                 placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-600"
               />
             </div>
             <button
@@ -109,30 +94,17 @@ function Stock() {
         </div>
 
         {/* ส่วนตารางสินค้า */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm overflow-x-auto">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm overflow-x-auto text-black">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-[#374151] border-b border-gray-200">
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  รหัสสินค้า
-                </th>
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  ชื่อสินค้า
-                </th>
+                <th className="pb-4 font-normal whitespace-nowrap">รหัสสินค้า</th>
+                <th className="pb-4 font-normal whitespace-nowrap">ชื่อสินค้า</th>
                 <th className="pb-4 font-normal whitespace-nowrap">หมวดหมู่</th>
-                <th className="pb-4 
-                
-                
-                
-                
-                
-                
-                font-normal whitespace-nowrap">ราคา</th>
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  จำนวนคงเหลือ
-                </th>
+                <th className="pb-4 font-normal whitespace-nowrap">ราคา</th>
+                <th className="pb-4 font-normal whitespace-nowrap">จำนวนคงเหลือ</th>
                 <th className="pb-4 font-normal whitespace-nowrap">สถานะ</th>
-                <th className="pb-4 font-normal whitespace-nowrap"></th>
+                <th className="pb-4 font-normal whitespace-nowrap">จัดการ</th>
               </tr>
             </thead>
 
@@ -157,21 +129,31 @@ function Stock() {
                   <td className="py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        product.status === "พร้อมจำหน่าย"
+                        product.statusId === 1
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {product.status}
+                      {product.statusId === 1 ? "พร้อมจำหน่าย" : "ไม่พร้อมจำหน่าย"}
                     </span>
                   </td>
                   <td className="py-4">
-                    <button
-                      type="button"
-                      className="text-blue-600 flex items-center gap-1.5 hover:underline font-medium bg-transparent border-none p-0"
-                    >
-                      <FiEdit className="text-gray-600" /> จัดการ
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEditProduct(product)}
+                        className="text-blue-600 flex items-center gap-1.5 hover:underline font-medium bg-transparent border-none p-0"
+                      >
+                        <FiEdit className="text-blue-600" /> แก้ไข
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="text-red-500 flex items-center gap-1.5 hover:underline font-medium bg-transparent border-none p-0"
+                      >
+                        <FiTrash2 className="text-red-500" /> ลบ
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -179,6 +161,11 @@ function Stock() {
           </table>
         </div>
       </div>
+      <AddProductModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        productToEdit={productToEdit}
+      />
     </div>
   );
 }

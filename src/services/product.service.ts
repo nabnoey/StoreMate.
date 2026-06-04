@@ -1,5 +1,11 @@
 import api from "./api";
 
+
+const addProduct = async (data: FormData) => {
+  const res = await api.post(`${import.meta.env.VITE_MOD_API}/products`, data);
+  return res.data;
+}
+
  const getAllCategories = async () => {
     const res = await api.get(`${import.meta.env.VITE_PRODUCT_API}/grouped-by-category`)
     return res.data
@@ -35,6 +41,7 @@ const searchProducts = async (
 
 
 export const ProductService = {
+  addProduct,
     getAllCategories,
     getProductById,
     searchProducts

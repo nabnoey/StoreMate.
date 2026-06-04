@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { fetchAllOrders } from "../../redux/moderator/ModeratorReducer";
+import { fetchAllOrders, shippingOrder } from "../../redux/moderator/ModeratorReducer";
 import {
   STATUS_LABELS,
   STATUS_STYLES,
   type OrderMod,
 } from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
+import { toast } from "react-hot-toast";
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
@@ -86,13 +87,32 @@ useEffect(() => {
   };
 
  
-  const handleConfirmPrint = () => {
+  const handleConfirmPrint = async () => {
     const selectedData = orders.filter((o) =>
       selectedOrders.includes(String(o.orderNo)),
     );
     if (selectedData.length === 0) return;
-    setPrintData(selectedData);
-    setIsPrinting(true);
+    
+    // Validate: Backend requires order status to be PROCESSING
+    const invalidOrders = selectedData.filter(o => o.status !== "PROCESSING");
+    if (invalidOrders.length > 0) {
+      toast.error("สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น");
+      return;
+    }
+
+    const ids = selectedData.map(o => o.id).filter(id => id != null);
+    
+    try {
+      if (ids.length > 0) {
+        await dispatch(shippingOrder(ids)).unwrap();
+        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+      }
+      setPrintData(selectedData);
+      setIsPrinting(true);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error.message || "ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้";
+      toast.error(errorMsg);
+    }
   };
 
 const maxVisiblePages = 5; // แสดงปุ่มตัวเลขทีละ 5 ปุ่ม
