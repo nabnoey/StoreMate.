@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
