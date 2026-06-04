@@ -223,46 +223,24 @@ const ShoppingCart = () => {
   }
 
   return (
-    <div className="min-h-screenbg-white py-6 sm:py-12 px-4 font-anuphan">
-      <div className="max-w-5xl mx-auto mb-4 md:mb-8">
-        <nav className="hidden md:flex flex-wrap items-center text-md text-black font-medium py-1">
-          <Link
-            data-test="click-home"
-            to="/"
-            className="transition-colors cursor-pointer hover:text-blue-500"
-          >
-            หน้าหลัก
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
-          <span className="text-gray-500">รถเข็น</span>
-        </nav>
-      </div>
-
-      <div className="md:hidden bg-white pt-2 pb-4">
-        <div className="flex items-center gap-3">
-          <button
-            className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
-            onClick={() => navigate("/search")}
-          >
-            <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
-          </button>
-
-          <div className="flex-1">
-            <h1 className="text-[16px] leading-[28px] font-bold text-black">
-              รถเข็น
-            </h1>
-          </div>
-        </div>
-
-        <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
-      </div>
-
+    <div className="min-h-screen bg-white py-6 sm:py-12 px-4 font-anuphan">
+      <nav className="flex flex-wrap items-center text-md text-black mb-6 md:mb-8 font-medium ml-4 md:ml-10 lg:ml-20 py-1">
+        <Link
+          data-test="click-home"
+          to="/"
+          className="transition-colors cursor-pointer"
+        >
+          หน้าหลัก
+        </Link>
+        <Icon
+          icon="material-symbols:chevron-right-rounded"
+          className="w-5 h-5 mx-1 text-black"
+        />
+        <span className="text-black">รถเข็น</span>
+      </nav>
       <div className="max-w-5xl mx-auto">
-        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-8 md:p-12">
-          <div className="hidden md:block mb-6 md:mb-10">
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden p-4 sm:p-8 md:p-12">
+          <div className="mb-6 md:mb-10">
             <div className="flex items-center gap-3">
               <Icon
                 icon="lucide:shopping-cart"
@@ -272,189 +250,206 @@ const ShoppingCart = () => {
                 รถเข็น
               </h1>
             </div>
-            <p className="text-base sm:text-[20px] font-normal text-gray-500 mt-1">
+
+            <p className="text-base sm:text-[20px] font-normal text-black mt-1">
               สินค้าในรถเข็น
             </p>
-            <div className="w-full border-b border-gray-200 mt-4" />
+
+            <div className="hidden md:block w-full border-b border-black mt-4" />
           </div>
 
           {enrichedCartItems.length > 0 ? (
-            <div className="space-y-4 md:space-y-6">
-              <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                <span className="text-md sm:text-xl font-bold text-gray-800">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center pb-4 border-b border-gray-100">
+                <span className="text-md sm:text-xl font-bold text-gray-700">
                   สินค้าในรถเข็น
                 </span>
                 <button
                   onClick={() => handleRemoveSelected()}
-                  className="text-sm sm:text-md text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
+                  className="text-md text-black hover:text-red-500 transition-colors cursor-pointer"
                 >
                   ลบออกทั้งหมด
                 </button>
               </div>
-
-              <div className="space-y-1 max-h-[400px] md:max-h-[480px] overflow-y-auto pr-0 md:pr-2">
+              <div className="max-h-[250px] overflow-y-auto mb-10 pr-2 ">
                 {enrichedCartItems.map((item) => (
                   <div
                     key={item.productId}
-                    className="flex items-center gap-3 md:gap-6 py-4 border-b border-gray-100 last:border-0 bg-white"
+                    className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-gray-50 last:border-0"
                   >
-                    <div className="flex items-center flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        disabled={!item.isAvailable}
-                        checked={selectedItems.includes(item.productId)}
-                        onChange={() => toggleSelect(item.productId)}
-                        className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-[#4a89f3] checked:border-[#4a89f3] flex items-center justify-center checked:after:content-['✓'] checked:after:text-white checked:after:text-[12px]"
-                      />
+                    {/* โซนซ้าย: Checkbox + รูปภาพ + ชื่อสินค้า */}
+                    <div className="flex items-start md:items-center gap-3 w-full md:w-auto md:flex-1">
+                      <div className="flex items-center pt-2 md:pt-0">
+                        <input
+                          type="checkbox"
+                          disabled={!item.isAvailable}
+                          checked={selectedItems.includes(item.productId)}
+                          onChange={() => toggleSelect(item.productId)}
+                          className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
+                        />
+                      </div>
+
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
+                        <img
+                          src={item.product.imageUrl || ""}
+                          alt=""
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0 px-2">
+                        <h3 className="text-[16px] font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
+                          {item.product.productName}
+                        </h3>
+
+                        <span
+                          className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
+                            item.isAvailable
+                              ? "bg-green-50 text-green-500"
+                              : "bg-red-50 text-red-500"
+                          }`}
+                        >
+                          {item.isAvailable
+                            ? "พร้อมจำหน่าย"
+                            : "ไม่พร้อมจำหน่าย"}
+                        </span>
+                      </div>
+
+                      {/* ปุ่มลบสำหรับ Mobile (โชว์เฉพาะหน้าจอเล็ก ขวาบน) */}
+                      <button
+                        onClick={() => handleRemoveItem(item.productId)}
+                        className="md:hidden text-gray-400 hover:text-red-500 p-2 cursor-pointer"
+                      >
+                        <Icon icon="lucide:trash-2" width="18" height="18" />
+                      </button>
                     </div>
 
-                    <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-6 min-w-0">
-                      <div className="flex gap-3 flex-1 items-start sm:items-center min-w-0">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 bg-gray-50">
-                          <img
-                            src={item.product.imageUrl || ""}
-                            alt={item.product.productName}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm sm:text-[16px] font-medium text-gray-900 leading-snug mb-1 md:mb-2 line-clamp-2">
-                            {item.product.productName}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`text-[11px] px-2 py-0.5 rounded-md font-medium inline-block ${
-                                item.isAvailable
-                                  ? "bg-green-50 text-green-500"
-                                  : "bg-red-50 text-red-500"
-                              }`}
-                            >
-                              {item.isAvailable
-                                ? "พร้อมจำหน่าย"
-                                : "ไม่พร้อมจำหน่าย"}
-                            </span>
-                            <span className="text-[#4a89f3] font-semibold text-sm sm:hidden">
-                              ฿ {item.product.price}
-                            </span>
-                          </div>
-                        </div>
+                    <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
+                      <div className="hidden md:block text-md font-medium text-black w-20 text-center">
+                        ฿ {item.product.price}
                       </div>
 
-                      <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 w-full sm:w-auto">
-                        <div className="hidden sm:block text-md font-medium text-gray-700 w-16 md:w-20 text-center">
-                          ฿ {item.product.price}
-                        </div>
-
-                        <div className="flex items-center border border-gray-200 rounded-md h-8 sm:h-9 bg-white overflow-hidden flex-shrink-0">
-                          <button
-                            data-test="decrease-product"
-                            onClick={() =>
-                              handleDecreaseQuantity(
-                                item.productId,
-                                item.quantity,
-                              )
-                            }
-                            disabled={!item.isAvailable}
-                            className="px-2.5 text-gray-500 flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            <Icon icon="lucide:minus" width="13" height="13" />
-                          </button>
-                          <span className="w-8 text-center text-sm font-bold text-black">
-                            {item.quantity}
-                          </span>
-                          <button
-                            data-test="increase-product"
-                            onClick={() =>
-                              handleIncreaseQuantity(
-                                item.productId,
-                                item.quantity,
-                                item.product.stockQuantity,
-                              )
-                            }
-                            disabled={
-                              !item.isAvailable ||
-                              item.quantity >= item.product.stockQuantity
-                            }
-                            className="px-2.5 text-gray-500 flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            <Icon icon="lucide:plus" width="13" height="13" />
-                          </button>
-                        </div>
-
-                        <div className="text-[#4a89f3] font-semibold text-sm sm:text-md w-20 md:w-24 text-right sm:text-center">
-                          ฿{" "}
-                          {(
-                            item.product.price * item.quantity
-                          ).toLocaleString()}
-                        </div>
-
+                      <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
                         <button
-                          data-test="btn-remove-item"
-                          onClick={() => handleRemoveItem(item.productId)}
-                          className="text-gray-400 hover:text-red-500 p-1 cursor-pointer transition-colors"
+                          data-test="decrease-product"
+                          onClick={() =>
+                            handleDecreaseQuantity(
+                              item.productId,
+                              item.quantity,
+                            )
+                          }
+                          disabled={!item.isAvailable}
+                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
                         >
-                          <Icon icon="lucide:trash-2" width="18" height="18" />
+                          <Icon icon="lucide:minus" width="14" height="14" />
+                        </button>
+                        <span className="w-8 text-center text-sm font-bold text-black">
+                          {item.quantity}
+                        </span>
+                        <button
+                          data-test="increase-product"
+                          onClick={() =>
+                            handleIncreaseQuantity(
+                              item.productId,
+                              item.quantity,
+                              item.product.stockQuantity,
+                            )
+                          }
+                          disabled={
+                            !item.isAvailable ||
+                            item.quantity >= item.product.stockQuantity
+                          }
+                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
+                        >
+                          <Icon icon="lucide:plus" width="14" height="14" />
                         </button>
                       </div>
+
+                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
+                        ฿{(item.product.price * item.quantity).toLocaleString()}
+                      </div>
+
+                      {/* ปุ่มลบสำหรับ Desktop */}
+                      <button
+                        data-test="btn-remove-item"
+                        onClick={() => handleRemoveItem(item.productId)}
+                        className="hidden md:block text-black hover:text-red-500 p-2 cursor-pointer"
+                      >
+                        <Icon icon="lucide:trash-2" width="18" height="18" />
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-6 border-t border-gray-200 mt-6">
-                <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <input
-                      data-test="radio-all-product"
-                      type="checkbox"
-                      checked={isAllSelected}
-                      onChange={toggleSelectAll}
-                      className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-[#4a89f3] checked:border-[#4a89f3] flex items-center justify-center checked:after:content-['✓'] checked:after:text-white checked:after:text-[12px]"
-                    />
-                    <span className="text-sm sm:text-md text-gray-700 font-medium">
-                      เลือกทั้งหมด
+              {/* ส่วนสรุปยอดและสั่งซื้อ */}
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center pt-8 border-t border-gray-300 gap-6">
+                <div className="flex items-center gap-3">
+                  <input
+                    data-test="radio-all-product"
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={toggleSelectAll}
+                    className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
+                  />
+                  <span className="text-md text-black font-normal">
+                    เลือกทั้งหมด
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 w-full lg:w-auto">
+                  <div className="flex items-center justify-between w-full sm:w-auto gap-4 text-gray-700 font-medium">
+                    <span className="text-md text-gray-700 font-medium text-lg sm:text-base">
+                      รวม ( {selectedItems.length} ) สินค้า
+                    </span>
+                    <span className="text-blue-500 font-md text-xl sm:text-lg">
+                      ฿ {subtotal.toLocaleString()}
                     </span>
                   </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 md:gap-8 w-full md:w-auto">
-                    <div className="flex items-center justify-between sm:justify-end gap-6 text-gray-700 font-medium w-full sm:w-auto">
-                      <span className="text-sm sm:text-md text-gray-600">
-                        รวม ( {selectedItems.length} ) สินค้า
-                      </span>
-                      <span className="text-[#4a89f3] font-bold text-lg sm:text-xl">
-                        ฿ {subtotal.toLocaleString()}
-                      </span>
-                    </div>
-
-                    <button
-                      data-test="btn-payment"
-                      disabled={selectedItems.length === 0}
-                      onClick={() => navigate("/payment")}
-                      className="w-full sm:w-auto bg-[#4a89f3] text-white px-10 py-3 rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400 transition-all text-center text-sm sm:text-base cursor-pointer shadow-sm active:scale-[0.98]"
-                    >
-                      สั่งซื้อสินค้า
-                    </button>
-                  </div>
+                  <button
+                    data-test="btn-payment"
+                    disabled={selectedItems.length === 0}
+                    onClick={() => {
+                      dispatch(setReduxSelectedItems(selectedCartItems));
+                      navigate("/payment");
+                    }}
+                    className="w-full sm:w-auto bg-[#4a89f3] text-white px-8 py-3 sm:py-2.5 rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-200 transition-all shadow-sm cursor-pointer"
+                  >
+                    สั่งซื้อสินค้า
+                  </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 bg-white">
-              <Icon
-                icon="famicons:cart-outline"
-                className="w-36 h-36 text-gray-200 mb-4"
-              />
-              <p className="text-lg font-medium text-gray-700 mb-6">
-                ไม่มีสินค้าในรถเข็น
-              </p>
-              <button
-                onClick={() => navigate("/search")}
-                className="w-full sm:w-auto bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                เลือกซื้อสินค้า
-                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-              </button>
+            <div className="flex flex-col h-full min-h-[60vh] md:min-h-0 bg-white">
+              {/* 🟢 ส่วนหลัก (ไอคอน + ข้อความ) */}
+              <div className="flex-1 md:flex-none flex flex-col items-center justify-center py-16 sm:py-28">
+                <Icon
+                  icon="famicons:cart-outline"
+                  className="w-50 h-50 sm:w-70 sm:h-70 text-black mb-6"
+                />
+                <p className="text-[20px] sm:text-[30px] font-medium text-[#111827] mb-6 md:mb-6">
+                  ไม่มีสินค้าในรถเข็น
+                </p>
+
+                <button
+                  onClick={() => navigate("/search")}
+                  className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="md:hidden p-4 bg-white border-t border-gray-100 mt-auto">
+                <button
+                  onClick={() => navigate("/search")}
+                  className="w-full py-3 bg-[#4a89f3] hover:bg-blue-600 text-white rounded-md text-[15px] font-medium transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  เลือกซื้อสินค้า
+                  <Icon icon="lucide:arrow-right" className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>

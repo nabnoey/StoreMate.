@@ -45,9 +45,6 @@ const HistoryPage = () => {
   const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
     null,
   );
-  const { isLoading: isReviewSubmitting } = useSelector(
-    (state: RootState) => state.reviews ?? { isLoading: false },
-  );
 
   const [isViewReviewModalOpen, setIsViewReviewModalOpen] =
     useState<boolean>(false);
@@ -117,6 +114,48 @@ const HistoryPage = () => {
     }
   };
 
+  const launchReviewModalForItem = async (order: any, itemFromList: any) => {
+    try {
+      setIsFetchingDetail(true);
+      setErrorMessage(null);
+      setIsSelectModalOpen(false); // ปิด popup เลือกสินค้า (ถ้ามีเปิดอยู่)
+
+      const orderNo = order.orderNo || `ORD-${order.id}`;
+      const orderDetailData = await dispatch(
+        fetchOrderDetails(orderNo),
+      ).unwrap();
+
+      const matchedItemDetail = orderDetailData?.orderItems?.find(
+        (detailItem: any) =>
+          detailItem.productId === itemFromList.id ||
+          detailItem.id === itemFromList.id ||
+          detailItem.productName === itemFromList.productName,
+      );
+
+      const actualProductId =
+        matchedItemDetail?.productId ||
+        matchedItemDetail?.id ||
+        itemFromList.id;
+      const actualOrderItemId = matchedItemDetail?.id || itemFromList.id;
+
+      if (actualProductId) {
+        setSelectedItem({
+          ...itemFromList,
+          productId: actualProductId,
+          orderItemId: actualOrderItemId,
+        });
+        setIsReviewModalOpen(true);
+      } else {
+        toast.error("ไม่พบข้อมูลรหัสคำสั่งซื้อสำหรับรายการนี้");
+      }
+    } catch (error) {
+      console.error("Fetch order details error:", error);
+      toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsFetchingDetail(false);
+    }
+  };
+
   const handleReviewSubmit = async () => {
     if (!selectedItem?.productId) return;
 
@@ -130,15 +169,13 @@ const HistoryPage = () => {
       message: message,
     };
 
-    const loadingToast = toast.loading("กำลังส่งรีวิวของคุณ");
-
     try {
       setErrorMessage(null);
       await dispatch(
         submitProductReview({ orderItemId: selectedItem.orderItemId, payload }),
       ).unwrap();
 
-      toast.dismiss(loadingToast);
+      toast.dismiss();
       toast.success("ขอบคุณสำหรับรีวิว");
 
       setIsReviewModalOpen(false);
@@ -150,7 +187,7 @@ const HistoryPage = () => {
       dispatch(fetchOrders(status as any));
     } catch (err) {
       console.error("Review error:", err);
-      toast.dismiss(loadingToast);
+      toast.dismiss();
       toast.error("ไม่สามารถส่งรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
   };
@@ -195,14 +232,12 @@ const HistoryPage = () => {
       message: message,
     };
 
-    const loadingToast = toast.loading("กำลังบันทึกการแก้ไขรีวิว...");
-
     try {
       await dispatch(
         updateProductReview({ id: activeReviewData.id, payload }),
       ).unwrap();
 
-      toast.dismiss(loadingToast);
+      toast.dismiss();
       toast.success("ขอบคุณสำหรับรีวิว");
 
       setIsEditReviewModalOpen(false);
@@ -212,7 +247,7 @@ const HistoryPage = () => {
       dispatch(fetchOrders(status as any));
     } catch (err) {
       console.error("Edit review error:", err);
-      toast.dismiss(loadingToast);
+      toast.dismiss();
       toast.error("ไม่สามารถแก้ไขรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
   };
@@ -221,20 +256,19 @@ const HistoryPage = () => {
     if (!activeReviewData?.id) return;
 
     if (confirm("คุณต้องการลบรีวิวนี้ใช่หรือไม่?")) {
-      const loadingToast = toast.loading("กำลังดำเนินการลบรีวิว...");
       try {
         await dispatch(
           deleteProductReview({ id: activeReviewData.id }),
         ).unwrap();
 
-        toast.dismiss(loadingToast);
+        toast.dismiss();
         toast.success("คุณลบรีวิวเรียบร้อยแล้ว");
 
         setIsViewReviewModalOpen(false);
         dispatch(fetchOrders(status as any));
       } catch (err) {
         console.error("Delete review error:", err);
-        toast.dismiss(loadingToast);
+        toast.dismiss();
         toast.error("ไม่สามารถลบรีวิวได้ กรุณาลองใหม่อีกครั้ง");
       }
     }
@@ -248,48 +282,7 @@ const HistoryPage = () => {
     );
 
     if (!selectedItemFromList) return;
-
-    try {
-      setIsFetchingDetail(true);
-      setErrorMessage(null);
-      setIsSelectModalOpen(false);
-
-      const orderNo = orderForReview.orderNo || `ORD-${orderForReview.id}`;
-
-      const orderDetailData = await dispatch(
-        fetchOrderDetails(orderNo),
-      ).unwrap();
-
-      const matchedItemDetail = orderDetailData?.orderItems?.find(
-        (detailItem: any) =>
-          detailItem.productId === selectedItemFromList.id ||
-          detailItem.id === selectedItemFromList.id ||
-          detailItem.productName === selectedItemFromList.productName,
-      );
-
-      const actualProductId =
-        matchedItemDetail?.productId ||
-        matchedItemDetail?.id ||
-        selectedItemFromList.id;
-      const actualOrderItemId =
-        matchedItemDetail?.id || selectedItemFromList.id;
-
-      if (actualProductId) {
-        setSelectedItem({
-          ...selectedItemFromList,
-          productId: actualProductId,
-          orderItemId: actualOrderItemId,
-        });
-        setIsReviewModalOpen(true);
-      } else {
-        toast.error("ไม่พบข้อมูลรหัสคำสั่งซื้อสำหรับรายการนี้");
-      }
-    } catch (error) {
-      console.error("Fetch order details error in select modal:", error);
-      toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
-    } finally {
-      setIsFetchingDetail(false);
-    }
+    await launchReviewModalForItem(orderForReview, selectedItemFromList);
   };
 
   return (
@@ -370,10 +363,20 @@ const HistoryPage = () => {
                       0,
                     );
 
+                  console.log("Check Order Items Data:", order.orderItems);
                   const firstProductId = order?.orderItems?.[0]?.id;
-                  const isAnyItemReviewed = order.orderItems?.some(
-                    (item: any) => item.isReviewed || item.review,
-                  );
+                  // เปลี่ยนให้ตรงกับคีย์ที่มาจากหลังบ้านจริง ๆ
+                  const unreviewedItems =
+                    order.orderItems?.filter(
+                      (i: any) => !i.is_reviewed && !i.review,
+                    ) || [];
+                  const reviewedItems =
+                    order.orderItems?.filter(
+                      (i: any) => i.isReviewed || i.review,
+                    ) || [];
+
+                  const hasUnreviewed = unreviewedItems.length > 0;
+                  const hasReviewed = reviewedItems.length > 0;
 
                   return (
                     <div
@@ -502,31 +505,42 @@ const HistoryPage = () => {
                               ซื้ออีกครั้ง
                             </button>
 
-                            {isAnyItemReviewed ? (
+                            {/* 🟢 ปุ่ม "ดูรีวิว": แสดงเมื่อมีสินค้าภายในออเดอร์นี้ถูกรีวิวไปแล้วอย่างน้อย 1 ชิ้น */}
+                            {hasReviewed && (
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const reviewedItem =
-                                    order.orderItems?.find(
-                                      (i: any) => i.isReviewed || i.review,
-                                    ) || order.orderItems?.[0];
-                                  handleOpenViewReview(order, reviewedItem);
+                                  // เปิดดูรีวิวชิ้นแรกที่รีวิวไปแล้ว
+                                  handleOpenViewReview(order, reviewedItems[0]);
                                 }}
-                                className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF]/10 text-[#1E40AF] font-semibold text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#1E40AF]/20 cursor-pointer shadow-sm border border-all border-blue-200"
+                                className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF]/10 text-[#1E40AF] font-semibold text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#1E40AF]/20 cursor-pointer shadow-sm border border-blue-200"
                               >
                                 ดูรีวิว
                               </button>
-                            ) : (
+                            )}
+
+                            {/* 🟢 ปุ่ม "เขียนรีวิว": แสดงเมื่อมีสินค้าที่ยังตกค้างหรือยังไม่ได้ถูกรีวิว */}
+                            {hasUnreviewed && (
                               <button
                                 type="button"
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  setOrderForReview(order);
-                                  setLocalSelectedItemId(
-                                    order.orderItems?.[0]?.id || null,
-                                  );
-                                  setIsSelectModalOpen(true);
+
+                                  // เช็คเงื่อนไขเด็ด: ถ้าสินค้าที่ยังไม่ได้รีวิวเหลืออยู่แค่ชิ้นเดียว ให้เปิดฟอร์มเขียนรีวิวเลยทันที!
+                                  if (unreviewedItems.length === 1) {
+                                    await launchReviewModalForItem(
+                                      order,
+                                      unreviewedItems[0],
+                                    );
+                                  } else {
+                                    // ถ้ายังเหลือมากกว่า 1 ชิ้น ค่อยเปิด popup เพื่อเลือกชิ้นงาน
+                                    setOrderForReview(order);
+                                    setLocalSelectedItemId(
+                                      unreviewedItems[0]?.id || null,
+                                    );
+                                    setIsSelectModalOpen(true);
+                                  }
                                 }}
                                 className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                               >
@@ -624,34 +638,37 @@ const HistoryPage = () => {
               </h2>
             </div>
             <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
-              {orderForReview.orderItems?.map((item: any) => {
-                const isSelected = localSelectedItemId === item.id;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => setLocalSelectedItemId(item.id)}
-                    className={`flex items-center gap-4 p-4 bg-white rounded-xl border transition-all cursor-pointer ${isSelected ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-200"}`}
-                  >
-                    <img
-                      src={item.imageUrl || ""}
-                      alt=""
-                      className="w-16 h-16 object-contain rounded-lg border"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[14px] text-gray-950 line-clamp-2">
-                        {item.productName}
-                      </p>
-                    </div>
+              {/* ดึงมาเฉพาะชิ้นงานออเดอร์ที่ยังไม่เคยรีวิวแสดงผลใน Popup */}
+              {orderForReview.orderItems
+                ?.filter((item: any) => !item.isReviewed && !item.review)
+                ?.map((item: any) => {
+                  const isSelected = localSelectedItemId === item.id;
+                  return (
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
+                      key={item.id}
+                      onClick={() => setLocalSelectedItemId(item.id)}
+                      className={`flex items-center gap-4 p-4 bg-white rounded-xl border transition-all cursor-pointer ${isSelected ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-200"}`}
                     >
-                      {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-white" />
-                      )}
+                      <img
+                        src={item.imageUrl || ""}
+                        alt=""
+                        className="w-16 h-16 object-contain rounded-lg border"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-[14px] text-gray-950 line-clamp-2">
+                          {item.productName}
+                        </p>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
             <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3">
               <button
@@ -673,6 +690,7 @@ const HistoryPage = () => {
         </div>
       )}
 
+      {/* 🟢 POPUP 2: ฟอร์มเขียนรีวิวสินค้าใหม่ */}
       {isReviewModalOpen && selectedItem && (
         <div className="fixed inset-0 bg-white md:bg-black/50 z-50 flex items-start md:items-center justify-center overflow-y-auto backdrop-blur-xs">
           <div className="w-full min-h-screen md:min-h-0 bg-white p-4 md:p-6 md:max-w-xl md:w-full md:rounded-2xl md:shadow-2xl relative flex flex-col">
@@ -688,7 +706,6 @@ const HistoryPage = () => {
                 เขียนรีวิว
               </h2>
             </div>
-            {/* รายละเอียดสินค้าที่เลือก */}
             <div className="flex gap-4 p-3 bg-gray-50 rounded-xl mb-4 border border-gray-100">
               <img
                 src={selectedItem.imageUrl || ""}
@@ -704,7 +721,6 @@ const HistoryPage = () => {
                 </p>
               </div>
             </div>
-            {/* ฟอร์มกรอกคะแนน */}
             <div className="space-y-4">
               <div>
                 <p className="text-[14px] font-medium text-gray-900 mb-2">
@@ -743,7 +759,6 @@ const HistoryPage = () => {
               <button
                 type="button"
                 onClick={handleReviewSubmit}
-                disabled={isReviewSubmitting}
                 className="flex-1 py-3 bg-black text-white font-semibold rounded-lg text-[15px]"
               >
                 ส่งรีวิว
@@ -760,13 +775,13 @@ const HistoryPage = () => {
         </div>
       )}
 
+      {/* 🟢 POPUP 3: ดูรีวิวสินค้า (มีปุ่ม แก้ไข และ ลบรีวิว) */}
       {isViewReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
             <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3">
               รีวิว
             </h2>
-
             <div className="flex gap-4 items-start border border-gray-100 p-4 rounded-xl bg-gray-50/40">
               <img
                 src={activeReviewData.imageUrl || ""}
@@ -778,8 +793,6 @@ const HistoryPage = () => {
                   <h3 className="font-bold text-[15px] text-gray-900 line-clamp-2 leading-snug">
                     {activeReviewData.productName}
                   </h3>
-
-                  {/* ปุ่ม ลบ และ แก้ไข ด้านขวาบน */}
                   <div className="flex gap-2 flex-shrink-0">
                     <button
                       type="button"
@@ -797,7 +810,6 @@ const HistoryPage = () => {
                     </button>
                   </div>
                 </div>
-
                 <div className="mt-3 space-y-0.5 text-sm text-gray-600">
                   <p className="font-semibold text-gray-900">
                     {activeReviewData.reviewerName}
@@ -805,8 +817,6 @@ const HistoryPage = () => {
                   <p className="text-[12px] text-gray-400">
                     {activeReviewData.createdAt}
                   </p>
-
-                  {/* แสดงคะแนนโชว์ดวงดาว */}
                   <div className="flex gap-0.5 py-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Icon
@@ -816,14 +826,12 @@ const HistoryPage = () => {
                       />
                     ))}
                   </div>
-
                   <p className="text-gray-700 bg-white p-3 border border-gray-100 rounded-lg mt-2 text-[14px]">
                     {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
                   </p>
                 </div>
               </div>
             </div>
-
             <div className="flex justify-end pt-2">
               <button
                 type="button"
@@ -837,13 +845,13 @@ const HistoryPage = () => {
         </div>
       )}
 
+      {/* 🟢 POPUP 4: ฟอร์มแก้ไขรีวิวสินค้า */}
       {isEditReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
             <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3">
               แก้ไขรีวิว
             </h2>
-
             <div className="flex gap-4 items-center">
               <img
                 src={activeReviewData.imageUrl || ""}
@@ -862,8 +870,6 @@ const HistoryPage = () => {
                 </p>
               </div>
             </div>
-
-            {/* กล่องสีเทาครอบคลุมฟอร์มการแก้ไขตามมาตรฐาน Figma */}
             <div className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100 flex flex-col gap-4">
               <div>
                 <p className="text-[14px] font-medium text-gray-900 mb-1">
@@ -885,7 +891,6 @@ const HistoryPage = () => {
                   ))}
                 </div>
               </div>
-
               <div className="flex flex-col gap-1.5">
                 <label className="text-[14px] font-medium text-gray-900">
                   รายละเอียด
@@ -898,8 +903,6 @@ const HistoryPage = () => {
                   className="w-full border border-gray-200 rounded-xl p-3 text-[14px] text-gray-950 outline-none focus:border-blue-500 transition-colors bg-white resize-none shadow-inner"
                 />
               </div>
-
-              {/* ปุ่มควบคุมภายในบล็อกเทา */}
               <div className="flex justify-end gap-3 pt-1">
                 <button
                   type="button"
@@ -923,4 +926,5 @@ const HistoryPage = () => {
     </div>
   );
 };
+
 export default HistoryPage;

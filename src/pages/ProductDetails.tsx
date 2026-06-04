@@ -38,7 +38,7 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
+  // const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
@@ -53,8 +53,8 @@ const ProductDetailPage: React.FC = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // จำกัดสิทธิ์
-  const token = TokenService.getAccessToken();
-  const isLoggedIn = !!token;
+  // const token = TokenService.getAccessToken();
+  // const isLoggedIn = !!token;
   const categoryName = location.state?.categoryName || "สินค้า";
 
   // Pagination
@@ -260,9 +260,9 @@ const ProductDetailPage: React.FC = () => {
     return date.toLocaleDateString("th-TH");
   };
 
-  const toggleMenu = (reviewId: number | string) => {
-    setOpenMenuId((prev) => (prev === reviewId ? null : reviewId));
-  };
+  // const toggleMenu = (reviewId: number | string) => {
+  //   setOpenMenuId((prev) => (prev === reviewId ? null : reviewId));
+  // };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -474,7 +474,7 @@ const ProductDetailPage: React.FC = () => {
                     onClick={() => handleAddToCart(false)}
                     className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
                   >
-                    {isAddingToCart ? "กำลังเพิ่ม..." : "เพิ่มลงรถเข็น"}
+                    เพิ่มลงรถเข็น
                   </button>
 
                   <button
@@ -483,7 +483,7 @@ const ProductDetailPage: React.FC = () => {
                     onClick={handleBuyNow}
                     className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
                   >
-                    {isAddingToCart ? "กำลังดำเนินการ..." : "สั่งซื้อสินค้า"}
+                    สั่งซื้อสินค้า
                   </button>
                 </div>
               </div>
