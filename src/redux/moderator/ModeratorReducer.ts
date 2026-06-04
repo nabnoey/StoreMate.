@@ -116,35 +116,71 @@ const moderatorSlice = createSlice({
       state.orders = [...state.orders, action.payload];
     });
 
-    builder
-      .addCase(updateOrderStatus.fulfilled, (state, action) => {
-        state.orders = state.orders.map((order) =>
-          order.orderNo === action.payload.orderNo
-            ? { ...order, ...action.payload }
-            : order,
-        );
-        state.loading = false;
-      })
-      .addCase(updateOrderStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
-      });
+const moderatorSlice = createSlice({
+    name: "moderator",
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchAllOrders.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchAllOrders.fulfilled, (state, action) => {
+                state.loading = false;
+                state.orders = action.payload.content;
+                state.totalPages = action.payload.totalPages
+                console.log("Orders fetched successfully:", state.orders);
+            })
+            .addCase(fetchAllOrders.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+            });
+        builder
+          
+            .addCase(shippingOrder.fulfilled, (state, action) => {
+                state.orders = state.orders.map(order =>
+                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+                );
+                state.loading = false;
+            })
 
-    builder
-      .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
-        state.orderToPrint = [action.payload];
-      })
+            .addCase(shippingOrder.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
+            });
 
-      .addCase(changeStatus.fulfilled, (state, action) => {
-        state.orders = state.orders.map((order) =>
-          order.orderNo === action.payload.orderNo
-            ? { ...order, ...action.payload }
-            : order,
-        );
-        state.loading = false;
-      });
-  },
+        builder
+            .addCase(addProduct.fulfilled, (state, action) => {
+                state.orders = [...state.orders, action.payload];
+                
+            });
+
+        builder
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                const updatedOrder = action.payload;
+                state.orders = state.orders.map(order =>
+                    order.orderNo === updatedOrder.orderNo ? { ...order, ...updatedOrder } : order
+                );
+                state.orderToPrint = updatedOrder ? [updatedOrder] : state.orderToPrint;
+                state.loading = false;
+            })
+            .addCase(updateOrderStatus.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
+            });
+
+        builder
+            .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
+                state.orderToPrint = [action.payload];
+            })
+            .addCase(changeStatus.fulfilled, (state, action) => {
+                state.orders = state.orders.map(order =>
+                    order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
+                );
+                state.loading = false;
+            })
+    }
 });
 
 export default moderatorSlice.reducer;

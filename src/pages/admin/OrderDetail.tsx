@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeStatus, getoOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
+import { getoOrderByOrderNo, updateOrderStatus } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -143,21 +143,26 @@ const [selectedStatus, setSelectedStatus] = useState(
 
 
 
-const handleUpdateStatus = () => {
-    // บันทึกข้อมูลส่งไปยัง Redux ทันทีโดยไม่มีเงื่อนไขดักล่วงหน้า
-    dispatch(changeStatus({ orderNo: order.orderNo, status: selectedStatus }))
-      .unwrap()
-      .then(() => {
-        // แสดงแจ้งเตือนสำเร็จ
-        toast.success("อัพเดทสถานะคำสั่งซื้อเรียบร้อยแล้ว");
-        // เปลี่ยนหน้าไปยังหน้าจัดการคำสั่งซื้อทั้งหมด
-        navigate("/moderator/orders"); 
-      })
-      .catch((error) => {
-        console.error("Error updating order status:", error);
-        toast.error("เกิดข้อผิดพลาดในการอัพเดทสถานะคำสั่งซื้อ");
-      });
-};
+  const handleUpdateStatus = async () => {
+    if (!order) return;
+    
+    try {
+      await dispatch(
+        updateOrderStatus({ orderNo: order.orderNo, status: selectedStatus })
+      ).unwrap();
+      
+      toast.success("อัปเดตสถานะเรียบร้อยแล้ว");
+      
+      setTimeout(() => {
+        navigate("/moderator/orders");
+      }, 1500);
+    } catch (error: any) {
+      console.error("Update status failed:", error);
+      toast.error(error.message || "ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
+    }
+  };
+
+
 
 
 
@@ -186,10 +191,10 @@ const recipient = order.orderRecipient || {};
     : "";
 
   const steps = [
-    { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
-    { icon: <FiClipboard />, label: "กำลังเตรียมสินค้า", status: "PROCESSING" },
-    { icon: <FiTruck />, label: "จัดส่งแล้ว", status: "RECEIVE" },
-    { icon: <FiCheckCircle />, label: "สำเร็จแล้ว", status: "COMPLETED" },
+    { icon: <FiClock />, label: "รอดำเนินการ, รอชำระเงิน", status: "PENDING" },
+    { icon: <FiClipboard />, label: "ที่ต้องจัดส่ง", status: "PROCESSING" },
+    { icon: <FiTruck />, label: "ที่ต้องได้รับ", status: "RECEIVED" },
+    { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
