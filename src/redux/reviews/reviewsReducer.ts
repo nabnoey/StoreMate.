@@ -1,51 +1,54 @@
-import type { CreateReviewPayload } from './../../types/review';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ReviewsService } from '../../services/reviews.service';
-
+import type { CreateReviewPayload } from "./../../types/review";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { ReviewsService } from "../../services/reviews.service";
 
 export const submitProductReview = createAsyncThunk(
-  'reviews/submitReview',
-  async ({ id, payload }: { id: number; payload: CreateReviewPayload }, { rejectWithValue }) => {
+  "reviews/submitReview",
+  async (
+    {
+      orderItemId,
+      payload,
+    }: { orderItemId: number; payload: CreateReviewPayload },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await ReviewsService.createReviews(id, payload);
-      return response; 
+      const response = await ReviewsService.createReviews(orderItemId, payload);
+      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to submit review');
+      return rejectWithValue(error.response?.data || "Failed to submit review");
     }
-  }
+  },
 );
 
 export const updateProductReview = createAsyncThunk(
   "reviews/updateReview",
-  async(
-    {id , payload}: {id:number;  payload:CreateReviewPayload},
-    {rejectWithValue}
-
-  )=>{
-    try{
-      const response = await ReviewsService.editReviews(id,payload)
-      return response
-    }catch(error){
-      return rejectWithValue(error)
-
+  async (
+    { id, payload }: { id: number; payload: CreateReviewPayload },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await ReviewsService.editReviews(id, payload);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
     }
-  }
-)
+  },
+);
 
 export const deleteProductReview = createAsyncThunk(
   "reviews/deleteReview",
-async({id} : {id:number},{rejectWithValue})=>{
-  try{
-     await ReviewsService.deleteReviews(id)
-   return id 
-  }catch(error){
-    return rejectWithValue(error)
-  }
-}
-) 
+  async ({ id }: { id: number }, { rejectWithValue }) => {
+    try {
+      await ReviewsService.deleteReviews(id);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
 // สร้าง Slice (ไว้สำหรับจัดการ Loading/Error state ถ้าต้องการ)
 const reviewSlice = createSlice({
-  name: 'reviews',
+  name: "reviews",
   initialState: {
     isLoading: false,
     error: null as string | null,
@@ -65,22 +68,35 @@ const reviewSlice = createSlice({
         state.error = action.payload as string;
       });
 
-      //editReview
-      builder.addCase(updateProductReview.pending,(state)=>{
-        state.isLoading = true
-        state.error = null
+    //editReview
+    builder
+      .addCase(updateProductReview.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
-      .addCase(updateProductReview.fulfilled,(state)=>{
-        state.isLoading = false
+      .addCase(updateProductReview.fulfilled, (state) => {
+        state.isLoading = false;
       })
-      .addCase(updateProductReview.rejected,(state,action)=>{
-        state.isLoading = false
-        state.error = action.payload as string
+      .addCase(updateProductReview.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    //deleteReview
+    builder
+      .addCase(deleteProductReview.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
       })
+      .addCase(deleteProductReview.fulfilled, (state) => {
+        state.isLoading = false;
+        // ถ้าระบบคุณมีการเก็บ List รีวิวใน State ด้วย คุณสามารถ filter รีวิวที่ถูกลบออกตรงนี้ได้
+      })
+      .addCase(deleteProductReview.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
-
-
-  
 });
 
 export default reviewSlice.reducer;

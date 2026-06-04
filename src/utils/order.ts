@@ -13,7 +13,7 @@ export const statusConfig = {
     tab: "ที่ต้องจัดส่ง",
     color: "text-blue-500",
   },
-  RECEIVE: {
+  RECEIVED: {
     tab: "ที่ต้องได้รับ",
     color: "text-[#1E40AF]",
   },
@@ -37,7 +37,7 @@ export const getOrderLabel = (
       case "PENDING":
       case "PROCESSING":
         return "ที่ต้องจัดส่ง";
-      case "RECEIVE":
+      case "RECEIVED":
         return "ที่ต้องได้รับ";
       case "COMPLETED":
         return "คำสั่งซื้อสำเร็จ";
@@ -56,7 +56,7 @@ export const getOrderLabel = (
       return "ที่ต้องชำระ";
     case "PROCESSING":
       return "ที่ต้องจัดส่ง";
-    case "RECEIVE":
+    case "RECEIVED":
       return "ที่ต้องได้รับ";
     case "COMPLETED":
       return "คำสั่งซื้อสำเร็จ";

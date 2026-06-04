@@ -50,12 +50,18 @@ const ProfileSidebar = () => {
           <Link
             to={`/orders?status=${status}`}
             className={`block w-full text-left px-4 py-3 text-[14px] font-medium transition-colors ${
-              isActive("/orders") || isActive("/history-shop")
-                ? "text-[#4285F4]"
-                : "text-gray-800"
+              isActive("/orders") ? "text-[#4285F4]" : "text-gray-800"
             }`}
           >
             การซื้อของฉัน
+          </Link>
+          <Link
+            to={`/notify`}
+            className={`block w-full text-left px-4 py-3 text-[14px] font-medium transition-colors ${
+              isActive("/notify") ? "text-[#4285F4]" : "text-gray-800"
+            }`}
+          >
+            การแจ้งเตือน
           </Link>
         </div>
       </div>
@@ -162,6 +168,20 @@ const ProfileSidebar = () => {
               }`}
             >
               การซื้อของฉัน
+            </Link>
+          </div>
+
+          <div className="pt-2 mt-2">
+            <Link
+              data-test="btn-profile-menu-notify"
+              to={`/notify`}
+              className={`cursor-pointer w-full flex items-center gap-2 font-medium text-base p-3 transition-colors rounded-lg ${
+                isActive("/notify")
+                  ? "text-[#4285F4]"
+                  : "text-black hover:text-[#4285F4]"
+              }`}
+            >
+              การแจ้งเตือน
             </Link>
           </div>
         </div>
