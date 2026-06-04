@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
@@ -56,19 +56,18 @@ const SearchPage = () => {
   };
 
   const [inputValue, setInputValue] = useState(keyword);
-  const navigate = useNavigate();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const value = inputValue.trim();
+      const params: Record<string, string> = {};
+      
+      if (value) params.keyword = value;
+      if (category) params.category = category;
+      if (minPriceParam) params.minPrice = minPriceParam;
+      if (maxPriceParam) params.maxPrice = maxPriceParam;
 
-      if (value) {
-        navigate(
-          `/search?keyword=${encodeURIComponent(value)}&category=${category}`,
-        );
-      } else {
-        navigate("/search");
-      }
+      setSearchParams(params);
     }
   };
 
