@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
@@ -6,12 +6,7 @@ import { search } from "../../src/redux/products/productReducer";
 import ProductCard from "../components/user/ProductCard";
 import { GoSearch } from "react-icons/go";
 
-const categoryMap: Record<string, number> = {
-  promotion: 1,
-  soap: 2,
-  drinks: 3,
-  shampoo: 4,
-};
+
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,21 +32,20 @@ const SearchPage = () => {
   };
 
   useEffect(() => {
-    const categoryId = category ? (categoryMap[category] ?? null) : null;
     dispatch(
       search({
         keyword,
-        categoryId: categoryId,
-        minPrice: minPriceParam ? Number(minPriceParam) : 0,
-        maxPrice: maxPriceParam ? Number(maxPriceParam) : 100000,
+        categoryId: null,
+        minPrice: 0,
+        maxPrice: 100000,
         page: 0,
         size: 1000,
       }),
     );
-  }, [keyword, category, minPriceParam, maxPriceParam, dispatch]);
+  }, [keyword, dispatch]);
 
   const handleApplyPrice = () => {
-    const params: any = {};
+    const params: Record<string, string> = {};
     if (keyword !== "") params.keyword = keyword;
     if (category !== "") params.category = category;
 
@@ -62,23 +56,35 @@ const SearchPage = () => {
   };
 
   const [inputValue, setInputValue] = useState(keyword);
-  const navigate = useNavigate();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const value = inputValue.trim();
+      const params: Record<string, string> = {};
+      
+      if (value) params.keyword = value;
+      if (category) params.category = category;
+      if (minPriceParam) params.minPrice = minPriceParam;
+      if (maxPriceParam) params.maxPrice = maxPriceParam;
 
-      if (value) {
-        navigate(
-          `/search?keyword=${encodeURIComponent(value)}&category=${category}`,
-        );
-      } else {
-        navigate("/search");
-      }
+      setSearchParams(params);
     }
   };
 
-  const sortedProducts = [...searchResult].sort((p1, p2) => p1.price - p2.price);
+  const filteredProducts = searchResult.filter((product) => {
+    const min = minPriceParam ? Number(minPriceParam) : 0;
+    const max = maxPriceParam ? Number(maxPriceParam) : Infinity;
+    const matchPrice = product.price >= min && product.price <= max;
+    
+    let matchCategory = true;
+    if (category) {
+      matchCategory = product.categoryName?.toLowerCase() === category;
+    }
+    
+    return matchPrice && matchCategory;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((p1, p2) => p1.price - p2.price);
 
   return (
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
@@ -234,39 +240,64 @@ const SearchPage = () => {
           <div className="flex items-center gap-3 mt-1 text-black">
             <input
               data-test="input-min-price"
+              min="0"
               type="number"
               placeholder="฿"
               value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
-              onBlur={() => handleApplyPrice()}
               className="w-full max-w-[120px] border border-gray-300 rounded p-2  text-black relative z-10"
             />
             <span className="text-lg py-1">—</span>
             <input
               data-test="input-max-price"
+              min="0"
               type="number"
               placeholder="฿"
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
-              onBlur={() => handleApplyPrice()}
-              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black relative z-10"
+              className="w-full max-w-[120px] border border-gray-300 rounded p-2 text-black relative z-10 "
             />
+          </div>
+          <div className="flex gap-2 mt-4 max-w-[275px]">
+            <button
+              data-test="cancel-price-filter"
+              onClick={() => {
+
+                setMinPriceInput("");
+                setMaxPriceInput("");
+                const params: any = {};
+                if (keyword !== "") params.keyword = keyword;
+                if (category !== "") params.category = category;
+                setSearchParams(params);
+              }}
+
+              className="flex-1 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              ยกเลิก
+            </button>
+            <button
+              data-test="apply-price-filter"
+              onClick={() => handleApplyPrice()}
+              className="flex-1 py-1.5 rounded text-white bg-[#0f3d8c] hover:bg-[#0b2f6b] transition-colors cursor-pointer"
+            >
+              ค้นหา
+            </button>
           </div>
 
           <div className="border-b border-gray-300 my-4 mt-2"></div>
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-16 md:py-8 -mt-23 lg:mt-7">
+      <div className="flex-1 px-5 py-16 md:py-8 -mt-12.5 lg:mt-7">
         <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
-          <p className="text-black">พบสินค้า {searchResult.length} รายการ</p>
+          <p className="text-black">พบสินค้า {filteredProducts.length} รายการ</p>
 
           {/* <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
             เรียงโดย
           </div> */}
         </div>
 
-        {searchResult.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p className="text-gray-500 text-center text-[24px] mt-10 ">
             ไม่พบสินค้าที่คุณค้นหา
           </p>

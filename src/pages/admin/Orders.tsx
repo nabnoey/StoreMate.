@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { fetchAllOrders } from "../../redux/moderator/ModeratorReducer";
+import { fetchAllOrders, shippingOrder } from "../../redux/moderator/ModeratorReducer";
 import {
   STATUS_LABELS,
   STATUS_STYLES,
   type OrderMod,
 } from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
+import { toast } from "react-hot-toast";
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
@@ -28,12 +29,12 @@ function Orders() {
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDate, setSearchDate] = useState("");
-  const [timeFilter, setTimeFilter] = useState("วันนี้");
+  const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const initialPage = Number(searchParams.get("page")) || 1;
+  const initialPage = Number(searchParams.get("page"));
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
@@ -45,7 +46,12 @@ function Orders() {
 
 useEffect(() => {
   
-    dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+    dispatch(fetchAllOrders(
+      {
+         page: currentPage ,
+         size: PAGE_SIZE 
+        
+        }));
     setSearchParams({ page: String(currentPage), size: String(PAGE_SIZE) });
   }, [dispatch, currentPage, setSearchParams]);
 
@@ -86,23 +92,39 @@ useEffect(() => {
   };
 
  
-  const handleConfirmPrint = () => {
+  const handleConfirmPrint = async () => {
     const selectedData = orders.filter((o) =>
       selectedOrders.includes(String(o.orderNo)),
     );
     if (selectedData.length === 0) return;
-    setPrintData(selectedData);
-    setIsPrinting(true);
+    
+    const invalidOrders = selectedData.filter(o => o.status !== "PROCESSING");
+    if (invalidOrders.length > 0) {
+      toast.error("สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น");
+      return;
+    }
+
+    const ids = selectedData.map(o => o.id).filter(id => id != null);
+    
+    try {
+      if (ids.length > 0) {
+        await dispatch(shippingOrder(ids[0])).unwrap();
+        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+      }
+      setPrintData(selectedData);
+      setIsPrinting(true);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || error.message || "ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้";
+      toast.error(errorMsg);
+    }
   };
 
-const maxVisiblePages = 5; // แสดงปุ่มตัวเลขทีละ 5 ปุ่ม
+const maxVisiblePages = 5; 
   
   const getVisiblePages = () => {
-    // พยายามให้หน้าที่เลือกอยู่ตรงกลาง
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
 
-    // ถ้าหน้าขวาสุด (end) เกินจำนวนหน้าทั้งหมด ให้ปรับลดลงมา
     if (end > totalPages) {
       end = totalPages;
       start = Math.max(1, end - maxVisiblePages + 1);
@@ -349,7 +371,7 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
               </table>
             </div>
 
-            {/* Pagination Controls */}
+      
             <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
               <button
                 type="button"

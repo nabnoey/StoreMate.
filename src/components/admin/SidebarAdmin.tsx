@@ -124,7 +124,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className={getMenuClass(["/admin/stock", "/moderator/stock"])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate("/moderator/stock")
               }
             >
               <Package size={18} />
@@ -139,7 +139,7 @@ function SidebarAdmin() {
                 "/moderator/ordersMod",
               ])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")
+                navigate(isAdmin ? "/admin/orders" : "/moderator/orders")
               }
             >
               <Truck size={18} />

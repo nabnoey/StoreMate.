@@ -1,11 +1,9 @@
 import api from "./api";
 import type { RefundsResponse, RefundItem } from "../types/moderator/refundMod";
 
-import type { Product } from "../types/product";
-
-const getAllOrders = async (page?: number, size?: number) => {
+const getAllOrders = async (keyword?: string, startDate?: string, endDate?: string,period?:string, page?: number, size?: number) => {
   const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders`, {
-    params: { page, size },
+    params: { keyword, startDate, endDate, period, page, size },
   });
   return res.data;
 };
@@ -51,12 +49,12 @@ const shippingOrder = async (orderNo: number) => {
   return res.data;
 };
 
-const getoOrder = async (orderNo: number) => {
-  const res = await api.get(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}`,
-  );
-  return res.data;
-};
+// const getOrder = async (orderNo: number) => {
+//   const res = await api.get(
+//     `${import.meta.env.VITE_MOD_API}/orders/${orderNo}`,
+//   );
+//   return res.data;
+// };
 
 const getoOrderByOrderNo = async (orderNo: string) => {
   const res = await api.get(
@@ -65,22 +63,43 @@ const getoOrderByOrderNo = async (orderNo: string) => {
   return res.data;
 };
 
-const addProduct = async (data: Product) => {
+const addProduct = async (data: FormData) => {
   const res = await api.post(`${import.meta.env.VITE_MOD_API}/products`, data);
+  return res;
+};
+
+const getproducts = async (page?: number, size?: number) => {
+  const res = await api.get(`${import.meta.env.VITE_MOD_API}/products`, {
+    params: { page, size },
+  });
+  return res;
+}
+const updateProduct = async (id: number, data: FormData) => {
+  const res = await api.put(
+    `${import.meta.env.VITE_MOD_API}/products/${id}`,
+    data,
+  );
+  return res.data;
+};
+
+const deleteProduct = async (id: number) => {
+  const res = await api.delete(
+    `${import.meta.env.VITE_MOD_API}/products/${id}`,
+  );
   return res.data;
 };
 
 const updateOrderStatus = async (orderNo: string, status: string) => {
-  const res = await api.patch(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`,
+  const res = await api.put(
+    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
     { status },
   );
   return res.data;
 };
 
 export const changeStatus = async (orderNo: string, status: string) => {
-  const res = await api.patch(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/status`,
+  const res = await api.put(
+    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
     { status },
   );
   return res.data;
@@ -88,9 +107,11 @@ export const changeStatus = async (orderNo: string, status: string) => {
 
 export const ModeratorService = {
   getAllOrders,
+  updateProduct,
+  deleteProduct,
   shippingOrder,
   updateOrderStatus,
-  getoOrder,
+  // getOrder,
   addProduct,
   getoOrderByOrderNo,
   changeStatus,
@@ -98,4 +119,5 @@ export const ModeratorService = {
   rejectRefund,
   approveRefund,
   getRefundDetail,
+  getproducts,
 };

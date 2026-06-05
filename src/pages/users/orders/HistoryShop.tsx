@@ -86,10 +86,7 @@ const HistoryPage = () => {
     if (!orders) return [];
     return orders
       .filter((order) => {
-        // 1. ถ้าอยู่แท็บ "ทั้งหมด" ให้โชว์ออเดอร์ทุกสถานะ
         if (status === "ALL") return true;
-
-        // 2. 🟢 ถ้าอยู่แท็บ "ยกเลิก" ให้โชว์เฉพาะออเดอร์ที่ยกเลิกแล้วจริงๆ เท่านั้น
         if (status === "CANCELLED") {
           return order.status === "CANCELLED";
         }
@@ -97,6 +94,7 @@ const HistoryPage = () => {
         // 3. 🟢 ถ้าอยู่แท็บ "คืนเงิน/คืนสินค้า" ให้โชว์เฉพาะออเดอร์ที่ถูกเคลมเงินคืน
         if (status === "REFUNDED") {
           return order.status === "REFUNDED";
+
         }
 
         // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVED, COMPLETED)
@@ -286,7 +284,7 @@ const HistoryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-6 sm:pt-20 pb-20 w-full overflow-x-hidden">
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-6 sm:pt-20 pb-20 w-full  overflow-x-hidden break-all">
       <div className="max-w-[1200px] mx-auto px-4 w-full">
         <nav className="hidden lg:flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-6 font-medium">
           <Link
