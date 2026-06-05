@@ -144,6 +144,8 @@ const AddressProfile = () => {
       }),
     ).unwrap();
 
+    setZipcodes(zipRes);
+
     const zipcode = zipRes[0]?.name || "";
     const zipcodeId = zipRes[0]?.id || 0;
 

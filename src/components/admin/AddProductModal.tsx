@@ -1,16 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { addProduct } from "../../redux/moderator/ModeratorReducer";
-// import type { Product } from "../../types/product";
+import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
+import type { ProductMod } from "../../redux/moderator/ModeratorReducer";
 import { toast } from "react-hot-toast";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
+  product?: ProductMod | null;
 }
 
 const ProductSchema = Yup.object().shape({
@@ -22,85 +23,103 @@ const ProductSchema = Yup.object().shape({
   description: Yup.string().required("กรุณากรอกรายละเอียดสินค้า"),
 });
 
-export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) => {
+const reverseCategoryMap: Record<number, string> = {
+  1: "โปรโมชั่น",
+  2: "เครื่องดื่ม",
+  3: "สบู่",
+  4: "ผลิตภัณฑ์ดูแลผม",
+};
+
+export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, product }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
+  const isEditMode = !!product;
+
+  useEffect(() => {
+    if (!isOpen) {
+      setPreviewImage(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const initialCategoryName = isEditMode ? (reverseCategoryMap[product!.categoryId] || "") : "";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-blue-600 px-6 py-6 text-center">
-          <h2 className="text-2xl font-bold text-white tracking-wide">จัดการสินค้าในคลัง</h2>
+        <div className="bg-[#003399] px-6 py-6 text-center">
+          <h2 className="text-2xl font-bold text-white tracking-wide">
+            {isEditMode ? "แก้ไขข้อมูลสินค้า" : "จัดการสินค้าในคลัง"}
+          </h2>
         </div>
 
         {/* Form Body */}
         <div className="p-6 overflow-y-auto">
           <Formik
             initialValues={{
-              productName: "",
-              categoryName: "",
-              price: "",
-              stockQuantity: "",
-              status: "ACTIVE",
-              description: "",
-              image: null,
+              productName: isEditMode ? product!.productName : "",
+              categoryName: initialCategoryName,
+              price: isEditMode ? product!.price : "",
+              stockQuantity: isEditMode ? product!.stockQuantity : "",
+              status: isEditMode ? product!.status : "ACTIVE",
+              description: isEditMode ? product!.description : "",
+              image: null as File | null,
             }}
             validationSchema={ProductSchema}
-            // onSubmit={async (values, { setSubmitting }) => {
-            //   try {
-            //     const newProduct: Product = {
-            //       id: 0, 
-            //       productName: values.productName,
-            //       imageUrl: previewImage || "https://example.com/image.jpg",
-            //       price: Number(values.price),
-            //       categoryName: values.categoryName,
-            //       sammary: "",
-            //       description: values.description,
-            //       status: values.status as "ACTIVE" | "CHECKED_OUT",
-            //       createAt: new Date().toISOString(),
-            //       stockQuantity: Number(values.stockQuantity),
-            //     };
-
-            //     await dispatch(addProduct(newProduct)).unwrap();
-            //     toast.success("เพิ่มสินค้าสำเร็จ");
-            //     onClose();
-            //   } catch (error: any) {
-            //     toast.error(error.message || "เกิดข้อผิดพลาดในการเพิ่มสินค้า");
-            //   } finally {
-            //     setSubmitting(false);
-            //   }
-            // }}
-
+            enableReinitialize
             onSubmit={async (values, { setSubmitting }) => {
-  try {
-    const formData = new FormData();
+              try {
+                const formData = new FormData();
 
-    formData.append("productName", values.productName);
-    formData.append("categoryName", values.categoryName);
-    formData.append("price", values.price.toString());
-    formData.append("stockQuantity", values.stockQuantity.toString());
-    formData.append("status", values.status);
-    formData.append("description", values.description);
+                const categoryMap: Record<string, number> = {
+                  "โปรโมชั่น": 1,
+                  "เครื่องดื่ม": 2,
+                  "สบู่": 3,
+                  "ผลิตภัณฑ์ดูแลผม": 4,
+                };
 
-    if (values.image) {
-      formData.append("image", values.image);
-    }
+                const statusMap: Record<string, number> = {
+                  "ACTIVE": 1,
+                  "CHECKED_OUT": 2,
+                };
 
-    await dispatch(addProduct(formData)).unwrap();
+                const requestPayload = {
+                  productName: values.productName,
+                  categoryId: categoryMap[values.categoryName] || 2,
+                  price: Number(values.price),
+                  stockQuantity: Number(values.stockQuantity),
+                  statusId: statusMap[values.status] || 1,
+                  description: values.description,
+                };
 
-    toast.success("เพิ่มสินค้าสำเร็จ");
-    onClose();
+                formData.append(
+                  "request",
+                  new Blob([JSON.stringify(requestPayload)], { type: "application/json" })
+                );
 
-  } catch (error: any) {
-    toast.error(error.message || "เกิดข้อผิดพลาดในการเพิ่มสินค้า");
-  } finally {
-    setSubmitting(false);
-  }
-}}
+                if (values.image) {
+                  formData.append("files", values.image);
+                }
+
+                if (isEditMode) {
+                  await dispatch(editProduct({ id: product!.id, data: formData })).unwrap();
+                  toast.success("แก้ไขสินค้าสำเร็จ");
+                  dispatch(getproducts());
+                } else {
+                  await dispatch(addProduct(formData)).unwrap();
+                  toast.success("เพิ่มสินค้าสำเร็จ");
+                }
+                
+                onClose();
+              } catch (error: any) {
+                toast.error(error.message || (isEditMode ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า" : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"));
+              } finally {
+                setSubmitting(false);
+              }
+            }}
           >
             {({ setFieldValue, isSubmitting }) => (
               <Form className="space-y-5">
@@ -123,11 +142,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                       name="categoryName"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
                     >
-                       <option value="โปรโมชั่น">โปรโมชั่น</option>
+                      <option value="" disabled>-- เลือกหมวดหมู่ --</option>
+                      <option value="โปรโมชั่น">โปรโมชั่น</option>
                       <option value="เครื่องดื่ม">เครื่องดื่ม</option>
                       <option value="สบู่">สบู่</option>
                       <option value="ผลิตภัณฑ์ดูแลผม">แชมพู</option>
-                      
                     </Field>
                     <ErrorMessage name="categoryName" component="div" className="text-red-500 text-xs mt-1" />
                   </div>
@@ -220,8 +239,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                     ) : (
                       <>
                         <FiUpload className="text-gray-400 text-3xl mb-2" />
-                        <p className="text-sm text-gray-700 font-medium">คลิกเพื่ออัพโหลดหรือลากวาง</p>
+                        <p className="text-sm text-gray-700 font-medium">
+                          {isEditMode ? "คลิกเพื่ออัพโหลดหรือลากวางรูปใหม่" : "คลิกเพื่ออัพโหลดหรือลากวาง"}
+                        </p>
                         <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5 MB</p>
+                        {isEditMode && <p className="text-xs text-blue-500 mt-2">(หากไม่ต้องการเปลี่ยนรูป ให้ปล่อยว่างไว้)</p>}
                       </>
                     )}
                   </div>
@@ -229,11 +251,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex justify-center gap-4 pt-4">
+                <div className="flex justify-center gap-4 pt-4 border-t border-gray-100 mt-4">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-8 py-2 bg-[#003399] hover:bหมวดg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400"
+                    className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400"
                   >
                     {isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
                   </button>
