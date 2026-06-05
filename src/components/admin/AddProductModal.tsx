@@ -4,8 +4,8 @@ import * as Yup from "yup";
 import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
-import type { ProductMod } from "../../redux/moderator/ModeratorReducer";
+import { addProduct, editProduct, getproducts } from "../../redux/moderator/ModeratorReducer";
+import type {ProductMod} from "../../types/moderator/productMod";
 import { toast } from "react-hot-toast";
 
 interface AddProductModalProps {
@@ -107,7 +107,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 if (isEditMode) {
                   await dispatch(editProduct({ id: product!.id, data: formData })).unwrap();
                   toast.success("แก้ไขสินค้าสำเร็จ");
-                  dispatch(getproducts());
+                  dispatch(getproducts({ page: 1, size: 10 }));
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
                   toast.success("เพิ่มสินค้าสำเร็จ");
