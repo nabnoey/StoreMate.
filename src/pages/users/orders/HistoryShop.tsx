@@ -36,9 +36,9 @@ const HistoryPage = () => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [reviewScore, setReviewScore] = useState<number>(0);
   const [message, setMessage] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [isFetchingDetail, setIsFetchingDetail] = useState<boolean>(false);
+  // const [isFetchingDetail, setIsFetchingDetail] = useState<boolean>(false);
 
   const [isSelectModalOpen, setIsSelectModalOpen] = useState<boolean>(false);
   const [orderForReview, setOrderForReview] = useState<any>(null);
@@ -116,8 +116,8 @@ const HistoryPage = () => {
 
   const launchReviewModalForItem = async (order: any, itemFromList: any) => {
     try {
-      setIsFetchingDetail(true);
-      setErrorMessage(null);
+      // setIsFetchingDetail(true);
+      // setErrorMessage(null);
       setIsSelectModalOpen(false); // ปิด popup เลือกสินค้า (ถ้ามีเปิดอยู่)
 
       const orderNo = order.orderNo || `ORD-${order.id}`;
@@ -152,7 +152,7 @@ const HistoryPage = () => {
       console.error("Fetch order details error:", error);
       toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
     } finally {
-      setIsFetchingDetail(false);
+      // setIsFetchingDetail(false);
     }
   };
 
@@ -170,7 +170,7 @@ const HistoryPage = () => {
     };
 
     try {
-      setErrorMessage(null);
+      // setErrorMessage(null);
       await dispatch(
         submitProductReview({ orderItemId: selectedItem.orderItemId, payload }),
       ).unwrap();

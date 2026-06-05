@@ -30,12 +30,12 @@ const AdminNotificationPage: React.FC = () => {
   const totalPages = useSelector(
     (state: RootState) => state.notification.totalPages,
   );
-  const currentPage = useSelector(
-    (state: RootState) => state.notification.currentPage,
-  );
+  // const currentPage = useSelector(
+  //   (state: RootState) => state.notification.currentPage,
+  // );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>(""); // สำหรับหน่วงเวลาค้นหา
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

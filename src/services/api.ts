@@ -11,9 +11,6 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = TokenService.getAccessToken();
 
-  console.log("Token from TokenService:", token);
-  console.log("Request URL:", config.url);
-
   if (
     token &&
     !config.url?.includes("login") &&

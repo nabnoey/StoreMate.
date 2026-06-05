@@ -29,8 +29,6 @@ const PaymentContent = () => {
   const location = useLocation();
   const stripe = useStripe();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [selectedCardId, setSelectedCardId] = useState<string>("");
 
@@ -205,7 +203,6 @@ const PaymentContent = () => {
   const handleConfirmOrder = async () => {
     if (!validateOrder()) return;
 
-    setIsLoading(true);
     let loadingToastId: string | undefined;
 
     try {
@@ -220,7 +217,6 @@ const PaymentContent = () => {
     } catch (error: any) {
       handlePaymentError(error);
     } finally {
-      setIsLoading(false);
       if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
@@ -312,8 +308,11 @@ const PaymentContent = () => {
                 <div className="flex-1 font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-1">
                   {item.productName}
                 </div>
-                <div className="w-24 text-center font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
+                <div className="w-24 text-left font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                   ฿ {item.price.toLocaleString()}
+                </div>
+                <div className="w-24 text-center font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
+                  X {item.quantity}
                 </div>
                 <div className="w-24 text-right font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words">
                   ฿ {(item.price * item.quantity).toLocaleString()}
@@ -409,7 +408,7 @@ const PaymentContent = () => {
                             style={{ strokeWidth: 3 }}
                           />
                           <span className="font-medium text-xs text-black">
-                            เพิ่มบัตรเครดิต/เดบิต
+                            กรอกบัตรเครดิต/เดบิต
                           </span>
                         </button>
                       </div>
@@ -423,12 +422,6 @@ const PaymentContent = () => {
               <div className="flex lg:order-2 flex-col lg:pt-[90px]">
                 <div className="w-full lg:w-[330px] grid grid-cols-2 grid-rows-3 gap-y-[10px] lg:gap-y-[6px] gap-x-[50px] items-center">
                   <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
-                    รวมการสั่งซื้อ
-                  </span>
-                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
-                    ฿ {subtotal.toLocaleString()}
-                  </span>
-                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                     ยอดชำระทั้งหมด
                   </span>
                   <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
@@ -438,10 +431,9 @@ const PaymentContent = () => {
                     <button
                       data-test="btn-confirm-payment-desktop"
                       onClick={handleConfirmOrder}
-                      disabled={isLoading}
                       className="cursor-pointer w-[146px] h-[36px] lg:h-[29px] bg-[#4285F4] rounded-[7px] shadow-md font-anuphan text-[16px] font-normal text-[#FCFCFC] leading-[24px] break-words"
                     >
-                      {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
+                      ยืนยันการชำระเงิน
                     </button>
                   </div>
                 </div>
@@ -506,6 +498,9 @@ const PaymentContent = () => {
                     <div className="flex gap-4 items-center mt-auto">
                       <span className="text-[14px] font-semibold text-black">
                         ฿ {item.price.toLocaleString()}
+                      </span>
+                      <span className="text-[14px] font-semibold text-black">
+                        X {item.quantity}
                       </span>
                       <span className="text-[14px] font-semibold text-[#3B82F6]">
                         ฿ {(item.price * item.quantity).toLocaleString()}
@@ -596,7 +591,7 @@ const PaymentContent = () => {
                             icon="lucide:plus"
                             className="w-3.5 h-3.5 text-black"
                           />
-                          เพิ่มบัตรเครดิต/เดบิต
+                          กรอกบัตรเครดิต/เดบิต
                         </button>
                       </div>
                     )}
@@ -605,19 +600,12 @@ const PaymentContent = () => {
               </div>
             </div>
           </div>
-          {/* --- END BORDERED CARD --- */}
         </div>
 
         {/* --- MOBILE BOTTOM SECTION (Summary & Button - NON-FIXED) --- */}
         <div className="mt-auto flex flex-col p-4 w-full bg-white">
           {/* Total Summary Mobile */}
           <div className="space-y-3 mb-4">
-            <div className="flex justify-between text-[16px] text-black">
-              <span>รวมการสั่งซื้อ</span>
-              <span className="font-semibold">
-                ฿ {subtotal.toLocaleString()}
-              </span>
-            </div>
             <div className="flex justify-between text-[16px] text-black">
               <span>ยอดชำระทั้งหมด</span>
               <span className="font-semibold text-[16px]">
@@ -629,10 +617,9 @@ const PaymentContent = () => {
           <button
             data-test="btn-confirm-order-mobile"
             onClick={handleConfirmOrder}
-            disabled={isLoading}
             className="w-full py-3 bg-[#3B82F6] text-white rounded-md text-[15px] font-medium shadow-sm transition-all active:scale-95 cursor-pointer"
           >
-            {isLoading ? "กำลังดำเนินการ" : "ยืนยันการชำระเงิน"}
+            ยืนยันการชำระเงิน
           </button>
         </div>
       </div>

@@ -14,9 +14,11 @@ const getAllOrders = async (page?: number, size?: number) => {
 const getRefunds = async (
   page: number,
   size: number,
+  keyword: string | undefined,
+  status: string,
 ): Promise<RefundsResponse> => {
   const res = await api.get(`${import.meta.env.VITE_MOD_API}/orders/refund`, {
-    params: { page, size },
+    params: { page, size, keyword, status },
   });
   return res.data;
 };

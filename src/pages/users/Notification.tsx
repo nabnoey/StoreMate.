@@ -26,7 +26,7 @@ const NotificationPage = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchOwnerNotify());
+    dispatch(fetchOwnerNotify({ page: 0, size: 6 }));
   }, [dispatch]);
 
   const notifications: NotificationResponse[] = rawNotifications.map((item) => {
@@ -50,7 +50,7 @@ const NotificationPage = () => {
       message: item.message,
       createdAt: item.createdAt,
       type: simulatedType,
-      isRead: readIds.includes(item.id), // เช็กจาก LocalStorage state
+      isRead: readIds.includes(item.id),
     };
   });
 
