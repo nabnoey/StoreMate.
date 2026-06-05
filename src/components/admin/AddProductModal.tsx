@@ -4,14 +4,14 @@ import * as Yup from "yup";
 import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
-import type { ProductMod } from "../../redux/moderator/ModeratorReducer";
+import { addProduct, editProduct, getproducts } from "../../redux/moderator/ModeratorReducer";
+import type {ProductMod} from "../../types/moderator/productMod";
 import { toast } from "react-hot-toast";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product?: ProductMod | null;
+  product?: ProductMod ;
 }
 
 const ProductSchema = Yup.object().shape({

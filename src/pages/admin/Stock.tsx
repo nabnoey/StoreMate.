@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { AddProductModal } from "../../components/admin/AddProductModal";
 import { getproducts } from "../../redux/moderator/ModeratorReducer";
-import type { ProductMod } from "../../redux/moderator/ModeratorReducer";
+import type { ProductMod } from "../../types/moderator/productMod";
 
 
 const categoryMap: Record<number, string> = {
