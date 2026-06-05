@@ -29,12 +29,12 @@ function Orders() {
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDate, setSearchDate] = useState("");
-  const [timeFilter, setTimeFilter] = useState("วันนี้");
+  const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const initialPage = Number(searchParams.get("page")) || 1;
+  const initialPage = Number(searchParams.get("page"));
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
@@ -46,7 +46,12 @@ function Orders() {
 
 useEffect(() => {
   
-    dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+    dispatch(fetchAllOrders(
+      {
+         page: currentPage ,
+         size: PAGE_SIZE 
+        
+        }));
     setSearchParams({ page: String(currentPage), size: String(PAGE_SIZE) });
   }, [dispatch, currentPage, setSearchParams]);
 
@@ -93,7 +98,6 @@ useEffect(() => {
     );
     if (selectedData.length === 0) return;
     
-    // Validate: Backend requires order status to be PROCESSING
     const invalidOrders = selectedData.filter(o => o.status !== "PROCESSING");
     if (invalidOrders.length > 0) {
       toast.error("สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น");
@@ -115,14 +119,12 @@ useEffect(() => {
     }
   };
 
-const maxVisiblePages = 5; // แสดงปุ่มตัวเลขทีละ 5 ปุ่ม
+const maxVisiblePages = 5; 
   
   const getVisiblePages = () => {
-    // พยายามให้หน้าที่เลือกอยู่ตรงกลาง
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
 
-    // ถ้าหน้าขวาสุด (end) เกินจำนวนหน้าทั้งหมด ให้ปรับลดลงมา
     if (end > totalPages) {
       end = totalPages;
       start = Math.max(1, end - maxVisiblePages + 1);
@@ -369,7 +371,7 @@ const maxVisiblePages = 5; // แสดงปุ่มตัวเลขที�
               </table>
             </div>
 
-            {/* Pagination Controls */}
+      
             <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
               <button
                 type="button"

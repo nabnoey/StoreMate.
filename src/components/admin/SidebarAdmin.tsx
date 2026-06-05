@@ -125,7 +125,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate("/moderator/stock")
               }
             >
               <Package size={18} />
@@ -137,7 +137,7 @@ function SidebarAdmin() {
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")
+                navigate(isAdmin ? "/admin/orders" : "/moderator/orders")
               }
             >
               <Truck size={18} />

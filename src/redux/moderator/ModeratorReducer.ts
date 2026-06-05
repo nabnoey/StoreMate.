@@ -1,10 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ModeratorService } from "../../services/moderator.service";
 import type { OrderMod } from "../../types/moderator/ordersMod";
+import type { ProductMod } from "../../types/moderator/productMod"; 
+
 
 interface ModeratorState {
   orders: OrderMod[];
   orderToPrint: OrderMod[];
+  products: ProductMod[];
   loading: boolean;
   error: string | null;
   totalPages: number;
@@ -13,6 +16,7 @@ interface ModeratorState {
 const initialState: ModeratorState = {
   orders: [],
   orderToPrint: [],
+  products: [],
   loading: false,
   error: null,
   totalPages: 0,
@@ -20,20 +24,12 @@ const initialState: ModeratorState = {
 
 export const fetchAllOrders = createAsyncThunk(
   "moderator/fetchAllOrders",
-  async ({ page, size }: { page: number; size: number }) => {
-    const res = await ModeratorService.getAllOrders(page, size);
+  async ({ keyword, startDate, endDate, period, page, size }: { keyword?: string; startDate?: string; endDate?: string; period?: string; page: number; size: number }) => {
+    const res = await ModeratorService.getAllOrders(keyword, startDate, endDate, period, page, size);
     return res;
   },
 );
 
-// <<<<<<< HEAD
-//     export const shippingOrder = createAsyncThunk(
-//     "moderator/shippingOrder",
-//     async (ids: number[]) => {
-//         const res = await ModeratorService.shippingOrder(ids);
-//         return res;
-//     }); 
-// =======
 export const shippingOrder = createAsyncThunk(
   "moderator/shippingOrder",
   async (orderNo: number) => {
@@ -42,14 +38,6 @@ export const shippingOrder = createAsyncThunk(
   },
 );
 
-
-export const getOrder = createAsyncThunk(
-  "moderator/getoOrder",
-  async (orderNo: number) => {
-    const res = await ModeratorService.getoOrder(orderNo);
-    return res;
-  },
-);
 
 export const getoOrderByOrderNo = createAsyncThunk(
   "moderator/getoOrderByOrderNo",
@@ -67,13 +55,21 @@ export const getoOrderByOrderNo = createAsyncThunk(
             }
         )
 
-//         export const updateProduct = createAsyncThunk(
-//             "moderator/updateProduct",
-//             async ({ id, data }: { id: number; data: FormData }) => {
-//                 const res = await ModeratorService.updateProduct(id, data);
-//                 return res;
-//             }
-//         )
+export const getproducts = createAsyncThunk(
+  "moderator/getproducts",
+  async ({ page, size }: { page: number; size: number }) => {
+    const res = await ModeratorService.getproducts(page, size);
+    return res;
+  }
+)
+
+export const editProduct = createAsyncThunk(
+  "moderator/editProduct",
+  async ({ id, data }: { id: number; data: FormData }) => {
+    const res = await ModeratorService.updateProduct(id, data);
+    return res;
+  }
+)
 
   export const deleteProduct = createAsyncThunk(
     "moderator/deleteProduct",
@@ -83,20 +79,6 @@ export const getoOrderByOrderNo = createAsyncThunk(
     }
   )
 
-//         export const updateOrderStatus = createAsyncThunk(
-//             "moderator/updateOrderStatus",
-//             async ({ orderNo, status }: { orderNo: string; status: string }) => {
-//                 const res = await ModeratorService.updateOrderStatus(orderNo, status);
-//                 return res;
-//             }
-// =======
-// export const addProduct = createAsyncThunk(
-//   "moderator/addProduct",
-//   async (data: Product) => {
-//     const res = await ModeratorService.addProduct(data);
-//     return res;
-//   },
-// );
 
 export const updateOrderStatus = createAsyncThunk(
   "moderator/updateOrderStatus",
@@ -113,47 +95,6 @@ export const changeStatus = createAsyncThunk(
     return res;
   },
 );
-
-// const moderatorSlice = createSlice({
-//   name: "moderator",
-//   initialState,
-//   reducers: {},
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(fetchAllOrders.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(fetchAllOrders.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.orders = action.payload.content;
-//         state.totalPages = action.payload.totalPages;
-//         console.log("Orders fetched successfully:", state.orders);
-//       })
-//       .addCase(fetchAllOrders.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-//       });
-//     builder
-
-//       .addCase(shippingOrder.fulfilled, (state, action) => {
-//         state.orders = state.orders.map((order) =>
-//           order.orderNo === action.payload.orderNo
-//             ? { ...order, ...action.payload }
-//             : order,
-//         );
-//         state.loading = false;
-//       })
-
-//       .addCase(shippingOrder.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error =
-//           action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
-//       });
-
-//     builder.addCase(addProduct.fulfilled, (state, action) => {
-//       state.orders = [...state.orders, action.payload];
-//     });
 
 const moderatorSlice = createSlice({
     name: "moderator",
@@ -178,7 +119,6 @@ const moderatorSlice = createSlice({
         builder
           
             .addCase(shippingOrder.fulfilled, (state, action) => {
-                // If it returns an array of updated orders, update them
                 if (Array.isArray(action.payload)) {
                     const updatedIds = action.payload.map((o: any) => o.id);
                     state.orders = state.orders.map(order => 
@@ -193,11 +133,7 @@ const moderatorSlice = createSlice({
                 state.error = action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
             });
 
-        builder
-            .addCase(addProduct.fulfilled, (state, action) => {
-                state.orders = [...state.orders, action.payload];
-                
-            });
+     
 
         builder
             .addCase(updateOrderStatus.fulfilled, (state, action) => {
@@ -223,12 +159,30 @@ const moderatorSlice = createSlice({
                 );
                 state.loading = false;
             })
+  
+.addCase(addProduct.fulfilled, (state, action) => {
+    if (Array.isArray(state.products)) {
+        state.products.push(action.payload.data);
+    }
+})
+
+
+            builder
+            .addCase(getproducts.fulfilled, (state, action) => {
+                const items = action.payload?.data?.data 
+                console.log("payload:", action.payload);
+                if (Array.isArray(items)) {
+                  state.products = items;
+                  state.totalPages = action.payload.data.totalPages;
+                }
+            })
+            }
+
             
 
 
-    }
+    });
 
-});
   
 
 export default moderatorSlice.reducer;

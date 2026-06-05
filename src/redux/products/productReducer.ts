@@ -49,17 +49,6 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
 
-   
-
-    // เพิ่มสินค้าใหม่
-  // addProduct: (state, action: PayloadAction<Product>) => {
-  //   const newProduct = {
-  //     ...action.payload,
-  //     id: Date.now() 
-  //   };
-  //   state.items.unshift(newProduct);
-  // },
-
     // เพิ่มจำนวนสินค้าตอนกด +
     addQuantity: (state, action: PayloadAction<number>) => {
       const product = state.items.find(p => p.id === action.payload);
