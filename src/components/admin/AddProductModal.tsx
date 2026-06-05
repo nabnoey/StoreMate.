@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product?: ProductMod ;
+  product?: ProductMod | null;
 }
 
 const ProductSchema = Yup.object().shape({
@@ -107,7 +107,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 if (isEditMode) {
                   await dispatch(editProduct({ id: product!.id, data: formData })).unwrap();
                   toast.success("แก้ไขสินค้าสำเร็จ");
-                  dispatch(getproducts());
+                  dispatch(getproducts({ page: 1, size: 10 }));
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
                   toast.success("เพิ่มสินค้าสำเร็จ");
