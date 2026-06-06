@@ -262,7 +262,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">คำสั่งซื้อล่าสุด</h3>
-            <button onClick={() => navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
+            <button onClick={() => navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-700">
@@ -391,7 +391,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100 lg:col-span-7">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">สินค้าในสต็อก</h3>
-            <button onClick={() => navigate(isAdmin ? "/admin/stock" : "/moderator/stock")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
+            <button onClick={() => navigate(isAdmin ? "/owner/stock" : "/moderator/stock")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <table className="w-full text-left text-sm text-gray-700">
             <thead>

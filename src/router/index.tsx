@@ -260,50 +260,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/admin",
-    element: (
-      <AdminRoute>
-        <AdminLayout />
-      </AdminRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: <Navigate to="dashboard" replace />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "stock",
-        element: <Stock />,
-      },
-
-      {
-        path: "ordersMod",
-        element: <Order />,
-      },
-      {
-        path: "ordersMod/:orderNo",
-        element: <OrderDetail />,
-      },
-      {
-        path: "refund",
-        element: <RefundModeratorPage />,
-      },
-      {
-        path: "user-edit",
-        element: <UserEdit />,
-      },
-      {
-        path: "store-edit",
-        element: <StoreEdit />,
-      },
-    ],
-  },
-  {
-    path: "/admin",
+    path: "/owner",
     element: (
       <AdminRoute>
         <AdminLayout />

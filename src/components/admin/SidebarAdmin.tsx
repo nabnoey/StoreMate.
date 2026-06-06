@@ -100,7 +100,7 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/admin/dashboard")}
+              onClick={() => navigate("/owner/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -112,7 +112,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
               }
             >
               <TrendingUp size={18} />
@@ -125,7 +125,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
               }
             >
               <Package size={18} />
@@ -137,7 +137,7 @@ function SidebarAdmin() {
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/ordersMod" : "/moderator/ordersMod")
+                navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")
               }
             >
               <Truck size={18} />
@@ -149,7 +149,7 @@ function SidebarAdmin() {
             <button
               className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/admin/refund" : "/moderator/refund")
+                navigate(isAdmin ? "/owner/refund" : "/moderator/refund")
               }
             >
               <CircleDollarSign size={18} />
@@ -162,7 +162,7 @@ function SidebarAdmin() {
               <li>
                 <button
                   className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/admin/user-edit")}
+                  onClick={() => navigate("/owner/user-edit")}
                 >
                   <Users size={18} />
                   จัดการผู้ใช้
@@ -172,7 +172,7 @@ function SidebarAdmin() {
               <li>
                 <button
                   className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/admin/store-edit")}
+                  onClick={() => navigate("/owner/store-edit")}
                 >
                   <Settings size={18} />
                   ตั้งค่าร้านค้า
@@ -182,8 +182,8 @@ function SidebarAdmin() {
               <li>
                 <button
                   className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  // onClick={() => navigate("/admin/notify")}
-                  onClick={() => navigate("/admin/notification")}
+                  // onClick={() => navigate("/owner/notify")}
+                  onClick={() => navigate("/owner/notification")}
                 >
                   <Bell size={18} />
                   จัดการแจ้งเตือน
