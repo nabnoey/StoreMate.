@@ -52,6 +52,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 try {
                   await dispatch(deleteProduct(product.id)).unwrap();
                   toast.success("ลบสินค้าสำเร็จ");
+                  dispatch(getproducts({ page: 0, size: 1000 }));
                   if (onSuccess) onSuccess();
                   else onClose();
                 } catch (error: any) {
@@ -99,15 +100,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
   let initialCategoryName = "";
   if (isEditMode && product) {
-    if (product.categoryId) {
-      initialCategoryName = reverseCategoryMap[Number(product.categoryId)] || String(product.categoryId);
-    } else if ((product as any).categoryName) {
-      const catName = (product as any).categoryName;
-      if (catName === "Promotion" || catName === "โปรโมชั่น" || catName === "โปรโมชัน") initialCategoryName = "โปรโมชั่น";
-      else if (catName === "Drinks" || catName === "เครื่องดื่ม") initialCategoryName = "เครื่องดื่ม";
-      else if (catName === "Soap" || catName === "สบู่") initialCategoryName = "สบู่";
-      else if (catName === "Shampoo" || catName === "ผลิตภัณฑ์ดูแลผม" || catName === "แชมพู") initialCategoryName = "ผลิตภัณฑ์ดูแลผม";
-      else initialCategoryName = catName;
+    const cat = product.category 
+    if (typeof cat === "number" || (typeof cat === "string" && !isNaN(Number(cat)))) {
+      initialCategoryName = reverseCategoryMap[Number(cat)] || String(cat);
+    } else if (typeof cat === "string") {
+      const lowerCat = cat.toLowerCase();
+      if (lowerCat.includes("promotion") || cat === "โปรโมชั่น" || cat === "โปรโมชัน") initialCategoryName = "โปรโมชั่น";
+      else if (lowerCat.includes("drink") || cat === "เครื่องดื่ม") initialCategoryName = "เครื่องดื่ม";
+      else if (lowerCat.includes("soap") || cat === "สบู่") initialCategoryName = "สบู่";
+      else if (lowerCat.includes("hair") || lowerCat.includes("shampoo") || cat === "ผลิตภัณฑ์ดูแลผม" || cat === "แชมพู") initialCategoryName = "ผลิตภัณฑ์ดูแลผม";
+      else initialCategoryName = cat;
     }
   }
 
@@ -177,6 +179,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   await dispatch(addProduct(formData)).unwrap();
                   toast.success("เพิ่มสินค้าสำเร็จ");
                 }
+                
+                dispatch(getproducts({ page: 0, size: 1000 }));
                 
                 if (onSuccess) {
                   onSuccess();

@@ -179,6 +179,22 @@ const moderatorSlice = createSlice({
         state.products.push(action.payload.data);
     }
 })
+.addCase(editProduct.fulfilled, (state, action) => {
+    if (Array.isArray(state.products)) {
+        const updatedProduct = action.payload?.data || action.payload;
+        if (updatedProduct && updatedProduct.id) {
+            state.products = state.products.map(p => 
+                p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
+            );
+        }
+    }
+})
+.addCase(deleteProduct.fulfilled, (state, action) => {
+    if (Array.isArray(state.products)) {
+        // action.meta.arg contains the id passed to deleteProduct
+        state.products = state.products.filter(p => p.id !== action.meta.arg);
+    }
+})
 
 
             builder

@@ -32,9 +32,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const isLoginAPI = error.config.url.includes("/login");
+      const isLoginAPI = error.config.url?.includes("/login");
+      const isDeleteProductAPI = error.config.url?.includes("/products") && error.config.method === "delete";
 
-      if (!isLoginAPI) {
+      if (!isLoginAPI && !isDeleteProductAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
 

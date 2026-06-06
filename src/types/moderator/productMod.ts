@@ -1,7 +1,7 @@
 export interface ProductMod {
     id: number;
     productName: string;
-  categoryId: number;
+    category: number | string;
     price: number;
     status: "ACTIVE" | "CHECKED_OUT";
     description: string;

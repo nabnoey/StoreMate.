@@ -9,16 +9,15 @@ import { getproducts } from "../../redux/moderator/ModeratorReducer";
 import type { ProductMod } from "../../types/moderator/productMod";
 
 
-const categoryMap: Record<number, string> = {
-  1: "โปรโมชั่น",
-  2: "เครื่องดื่ม",
-  3: "สบู่",
-  4: "ผลิตภัณฑ์ดูแลผม",
+const categoryMap: Record<string | number, string> = {
+  "Promotion": "โปรโมชั่น",
+  "Drinks": "เครื่องดื่ม",
+  "Soap": "สบู่",
+  "Shampoo": "ผลิตภัณฑ์ดูแลผม"
 };
 
 function Stock() {
 const products = useSelector((state: RootState) => state.moderator.products);
-  const totalPages = useSelector((state: RootState) => state.moderator.totalPages)
 const [searchParams, setSearchParams] = useSearchParams();
 const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
 const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get("keyword") || "");
@@ -34,8 +33,6 @@ const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get(
 
 
 useEffect(() => {
-  // ดึงสินค้าทั้งหมดมาเพื่อทำ Local Search & Pagination 
-  // เนื่องจาก API หลังบ้านไม่รองรับ Partial Search
   dispatch(getproducts({ page: 0 , size: 1000 }));
 }, [dispatch]);
 
@@ -66,7 +63,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (currentPage > localTotalPages && localTotalPages > 0) {
-    setCurrentPage(localTotalPages);
+    // setCurrentPage(localTotalPages);
   }
 }, [currentPage, localTotalPages]);
 
@@ -184,7 +181,7 @@ const maxVisiblePages = 5;
                     </button>
                   </td>
                   <td className="py-4">{product.productName}</td>
-                  <td className="py-4">{categoryMap[product.categoryId] || product.categoryId}</td>
+                  <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
                   <td className="py-4">{product.stockQuantity}</td>
                   <td className="py-4">
