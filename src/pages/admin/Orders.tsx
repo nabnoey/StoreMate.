@@ -11,6 +11,8 @@ import {
 } from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 import { toast } from "react-hot-toast";
+import { CiCalendar } from "react-icons/ci";
+
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
@@ -28,6 +30,7 @@ function Orders() {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [submittedSearchTerm, setSubmittedSearchTerm] = useState("");
   const [searchDate, setSearchDate] = useState("");
   const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
@@ -40,20 +43,37 @@ function Orders() {
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
   const totalPages = useSelector((state: RootState) => state.moderator.totalPages)
+    const dateRef = useRef<HTMLInputElement>(null);
+
 
   const PAGE_SIZE = 10; 
 
 
-useEffect(() => {
-  
-    dispatch(fetchAllOrders(
-      {
-         page: currentPage ,
-         size: PAGE_SIZE 
-        
-        }));
-    setSearchParams({ page: String(currentPage), size: String(PAGE_SIZE) });
-  }, [dispatch, currentPage, setSearchParams]);
+  useEffect(() => {
+    let periodValue: string | undefined = undefined;
+    if (timeFilter === "วันนี้") periodValue = "day";
+    else if (timeFilter === "สัปดาห์นี้") periodValue = "week";
+    else if (timeFilter === "เดือนนี้") periodValue = "month";
+
+    dispatch(fetchAllOrders({
+      page: currentPage,
+      size: PAGE_SIZE,
+      keyword: submittedSearchTerm || undefined,
+      startDate: searchDate || undefined,
+      endDate: searchDate || undefined,
+      period: periodValue,
+    }));
+
+    const params: Record<string, string> = { page: String(currentPage), size: String(PAGE_SIZE) };
+    if (submittedSearchTerm) params.keyword = submittedSearchTerm;
+    if (searchDate) {
+       params.startDate = searchDate;
+       params.endDate = searchDate;
+    }
+    if (periodValue) params.period = periodValue;
+    setSearchParams(params);
+
+  }, [dispatch, currentPage, setSearchParams, submittedSearchTerm, searchDate, timeFilter]);
 
  const currentItems = Array.isArray(orders) ? orders.slice(0, PAGE_SIZE) : []
 
@@ -191,18 +211,37 @@ const maxVisiblePages = 5;
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                   <input
                     type="text"
-                    placeholder="ค้นหาโดย ชื่อ, เบอร์โทร, "
+                    placeholder="ค้นหาโดย ชื่อ, เบอร์โทร (กด Enter)"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setSubmittedSearchTerm(searchTerm);
+                        setCurrentPage(0);
+                      }
+                    }}
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
                   />
-                  <input
-                    type="date"
-                    value={searchDate}
-                    onChange={(e) => setSearchDate(e.target.value)}
-                    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-400"
-                  />
-                </div>
+                  
+                <div className="relative">
+  <input
+    ref={dateRef}
+    type="date"
+    value={searchDate}
+    onChange={(e) => setSearchDate(e.target.value)}
+    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+  />
+
+  <button
+    type="button"
+    data-test="calendar-button"
+    className="absolute right-3 top-1/2 -translate-y-1/2"
+    onClick={() => dateRef.current?.showPicker?.()}
+  >
+    <CiCalendar size={20} />
+  </button>
+</div>        
+  </div>
 
                 <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
                   {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
@@ -299,8 +338,12 @@ const maxVisiblePages = 5;
                             </div>
                           </td>
 
-                          <td className="py-4 px-2 text-gray-800 font-medium">{order.orderRecipient?.recipientName}</td>
-                          <td className="py-4 px-2 text-gray-500">{order.orderRecipient?.phone}</td>
+                          <td className="py-4 px-2 text-gray-800 font-medium">
+                            {order.recipientName}
+                          </td>
+                          <td className="py-4 px-2 text-gray-500">
+                            {order.phone}
+                          </td>
 
                           <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
                             {dateStr}

@@ -4,13 +4,15 @@ import * as Yup from "yup";
 import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
-import { addProduct, editProduct, getproducts } from "../../redux/moderator/ModeratorReducer";
+import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
 import type {ProductMod} from "../../types/moderator/productMod";
 import { toast } from "react-hot-toast";
+import { ProductService } from "../../services/product.service";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   product?: ProductMod | null;
 }
 
@@ -30,21 +32,84 @@ const reverseCategoryMap: Record<number, string> = {
   4: "ผลิตภัณฑ์ดูแลผม",
 };
 
-export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, product }) => {
+export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSuccess, product }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [fullProduct, setFullProduct] = useState<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
 
+  const handleDelete = () => {
+    if (!product) return;
+    toast(
+      (t) => (
+        <div>
+          <p className="mb-3 text-gray-800 font-medium">คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?</p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await dispatch(deleteProduct(product.id)).unwrap();
+                  toast.success("ลบสินค้าสำเร็จ");
+                  if (onSuccess) onSuccess();
+                  else onClose();
+                } catch (error: any) {
+                  toast.error(error.message || "เกิดข้อผิดพลาดในการลบสินค้า");
+                }
+              }}
+              className="px-4 py-1.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors"
+            >
+              ลบสินค้า
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity, id: "delete-confirm" }
+    );
+  };
+
   useEffect(() => {
-    if (!isOpen) {
-      setPreviewImage(null);
-    }
-  }, [isOpen]);
+    const fetchDetail = async () => {
+      if (isOpen && isEditMode && product?.id) {
+        try {
+          const detail = await ProductService.getProductById(product.id);
+          setFullProduct(detail);
+          if (detail.productImages && detail.productImages.length > 0) {
+            setPreviewImage(detail.productImages[0].imageUrl);
+          }
+        } catch (err) {
+          console.error("Failed to fetch product details", err);
+        }
+      } else if (!isOpen) {
+        setPreviewImage(null);
+        setFullProduct(null);
+      }
+    };
+    fetchDetail();
+  }, [isOpen, isEditMode, product]);
 
   if (!isOpen) return null;
 
-  const initialCategoryName = isEditMode ? (reverseCategoryMap[product!.categoryId] || "") : "";
+  let initialCategoryName = "";
+  if (isEditMode && product) {
+    if (product.categoryId) {
+      initialCategoryName = reverseCategoryMap[Number(product.categoryId)] || String(product.categoryId);
+    } else if ((product as any).categoryName) {
+      const catName = (product as any).categoryName;
+      if (catName === "Promotion" || catName === "โปรโมชั่น" || catName === "โปรโมชัน") initialCategoryName = "โปรโมชั่น";
+      else if (catName === "Drinks" || catName === "เครื่องดื่ม") initialCategoryName = "เครื่องดื่ม";
+      else if (catName === "Soap" || catName === "สบู่") initialCategoryName = "สบู่";
+      else if (catName === "Shampoo" || catName === "ผลิตภัณฑ์ดูแลผม" || catName === "แชมพู") initialCategoryName = "ผลิตภัณฑ์ดูแลผม";
+      else initialCategoryName = catName;
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -65,7 +130,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
               price: isEditMode ? product!.price : "",
               stockQuantity: isEditMode ? product!.stockQuantity : "",
               status: isEditMode ? product!.status : "ACTIVE",
-              description: isEditMode ? product!.description : "",
+              description: isEditMode ? (fullProduct?.description || product!.description || "") : "",
               image: null as File | null,
             }}
             validationSchema={ProductSchema}
@@ -93,6 +158,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   stockQuantity: Number(values.stockQuantity),
                   statusId: statusMap[values.status] || 1,
                   description: values.description,
+                  removeImages: isEditMode && values.image && fullProduct?.productImages ? fullProduct.productImages.map((img: any) => img.id) : [],
                 };
 
                 formData.append(
@@ -107,13 +173,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 if (isEditMode) {
                   await dispatch(editProduct({ id: product!.id, data: formData })).unwrap();
                   toast.success("แก้ไขสินค้าสำเร็จ");
-                  dispatch(getproducts({ page: 1, size: 10 }));
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
                   toast.success("เพิ่มสินค้าสำเร็จ");
                 }
                 
-                onClose();
+                if (onSuccess) {
+                  onSuccess();
+                } else {
+                  onClose();
+                }
               } catch (error: any) {
                 toast.error(error.message || (isEditMode ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า" : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"));
               } finally {
@@ -252,12 +321,21 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                 {/* Footer Buttons */}
                 <div className="flex justify-center gap-4 pt-4 border-t border-gray-100 mt-4">
+                  {isEditMode && (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors"
+                    >
+                      ลบสินค้า
+                    </button>
+                  )}
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400"
                   >
-                    {isSubmitting ? "กำลังบันทึก..." : "บันทึก"}
+                    {isSubmitting ? "กำลังบันทึก..." : (isEditMode ? "แก้ไขสินค้า" : "บันทึก")}
                   </button>
                   <button
                     type="button"

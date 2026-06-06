@@ -57,8 +57,8 @@ export const getoOrderByOrderNo = createAsyncThunk(
 
 export const getproducts = createAsyncThunk(
   "moderator/getproducts",
-  async ({ page, size }: { page: number; size: number }) => {
-    const res = await ModeratorService.getproducts(page, size);
+  async ({ page, size, keyword }: { page: number; size: number; keyword?: string }) => {
+    const res = await ModeratorService.getproducts(page, size, keyword);
     return res;
   }
 )
@@ -108,8 +108,22 @@ const moderatorSlice = createSlice({
             })
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
-                state.orders = action.payload.content;
-                state.totalPages = action.payload.totalPages
+                if (action.payload?.content && Array.isArray(action.payload.content)) {
+                    state.orders = action.payload.content;
+                } else if (action.payload?.data?.content && Array.isArray(action.payload.data.content)) {
+                    state.orders = action.payload.data.content;
+                } else if (action.payload?.data && Array.isArray(action.payload.data)) {
+                    state.orders = action.payload.data;
+                } else if (Array.isArray(action.payload)) {
+                    state.orders = action.payload;
+                } else {
+                    state.orders = [];
+                }
+                
+                state.totalPages = action.payload?.totalPages 
+                    || action.payload?.data?.totalPages 
+                    || 0;
+                
                 console.log("Orders fetched successfully:", state.orders);
             })
             .addCase(fetchAllOrders.rejected, (state, action) => {

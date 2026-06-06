@@ -108,10 +108,10 @@ function SidebarAdmin() {
 
           <li>
             <button
-              data-test="stock-button"
-              className={getMenuClass(["/admin/stock", "/moderator/stock"])}
+              data-test="report-button"
+              className={getMenuClass(["/admin/sales-report", "/moderator/sales-report"])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate(isAdmin ? "/admin/sales-report" : "/moderator/sales-report")
               }
             >
               <TrendingUp size={18} />
@@ -124,7 +124,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className={getMenuClass(["/admin/stock", "/moderator/stock"])}
               onClick={() =>
-                navigate("/moderator/stock")
+                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
               }
             >
               <Package size={18} />
