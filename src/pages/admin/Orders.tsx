@@ -131,13 +131,8 @@ function Orders() {
 
     try {
       if (selectedData.length > 0) {
-        // 1. ดึง id ของออเดอร์มาแปลงเป็นตัวเลข (Number) ตามที่ Backend ต้องการ
-        // สมมติว่าใน OrderMod มี property ชื่อ id
         const orderIds = selectedData.map((order) => Number(order.id));
-
         await dispatch(shippingOrder(orderIds)).unwrap();
-
-        // 3. โหลดข้อมูลคำสั่งซื้อมาใหม่
         dispatch(fetchAllOrders({ page: currentPage, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);

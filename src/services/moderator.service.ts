@@ -84,18 +84,12 @@ const deleteProduct = async (id: number) => {
   return res.data;
 };
 
-const updateOrderStatus = async (orderNo: string, status: string) => {
-  const res = await api.put(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
-    { status },
-  );
-  return res.data;
-};
+
 
 export const changeStatus = async (orderNo: string, status: string) => {
   const res = await api.put(
     `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
-    { status },
+    { status }
   );
   return res.data;
 };
@@ -105,8 +99,6 @@ export const ModeratorService = {
   updateProduct,
   deleteProduct,
   shippingOrder,
-  updateOrderStatus,
-  // getOrder,
   addProduct,
   getoOrderByOrderNo,
   changeStatus,
