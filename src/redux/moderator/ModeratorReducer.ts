@@ -32,8 +32,8 @@ export const fetchAllOrders = createAsyncThunk(
 
 export const shippingOrder = createAsyncThunk(
   "moderator/shippingOrder",
-  async (orderNo: number) => {
-    const res = await ModeratorService.shippingOrder(orderNo);
+  async (orderIds: number[]) => {
+    const res = await ModeratorService.shippingOrder(orderIds);
     return res;
   },
 );
