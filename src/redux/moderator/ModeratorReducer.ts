@@ -32,8 +32,8 @@ export const fetchAllOrders = createAsyncThunk(
 
 export const shippingOrder = createAsyncThunk(
   "moderator/shippingOrder",
-  async (orderNo: number) => {
-    const res = await ModeratorService.shippingOrder(orderNo);
+  async (orderIds: number[]) => {
+    const res = await ModeratorService.shippingOrder(orderIds);
     return res;
   },
 );
@@ -80,13 +80,6 @@ export const editProduct = createAsyncThunk(
   )
 
 
-export const updateOrderStatus = createAsyncThunk(
-  "moderator/updateOrderStatus",
-  async ({ orderNo, status }: { orderNo: string; status: string }) => {
-    const res = await ModeratorService.updateOrderStatus(orderNo, status);
-    return res;
-  },
-);
 
 export const changeStatus = createAsyncThunk(
   "moderator/changeStatus",
@@ -149,19 +142,6 @@ const moderatorSlice = createSlice({
 
      
 
-        builder
-            .addCase(updateOrderStatus.fulfilled, (state, action) => {
-                const updatedOrder = action.payload;
-                state.orders = state.orders.map(order =>
-                    order.orderNo === updatedOrder.orderNo ? { ...order, ...updatedOrder } : order
-                );
-                state.orderToPrint = updatedOrder ? [updatedOrder] : state.orderToPrint;
-                state.loading = false;
-            })
-            .addCase(updateOrderStatus.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
-            });
 
         builder
             .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
