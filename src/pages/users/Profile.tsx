@@ -397,17 +397,18 @@ const ProfilePage = () => {
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex flex-col w-full md:w-auto md:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
-            <div className="hidden md:block w-full mb-8">
+          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
+            <div className="hidden sm:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
               </p>
               <div className="w-full border-t border-black mt-5" />
             </div>
-            <div className="flex flex-col md:flex-row md:justify-between items-center md:items-start w-full">
-              <div className="flex flex-col items-center justify-start w-full md:w-56 lg:w-64 shrink-0 order-1 md:order-3 mb-6 md:mb-0 mt-2 md:mt-0">
-                <div className="w-[100px] h-[100px] sm:w-32 sm:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
+            <div className="flex flex-col sm:flex-col lg:flex-row lg:justify-between items-center lg:items-start w-full gap-6 lg:gap-0">
+              <div className="flex flex-col items-center justify-start w-full sm:w-56 lg:w-64 shrink-0 order-1 lg:order-3 mb-4 lg:mb-0 mt-2 lg:mt-0">
+                <div className="w-[150px] h-[150px] sm:w-[160px] sm:h-[160px] lg:w-32 lg:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
+                  {" "}
                   {tempData.image ? (
                     <img
                       src={tempData.image}
@@ -430,10 +431,6 @@ const ProfilePage = () => {
                 >
                   เลือกรูป
                 </button>
-                <div className="hidden md:block text-[14px] sm:text-[16px] font-normal text-gray-600 md:text-black text-center space-y-1.5 leading-relaxed font-['Anuphan']">
-                  <p>ขนาดไฟล์: สูงสุด 1 MB</p>
-                  <p>ไฟล์ที่รองรับ: .JPEG, .PNG</p>
-                </div>
               </div>
 
               {/* Desktop Divider */}
@@ -552,36 +549,56 @@ const ProfilePage = () => {
           <div
             data-test="image-modal"
             className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={(e) => {
+              if (
+                e.target === e.currentTarget &&
+                imageUploadStep === "upload"
+              ) {
+                closeImageModal();
+              }
+            }}
           >
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200">
+            <div
+            data-test="stop-Propagation"
+              className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-6 border-b border-gray-100 pb-4">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {imageUploadStep === "upload"
-                    ? "อัปโหลดรูปโปรไฟล์"
-                    : "ปรับแต่งรูปโปรไฟล์"}
-                </h3>
-              </div>
-              <div className="p-6">
                 {imageUploadStep === "upload" ? (
-                  <button
+                  <div
                     data-test="image-upload-area"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-12 cursor-pointer transition-colors w-full ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:bg-gray-50"}`}
+                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center p-12 transition-colors w-full min-h-[260px] ${
+                      isDragging ? "border-blue-500 bg-blue-50/50" : ""
+                    }`}
                   >
                     <Icon
                       icon="lucide:upload"
                       data-test="upload-icon"
-                      className={`w-10 h-10 mb-3 ${isDragging ? "text-blue-500" : "text-gray-400"}`}
+                      className={`w-12 h-12 mb-4 ${isDragging ? "text-blue-500" : "text-gray-700"}`}
                     />
-                    <p className="text-gray-700 font-medium">
-                      คลิกเพื่ออัปโหลดหรือลากวาง
+
+                    <p className="text-gray-900 font-medium text-base">
+                      ลากและวางไฟล์เพื่ออัปโหลด
                     </p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      PNG, JPG up to 1 MB
+                    <p className="text-gray-400 text-sm mt-1 mb-5">
+                      PNG, JPEG, JPG up to 5 MB
                     </p>
+
+                    <span className="text-gray-500 text-sm mb-4 font-normal">
+                      หรือ
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="cursor-pointer bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium px-6 py-2.5 rounded-lg transition shadow-sm"
+                    >
+                      เลือกไฟล์
+                    </button>
+
                     <input
                       data-test="file-input"
                       type="file"
@@ -590,7 +607,7 @@ const ProfilePage = () => {
                       accept=".jpg, .jpeg, .png"
                       className="hidden"
                     />
-                  </button>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center">
                     <div
@@ -611,10 +628,13 @@ const ProfilePage = () => {
                         />
                       )}
                     </div>
+
+                    {/* แถบย่อ-ขยาย พร้อมเอฟเฟกต์สีวิ่ง */}
                     <div className="w-full max-w-xs mt-6 flex items-center gap-4">
                       <span className="text-xs text-gray-500 font-medium">
                         0
                       </span>
+
                       <input
                         data-test="zoom-slider"
                         type="range"
@@ -623,8 +643,16 @@ const ProfilePage = () => {
                         max={3}
                         step={0.1}
                         onChange={(e) => setZoom(Number(e.target.value))}
-                        className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
+                        style={{
+                          background: `linear-gradient(to right, #2563EB 0%, #2563EB ${
+                            ((zoom - 1) / (3 - 1)) * 100
+                          }%, #E5E7EB ${
+                            ((zoom - 1) / (3 - 1)) * 100
+                          }%, #E5E7EB 100%)`,
+                        }}
                       />
+
                       <span className="text-xs text-gray-500 font-medium">
                         100
                       </span>
@@ -632,15 +660,17 @@ const ProfilePage = () => {
                   </div>
                 )}
               </div>
-              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                <button
-                  data-test="btn-cancel-crop"
-                  onClick={closeImageModal}
-                  className="cursor-pointer px-6 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-white transition"
-                >
-                  ยกเลิก
-                </button>
-                {imageUploadStep === "crop" && (
+
+              {/* 🟢 ย้ายปุ่มควบคุมมาครอบด้วยเงื่อนไข crop เท่านั้น (หน้าจอ upload จะไม่มีปุ่มและไม่มีแถบสีเทาด้านล่างกวนใจ) */}
+              {imageUploadStep === "crop" && (
+                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                  <button
+                    data-test="btn-cancel-crop"
+                    onClick={closeImageModal}
+                    className="cursor-pointer px-6 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-white transition"
+                  >
+                    ยกเลิก
+                  </button>
                   <button
                     data-test="btn-save-crop"
                     onClick={handleSaveCrop}
@@ -648,8 +678,8 @@ const ProfilePage = () => {
                   >
                     บันทึก
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}

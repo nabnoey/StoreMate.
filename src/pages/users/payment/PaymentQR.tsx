@@ -351,7 +351,8 @@ const PaymentQRInner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white lg:bg-white pb-[90px] lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+    <div className="min-h-screen bg-white lg:bg-white pb-4 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
+      {" "}
       {/* --- DESKTOP BREADCRUMB --- */}
       <div className="w-full max-w-[1136px] hidden lg:block ">
         <nav className="flex items-start mt-10 text-md text-black mb-4 font-medium py-1">
@@ -382,7 +383,6 @@ const PaymentQRInner = () => {
           <span className="text-black">ชำระเงินด้วย QR Code</span>
         </nav>
       </div>
-
       {/* --- MOBILE HEADER --- */}
       <div className="lg:hidden w-full flex items-center bg-white p-4 pt-10 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
@@ -395,8 +395,8 @@ const PaymentQRInner = () => {
         />
         <span className="text-lg font-bold text-black">ข้อมูลการชำระเงิน</span>
       </div>
-
-      <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm p-4 sm:p-10 lg:mt-6 lg:mb-10">
+      <div className="w-full lg:max-w-[700px] mx-auto bg-white lg:border border-gray-200 lg:rounded-xl lg:shadow-sm px-4 pt-4 pb-0 sm:p-10 lg:mt-6 lg:mb-10 flex flex-col flex-1">
+        {" "}
         {/* Title (Desktop Only) */}
         <button
           className="hidden lg:flex items-center gap-2 mb-6 cursor-pointer w-full border-b border-gray-200 pb-6 hover:text-[#4285F4] transition-colors"
@@ -410,7 +410,6 @@ const PaymentQRInner = () => {
             ข้อมูลการชำระเงิน
           </span>
         </button>
-
         {/* ส่วนแสดงราคาและเวลา */}
         <div className="flex flex-col items-center mb-6 gap-3 lg:pb-6 pb-4">
           <div className="flex justify-between w-full max-w-[400px] items-center  px-4 ">
@@ -430,7 +429,6 @@ const PaymentQRInner = () => {
             </span>
           </div>
         </div>
-
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* QR Code Slip (Responsive) */}
           <div className="flex justify-center mb-8 px-2 sm:px-0">
@@ -473,28 +471,28 @@ const PaymentQRInner = () => {
               {[
                 {
                   id: "step-1",
-                  icon: "ph:number-circle-one-fill",
+                  icon: "mdi:number-1-circle",
                   text: 'คลิกปุ่ม "บันทึก QR" หรือแคปหน้าจอ',
                 },
                 {
                   id: "step-2",
-                  icon: "ph:number-circle-two-fill",
+                  icon: "mdi:number-2-circle",
                   text: "เปิดแอปพลิเคชันธนาคารในอุปกรณ์ของท่าน",
                 },
                 {
                   id: "step-3",
-                  icon: "ph:number-circle-three-fill",
+                  icon: "mdi:number-3-circle",
                   text: "คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ หรือภายใน 24 ชั่วโมง ในกรณีที่มีธุรกรรมจำนวนมาก",
                 },
                 {
                   id: "step-4",
-                  icon: "ph:number-circle-four-fill",
+                  icon: "mdi:number-4-circle",
                   text: 'เลือกไปที่ปุ่ม "สแกน" หรือ "QR Code" และกดที่ "รูปภาพ" เลือกรูปภาพที่ท่านแคปไว้และทำการชำระเงิน โดยกรุณาเช็คชื่อบัญชีผู้รับคือ "บริษัท สโตร์เมท จำกัด"',
                   boldWords: ['"บริษัท สโตร์เมท จำกัด"'],
                 },
                 {
                   id: "step-5",
-                  icon: "ph:number-circle-five-fill",
+                  icon: "mdi:number-5-circle",
                   text: "QR สามารถสแกนได้ 1 ครั้งต่อ 1 การชำระเงินเท่านั้น หากต้องการสแกนใหม่ โปรดรีเฟรช QR อีกครั้ง",
                 },
               ].map((item) => {
@@ -525,11 +523,12 @@ const PaymentQRInner = () => {
           </div>
 
           {/* สำหรับคนที่ไม่อยากจ่ายเงินตอนนี้ มันจะไปที่หน้าออเดอร์และจะมีปุ่มชำระเงินมาให้อีกที แต่ถ้าจะจ่ายตังเลยก็ได้ */}
-          <div className="flex justify-center mt-4 lg:mt-8 px-4 lg:px-0">
+          <div className="flex justify-center mt-auto lg:mt-8 w-full pt-4">
+            {" "}
             <button
               data-test="confirm-paid-btn"
               onClick={handleConfirmButtonClick}
-              className="cursor-pointer w-full max-w-[400px] bg-[#1E40AF] text-white font-bold py-3.5 sm:py-4 rounded-xl transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
+              className="cursor-pointer w-full lg:max-w-[400px] bg-[#1E40AF] text-white font-bold py-3.5 sm:py-4 rounded-xl transition-all active:scale-[0.98] shadow-md text-sm sm:text-base"
             >
               ตกลง
             </button>

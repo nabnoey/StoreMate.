@@ -35,21 +35,19 @@ export const search = createAsyncThunk(
   }
 );
 
+export const addProduct = createAsyncThunk(
+  "products/addProduct",
+  async (data: FormData) => {
+    const response = await ProductService.addProduct(data);
+    return response;
+  }
+);
+
+
 const productsSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-
-   
-
-    // เพิ่มสินค้าใหม่
-  addProduct: (state, action: PayloadAction<Product>) => {
-    const newProduct = {
-      ...action.payload,
-      id: Date.now() 
-    };
-    state.items.unshift(newProduct);
-  },
 
     // เพิ่มจำนวนสินค้าตอนกด +
     addQuantity: (state, action: PayloadAction<number>) => {
@@ -110,6 +108,14 @@ const productsSlice = createSlice({
     
     
   })
+
+  builder.addCase(addProduct.fulfilled,(state,action) => {
+    const newProduct = {
+      ...action.payload,
+      id: Date.now() 
+    };
+    state.items.unshift(newProduct);
+  })
   
 }
 });
@@ -119,7 +125,7 @@ const productsSlice = createSlice({
 
 
 export const {
-  addProduct,
+ 
   addQuantity,
   removeQuantity,
   returnQuantity

@@ -33,11 +33,24 @@ const initialState: RefundState = {
 export const fetchRefunds = createAsyncThunk(
   "refunds/fetchRefunds",
   async (
-    { page, size }: { page: number; size: number },
+    {
+      status,
+      page,
+      size,
+      keyword,
+    }: { status: string; page: number; size: number; keyword: string },
     { rejectWithValue },
   ) => {
     try {
-      const data = await ModeratorService.getRefunds(page, size);
+      const cleanKeyword = keyword.trim() !== "" ? keyword : undefined;
+
+      const data = await ModeratorService.getRefunds(
+        page,
+        size,
+        cleanKeyword,
+        status,
+      );
+
       return data;
     } catch (err: any) {
       return rejectWithValue(

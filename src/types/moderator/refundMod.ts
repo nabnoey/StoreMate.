@@ -5,7 +5,7 @@ export interface RefundItem {
   total: number;
   reason: string;
   requestedAt: string;
-  status: string; // เช่น 'PENDING', 'APPROVED', 'REJECTED'
+  status: RefundType;
 }
 
 export interface RefundsResponse {
@@ -16,4 +16,4 @@ export interface RefundsResponse {
   total: number;
 }
 
-export type ModalType = "PENDING" | "APPROVED" | "REJECTED" | null;
+export type RefundType = "ALL" | "PENDING" | "APPROVED" | "REJECTED" | null;

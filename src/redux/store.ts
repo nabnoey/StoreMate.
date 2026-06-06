@@ -10,6 +10,7 @@ import paymentReducer from "./payment/paymentReducer";
 import orderReducer from "./orders/orderReducer";
 import moderatorReducer from "./moderator/ModeratorReducer";
 import refundReducer from "./moderator/refundReducer";
+import notificationReducer from "./notification/notificationReducer";
 
 const storage = {
   getItem: (key: string) => {
@@ -35,12 +36,13 @@ const rootReducer = combineReducers({
   orders: orderReducer,
   moderator: moderatorReducer,
   refunds: refundReducer,
+  notification: notificationReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["carts", "payment", "orders"],
+  whitelist: ["carts", "orders"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

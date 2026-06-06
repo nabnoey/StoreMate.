@@ -11,8 +11,9 @@ import {
   clearSelectedRefund,
 } from "../../redux/moderator/refundReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
+import { toast } from "react-hot-toast";
 
-type ModalType = "PENDING" | "APPROVED" | "REJECTED" | null;
+type ModalType = "ALL" | "PENDING" | "APPROVED" | "REJECTED" | null;
 
 const RefundModeratorPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,14 +22,13 @@ const RefundModeratorPage = () => {
   const currentPage = Number(searchParams.get("page")) || 1;
   const pageSize = 6;
 
-  const {
-    refunds,
-    total,
-    pendingCount,
-    selectedRefund,
-    isLoading,
-    isSubmitting,
-  } = useSelector((state: RootState) => state.refunds);
+  const statusFilter = searchParams.get("status") || "ALL";
+  const [keywordInput, setKeywordInput] = useState(
+    searchParams.get("keyword") || "",
+  );
+
+  const { refunds, total, pendingCount, selectedRefund, isLoading } =
+    useSelector((state: RootState) => state.refunds);
   const { token } = useSelector((state: RootState) => state.auth);
 
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -37,8 +37,18 @@ const RefundModeratorPage = () => {
 
   useEffect(() => {
     if (!token) return;
-    dispatch(fetchRefunds({ page: currentPage - 1, size: pageSize }));
-  }, [dispatch, currentPage, token]);
+
+    const keywordParam = searchParams.get("keyword") || "";
+
+    dispatch(
+      fetchRefunds({
+        page: currentPage - 1,
+        size: pageSize,
+        keyword: keywordParam,
+        status: statusFilter,
+      }),
+    );
+  }, [dispatch, currentPage, token, searchParams, statusFilter]);
 
   const formatDate = (dateString: string) => {
     if (!dateString || dateString === "null") return "-";
@@ -78,10 +88,24 @@ const RefundModeratorPage = () => {
       } else if (activeModal === "REJECTED") {
         await dispatch(rejectRefund(targetRefundNo)).unwrap();
       }
+
+      toast.dismiss();
+      toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว");
+
       handleCloseModal();
-      dispatch(fetchRefunds({ page: currentPage - 1, size: pageSize }));
+
+      dispatch(
+        fetchRefunds({
+          page: currentPage - 1,
+          size: pageSize,
+          keyword: searchParams.get("keyword") || "",
+          status: statusFilter,
+        }),
+      );
     } catch (err: any) {
-      setAlertError(err || "เกิดข้อผิดพลาดในการส่งข้อมูลระบบ");
+      const errorMessage = err || "เกิดข้อผิดพลาดในการส่งข้อมูลระบบ";
+      setAlertError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -104,30 +128,66 @@ const RefundModeratorPage = () => {
             </div>
           </div>
 
-          {/* ส่วนค้นหาและฟิลเตอร์ */}
           <div className="flex flex-wrap gap-3 items-center mb-5">
             <div className="relative max-w-sm w-full">
               <input
                 type="text"
                 placeholder="ค้นหาด้วยชื่อ , หมายเลขคำสั่งซื้อ หรือ หมายเลขคำขอ..."
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setSearchParams({
+                      page: "1",
+                      status: statusFilter,
+                      keyword: keywordInput,
+                    });
+                  }
+                }}
                 className="w-full bg-white border border-gray-200 rounded-xl pl-3 pr-10 py-1.5 text-xs text-gray-600 focus:outline-none focus:border-blue-400 transition-colors placeholder:text-gray-300"
               />
+
+              {keywordInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeywordInput("");
+                    setSearchParams({
+                      page: "1",
+                      status: statusFilter,
+                      keyword: "",
+                    });
+                  }}
+                  className="absolute right-3 top-2 text-gray-400 hover:text-gray-600 transition-colors "
+                >
+                  <Icon icon="lucide:x" className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
             <div className="relative">
-              <select className="bg-white border border-gray-200 rounded-xl pl-3 pr-8 py-1.5 text-md text-black font-medium focus:outline-none appearance-none cursor-pointer">
-                <option>สถานะทั้งหมด</option>
-                <option>อนุมัติ</option>
-                <option>รอดำเนินการ</option>
-                <option>ปฏิเสธ</option>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setSearchParams({
+                    page: "1",
+                    status: e.target.value,
+                    keyword: searchParams.get("keyword") || "",
+                  });
+                }}
+                className="bg-white border border-gray-200 rounded-xl pl-3 pr-8 py-1.5 text-md text-black font-medium focus:outline-none appearance-none cursor-pointer"
+              >
+                <option value="ALL">สถานะทั้งหมด</option>
+                <option value="APPROVED">อนุมัติ</option>
+                <option value="PENDING">รอดำเนินการ</option>
+                <option value="REJECTED">ปฏิเสธ</option>
               </select>
               <Icon
                 icon="lucide:chevron-down"
-                className="w-3.5 h-3.5 absolute right-2.5 top-2.5 text-gray-400 pointer-events-none"
+                className="w-3.5 h-3.5 absolute right-2.5 top-2.5 text-gray-400 cursor-pointer"
               />
             </div>
           </div>
 
-          {/* กล่องครอบตาราง ปรับตาม Figma [padding: 16px, background: white, border-radius: 14px, outline: 0.8px black/10] */}
           <div className="w-full overflow-x-auto bg-white p-4 rounded-[14px] border border-black/10 flex-1">
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
@@ -187,7 +247,6 @@ const RefundModeratorPage = () => {
                           : "-"}
                       </td>
 
-                      {/* 🌟 จุดที่แก้ไข: ปรับแต่งป้ายสถานะเป็นทรงแคปซูลตรงตามภาพตัวอย่าง */}
                       <td className="px-4 py-4">
                         {row.status === "APPROVED" && (
                           <span className="inline-flex items-center justify-center px-3 py-1 text-[13px] font-medium bg-[#10b981] text-white rounded-full whitespace-nowrap">
@@ -261,7 +320,6 @@ const RefundModeratorPage = () => {
             </table>
           </div>
 
-          {/* ส่วนควบคุมหน้า (Pagination) */}
           <div className="mt-5 flex justify-end items-center gap-1 text-xs">
             <button
               type="button"
@@ -299,7 +357,6 @@ const RefundModeratorPage = () => {
         </main>
       </div>
 
-      {/* ส่วนของ Modal รายละเอียด */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/25 backdrop-blur-[1px] z-50 flex items-center justify-center p-4">
           <div className="bg-white p-6 max-w-[420px] w-full rounded-2xl shadow-xl relative flex flex-col border border-gray-100">
@@ -421,11 +478,10 @@ const RefundModeratorPage = () => {
                       </button>
                       <button
                         type="button"
-                        disabled={isSubmitting}
                         onClick={handleConfirmAction}
                         className="px-4 py-2 bg-[#10b981] hover:bg-[#0f9f6e] text-white rounded-xl font-medium cursor-pointer text-xs disabled:opacity-50 transition-colors"
                       >
-                        {isSubmitting ? "กำลังบันทึก..." : "ยืนยันการอนุมัติ"}
+                        ยืนยันการอนุมัติ
                       </button>
                     </>
                   )}
@@ -441,11 +497,10 @@ const RefundModeratorPage = () => {
                       </button>
                       <button
                         type="button"
-                        disabled={isSubmitting}
                         onClick={handleConfirmAction}
                         className="px-4 py-2 bg-[#ef4444] hover:bg-[#dc2626] text-white rounded-xl font-medium cursor-pointer text-xs disabled:opacity-50 transition-colors"
                       >
-                        {isSubmitting ? "กำลังบันทึก..." : "ยืนยันการปฏิเสธ"}
+                        ยืนยันการปฏิเสธ
                       </button>
                     </>
                   )}

@@ -1,83 +1,118 @@
+import { useState,useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { CiSearch } from "react-icons/ci";
-import { FiEdit } from "react-icons/fi";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../redux/store";
-import type { Product } from "../../types/product";
-import { addProduct } from "../../redux/moderator/ModeratorReducer";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../redux/store";
+import { AddProductModal } from "../../components/admin/AddProductModal";
+import { getproducts } from "../../redux/moderator/ModeratorReducer";
+import type { ProductMod } from "../../types/moderator/productMod";
+
+
+const categoryMap: Record<string | number, string> = {
+  "Promotion": "โปรโมชั่น",
+  "Drinks": "เครื่องดื่ม",
+  "Soap": "สบู่",
+  "Shampoo": "ผลิตภัณฑ์ดูแลผม"
+};
 
 function Stock() {
-  const products = [
-    {
-      id: "PRD-001",
-      name: "แชมพูสูตรฟื้นฟู",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-002",
-      name: "ครีมนวดผมสมุนไพร",
-      category: "ผลิตภัณฑ์ดูแลผม",
-      price: 100,
-      stock: 999,
-      status: "พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-003",
-      name: "น้ำมะม่วงหาวมะนาวโห่",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-004",
-      name: "น้ำสมุนไพรสูตรน้ำผึ้ง",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "ไม่พร้อมจำหน่าย",
-    },
-    {
-      id: "PRD-005",
-      name: "มะม่วงหาวแช่อิ่ม",
-      category: "เครื่องดื่ม",
-      price: 100,
-      stock: 999,
-      status: "ไม่พร้อมจำหน่าย",
-    },
-  ];
+const products = useSelector((state: RootState) => state.moderator.products);
+const [searchParams, setSearchParams] = useSearchParams();
+const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
+const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get("keyword") || "");
+
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const PAGE_SIZE = 10;
 
   const dispatch = useDispatch<AppDispatch>();
-//   type NewProduct = {
-//   id: string;
-//   name: string;
-//   category: string;
-//   price: number;
-//   stock: number;
-//   status: string;
-// };
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductMod | null>(null);
+
+
+useEffect(() => {
+  dispatch(getproducts({ page: 0 , size: 1000 }));
+}, [dispatch]);
+
+const filteredProducts = products.filter(p => {
+  if (!submittedSearchTerm) return true;
+  const term = submittedSearchTerm.toLowerCase();
+  const idStr = String(p.id);
+  const prdStr = `prd-${String(p.id).padStart(3, '0')}`;
+  return (
+    p.productName.toLowerCase().includes(term) ||
+    idStr.includes(term) ||
+    prdStr.includes(term)
+  );
+});
+
+const localTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+
+useEffect(() => {
+  const params: Record<string, string> = {
+    page: String(currentPage > 0 ? currentPage - 1 : 0),
+    size: String(PAGE_SIZE),
+  };
+  if (submittedSearchTerm) {
+    params.keyword = submittedSearchTerm;
+  }
+  setSearchParams(params);
+}, [currentPage, setSearchParams, submittedSearchTerm]);
+
+useEffect(() => {
+  if (currentPage > localTotalPages && localTotalPages > 0) {
+    // setCurrentPage(localTotalPages);
+  }
+}, [currentPage, localTotalPages]);
+
+const currentItems = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+const handlePageChange = (pageNumber: number) => {
+  if (pageNumber >= 1 && pageNumber <= localTotalPages) {
+    setCurrentPage(pageNumber);
+  }
+};
+
+const maxVisiblePages = 5;
+
+  const getVisiblePages = () => {
+    // พยายามให้หน้าที่เลือกอยู่ตรงกลาง
+    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let end = start + maxVisiblePages - 1;
+
+    if (end > localTotalPages) {
+      end = localTotalPages;
+      start = Math.max(1, end - maxVisiblePages + 1);
+    }
+
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+
+  const visiblePages = getVisiblePages();
 
   const handleAddProduct = () => {
-    const newProduct: Product = {
-      id: 6,
-      productName: "สินค้าใหม่",
-      imageUrl: "https://example.com/image.jpg",
-      price: 0,
-      categoryName: "หมวดหมู่ใหม่",
-      sammary: "สรุปสินค้าใหม่",
-      description: "รายละเอียดสินค้าใหม่",
-      status: "ACTIVE",
-      createAt: new Date().toISOString(),
-      stockQuantity: 0,
-    }
-    dispatch(addProduct(newProduct));
-  }
+    setSelectedProduct(null);
+    setIsAddModalOpen(true);
+  };
+
+  const handleEditProduct = (product: ProductMod) => {
+    setSelectedProduct(product);
+    setIsAddModalOpen(true);
+  };
+
+
+
+
 
   return (
-    <div className="max-h-screen bg-[#F8F9FA] flex flex-col w-full p-0 ">
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col w-full p-0 overflow-y-auto">
       <HeaderAdmin
         title="จัดการสินค้าในคลัง"
         subtitle="เพิ่ม แก้ไข ลบสินค้า ปรับสถานะสินค้า และจัดการจำนวนสินค้าคงเหลือ"
@@ -92,11 +127,19 @@ function Stock() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative w-full sm:w-[400px]">
               <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999999] text-xl font-bold" />
-              <input
-                type="text"
-                placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
+            <input
+  type="text"
+  value={searchTerm}
+  placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
+  onChange={(e) => setSearchTerm(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      setSubmittedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }
+  }}
+  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-600"
+/>
             </div>
             <button
               type="button"
@@ -109,35 +152,22 @@ function Stock() {
         </div>
 
         {/* ส่วนตารางสินค้า */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm overflow-x-auto">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm overflow-x-auto text-black">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-[#374151] border-b border-gray-200">
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  รหัสสินค้า
-                </th>
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  ชื่อสินค้า
-                </th>
+                <th className="pb-4 font-normal whitespace-nowrap">รหัสสินค้า</th>
+                <th className="pb-4 font-normal whitespace-nowrap">ชื่อสินค้า</th>
                 <th className="pb-4 font-normal whitespace-nowrap">หมวดหมู่</th>
-                <th className="pb-4 
-                
-                
-                
-                
-                
-                
-                font-normal whitespace-nowrap">ราคา</th>
-                <th className="pb-4 font-normal whitespace-nowrap">
-                  จำนวนคงเหลือ
-                </th>
-                <th className="pb-4 font-normal whitespace-nowrap">สถานะ</th>
+                <th className="pb-4 font-normal whitespace-nowrap">ราคา</th>
+                <th className="pb-4 font-normal whitespace-nowrap">จำนวนคงเหลือ</th>
+                <th className="pb-4 font-normal whitespace-nowrap">สถานะคำสั่งซื้อ</th>
                 <th className="pb-4 font-normal whitespace-nowrap"></th>
               </tr>
             </thead>
 
             <tbody>
-              {products.map((product) => (
+              {currentItems.map((product) => (
                 <tr
                   key={product.id}
                   className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
@@ -145,42 +175,106 @@ function Stock() {
                   <td className="py-4">
                     <button
                       type="button"
-                      className="text-[#073A8D] cursor-pointer hover:underline bg-transparent border-none p-0 text-left"
+                      className="text-gray-500 cursor-pointer bg-transparent border-none p-0 text-left"
                     >
-                      {product.id}
+                      {`PRD-${String(product.id).padStart(3, '0')}`}
                     </button>
                   </td>
-                  <td className="py-4">{product.name}</td>
-                  <td className="py-4">{product.category}</td>
-                  <td className="py-4">{product.price}</td>
-                  <td className="py-4">{product.stock}</td>
+                  <td className="py-4">{product.productName}</td>
+                  <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
+                  <td className="py-4">฿ {product.price}</td>
+                  <td className="py-4">{product.stockQuantity}</td>
                   <td className="py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        product.status === "พร้อมจำหน่าย"
+                        product.status === "ACTIVE"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {product.status}
+                      {product.status === "ACTIVE" ? "พร้อมจำหน่าย" : "ไม่พร้อมจำหน่าย"}
                     </span>
                   </td>
                   <td className="py-4">
                     <button
                       type="button"
-                      className="text-blue-600 flex items-center gap-1.5 hover:underline font-medium bg-transparent border-none p-0"
+                      onClick={() => handleEditProduct(product as ProductMod)}
+                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0"
                     >
-                      <FiEdit className="text-gray-600" /> จัดการ
+                      จัดการ
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+                   <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+                className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                ก่อนหน้า
+              </button>
+
+              <div className="flex font-normal font-['Anuphan'] items-center gap-1">
+                {visiblePages.length > 0 ? (
+                  visiblePages.map((page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 rounded-md flex items-center justify-center font-medium transition-colors ${
+                        page === currentPage
+                          ? "text-blue-500 font-bold bg-transparent"
+                          : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))
+                ) : (
+
+                  <button type="button" className="w-8 h-8 text-blue-500 font-bold">1</button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPage === localTotalPages || localTotalPages === 0}
+                onClick={() => handlePageChange(currentPage + 1)}
+                className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
+                  currentPage === localTotalPages || localTotalPages === 0
+                    ? "text-gray-300 cursor-not-allowed border-gray-200"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                ต่อไป
+              </button>
+            </div>
         </div>
-      </div>
+
+    
+          
+      <AddProductModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        product={selectedProduct}
+      />
     </div>
+    </div>
+  
   );
+
 }
 
 export default Stock;

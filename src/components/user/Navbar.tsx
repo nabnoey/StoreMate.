@@ -244,7 +244,7 @@ const Navbar: React.FC = () => {
           ) : (
             <div className="flex items-center justify-between gap-3 p-5 border-b border-gray-100">
               <button
-                data-test="btn-login"
+                data-test="login-btn"
                 className="flex-1 bg-[#0A157A] text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer"
                 onClick={() => {
                   navigate("/login");
@@ -255,7 +255,7 @@ const Navbar: React.FC = () => {
               </button>
 
               <button
-                data-test="btn-register"
+                data-test="register-btn"
                 className="flex-1 border-2 border-[#0A157A] text-[#0A157A] py-2.5 rounded-xl font-bold text-sm cursor-pointer"
                 onClick={() => {
                   navigate("/register");

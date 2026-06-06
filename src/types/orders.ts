@@ -15,7 +15,7 @@ export type OrderStatus =
   | "PROCESSING"
   | "RECEIVED"
   | "CANCELLED"
-  | "REFUND";
+  | "REFUNDED";
 
 export const statusConfig: Record<
   OrderStatus,
@@ -26,7 +26,7 @@ export const statusConfig: Record<
   RECEIVED: { label: "ที่ต้องได้รับ", color: "text-orange-500" },
   COMPLETED: { label: "สำเร็จแล้ว", color: "text-green-500" },
   CANCELLED: { label: "ยกเลิกแล้ว", color: "text-red-500" },
-  REFUND: { label: "คืนเงินแล้ว", color: "text-purple-500" },
+  REFUNDED: { label: "คืนเงินแล้ว", color: "text-purple-500" },
   ALL: { label: "ทั้งหมด", color: "text-black" },
 };
 

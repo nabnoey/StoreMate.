@@ -4,15 +4,16 @@ import axios from "axios";
 import { store } from "../redux/store";
 import { logout } from "../redux/auth/authReducer";
 
+const baseURL = import.meta.env.VITE_BASE_URL
+  ? import.meta.env.VITE_BASE_URL.replace(/\/+$/, "") + "/"
+  : undefined;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {
   const token = TokenService.getAccessToken();
-
-  console.log("Token from TokenService:", token);
-  console.log("Request URL:", config.url);
 
   if (
     token &&
@@ -31,9 +32,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const isLoginAPI = error.config.url.includes("/login");
+      const isLoginAPI = error.config.url?.includes("/login");
+      const isDeleteProductAPI = error.config.url?.includes("/products") && error.config.method === "delete";
 
-      if (!isLoginAPI) {
+      if (!isLoginAPI && !isDeleteProductAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
 

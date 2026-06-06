@@ -159,7 +159,7 @@ const AddCreditCardFormInner = () => {
 
             <div>
               <div className="font-mono text-lg sm:text-xl tracking-widest mb-3 sm:mb-4">
-                **** **** **** ****
+                0000 0000 0000 0000
               </div>
               <div className="flex justify-between text-[11px] sm:text-xs font-mono">
                 <div>
@@ -241,6 +241,16 @@ const AddCreditCardFormInner = () => {
             </div>
           </div>
 
+          {/* --- ปุ่มยืนยันย้ายมาอยู่ล่างสุดของฟอร์ม --- */}
+          <button
+            data-test="confirm-add-card-btn"
+            type="submit"
+            disabled={!stripe || isProcessing}
+            className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
+          >
+            {isProcessing ? "กำลังประมวลผล..." : "ยืนยันข้อมูลบัตร"}
+          </button>
+
           {/* --- ย้ายกล่องข้อความความปลอดภัยมาไว้ตรงนี้ (ก่อนปุ่ม) --- */}
           <div className="bg-[#F3F4F6] border border-[#e2e8f0] rounded-lg p-4 flex items-start gap-3 text-xs text-gray-500 mt-6">
             <Icon
@@ -260,17 +270,6 @@ const AddCreditCardFormInner = () => {
               </p>
             </div>
           </div>
-
-          {/* --- ปุ่มยืนยันย้ายมาอยู่ล่างสุดของฟอร์ม --- */}
-          <button
-            data-test="confirm-add-card-btn"
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
-
-          >
-            {isProcessing ? "กำลังประมวลผล..." : "ยืนยันการเพิ่มบัตร"}
-          </button>
         </form>
       </div>
     </div>
