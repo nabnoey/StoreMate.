@@ -225,15 +225,10 @@ const router = createBrowserRouter([
         path: "refund",
         element: <RefundModeratorPage />,
       },
-      {
-        path: "notification",
-        element: <AdminNotificationPage />,
-      },
     ],
   },
-
   {
-    path: "/admin",
+    path: "/owner",
     element: (
       <AdminRoute>
         <AdminLayout />

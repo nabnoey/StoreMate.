@@ -98,8 +98,9 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="dashboard-button"
-              className={getMenuClass(["/admin/dashboard"])}
-              onClick={() => navigate("/admin/dashboard")}
+              className="cursor-pointer w-full text-left hover:bg-blue-100 
+     hover:text-blue-600 rounded-lg transition-all -mt-7.5"
+              onClick={() => navigate("/owner/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -111,7 +112,7 @@ function SidebarAdmin() {
               data-test="report-button"
               className={getMenuClass(["/admin/sales-report", "/moderator/sales-report"])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/sales-report" : "/moderator/sales-report")
+                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
               }
             >
               <TrendingUp size={18} />
@@ -124,7 +125,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className={getMenuClass(["/admin/stock", "/moderator/stock"])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
+                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
               }
             >
               <Package size={18} />
@@ -139,7 +140,7 @@ function SidebarAdmin() {
                 "/moderator/ordersMod",
               ])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/orders" : "/moderator/orders")
+                navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")
               }
             >
               <Truck size={18} />
@@ -151,7 +152,7 @@ function SidebarAdmin() {
             <button
               className={getMenuClass(["/admin/refund", "/moderator/refund"])}
               onClick={() =>
-                navigate(isAdmin ? "/admin/refund" : "/moderator/refund")
+                navigate(isAdmin ? "/owner/refund" : "/moderator/refund")
               }
             >
               <CircleDollarSign size={18} />
@@ -163,8 +164,8 @@ function SidebarAdmin() {
             <>
               <li>
                 <button
-                  className={getMenuClass(["/admin/user-edit"])}
-                  onClick={() => navigate("/admin/user-edit")}
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/owner/user-edit")}
                 >
                   <Users size={18} />
                   จัดการผู้ใช้
@@ -173,8 +174,8 @@ function SidebarAdmin() {
 
               <li>
                 <button
-                  className={getMenuClass(["/admin/store-edit"])}
-                  onClick={() => navigate("/admin/store-edit")}
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/owner/store-edit")}
                 >
                   <Settings size={18} />
                   ตั้งค่าร้านค้า
@@ -183,17 +184,9 @@ function SidebarAdmin() {
 
               <li>
                 <button
-                  className={getMenuClass([
-                    "/admin/notification",
-                    "/moderator/notification",
-                  ])}
-                  onClick={() =>
-                    navigate(
-                      isAdmin
-                        ? "/admin/notification"
-                        : "/moderator/notification",
-                    )
-                  }
+                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  // onClick={() => navigate("/owner/notify")}
+                  onClick={() => navigate("/owner/notification")}
                 >
                   <Bell size={18} />
                   จัดการแจ้งเตือน
