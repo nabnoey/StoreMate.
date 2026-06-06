@@ -8,9 +8,10 @@ import {
   Truck,
   CircleDollarSign,
   Bell,
+  Store,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
@@ -19,6 +20,7 @@ import type { RootState } from "../../redux/store";
 
 function SidebarAdmin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -27,6 +29,15 @@ function SidebarAdmin() {
         (role: any) => role === "ADMIN" || role?.roleName === "ADMIN",
       )
     : false;
+
+  const getMenuClass = (paths: string[]) => {
+    const isActive = paths.some((path) => location.pathname === path);
+    const baseClass =
+      "cursor-pointer w-full text-left flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium rounded-lg transition-all";
+    return isActive
+      ? `${baseClass} bg-blue-50 text-blue-600 font-semibold`
+      : `${baseClass} text-gray-700 hover:bg-gray-50 hover:text-blue-600`;
+  };
 
   const handleLogout = () => {
     toast(
@@ -72,34 +83,22 @@ function SidebarAdmin() {
   };
 
   return (
-    <div className="w-72 h-screen bg-[#ffffff] text-black p-4 flex flex-col justify-between border-r border-[#6B7280] print:hidden">
-      {/* TOP */}
+    <div className="w-72 h-screen sticky top-0 bg-[#ffffff] text-black p-4 flex flex-col justify-between border-r border-gray-200 print:hidden overflow-y-auto">
       <div>
-        {/* LOGO */}
-        <div className="flex items-center gap-3 mb-6 text-center">
-          <div className="avatar">
-            <button onClick={() => navigate("/")}>
-              <img
-                src={logo}
-                className="w-27 lg:w-38 cursor-pointer mt-5 -ml-8 lg:mt-5 cursor-pointer"
-                alt="Logo"
-                data-test="logo"
-              />
-            </button>
-
-            <h1 className="font-medium   mt-8 text-[30px] leading-none ">
-              Owner
-            </h1>
-          </div>
+        <div className="flex flex-col items-center justify-center mt-2">
+          <img
+            src={logo}
+            className="w-40 h-40 object-contain"
+            alt="Logo"
+            data-test="logo"
+          />
         </div>
 
-        {/* MENU */}
-        <ul className="menu rounded-box gap-3">
+        <ul className="menu rounded-box gap-1 px-0">
           <li>
             <button
               data-test="dashboard-button"
-              className="cursor-pointer w-full text-left hover:bg-blue-100 
-     hover:text-blue-600 rounded-lg transition-all -mt-7.5"
+              className={getMenuClass(["/admin/dashboard"])}
               onClick={() => navigate("/admin/dashboard")}
             >
               <LayoutDashboard size={18} />
@@ -110,7 +109,7 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="stock-button"
-              className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              className={getMenuClass(["/admin/stock", "/moderator/stock"])}
               onClick={() =>
                 navigate(isAdmin ? "/admin/stock" : "/moderator/stock")
               }
@@ -123,7 +122,7 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="stock-button"
-              className="cursor-pointer w-full text-left hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              className={getMenuClass(["/admin/stock", "/moderator/stock"])}
               onClick={() =>
                 navigate("/moderator/stock")
               }
@@ -135,7 +134,10 @@ function SidebarAdmin() {
 
           <li>
             <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              className={getMenuClass([
+                "/admin/ordersMod",
+                "/moderator/ordersMod",
+              ])}
               onClick={() =>
                 navigate(isAdmin ? "/admin/orders" : "/moderator/orders")
               }
@@ -147,7 +149,7 @@ function SidebarAdmin() {
 
           <li>
             <button
-              className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              className={getMenuClass(["/admin/refund", "/moderator/refund"])}
               onClick={() =>
                 navigate(isAdmin ? "/admin/refund" : "/moderator/refund")
               }
@@ -161,7 +163,7 @@ function SidebarAdmin() {
             <>
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  className={getMenuClass(["/admin/user-edit"])}
                   onClick={() => navigate("/admin/user-edit")}
                 >
                   <Users size={18} />
@@ -171,7 +173,7 @@ function SidebarAdmin() {
 
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  className={getMenuClass(["/admin/store-edit"])}
                   onClick={() => navigate("/admin/store-edit")}
                 >
                   <Settings size={18} />
@@ -181,9 +183,17 @@ function SidebarAdmin() {
 
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  // onClick={() => navigate("/admin/notify")}
-                  onClick={() => navigate("/admin/notification")}
+                  className={getMenuClass([
+                    "/admin/notification",
+                    "/moderator/notification",
+                  ])}
+                  onClick={() =>
+                    navigate(
+                      isAdmin
+                        ? "/admin/notification"
+                        : "/moderator/notification",
+                    )
+                  }
                 >
                   <Bell size={18} />
                   จัดการแจ้งเตือน
@@ -194,27 +204,48 @@ function SidebarAdmin() {
         </ul>
       </div>
 
-      {/* BOTTOM USER */}
-      <div className="border-t pt-6">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="border-t border-gray-100 pt-4 flex flex-col gap-1">
+        <div className="flex items-center gap-3 mb-3 px-2">
           <div className="avatar">
-            <div className="w-10 rounded-full">
-              <img src="https://i.pravatar.cc/100" alt="bottom user" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+              {user?.image_url || user?.image ? (
+                <img
+                  src={user.image_url || user.image}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <Users size={20} className="text-gray-400" />
+                </div>
+              )}
             </div>
           </div>
-          <div>
-            <p className="font-medium text-sm">สุดหล่อ มากเสน่ห์</p>
-            <p className="text-xs text-gray-500">aom@gmail.com</p>
+          <div className="overflow-hidden">
+            <p className="font-medium text-sm text-gray-900 truncate">
+              {user?.name || user?.email?.split("@")[0] || "กำลังโหลด..."}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              {user?.email || "กำลังโหลด..."}
+            </p>
           </div>
         </div>
 
         <button
+          onClick={() => navigate("/")}
+          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-lg transition-all w-full text-left"
+        >
+          <Store size={18} />
+          หน้าหลักร้านค้า
+        </button>
+
+        <button
           onClick={handleLogout}
           data-test="logout-button"
-          className=" cursor-pointer btn btn-ghost hover:bg-blue-100 hover:text-blue-600 w-full justify-start text-gray-600 border-amber-50"
+          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all w-full text-left"
         >
           <LogOut size={18} />
-          ออกจากระบบ
+          ลงชื่อออกจากระบบ
         </button>
       </div>
     </div>

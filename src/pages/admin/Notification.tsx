@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
-
-// --- กำหนด Interface สำหรับ TypeScript ---
-interface NotificationItem {
-  id: number;
-  subject: string;
-  message: string;
-  recipients: string;
-  date: string;
-}
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import type { AppDispatch, RootState } from "../../redux/store";
+import {
+  fetchOwnerNotify,
+  createNotify,
+  deleteNotify,
+} from "../../redux/notification/notificationReducer";
+import type { Notification } from "../../types/notification";
 
 interface NotificationFormData {
   subject: string;
@@ -16,33 +16,28 @@ interface NotificationFormData {
   recipients: string;
 }
 
-const Notification: React.FC = () => {
-  // --- States พร้อมระบุ Type ---
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: 1,
-      subject: "ร้านขอปิดปรับปรุง",
-      message: "ปรับปรุงเว็บไซต์ตั้งแต่วันที่ 1 - 3 มีนาคม 2569",
-      recipients: "พนักงาน",
-      date: "28/2/2569",
-    },
-    {
-      id: 2,
-      subject: "โปรโมชั่นใหม่",
-      message: "ลดราคาพิเศษ 20% เมื่อซื้อสินค้าครบ 1,000 บาท",
-      recipients: "ทั้งหมด",
-      date: "28/2/2569",
-    },
-    {
-      id: 3,
-      subject: "คำขอคืนเงิน ORD-2024-001",
-      message: "เหตุผลในการขอคืนเงิน: ไม่ต้องการสินค้านี้แล้ว",
-      recipients: "พนักงาน",
-      date: "28/2/2569",
-    },
-  ]);
+const AdminNotificationPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const notifications = useSelector(
+    (state: RootState) => state.notification.items,
+  ) as Notification[];
+
+  const isLoading = useSelector(
+    (state: RootState) => state.notification.isLoading,
+  );
+
+  const totalPages = useSelector(
+    (state: RootState) => state.notification.totalPages,
+  );
+  // const currentPage = useSelector(
+  //   (state: RootState) => state.notification.currentPage,
+  // );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [page, setPage] = useState<number>(0);
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -51,40 +46,79 @@ const Notification: React.FC = () => {
     recipients: "ทั้งหมด",
   });
 
-  // --- ฟังก์ชันสำหรับกรองข้อมูล ---
-  const filteredNotifications: NotificationItem[] = notifications.filter(
-    (item) => item.subject.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(0);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  // --- ฟังก์ชันลบการแจ้งเตือน (รับ Parameter เป็น Number) ---
-  const handleDelete = (id: number): void => {
+  useEffect(() => {
+    dispatch(
+      fetchOwnerNotify({
+        keyword: debouncedSearch,
+        page: page,
+        size: 10,
+      }),
+    );
+  }, [dispatch, debouncedSearch, page]);
+
+  const getRecipientLabel = (sendTo: string) => {
+    if (sendTo.includes("moderator")) return "พนักงาน";
+    if (sendTo.includes("customer")) return "ผู้ใช้งาน";
+    return "ทั้งหมด";
+  };
+
+  const getRecipientBadgeClass = (sendTo: string) => {
+    if (sendTo.includes("moderator"))
+      return "bg-blue-50 text-blue-600 border border-blue-100";
+    if (sendTo.includes("customer"))
+      return "bg-green-50 text-green-600 border border-green-100";
+    return "bg-gray-100 text-gray-600";
+  };
+
+  const handleDelete = async (id: number): Promise<void> => {
     if (window.confirm("คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?")) {
-      setNotifications(notifications.filter((n) => n.id !== id));
-      alert("ลบการแจ้งเตือนเรียบร้อยแล้ว");
+      try {
+        await dispatch(deleteNotify(id)).unwrap();
+        toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
+      } catch (error) {
+        toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
+      }
     }
   };
 
-  // --- ฟังก์ชันการส่งฟอร์ม (ระบุ Type Event ของ Form) ---
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     e.preventDefault();
     if (!formData.subject || !formData.message) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
-    const newNoti: NotificationItem = {
-      id: Date.now(),
-      ...formData,
-      date: new Date().toLocaleDateString("th-TH"),
-    };
+    let targetTopic = "/topic/all";
+    if (formData.recipients === "ผู้ใช้งาน") targetTopic = "/topic/customer";
+    if (formData.recipients === "พนักงาน") targetTopic = "/topic/moderator";
 
-    setNotifications([newNoti, ...notifications]);
-    alert("ส่งการแจ้งเตือนสำเร็จ");
-    setIsModalOpen(false);
-    setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
+    try {
+      await dispatch(
+        createNotify({
+          title: formData.subject,
+          message: formData.message,
+          sendTo: targetTopic,
+        }),
+      ).unwrap();
+
+      toast.success("ส่งการแจ้งเตือนสำเร็จ");
+      setIsModalOpen(false);
+      setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาด ไม่สามารถส่งการแจ้งเตือนได้");
+    }
   };
 
-  // --- ฟังก์ชันยกเลิก ---
   const handleCancel = (): void => {
     if (formData.subject || formData.message) {
       if (window.confirm("คุณต้องการละทิ้งการแจ้งเตือนนี้หรือไม่?")) {
@@ -96,7 +130,6 @@ const Notification: React.FC = () => {
     }
   };
 
-  // --- ฟังก์ชันอัปเดตฟอร์ม (รับ Type Event ของ Input/Textarea/Select) ---
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -108,7 +141,6 @@ const Notification: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 font-prompt">
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white border-b border-gray-200 px-8 py-6">
           <h1 className="text-2xl font-bold text-gray-800">จัดการแจ้งเตือน</h1>
@@ -147,7 +179,7 @@ const Notification: React.FC = () => {
                   width="18"
                   height="18"
                   className="mr-2"
-                />{" "}
+                />
                 สร้างการแจ้งเตือน
               </button>
             </div>
@@ -168,33 +200,43 @@ const Notification: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {filteredNotifications.length > 0 ? (
-                    filteredNotifications.map((noti) => (
+                  {isLoading ? (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="py-20 text-center text-gray-400 text-sm"
+                      >
+                        กำลังโหลดข้อมูลระบบ...
+                      </td>
+                    </tr>
+                  ) : notifications && notifications.length > 0 ? (
+                    notifications.map((noti) => (
                       <tr
                         key={noti.id}
                         className="hover:bg-gray-50 transition-colors group"
                       >
                         <td className="py-4 pl-2">
                           <p className="text-sm font-semibold text-gray-800">
-                            {noti.subject}
+                            {noti.title}
                           </p>
                           <p className="text-xs text-gray-400 mt-0.5">
                             {noti.message}
                           </p>
                         </td>
                         <td className="py-4 text-center">
+                          {/* 💡 ปรับคลาสสีตรงนี้เพื่อแยกรสชาติสีของกลุ่มผู้รับปลายทาง */}
                           <span
-                            className={`text-[10px] px-3 py-1 rounded-full font-medium ${
-                              noti.recipients === "พนักงาน"
-                                ? "bg-blue-50 text-blue-600"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
+                            className={`text-[10px] px-3 py-1 rounded-full font-medium ${getRecipientBadgeClass(noti.sendTo)}`}
                           >
-                            {noti.recipients}
+                            {getRecipientLabel(noti.sendTo)}
                           </span>
                         </td>
                         <td className="py-4 text-center text-sm text-gray-500">
-                          {noti.date}
+                          {noti.createdAt
+                            ? new Date(noti.createdAt).toLocaleDateString(
+                                "th-TH",
+                              )
+                            : "-"}
                         </td>
                         <td className="py-4 text-right">
                           <button
@@ -224,6 +266,43 @@ const Notification: React.FC = () => {
                   )}
                 </tbody>
               </table>
+
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm font-medium">
+                  <span className="text-gray-500">
+                    แสดงหน้า {page + 1} จาก {totalPages} หน้า
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                      disabled={page === 0}
+                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
+                    >
+                      <Icon icon="lucide:chevron-left" width="18" height="18" />
+                    </button>
+
+                    <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs">
+                      {page + 1}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPage((prev) => Math.min(prev + 1, totalPages - 1))
+                      }
+                      disabled={page >= totalPages - 1}
+                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
+                    >
+                      <Icon
+                        icon="lucide:chevron-right"
+                        width="18"
+                        height="18"
+                      />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -247,20 +326,20 @@ const Notification: React.FC = () => {
                 <input
                   type="text"
                   name="subject"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all text-gray-800"
                   placeholder="ระบุหัวข้อ..."
                   value={formData.subject}
                   onChange={handleChange}
+                  autoComplete="off"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   รายละเอียด
                 </label>
                 <textarea
                   name="message"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all h-28 resize-none"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all h-28 resize-none text-gray-800"
                   placeholder="ข้อความที่ต้องการแจ้ง..."
                   value={formData.message}
                   onChange={handleChange}
@@ -303,4 +382,4 @@ const Notification: React.FC = () => {
   );
 };
 
-export default Notification;
+export default AdminNotificationPage;

@@ -320,7 +320,8 @@ const AddressProfile = () => {
     );
   };
   return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-0 md:pb-20 flex flex-col">
+      {" "}
       <div className="max-w-[1200px] mx-auto px-4">
         {/* 1. Nav อยู่ด้านบนสุด */}
         <div className="hidden md:block">
@@ -369,11 +370,11 @@ const AddressProfile = () => {
           <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col md:flex-row gap-6 items-start flex-1">
+          {" "}
           <div className="hidden md:block">
             <ProfileSidebar />
           </div>
-
           <main className="flex flex-col flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-sm border-none md:border-gray-100 min-h-[calc(100vh-80px)] md:min-h-[500px] relative">
             <div className="flex justify-between items-center p-5 border-b border-none md:border-gray-100">
               <h1 className="hidden md:block text-[20px] sm:text-[20px] font-bold">
@@ -470,7 +471,8 @@ const AddressProfile = () => {
                   </div>
                 ))
               )}
-              <div className="md:hidden sticky bottom-0 w-full p-4 bg-white border-t border-gray-100 z-50 mt-auto">
+              <div className="md:hidden w-full mt-auto px-4 pb-6 pt-4">
+                {" "}
                 <button
                   data-test="btn-add-address-mobile"
                   onClick={openAddModal}
@@ -496,7 +498,7 @@ const AddressProfile = () => {
                 <div className="flex items-center gap-3 pb-3">
                   <button
                     className="text-black p-0 flex-shrink-0"
-                    onClick={() => navigate("/address-profile")}
+                    onClick={() => setIsModalOpen(false)}
                   >
                     <Icon
                       icon="material-symbols:arrow-back"
@@ -546,7 +548,9 @@ const AddressProfile = () => {
                         onChange={handleProvinceChange}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none appearance-none cursor-pointer"
                       >
-                        <option value={0} hidden>กรุณาเลือกจังหวัด</option>
+                        <option value={0} hidden>
+                          กรุณาเลือกจังหวัด
+                        </option>
                         {provinces.map((p: { id: number; name: string }) => (
                           <option key={p.id} value={p.id}>
                             {p.name}
@@ -585,7 +589,9 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="" hidden>กรุณาเลือกอำเภอ</option>
+                        <option value="" hidden>
+                          กรุณาเลือกอำเภอ
+                        </option>
                         {districts.map((d: { id: number; name: string }) => (
                           <option key={d.id} value={d.id}>
                             {d.name}
@@ -635,7 +641,9 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="" hidden>กรุณาเลือกตำบล</option>
+                        <option value="" hidden>
+                          กรุณาเลือกตำบล
+                        </option>
                         {subdistricts.map((s: { id: number; name: string }) => (
                           <option key={s.id} value={s.id}>
                             {s.name}
@@ -663,7 +671,9 @@ const AddressProfile = () => {
                         }}
                         className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
                       >
-                        <option value="" hidden>กรุณาเลือกรหัสไปรษณีย์</option>
+                        <option value="" hidden>
+                          กรุณาเลือกรหัสไปรษณีย์
+                        </option>
                         {zipcodes.map((z) => (
                           <option key={z.id} value={z.id}>
                             {z.name}

@@ -192,30 +192,27 @@ const ShoppingCart = () => {
   };
 
   const handleDecreaseQuantity = async (
-  productId: number,
-  currentQuantity: number,
-) => {
-  if (currentQuantity === 1) {
-    const isConfirmed = await confirmAction(
-      "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
-    );
+    productId: number,
+    currentQuantity: number,
+  ) => {
+    if (currentQuantity === 1) {
+      const isConfirmed = await confirmAction(
+        "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
+      );
 
-    if (!isConfirmed) return;
+      if (!isConfirmed) return;
 
-    dispatch(deleteCartItemThunk(productId));
+      dispatch(deleteCartItemThunk(productId));
 
-    setSelectedItems((prev) =>
-      prev.filter((id) => id !== productId),
-    );
+      setSelectedItems((prev) => prev.filter((id) => id !== productId));
 
-    toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+      toast.success("ลบสินค้าแล้ว", { duration: 1500 });
 
-    return;
-  }
+      return;
+    }
 
-  dispatch(decrementCartItemThunk(productId));
-};
-
+    dispatch(decrementCartItemThunk(productId));
+  };
 
   if (cartStatus === "loading") {
     return (
