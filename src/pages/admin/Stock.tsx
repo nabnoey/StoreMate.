@@ -9,21 +9,23 @@ import { getproducts } from "../../redux/moderator/ModeratorReducer";
 import type { ProductMod } from "../../types/moderator/productMod";
 
 
-const categoryMap: Record<number, string> = {
-  1: "โปรโมชั่น",
-  2: "เครื่องดื่ม",
-  3: "สบู่",
-  4: "ผลิตภัณฑ์ดูแลผม",
+const categoryMap: Record<string | number, string> = {
+  "Promotion": "โปรโมชั่น",
+  "Drinks": "เครื่องดื่ม",
+  "Soap": "สบู่",
+  "Shampoo": "ผลิตภัณฑ์ดูแลผม"
 };
 
 function Stock() {
 const products = useSelector((state: RootState) => state.moderator.products);
-  const totalPages = useSelector((state: RootState) => state.moderator.totalPages)
 const [searchParams, setSearchParams] = useSearchParams();
+const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
+const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get("keyword") || "");
 
-  const initialPage = Number(searchParams.get("page")) ;
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const PAGE_SIZE = 10; 
+  const PAGE_SIZE = 10;
 
   const dispatch = useDispatch<AppDispatch>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -31,16 +33,44 @@ const [searchParams, setSearchParams] = useSearchParams();
 
 
 useEffect(() => {
-  dispatch(getproducts({ page: currentPage , size: PAGE_SIZE }));
+  dispatch(getproducts({ page: 0 , size: 1000 }));
+}, [dispatch]);
 
-  setSearchParams({
-    page: String(currentPage),
+const filteredProducts = products.filter(p => {
+  if (!submittedSearchTerm) return true;
+  const term = submittedSearchTerm.toLowerCase();
+  const idStr = String(p.id);
+  const prdStr = `prd-${String(p.id).padStart(3, '0')}`;
+  return (
+    p.productName.toLowerCase().includes(term) ||
+    idStr.includes(term) ||
+    prdStr.includes(term)
+  );
+});
+
+const localTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+
+useEffect(() => {
+  const params: Record<string, string> = {
+    page: String(currentPage > 0 ? currentPage - 1 : 0),
     size: String(PAGE_SIZE),
-  });
-}, [dispatch, currentPage, setSearchParams]);
+  };
+  if (submittedSearchTerm) {
+    params.keyword = submittedSearchTerm;
+  }
+  setSearchParams(params);
+}, [currentPage, setSearchParams, submittedSearchTerm]);
+
+useEffect(() => {
+  if (currentPage > localTotalPages && localTotalPages > 0) {
+    // setCurrentPage(localTotalPages);
+  }
+}, [currentPage, localTotalPages]);
+
+const currentItems = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
 const handlePageChange = (pageNumber: number) => {
-  if (pageNumber >= 1 && pageNumber <= totalPages) {
+  if (pageNumber >= 1 && pageNumber <= localTotalPages) {
     setCurrentPage(pageNumber);
   }
 };
@@ -52,8 +82,8 @@ const maxVisiblePages = 5;
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
 
-    if (end > totalPages) {
-      end = totalPages;
+    if (end > localTotalPages) {
+      end = localTotalPages;
       start = Math.max(1, end - maxVisiblePages + 1);
     }
 
@@ -97,11 +127,19 @@ const maxVisiblePages = 5;
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="relative w-full sm:w-[400px]">
               <CiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999999] text-xl font-bold" />
-              <input
-                type="text"
-                placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-600"
-              />
+            <input
+  type="text"
+  value={searchTerm}
+  placeholder="ค้นหาโดยชื่อสินค้า หรือ รหัสสินค้า"
+  onChange={(e) => setSearchTerm(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      setSubmittedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }
+  }}
+  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm text-gray-600"
+/>
             </div>
             <button
               type="button"
@@ -129,7 +167,7 @@ const maxVisiblePages = 5;
             </thead>
 
             <tbody>
-              {products.map((product) => (
+              {currentItems.map((product) => (
                 <tr
                   key={product.id}
                   className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
@@ -143,7 +181,7 @@ const maxVisiblePages = 5;
                     </button>
                   </td>
                   <td className="py-4">{product.productName}</td>
-                  <td className="py-4">{categoryMap[product.categoryId] || product.categoryId}</td>
+                  <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
                   <td className="py-4">{product.stockQuantity}</td>
                   <td className="py-4">
@@ -209,10 +247,10 @@ const maxVisiblePages = 5;
 
               <button
                 type="button"
-                disabled={currentPage === totalPages || totalPages === 0}
+                disabled={currentPage === localTotalPages || localTotalPages === 0}
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
-                  currentPage === totalPages || totalPages === 0
+                  currentPage === localTotalPages || localTotalPages === 0
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-600 hover:bg-gray-50"
                 }`}

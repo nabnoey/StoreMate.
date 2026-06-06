@@ -10,14 +10,14 @@ export interface OrderItem {
 export interface OrderMod {
   id: number;
   orderNo: string; 
+  recipientName?: string;
+   phone?: string;
   status: string;
   total: number;
-
   shippingFrom?: string;
   is_printed?: boolean;
   createdAt?: string;
   checkoutType?: string;
-
   orderItems?: OrderItem[];
 
   // ปรับโครงสร้างตรงนี้ให้ตรงกับ Backend

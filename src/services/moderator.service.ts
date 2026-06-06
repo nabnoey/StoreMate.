@@ -49,12 +49,6 @@ const shippingOrder = async (orderNo: number) => {
   return res.data;
 };
 
-// const getOrder = async (orderNo: number) => {
-//   const res = await api.get(
-//     `${import.meta.env.VITE_MOD_API}/orders/${orderNo}`,
-//   );
-//   return res.data;
-// };
 
 const getoOrderByOrderNo = async (orderNo: string) => {
   const res = await api.get(
@@ -68,9 +62,9 @@ const addProduct = async (data: FormData) => {
   return res;
 };
 
-const getproducts = async (page?: number, size?: number) => {
+const getproducts = async (page?: number, size?: number, keyword?: string) => {
   const res = await api.get(`${import.meta.env.VITE_MOD_API}/products`, {
-    params: { page, size },
+    params: { page, size, keyword },
   });
   return res;
 }
