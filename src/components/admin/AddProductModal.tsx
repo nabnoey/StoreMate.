@@ -146,16 +146,23 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   "CHECKED_OUT": 2,
                 };
 
-                const requestPayload = {
-                  productName: values.productName,
-                  categoryId: categoryMap[values.categoryName] || 2,
-                  price: Number(values.price),
-                  stockQuantity: Number(values.stockQuantity),
-                  statusId: statusMap[values.status] || 1,
-                  description: values.description, // ใช้ values.description ได้เลยเพราะผูกกับ fullProduct ใน initialValues แล้ว
-                  removeImages: isEditMode && values.files && fullProduct?.productImages ? fullProduct.productImages.map((img: any) => img.id) : [],
-                };
+// 1. สร้างก้อนข้อมูลพื้นฐาน 6 ตัว (ใช้ได้ทั้ง Add และ Edit)
+// ใส่ type : any ไว้ก่อนเพื่อที่เราจะยัดฟิลด์เพิ่มเข้าไปทีหลังได้
+const requestPayload: any = {
+  productName: values.productName,
+  categoryId: categoryMap[values.categoryName] || 2,
+  price: Number(values.price),
+  stockQuantity: Number(values.stockQuantity),
+  statusId: statusMap[values.status] || 1,
+  description: values.description,
+};
 
+// 2. ถ้าเป็นโหมดแก้ไข (Edit) ค่อยแอบเติม removeImages เข้าไป
+if (isEditMode) {
+  requestPayload.removeImages = values.files && fullProduct?.productImages 
+    ? fullProduct.productImages.map((img: any) => img.id) 
+    : [];
+}
                 formData.append("request", JSON.stringify(requestPayload));
 
                 if (values.files) {
