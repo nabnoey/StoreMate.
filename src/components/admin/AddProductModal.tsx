@@ -5,7 +5,7 @@ import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
 import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
-import type {ProductMod} from "../../types/moderator/productMod";
+import type { ProductMod } from "../../types/moderator/productMod";
 import { toast } from "react-hot-toast";
 import { ProductService } from "../../services/product.service";
 
@@ -25,11 +25,16 @@ const ProductSchema = Yup.object().shape({
   description: Yup.string().required("กรุณากรอกรายละเอียดสินค้า"),
 });
 
-const reverseCategoryMap: Record<number, string> = {
-  1: "โปรโมชั่น",
-  2: "เครื่องดื่ม",
-  3: "สบู่",
-  4: "ผลิตภัณฑ์ดูแลผม",
+const normalizeCategory = (category: string | number | undefined): string => {
+  if (!category) return "";
+  const catStr = String(category).toLowerCase().trim();
+
+  if (["1", "promotion", "โปรโมชั่น", "โปรโมชัน"].includes(catStr)) return "โปรโมชั่น";
+  if (["2", "soap", "สบู่"].includes(catStr)) return "สบู่";
+  if (["3", "drink", "drinks", "เครื่องดื่ม"].includes(catStr)) return "เครื่องดื่ม";
+  if (["4", "hair", "shampoo", "แชมพู", "ผลิตภัณฑ์ดูแลผม"].includes(catStr)) return "ผลิตภัณฑ์ดูแลผม";
+
+  return String(category);
 };
 
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSuccess, product }) => {
@@ -98,20 +103,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
-  let initialCategoryName = "";
-  if (isEditMode && product) {
-    const cat = product.category 
-    if (typeof cat === "number" || (typeof cat === "string" && !isNaN(Number(cat)))) {
-      initialCategoryName = reverseCategoryMap[Number(cat)] || String(cat);
-    } else if (typeof cat === "string") {
-      const lowerCat = cat.toLowerCase();
-      if (lowerCat.includes("promotion") || cat === "โปรโมชั่น" || cat === "โปรโมชัน") initialCategoryName = "โปรโมชั่น";
-      else if (lowerCat.includes("drink") || cat === "เครื่องดื่ม") initialCategoryName = "เครื่องดื่ม";
-      else if (lowerCat.includes("soap") || cat === "สบู่") initialCategoryName = "สบู่";
-      else if (lowerCat.includes("hair") || lowerCat.includes("shampoo") || cat === "ผลิตภัณฑ์ดูแลผม" || cat === "แชมพู") initialCategoryName = "ผลิตภัณฑ์ดูแลผม";
-      else initialCategoryName = cat;
-    }
-  }
+  // 📌 เตรียม Initial Values แบบปลอดภัย (Type-Safe) ไม่พึ่งพาเครื่องหมาย ! อีกต่อไป
+  const formInitialValues = {
+    productName: product?.productName || "",
+    categoryName: normalizeCategory(product?.category),
+    price: product?.price ?? "",
+    stockQuantity: product?.stockQuantity ?? "",
+    status: product?.status || "ACTIVE",
+    description: fullProduct?.description || product?.description || "",
+    files: null,
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -126,25 +127,17 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
         {/* Form Body */}
         <div className="p-6 overflow-y-auto">
           <Formik
-            initialValues={{
-              productName: isEditMode ? product!.productName : "",
-              categoryName: initialCategoryName,
-              price: isEditMode ? product!.price : "",
-              stockQuantity: isEditMode ? product!.stockQuantity : "",
-              status: isEditMode ? product!.status : "ACTIVE",
-              description: isEditMode ? (fullProduct?.description || product!.description || "") : "",
-              image: null as File | null,
-            }}
+            enableReinitialize={true}
+            initialValues={formInitialValues}
             validationSchema={ProductSchema}
-            enableReinitialize
             onSubmit={async (values, { setSubmitting }) => {
               try {
                 const formData = new FormData();
 
                 const categoryMap: Record<string, number> = {
                   "โปรโมชั่น": 1,
-                  "เครื่องดื่ม": 2,
-                  "สบู่": 3,
+                  "สบู่": 2,
+                  "เครื่องดื่ม": 3,
                   "ผลิตภัณฑ์ดูแลผม": 4,
                 };
 
@@ -153,23 +146,27 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   "CHECKED_OUT": 2,
                 };
 
-                const requestPayload = {
-                  productName: values.productName,
-                  categoryId: categoryMap[values.categoryName] || 2,
-                  price: Number(values.price),
-                  stockQuantity: Number(values.stockQuantity),
-                  statusId: statusMap[values.status] || 1,
-                  description: values.description,
-                  removeImages: isEditMode && values.image && fullProduct?.productImages ? fullProduct.productImages.map((img: any) => img.id) : [],
-                };
+// 1. สร้างก้อนข้อมูลพื้นฐาน 6 ตัว (ใช้ได้ทั้ง Add และ Edit)
+// ใส่ type : any ไว้ก่อนเพื่อที่เราจะยัดฟิลด์เพิ่มเข้าไปทีหลังได้
+const requestPayload: any = {
+  productName: values.productName,
+  categoryId: categoryMap[values.categoryName] || 2,
+  price: Number(values.price),
+  stockQuantity: Number(values.stockQuantity),
+  statusId: statusMap[values.status] || 1,
+  description: values.description,
+};
 
-                formData.append(
-                  "request",
-                  new Blob([JSON.stringify(requestPayload)], { type: "application/json" })
-                );
+// 2. ถ้าเป็นโหมดแก้ไข (Edit) ค่อยแอบเติม removeImages เข้าไป
+if (isEditMode) {
+  requestPayload.removeImages = values.files && fullProduct?.productImages 
+    ? fullProduct.productImages.map((img: any) => img.id) 
+    : [];
+}
+                formData.append("request", JSON.stringify(requestPayload));
 
-                if (values.image) {
-                  formData.append("files", values.image);
+                if (values.files) {
+                  formData.append("files", values.files);
                 }
 
                 if (isEditMode) {
@@ -286,7 +283,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                       e.preventDefault();
                       const file = e.dataTransfer.files[0];
                       if (file) {
-                        setFieldValue("image", file);
+                        setFieldValue("files", file);
                         setPreviewImage(URL.createObjectURL(file));
                       }
                     }}
@@ -299,7 +296,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setFieldValue("image", file);
+                          setFieldValue("files", file);
                           setPreviewImage(URL.createObjectURL(file));
                         }
                       }}
@@ -320,7 +317,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                       </>
                     )}
                   </div>
-                  <ErrorMessage name="image" component="div" className="text-red-500 text-xs mt-1 text-center" />
+                  <ErrorMessage name="files" component="div" className="text-red-500 text-xs mt-1 text-center" />
                 </div>
 
                 {/* Footer Buttons */}
