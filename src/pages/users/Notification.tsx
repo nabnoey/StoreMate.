@@ -1,63 +1,62 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
 import type { AppDispatch, RootState } from "../../redux/store";
-import { fetchOwnerNotify } from "../../redux/notification/notificationReducer";
-import type {
-  Notification,
-  NotificationResponse,
-} from "../../types/notification";
+import {
+  fetchUserNotify,
+  markAsReadInStore,
+} from "../../redux/notification/notificationReducer";
+import { Icon } from "@iconify/react";
+import ProfileSidebar from "../../components/user/ProfileSidebar";
 
 const NotificationPage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [activeFilter, setActiveFilter] = useState("all");
+
   const rawNotifications = useSelector(
     (state: RootState) => state.notification.items,
-  ) as Notification[];
-
+  );
   const isLoading = useSelector(
     (state: RootState) => state.notification.isLoading,
   );
 
-  const [readIds, setReadIds] = useState<number[]>(() => {
-    return JSON.parse(localStorage.getItem("readNotifications") || "[]");
-  });
-
   useEffect(() => {
-    dispatch(fetchOwnerNotify({ page: 0, size: 6 }));
+    dispatch(fetchUserNotify());
   }, [dispatch]);
 
-  const notifications: NotificationResponse[] = rawNotifications.map((item) => {
-    let simulatedType = "shop";
-    const titleText = item.title || "";
-    if (
-      titleText.includes("คำสั่งซื้อ") ||
-      titleText.toLowerCase().includes("order")
-    ) {
-      simulatedType = "orders";
-    } else if (
-      titleText.includes("คืนเงิน") ||
-      titleText.toLowerCase().includes("refund")
-    ) {
-      simulatedType = "refunds";
-    }
+  // ประมวลผลคัดแยกหมวดหมู่แจ้งเตือน
+  const notifications = useMemo(() => {
+    return rawNotifications.map((item) => {
+      let simulatedType = "shop";
+      const titleText = item.title || "";
 
-    return {
-      id: item.id,
-      title: item.title,
-      message: item.message,
-      createdAt: item.createdAt,
-      type: simulatedType,
-      isRead: readIds.includes(item.id),
-    };
-  });
+      if (
+        titleText.includes("คำสั่งซื้อ") ||
+        titleText.toLowerCase().includes("order")
+      ) {
+        simulatedType = "orders";
+      } else if (
+        titleText.includes("คืนเงิน") ||
+        titleText.toLowerCase().includes("refund")
+      ) {
+        simulatedType = "refunds";
+      }
 
-  const filteredNotifications = notifications.filter((item) => {
-    if (activeFilter === "all") return true;
-    return item.type === activeFilter;
-  });
+      return {
+        ...item,
+        type: simulatedType,
+        isRead: item.isRead, // ผูกสถานะจาก Redux Store
+      };
+    });
+  }, [rawNotifications]);
+
+  const filteredNotifications = useMemo(() => {
+    if (activeFilter === "all") return notifications;
+    return notifications.filter((item) => item.type === activeFilter);
+  }, [notifications, activeFilter]);
 
   const getCount = (type: string) => {
     if (type === "all") return notifications.filter((n) => !n.isRead).length;
@@ -71,110 +70,82 @@ const NotificationPage = () => {
     { id: "shop", label: "ร้านค้า", count: getCount("shop") },
   ];
 
-  // กดอ่าน (บันทึกลง LocalStorage แก้ขัดชั่วคราว)
-  const handleNotificationClick = (notiId: number, isRead: boolean) => {
+  // คลิกอ่านทีละรายการ
+  const handleNotificationClick = (notiId: number, isRead: boolean = false) => {
     if (isRead) return;
-
-    try {
-      const currentReadItems = JSON.parse(
-        localStorage.getItem("readNotifications") || "[]",
-      );
-      if (!currentReadItems.includes(notiId)) {
-        const updatedReadItems = [...currentReadItems, notiId];
-        localStorage.setItem(
-          "readNotifications",
-          JSON.stringify(updatedReadItems),
-        );
-        setReadIds(updatedReadItems); // อัปเดต state เพื่อให้ UI Re-render เปลี่ยนเป็นตัวบางทันที
-        toast.success("บันทึกการอ่านแล้ว");
-      }
-    } catch (error) {
-      console.error("Failed to update local read status", error);
-    }
+    dispatch(markAsReadInStore(notiId));
+    toast.success("อ่านการแจ้งเตือนแล้ว");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 font-sans text-gray-800">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
+      <div className="max-w-[1200px] mx-auto px-4">
         {/* Breadcrumb */}
-        <div className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-          <Link to="/" className="cursor-pointer hover:text-gray-700">
+        <nav className="hidden md:flex items-center text-sm text-black mb-4 font-medium">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
-          <span>&gt;</span>
-          <Link to="/profile" className="cursor-pointer hover:text-gray-700">
-            โปรไฟล์
-          </Link>
-          <span>&gt;</span>
-          <span className="text-gray-800">การแจ้งเตือน</span>
-        </div>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1 text-black"
+          />
+          <span className="text-black">โปรไฟล์</span>
+        </nav>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-gray-100 rounded-lg p-4 flex items-center gap-4 mb-4 shadow-sm border border-gray-200">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-300">
-                <svg
-                  className="w-6 h-6 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
-              <div className="font-medium text-gray-700">บุญรักษา วิมานแท้</div>
-            </div>
-
-            <div className="flex flex-col gap-3 pl-2">
-              <Link
-                to="/profile"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                โปรไฟล์ของฉัน
-              </Link>
-              <Link
-                to="/history-shop"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                การซื้อของฉัน
-              </Link>
-              <Link to="/notification" className="text-blue-500 font-medium">
+        {/* Mobile Header (ลบปุ่มอ่านทั้งหมดออกแล้ว) */}
+        <div className="md:hidden bg-white pt-2 pb-4">
+          <div className="flex items-center gap-3">
+            <button
+              className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
+              onClick={() => navigate("/")}
+            >
+              <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
+            </button>
+            <div className="flex-1">
+              <h1 className="text-[16px] leading-[28px] font-bold text-black">
                 การแจ้งเตือน
-              </Link>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h1 className="text-xl font-bold text-gray-800">การแจ้งเตือน</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              </h1>
+              <p className="text-black text-[14px] font-anuphan font-normal leading-[24px] break-words mt-[2px]">
                 ดูการแจ้งเตือนทั้งหมดของคุณ
               </p>
             </div>
+          </div>
+          <div className="w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
+        </div>
 
-            <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
+          <ProfileSidebar />
+
+          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
+            {/* Desktop Header (ปรับ Layout คลีนๆ ลบปุ่มอ่านทั้งหมดออกแล้ว) */}
+            <div className="hidden sm:block w-full mb-6 md:mb-8">
+              <h1 className="text-[20px] font-bold text-black">การแจ้งเตือน</h1>
+              <p className="text-[14px] mt-1 text-black">
+                ดูการแจ้งเตือนทั้งหมดของคุณ
+              </p>
+              <div className="w-full border-t border-black mt-5" />
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 w-full">
               {/* Filter Column */}
-              <div className="w-full md:w-48 flex-shrink-0 flex flex-col gap-2">
+              <div className="flex md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none md:w-48 flex-shrink-0">
                 {filters.map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => setActiveFilter(filter.id)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-md transition-colors text-sm ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-md transition-colors text-sm whitespace-nowrap md:w-full cursor-pointer ${
                       activeFilter === filter.id
-                        ? "bg-gray-100 text-blue-500 font-medium"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <span>{filter.label}</span>
                     {filter.count > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                      <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full min-w-[20px] text-center ml-2">
                         {filter.count}
                       </span>
                     )}
@@ -183,31 +154,43 @@ const NotificationPage = () => {
               </div>
 
               {/* Notifications List Column */}
-              <div className="flex-1 flex flex-col gap-3">
+              <div className="flex-1 flex flex-col gap-3 w-full">
                 {isLoading ? (
                   <div className="text-center py-10 text-gray-400 text-sm">
                     กำลังโหลดข้อมูลการแจ้งเตือน...
                   </div>
                 ) : filteredNotifications.length > 0 ? (
                   filteredNotifications.map((item) => (
-                    <div
+                    <button
                       key={item.id}
+                      // ใส่ ?? false เพื่อการันตีว่ายังไงก็ส่งเป็น boolean แน่นอน ไม่เป็น undefined
                       onClick={() =>
-                        handleNotificationClick(item.id, item.isRead)
+                        handleNotificationClick(item.id, item.isRead ?? false)
                       }
-                      className={`p-4 rounded-lg flex justify-between gap-4 transition-colors cursor-pointer ${
+                      className={`p-4 rounded-lg flex justify-between gap-4 transition-all border ${
                         !item.isRead
-                          ? "bg-blue-50/70 border border-blue-100"
-                          : "bg-white border border-transparent hover:bg-gray-50"
+                          ? "bg-blue-50/50 border-blue-100 shadow-sm"
+                          : "bg-white border-gray-100 hover:bg-gray-50/80"
                       }`}
                     >
                       <div className="flex-1">
-                        <h3
-                          className={`text-sm md:text-base ${!item.isRead ? "font-bold text-gray-800" : "font-medium text-gray-700"}`}
+                        <div className="flex items-center gap-2">
+                          {!item.isRead && (
+                            <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+                          )}
+                          <h3
+                            className={`text-sm md:text-base ${
+                              !item.isRead
+                                ? "font-bold text-gray-900"
+                                : "font-medium text-gray-600"
+                            }`}
+                          >
+                            {item.title}
+                          </h3>
+                        </div>
+                        <p
+                          className={`text-sm mt-1 ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
                         >
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">
                           {item.message}
                         </p>
                         <p className="text-xs text-gray-400 mt-2">
@@ -216,17 +199,16 @@ const NotificationPage = () => {
                             : "-"}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))
                 ) : (
                   <div className="text-center py-10 text-gray-400 text-sm">
                     ไม่มีการแจ้งเตือนในหมวดหมู่นี้
                   </div>
                 )}
-                <div className="border-b border-gray-200 mt-4"></div>
               </div>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>

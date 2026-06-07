@@ -1,5 +1,10 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { search } from "../../redux/products/productReducer";
@@ -8,12 +13,17 @@ import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
+import {
+  fetchUserNotify,
+  clearUnreadBadge,
+} from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
+  const location = useLocation();
 
   const isAuthentication = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -21,12 +31,44 @@ const Navbar: React.FC = () => {
 
   const [inputValue, setInputValue] = useState("");
 
+  const notifications = useSelector(
+    (state: RootState) => state.notification.items,
+  );
+
+  const [openNotifyDropdown, setOpenNotifyDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = notifications.filter((n) => n.isNew).length;
+
+  const previewNotifications = notifications.slice(0, 5);
+
   useEffect(() => {
     if (isAuthentication) {
       dispatch(fetchCartThunk());
       dispatch(getProfile());
+      dispatch(fetchUserNotify());
     }
   }, [dispatch, isAuthentication]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenNotifyDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleBellClick = () => {
+    setOpenNotifyDropdown(!openNotifyDropdown);
+    if (!openNotifyDropdown) {
+      dispatch(clearUnreadBadge());
+    }
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -64,6 +106,21 @@ const Navbar: React.FC = () => {
     (state: RootState) => state.auth.isAuthenticated,
   );
 
+  const isActive = (path: string, searchParam: string = "") => {
+    if (searchParam) {
+      return (
+        location.pathname === path && location.search.includes(searchParam)
+      );
+    }
+    if (path === "/search") {
+      return (
+        location.pathname === path &&
+        !location.search.includes("category=promotion")
+      );
+    }
+    return location.pathname === path;
+  };
+
   return (
     <nav className="flex items-center justify-between bg-white shadow-sm h-[73px] lg:h-[80px] px-4 lg:px-10 relative">
       {/* LOGO */}
@@ -84,7 +141,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-search"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/search")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to="/search"
             >
               สินค้า
@@ -93,7 +154,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-promo"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/search", "category=promotion")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
@@ -102,7 +167,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-about"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/about-us")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to="/about-us"
             >
               เกี่ยวกับเรา
@@ -111,8 +180,12 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-contact"
-              className="cursor-pointer transition-colors duration-200"
-              to="contact"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/contact")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
+              to="/contact"
             >
               ติดต่อ
             </Link>
@@ -187,12 +260,81 @@ const Navbar: React.FC = () => {
                 )}
               </button>
 
-              <Icon
-                icon="ph:bell"
-                width="24"
-                height="24"
-                className="cursor-pointer hover:text-indigo-600 transition-colors"
-              />
+              <div className="relative">
+                <button
+                  data-test="click-notifications"
+                  className="relative cursor-pointer p-1 block"
+                  onClick={handleBellClick}
+                >
+                  <Icon
+                    icon="ph:bell"
+                    width="24"
+                    height="24"
+                    className="cursor-pointer hover:text-indigo-600 transition-colors"
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {openNotifyDropdown && (
+                  <div className="absolute right-0 mt-3 w-[320px] sm:w-[360px] bg-white rounded-lg shadow-xl border border-gray-100 z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="max-h-[360px] overflow-y-auto font-Anuphan">
+                      {previewNotifications.length === 0 ? (
+                        <div className="p-6 text-center text-gray-400 text-sm">
+                          ไม่มีการแจ้งเตือนในขณะนี้
+                        </div>
+                      ) : (
+                        previewNotifications.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() => {
+                              setOpenNotifyDropdown(false);
+                              navigate("/notification");
+                            }}
+                          >
+                            <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+                              <img
+                                src={logo}
+                                className="w-full h-full object-cover"
+                                alt="notify-img"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = logo;
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex flex-col flex-1 min-w-0">
+                              <span className="text-sm font-semibold text-gray-800 truncate">
+                                {item.title}
+                              </span>
+                              <span className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">
+                                {item.message}
+                              </span>
+                              <span className="text-[11px] text-gray-400 mt-1">
+                                {item.createdAt}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <button
+                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 text-center text-sm font-semibold transition-colors font-Anuphan block"
+                      onClick={() => {
+                        setOpenNotifyDropdown(false);
+                        navigate("/notification");
+                      }}
+                    >
+                      ดูทั้งหมด
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <UserProfile />

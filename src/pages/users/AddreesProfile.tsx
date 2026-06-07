@@ -320,8 +320,7 @@ const AddressProfile = () => {
     );
   };
   return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-0 md:pb-20 flex flex-col">
-      {" "}
+    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-50 sm:pt-20">
       <div className="max-w-[1200px] mx-auto px-4">
         {/* 1. Nav อยู่ด้านบนสุด */}
         <div className="hidden md:block">
@@ -471,19 +470,18 @@ const AddressProfile = () => {
                   </div>
                 ))
               )}
-              <div className="md:hidden w-full mt-auto px-4 pb-6 pt-4">
-                {" "}
-                <button
-                  data-test="btn-add-address-mobile"
-                  onClick={openAddModal}
-                  className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-2.5 rounded-md text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
-                >
-                  <span className="text-xl leading-none mt-[-2px]">+</span>
-                  เพิ่มที่อยู่
-                </button>
-              </div>
             </div>
           </main>
+        </div>
+        <div className="md:hidden px-4 py-6">
+          <button
+            data-test="btn-add-address-mobile"
+            onClick={openAddModal}
+            className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-2.5 rounded-md text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+          >
+            <span className="text-xl leading-none mt-[-2px]">+</span>
+            เพิ่มที่อยู่
+          </button>
         </div>
 
         {isModalOpen && (

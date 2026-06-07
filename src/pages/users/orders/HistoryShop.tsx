@@ -94,7 +94,6 @@ const HistoryPage = () => {
         // 3. 🟢 ถ้าอยู่แท็บ "คืนเงิน/คืนสินค้า" ให้โชว์เฉพาะออเดอร์ที่ถูกเคลมเงินคืน
         if (status === "REFUNDED") {
           return order.status === "REFUNDED";
-
         }
 
         // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVED, COMPLETED)
@@ -503,13 +502,11 @@ const HistoryPage = () => {
                               ซื้ออีกครั้ง
                             </button>
 
-                            {/* 🟢 ปุ่ม "ดูรีวิว": แสดงเมื่อมีสินค้าภายในออเดอร์นี้ถูกรีวิวไปแล้วอย่างน้อย 1 ชิ้น */}
                             {hasReviewed && (
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  // เปิดดูรีวิวชิ้นแรกที่รีวิวไปแล้ว
                                   handleOpenViewReview(order, reviewedItems[0]);
                                 }}
                                 className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF]/10 text-[#1E40AF] font-semibold text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#1E40AF]/20 cursor-pointer shadow-sm border border-blue-200"
@@ -518,21 +515,18 @@ const HistoryPage = () => {
                               </button>
                             )}
 
-                            {/* 🟢 ปุ่ม "เขียนรีวิว": แสดงเมื่อมีสินค้าที่ยังตกค้างหรือยังไม่ได้ถูกรีวิว */}
                             {hasUnreviewed && (
                               <button
                                 type="button"
                                 onClick={async (e) => {
                                   e.stopPropagation();
 
-                                  // เช็คเงื่อนไขเด็ด: ถ้าสินค้าที่ยังไม่ได้รีวิวเหลืออยู่แค่ชิ้นเดียว ให้เปิดฟอร์มเขียนรีวิวเลยทันที!
                                   if (unreviewedItems.length === 1) {
                                     await launchReviewModalForItem(
                                       order,
                                       unreviewedItems[0],
                                     );
                                   } else {
-                                    // ถ้ายังเหลือมากกว่า 1 ชิ้น ค่อยเปิด popup เพื่อเลือกชิ้นงาน
                                     setOrderForReview(order);
                                     setLocalSelectedItemId(
                                       unreviewedItems[0]?.id || null,
@@ -636,7 +630,6 @@ const HistoryPage = () => {
               </h2>
             </div>
             <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
-              {/* ดึงมาเฉพาะชิ้นงานออเดอร์ที่ยังไม่เคยรีวิวแสดงผลใน Popup */}
               {orderForReview.orderItems
                 ?.filter((item: any) => !item.isReviewed && !item.review)
                 ?.map((item: any) => {
@@ -688,7 +681,6 @@ const HistoryPage = () => {
         </div>
       )}
 
-      {/* 🟢 POPUP 2: ฟอร์มเขียนรีวิวสินค้าใหม่ */}
       {isReviewModalOpen && selectedItem && (
         <div className="fixed inset-0 bg-white md:bg-black/50 z-50 flex items-start md:items-center justify-center overflow-y-auto backdrop-blur-xs">
           <div className="w-full min-h-screen md:min-h-0 bg-white p-4 md:p-6 md:max-w-xl md:w-full md:rounded-2xl md:shadow-2xl relative flex flex-col">
@@ -757,7 +749,7 @@ const HistoryPage = () => {
               <button
                 type="button"
                 onClick={handleReviewSubmit}
-                className="flex-1 py-3 bg-black text-white font-semibold rounded-lg text-[15px]"
+                className="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-lg text-[15px]"
               >
                 ส่งรีวิว
               </button>
@@ -773,7 +765,6 @@ const HistoryPage = () => {
         </div>
       )}
 
-      {/* 🟢 POPUP 3: ดูรีวิวสินค้า (มีปุ่ม แก้ไข และ ลบรีวิว) */}
       {isViewReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
@@ -843,7 +834,6 @@ const HistoryPage = () => {
         </div>
       )}
 
-      {/* 🟢 POPUP 4: ฟอร์มแก้ไขรีวิวสินค้า */}
       {isEditReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
