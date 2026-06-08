@@ -10,7 +10,7 @@ const MainLayout = () => {
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
   useEffect(() => {
-
+    setIsPageTransitioning(true);
     const timer = setTimeout(() => {
       setIsPageTransitioning(false);
       // หน่วงไว้ 1 วินาที ถ้าไม่หน่วงไม่โผล่นะจ้ะ
@@ -34,10 +34,9 @@ const MainLayout = () => {
           <Outlet />
         </Suspense>
       </main>
-<div className="mt-25 lg:mt-35">
-   <Footer /> 
-   </div>
-     
+      <div className="mt-25 lg:mt-35">
+        <Footer />
+      </div>
     </div>
   );
 };
