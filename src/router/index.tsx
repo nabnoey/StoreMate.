@@ -44,7 +44,9 @@ import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
+
 import NotificationManagementPage from "../pages/admin/NotificationManagementPage";
+import Analytic from "../pages/admin/Analytic";
 
 const router = createBrowserRouter([
   {
@@ -214,6 +216,10 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
+        path: "analytic",
+        element: <Analytic />,
+      },
+      {
         path: "orders",
         element: <Order />,
       },
@@ -250,6 +256,10 @@ const router = createBrowserRouter([
       {
         path: "stock",
         element: <Stock />,
+      },
+      {
+        path: "analytic",
+        element: <Analytic />,
       },
 
       {

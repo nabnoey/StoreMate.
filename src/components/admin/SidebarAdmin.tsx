@@ -97,6 +97,7 @@ function SidebarAdmin() {
      hover:text-blue-600 rounded-lg transition-all -mt-7.5"
               onClick={() =>
                 navigate(isOwner ? "/owner/dashboard" : "/moderator/dashboard")
+
               }
             >
               <LayoutDashboard size={18} />
@@ -108,7 +109,8 @@ function SidebarAdmin() {
               <button
                 data-test="report-button"
                 className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                onClick={() => navigate("/owner/sales-report")}
+                onClick={() =>
+                navigate(isAdmin ? "/owner/analytic" : "/moderator/analytic")
               >
                 <TrendingUp size={18} />
                 รายงานยอดขาย
