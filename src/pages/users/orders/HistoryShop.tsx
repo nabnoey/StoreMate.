@@ -19,6 +19,9 @@ import {
 } from "../../../redux/reviews/reviewsReducer";
 import { toast } from "react-hot-toast";
 
+import { PaymentService } from "../../../services/payment.service";
+import type { Order } from "../../../types/orders";
+
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -115,7 +118,7 @@ const HistoryPage = () => {
     try {
       // setIsFetchingDetail(true);
       // setErrorMessage(null);
-      setIsSelectModalOpen(false); // ปิด popup เลือกสินค้า (ถ้ามีเปิดอยู่)
+      setIsSelectModalOpen(false);
 
       const orderNo = order.orderNo || `ORD-${order.id}`;
       const orderDetailData = await dispatch(
@@ -280,6 +283,30 @@ const HistoryPage = () => {
 
     if (!selectedItemFromList) return;
     await launchReviewModalForItem(orderForReview, selectedItemFromList);
+  };
+
+  const handleRetryPayment = async (
+    e: React.MouseEvent,
+    order: Order,
+    orderTotal: number,
+  ) => {
+    e.stopPropagation();
+
+    try {
+      const response = await PaymentService.retryPayment({
+        orderNo: order.orderNo,
+      });
+
+      navigate("/payment-qr", {
+        state: {
+          orderNo: order.orderNo,
+          totalPrice: orderTotal,
+          clientSecret: response.clientSecret,
+        },
+      });
+    } catch (error) {
+      toast.error("ไม่สามารถสร้างรายการชำระเงินได้");
+    }
   };
 
   return (
@@ -551,15 +578,9 @@ const HistoryPage = () => {
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate("/payment-qr", {
-                                  state: {
-                                    orderNo: order.orderNo || `ORD-${order.id}`,
-                                    totalPrice: orderTotal,
-                                  },
-                                });
-                              }}
+                              onClick={(e) =>
+                                handleRetryPayment(e, order, orderTotal)
+                              }
                               className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer"
                             >
                               ชำระเงิน

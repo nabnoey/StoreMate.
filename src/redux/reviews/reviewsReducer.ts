@@ -46,7 +46,6 @@ export const deleteProductReview = createAsyncThunk(
     }
   },
 );
-// สร้าง Slice (ไว้สำหรับจัดการ Loading/Error state ถ้าต้องการ)
 const reviewSlice = createSlice({
   name: "reviews",
   initialState: {

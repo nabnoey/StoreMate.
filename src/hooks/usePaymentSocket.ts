@@ -14,26 +14,26 @@ const usePaymentSocket = () => {
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    console.log("SOCKET EFFECT RUN");
+    // console.log("SOCKET EFFECT RUN");
 
     if (!token) {
-      console.log("WAITING TOKEN...");
+      // console.log("WAITING TOKEN...");
       return;
     }
 
     // ✅ reuse connection
     if (globalClient && currentToken === token) {
-      console.log("REUSE SOCKET");
+      // console.log("REUSE SOCKET");
       return;
     }
 
     if (globalClient && currentToken !== token) {
-      console.log("TOKEN CHANGED, RECONNECTING...");
+      // console.log("TOKEN CHANGED, RECONNECTING...");
       globalClient.deactivate();
       globalClient = null;
     }
 
-    console.log("CONNECT SOCKET WITH TOKEN");
+    // console.log("CONNECT SOCKET WITH TOKEN");
 
     const client = new Client({
       //https://api.store-mate-api.me/ws
@@ -48,9 +48,17 @@ const usePaymentSocket = () => {
       },
 
       debug: (str) => console.log("[STOMP]", str),
+      onWebSocketError: (event) => {
+        // console.error("WS ERROR:", event);
+      },
+
+      onDisconnect: () => {
+        // console.log("STOMP DISCONNECTED");
+      },
 
       onConnect: () => {
-        console.log("SOCKET CONNECTED");
+        currentToken = token;
+        // console.log("SOCKET CONNECTED");
 
         client.subscribe("/user/queue/notifications", (message) => {
           if (!message.body) return;
@@ -94,14 +102,16 @@ const usePaymentSocket = () => {
         });
       },
 
+      onStompError: (frame) => {
+        console.error("STOMP ERROR:", frame);
+        console.error("MESSAGE:", frame.headers["message"]);
+        console.error("BODY:", frame.body);
+      },
+
       onWebSocketClose: () => {
         console.log("SOCKET CLOSED");
         globalClient = null;
         currentToken = null;
-      },
-
-      onStompError: (frame) => {
-        console.error("STOMP ERROR:", frame.headers["message"]);
       },
     });
 
@@ -110,7 +120,7 @@ const usePaymentSocket = () => {
 
     // ❌ ไม่ต้อง deactivate ทุกครั้ง
     return () => {
-      console.log("EFFECT CLEANUP (NO DISCONNECT)");
+      // console.log("EFFECT CLEANUP (NO DISCONNECT)");
     };
   }, [token, dispatch]);
 };
