@@ -12,7 +12,7 @@ import {
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 import { toast } from "react-hot-toast";
 import { CiCalendar } from "react-icons/ci";
-
+import { useReactToPrint } from "react-to-print";
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
@@ -77,15 +77,20 @@ function Orders() {
 
  const currentItems = Array.isArray(orders) ? orders.slice(0, PAGE_SIZE) : []
 
+  const reactToPrintFn = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: "ใบปะหน้าพัสดุ",
+  });
+
   useEffect(() => {
     if (isPrinting && printData.length > 0) {
       const timer = setTimeout(() => {
-        window.print();
+        reactToPrintFn();
         setIsPrinting(false);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isPrinting, printData]);
+  }, [isPrinting, printData, reactToPrintFn]);
 
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -117,19 +122,18 @@ function Orders() {
       selectedOrders.includes(String(o.orderNo)),
     );
     if (selectedData.length === 0) return;
-    
+
     const invalidOrders = selectedData.filter(o => o.status !== "PROCESSING");
     if (invalidOrders.length > 0) {
       toast.error("สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น");
       return;
     }
 
-    const ids = selectedData.map(o => o.id).filter(id => id != null);
-    
     try {
-      if (ids.length > 0) {
-        await dispatch(shippingOrder(ids[0])).unwrap();
-        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+      if (selectedData.length > 0) {
+        const orderIds = selectedData.map((order) => Number(order.id));
+        await dispatch(shippingOrder(orderIds)).unwrap();
+        dispatch(fetchAllOrders({ page: currentPage, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);
       setIsPrinting(true);
@@ -469,7 +473,7 @@ const maxVisiblePages = 5;
       </div>
 
       {/* ส่วนที่ใช้สำหรับ Print */}
-      <div className="hidden print:block w-full absolute top-0 left-0 bg-white">
+      <div className="hidden">
         <InvoicePrint ref={printRef} data={printData} />
       </div>
     </div>

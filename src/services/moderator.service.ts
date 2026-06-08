@@ -42,9 +42,10 @@ const rejectRefund = async (refundNo: string): Promise<void> => {
   return res.data;
 };
 
-const shippingOrder = async (orderNo: number) => {
+const shippingOrder = async (Ids: number[]) => {
   const res = await api.post(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/shipping-label`,
+    `${import.meta.env.VITE_MOD_API}/orders/shipping-label`,
+    { ids: Ids }
   );
   return res.data;
 };
@@ -83,18 +84,12 @@ const deleteProduct = async (id: number) => {
   return res.data;
 };
 
-const updateOrderStatus = async (orderNo: string, status: string) => {
-  const res = await api.put(
-    `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
-    { status },
-  );
-  return res.data;
-};
+
 
 export const changeStatus = async (orderNo: string, status: string) => {
   const res = await api.put(
     `${import.meta.env.VITE_MOD_API}/orders/${orderNo}/change-status`,
-    { status },
+    { status }
   );
   return res.data;
 };
@@ -104,8 +99,6 @@ export const ModeratorService = {
   updateProduct,
   deleteProduct,
   shippingOrder,
-  updateOrderStatus,
-  // getOrder,
   addProduct,
   getoOrderByOrderNo,
   changeStatus,

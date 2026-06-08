@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getoOrderByOrderNo, updateOrderStatus } from "../../redux/moderator/ModeratorReducer";
+import { changeStatus, getoOrderByOrderNo  } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -103,7 +103,11 @@ const [selectedStatus, setSelectedStatus] = useState(
   order?.status || ""
 );
 
- 
+  useEffect(() => {
+    if (order?.status) {
+      setSelectedStatus(order.status);
+    }
+  }, [order?.status]);
 
   useEffect(() => {
     if (orderNo && orderNo !== "undefined") {
@@ -145,10 +149,14 @@ const [selectedStatus, setSelectedStatus] = useState(
 
   const handleUpdateStatus = async () => {
     if (!order) return;
+    if (selectedStatus === order.status) {
+      toast.error("กรุณาเลือกสถานะใหม่ที่ต่างจากสถานะปัจจุบัน");
+      return;
+    }
     
     try {
       await dispatch(
-        updateOrderStatus({ orderNo: order.orderNo, status: selectedStatus })
+        changeStatus({ orderNo: order.orderNo, status: selectedStatus })
       ).unwrap();
       
       toast.success("อัปเดตสถานะเรียบร้อยแล้ว");

@@ -1,0 +1,29 @@
+$kind: http-request
+description: Retrieve sales channels, region orders, revenues, and customers statistics.
+url: "{{baseUrl}}/owner/sales-analytics/dashboard"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response should be valid JSON", function () {
+          pm.response.to.be.withBody;
+          pm.response.to.be.json;
+      });
+      pm.test("Contains required analytics fields", function () {
+          const data = pm.response.json();
+          pm.expect(data).to.have.property('totalPrice');
+          pm.expect(data).to.have.property('totalOrder');
+          pm.expect(data).to.have.property('orderChannelIncome');
+          pm.expect(data).to.have.property('regionalOrders');
+          pm.expect(data).to.have.property('regionalRevenue');
+          pm.expect(data).to.have.property('regionalUsers');
+      });
+    language: text/javascript
+order: 2000

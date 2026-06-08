@@ -8,7 +8,7 @@ export type SavedCard = {
 };
 
 export type PaymentIntentPayload = {
-  ids: number[];
+  ids: number;
   checkoutType: PaymentMethod;
   cardId?: string; // จะมีเฉพาะถ้า checkoutType เป็น "CARD"
 };
