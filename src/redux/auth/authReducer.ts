@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { UserService } from "../../services/users.service";
 import type { User } from "../../types/user";
 
-interface AuthState {
+export interface AuthState {
   token: string;
   isAuthenticated: boolean;
   loading: boolean;
@@ -170,6 +170,20 @@ const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       }
     });
+
+    builder.addCase(register.fulfilled, (state,action) => {
+      state.loading = false;
+      const newToken = action.payload.token;
+      const tokenUser = getUserFromToken(newToken);
+      state.token = newToken;
+      state.user = tokenUser;
+      state.isAuthenticated = action.payload.isAuthenticated
+    })
+
+      builder.addCase(register.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
   },
 });
 
