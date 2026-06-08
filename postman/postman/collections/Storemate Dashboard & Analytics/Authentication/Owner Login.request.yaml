@@ -1,0 +1,27 @@
+$kind: http-request
+description: Login endpoint for testing. Saves the token dynamically to the
+  collection variables.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "owner@example.com",
+        "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseJson = pm.response.json();
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Token is returned", function () {
+          pm.expect(responseJson.token).to.be.a('string');
+          pm.collectionVariables.set("token", responseJson.token);
+      });
+    language: text/javascript
+order: 1000
