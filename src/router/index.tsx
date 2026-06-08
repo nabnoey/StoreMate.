@@ -45,6 +45,7 @@ import OrderDetail from "../pages/admin/OrderDetail";
 import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
 import AdminNotificationPage from "../pages/admin/Notification";
+import Analytic from "../pages/admin/Analytic";
 
 const router = createBrowserRouter([
   {
@@ -214,6 +215,10 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
+        path: "analytic",
+        element: <Analytic />,
+      },
+      {
         path: "orders",
         element: <Order />,
       },
@@ -225,15 +230,10 @@ const router = createBrowserRouter([
         path: "refund",
         element: <RefundModeratorPage />,
       },
-      {
-        path: "notification",
-        element: <AdminNotificationPage />,
-      },
     ],
   },
-
   {
-    path: "/admin",
+    path: "/owner",
     element: (
       <AdminRoute>
         <AdminLayout />
@@ -251,6 +251,10 @@ const router = createBrowserRouter([
       {
         path: "stock",
         element: <Stock />,
+      },
+      {
+        path: "analytic",
+        element: <Analytic />,
       },
 
       {

@@ -1,0 +1,31 @@
+$kind: http-request
+description: Retrieve overview statistics for the Owner Dashboard.
+url: "{{baseUrl}}/owner/dashboard"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response should be valid JSON", function () {
+          pm.response.to.be.withBody;
+          pm.response.to.be.json;
+      });
+      pm.test("Contains required dashboard fields", function () {
+          const data = pm.response.json();
+          pm.expect(data).to.have.property('activeUsers');
+          pm.expect(data).to.have.property('newUsers');
+          pm.expect(data).to.have.property('weeklyActiveUsersChart');
+          pm.expect(data).to.have.property('latestOrder');
+          pm.expect(data).to.have.property('orderChannelRate');
+          pm.expect(data).to.have.property('regionalRevenue');
+          pm.expect(data).to.have.property('products');
+          pm.expect(data).to.have.property('reviews');
+      });
+    language: text/javascript
+order: 1000
