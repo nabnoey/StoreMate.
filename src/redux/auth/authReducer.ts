@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { UserService } from "../../services/users.service";
 import type { User } from "../../types/user";
 
-interface AuthState {
+export interface AuthState {
   token: string;
   isAuthenticated: boolean;
   loading: boolean;
