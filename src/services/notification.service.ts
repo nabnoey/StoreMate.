@@ -1,30 +1,45 @@
 import api from "./api";
-import type { NotificationRequest } from "../types/notification";
+import type {
+  NotificationRequest,
+  FetchNotifyParams,
+  Notification,
+} from "../types/notification";
 
-const getNotifyUser = async () => {
-  const res = await api.get(`/notify`);
-  return res.data;
-};
-
-export interface FetchNotifyParams {
-  keyword?: string;
-  page?: number;
-  size?: number;
+export interface PageableNotificationResponse {
+  content: Notification[];
+  totalPages: number;
+  number: number; // currentPage
+  totalElements: number;
 }
-const getNotifyOwner = async (params?: FetchNotifyParams) => {
-  const res = await api.get(`${import.meta.env.VITE_NOTIFY_API}`, { params });
-  return res.data;
-};
-const createNotifyOwner = async (data: NotificationRequest) => {
-  const res = await api.post(`${import.meta.env.VITE_NOTIFY_API}/send`, data);
+
+const getNotifyUser = async (): Promise<Notification[]> => {
+  const res = await api.get<Notification[]>("/notify");
   return res.data;
 };
 
-const deleteNotify = async (notifyId: number) => {
-  const res = await api.delete(
-    `${import.meta.env.VITE_NOTIFY_API}/${notifyId}`,
+const getNotifyOwner = async (
+  params?: FetchNotifyParams,
+): Promise<PageableNotificationResponse> => {
+  const res = await api.get<PageableNotificationResponse>(
+    `${import.meta.env.VITE_NOTIFY_API}`,
+    { params },
   );
   return res.data;
+};
+
+const createNotifyOwner = async (
+  data: NotificationRequest,
+): Promise<Notification> => {
+  const res = await api.post<Notification>(
+    `${import.meta.env.VITE_NOTIFY_API}/send`,
+    data,
+  );
+  return res.data;
+};
+
+const deleteNotify = async (notifyId: number): Promise<number> => {
+  await api.delete(`${import.meta.env.VITE_NOTIFY_API}/${notifyId}`);
+  return notifyId; // ส่ง ID กลับไปเพื่อให้ Redux ไปกรองออก
 };
 
 export const NotificationService = {

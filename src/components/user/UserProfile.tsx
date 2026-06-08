@@ -20,6 +20,27 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const roles = user?.roles ?? [];
+
+  const isAdmin = roles.includes("ADMIN");
+  const isModerator = roles.includes("MODERATOR");
+
+  const canAccessBackoffice = isAdmin || isModerator;
+
+  const handleAdminNavigation = () => {
+    closeMenu();
+
+    if (isAdmin) {
+      navigate("/owner/dashboard");
+      return;
+    }
+
+    if (isModerator) {
+      navigate("/moderator/dashboard");
+      return;
+    }
+  };
+
   const isActive = (path: string) => location.pathname === path;
   const closeMenu = () => {
     const elem = document.activeElement as HTMLElement;
@@ -226,6 +247,28 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
 
           <hr className="my-1 border-gray-50" />
 
+          {canAccessBackoffice && (
+            <>
+              <li>
+                <button
+                  type="button"
+                  onClick={handleAdminNavigation}
+                  className="flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100"
+                >
+                  <Icon
+                    icon="ph:shield-check"
+                    width="20"
+                    height="20"
+                    className="text-black"
+                  />
+
+                  <span className="font-Anuphan text-[16px] font-semibold leading-[32px] text-black">
+                    ผู้ดูแลระบบ
+                  </span>
+                </button>
+              </li>
+            </>
+          )}
           <li>
             <button
               data-test="btn-logout"

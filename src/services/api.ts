@@ -31,12 +31,12 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const isLoginAPI = error.config.url?.includes("/login");
-      const isProductAPI = error.config.url?.includes("/products");
 
-      if (!isLoginAPI && !isProductAPI) {
+      const isDeleteProductAPI = error.config.url?.includes("/products") && error.config.method === "delete";
+      if (!isLoginAPI && !isDeleteProductAPI) {
+
         TokenService.removeToken();
         store.dispatch(logout());
-
         window.location.href = "/login";
       }
     }

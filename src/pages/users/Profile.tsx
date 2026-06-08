@@ -82,28 +82,32 @@ const EditModal = ({
 }: ModalProps) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 top-[60px] sm:top-0 sm:inset-0 z-[60] flex items-start sm:items-center justify-center bg-white sm:bg-black/50 sm:backdrop-blur-sm">
-      <div className="bg-white w-full h-full sm:h-auto sm:max-w-[450px] sm:rounded-xl shadow-none sm:shadow-2xl flex flex-col animate-in slide-in-from-right-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 font-['Anuphan'] relative">
+    <div
+      className="
+    fixed inset-0 z-[60]
+    flex items-center justify-center
+    bg-black/50 backdrop-blur-sm
+    p-4
+  "
+    >
+      <div
+        className="
+    bg-white
+    w-[92%]
+    max-w-[420px]
+    rounded-xl
+    shadow-2xl
+    overflow-hidden
+  "
+      >
         <div className="px-4 pt-6 pb-2">
           <div className="flex items-center gap-2 mb-3">
-            <button
-              onClick={onClose}
-              className="text-black p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-            >
-              <Icon
-                icon="material-symbols:arrow-back"
-                className="sm:hidden w-6 h-6"
-              />
-            </button>
             <h3 className="text-[#374151] text-[16px] sm:text-[18px] font-bold break-words">
               {title}
             </h3>
           </div>
-          <hr className="sm:hidden border-t-2 border-black w-full" />
         </div>
-
         <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
-
         <div className="px-4 pb-6 pt-4 mt-auto bg-white">
           <div
             data-test="edit-modal-actions"
@@ -434,8 +438,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Desktop Divider */}
-              <div className="hidden md:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
-
+              <div className="hidden md:hidden xl:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
@@ -559,7 +562,7 @@ const ProfilePage = () => {
             }}
           >
             <div
-            data-test="stop-Propagation"
+              data-test="stop-Propagation"
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
@@ -661,7 +664,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* 🟢 ย้ายปุ่มควบคุมมาครอบด้วยเงื่อนไข crop เท่านั้น (หน้าจอ upload จะไม่มีปุ่มและไม่มีแถบสีเทาด้านล่างกวนใจ) */}
               {imageUploadStep === "crop" && (
                 <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                   <button
