@@ -137,7 +137,7 @@ function SidebarAdmin() {
               data-test="orders-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isOwner ? "/owner/ordersMod" : "/moderator/orders")
+                navigate(isOwner ? "/owner/orders" : "/moderator/orders")
               }
             >
               <Truck size={18} />
