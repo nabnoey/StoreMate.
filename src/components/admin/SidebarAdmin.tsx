@@ -140,7 +140,7 @@ function SidebarAdmin() {
                 "/moderator/ordersMod",
               ])}
               onClick={() =>
-                navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")
+                navigate(isAdmin ? "/owner/orders" : "/moderator/orders")
               }
             >
               <Truck size={18} />
