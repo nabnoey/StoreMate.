@@ -1,0 +1,253 @@
+{
+	"info": {
+		"name": "Storemate Dashboard & Analytics",
+		"description": "Collection for testing Owner Dashboard, Sales Analytics, and Report Import APIs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Owner Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Token is returned\", function () {",
+									"    pm.expect(responseJson.token).to.be.a('string');",
+									"    pm.collectionVariables.set(\"token\", responseJson.token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"owner@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login endpoint for testing. Saves the token dynamically to the collection variables."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard & Analytics",
+			"item": [
+				{
+					"name": "Get Owner Dashboard",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response should be valid JSON\", function () {",
+									"    pm.response.to.be.withBody;",
+									"    pm.response.to.be.json;",
+									"});",
+									"pm.test(\"Contains required dashboard fields\", function () {",
+									"    const data = pm.response.json();",
+									"    pm.expect(data).to.have.property('activeUsers');",
+									"    pm.expect(data).to.have.property('newUsers');",
+									"    pm.expect(data).to.have.property('weeklyActiveUsersChart');",
+									"    pm.expect(data).to.have.property('latestOrder');",
+									"    pm.expect(data).to.have.property('orderChannelRate');",
+									"    pm.expect(data).to.have.property('regionalRevenue');",
+									"    pm.expect(data).to.have.property('products');",
+									"    pm.expect(data).to.have.property('reviews');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/owner/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"owner",
+								"dashboard"
+							]
+						},
+						"description": "Retrieve overview statistics for the Owner Dashboard."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales Analytics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response should be valid JSON\", function () {",
+									"    pm.response.to.be.withBody;",
+									"    pm.response.to.be.json;",
+									"});",
+									"pm.test(\"Contains required analytics fields\", function () {",
+									"    const data = pm.response.json();",
+									"    pm.expect(data).to.have.property('totalPrice');",
+									"    pm.expect(data).to.have.property('totalOrder');",
+									"    pm.expect(data).to.have.property('orderChannelIncome');",
+									"    pm.expect(data).to.have.property('regionalOrders');",
+									"    pm.expect(data).to.have.property('regionalRevenue');",
+									"    pm.expect(data).to.have.property('regionalUsers');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/owner/sales-analytics/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"owner",
+								"sales-analytics",
+								"dashboard"
+							]
+						},
+						"description": "Retrieve sales channels, region orders, revenues, and customers statistics."
+					},
+					"response": []
+				},
+				{
+					"name": "Import Excel/CSV Sales Data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 400\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Successful import message\", function () {",
+									"        pm.expect(pm.response.text()).to.be.a(\"string\");",
+									"    });",
+									"} else {",
+									"    pm.test(\"Shows validation error message\", function () {",
+									"        const data = pm.response.json();",
+									"        pm.expect(data.message).to.exist;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "Excel or CSV file to import. Select a file in Postman.",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/owner/import",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"owner",
+								"import"
+							]
+						},
+						"description": "Upload a sales report spreadsheet (.xlsx, .xls, .csv). If the file contains invalid data or schema, it returns 400 Bad Request."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://api.store-mate-api.me/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
