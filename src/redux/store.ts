@@ -1,6 +1,4 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-
 import authReducer from "./auth/authReducer";
 import cartReducer from "./carts/CartReducer";
 import productsReducer from "./products/productReducer";
@@ -11,20 +9,6 @@ import orderReducer from "./orders/orderReducer";
 import moderatorReducer from "./moderator/ModeratorReducer";
 import refundReducer from "./moderator/refundReducer";
 import notificationReducer from "./notification/notificationReducer";
-
-const storage = {
-  getItem: (key: string) => {
-    return Promise.resolve(localStorage.getItem(key));
-  },
-  setItem: (key: string, value: string) => {
-    localStorage.setItem(key, value);
-    return Promise.resolve(value);
-  },
-  removeItem: (key: string) => {
-    localStorage.removeItem(key);
-    return Promise.resolve();
-  },
-};
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -39,26 +23,10 @@ const rootReducer = combineReducers({
   notification: notificationReducer,
 });
 
-const persistConfig = {
-  key: "root",
-  storage,
-  whitelist: ["carts", "orders"],
-};
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   devTools: true,
-
-  // ✅ กัน error non-serializable
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
-export const persistor = persistStore(store);

@@ -360,21 +360,18 @@ const HistoryPage = () => {
                       0,
                     );
 
-                  console.log("Check Order Items Data:", order.orderItems);
                   const firstProductId = order?.orderItems?.[0]?.id;
                   // เปลี่ยนให้ตรงกับคีย์ที่มาจากหลังบ้านจริง ๆ
-                  const unreviewedItems =
-                    order.orderItems?.filter(
-                      (i: any) => !i.is_reviewed && !i.review,
-                    ) || [];
                   const reviewedItems =
-                    order.orderItems?.filter(
-                      (i: any) => i.isReviewed || i.review,
-                    ) || [];
+                    order.orderItems?.filter((item: any) => item.is_review) ||
+                    [];
+                  const unreviewedItems =
+                    order.orderItems?.filter((item: any) => !item.is_review) ||
+                    [];
 
-                  const hasUnreviewed = unreviewedItems.length > 0;
+                  // 4. เช็กสถานะเพื่อเปิด-ปิด การแสดงผลปุ่ม "ดูรีวิว" หรือ "เขียนรีวิว"
                   const hasReviewed = reviewedItems.length > 0;
-
+                  const hasUnreviewed = unreviewedItems.length > 0;
                   return (
                     <div
                       key={order.id}
@@ -631,7 +628,7 @@ const HistoryPage = () => {
             </div>
             <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
               {orderForReview.orderItems
-                ?.filter((item: any) => !item.isReviewed && !item.review)
+                ?.filter((item: any) => !item.is_review)
                 ?.map((item: any) => {
                   const isSelected = localSelectedItemId === item.id;
                   return (

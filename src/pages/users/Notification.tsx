@@ -48,7 +48,7 @@ const NotificationPage = () => {
       return {
         ...item,
         type: simulatedType,
-        isRead: item.isRead, // ผูกสถานะจาก Redux Store
+        isRead: item.isRead,
       };
     });
   }, [rawNotifications]);
@@ -96,7 +96,6 @@ const NotificationPage = () => {
           <span className="text-black">โปรไฟล์</span>
         </nav>
 
-        {/* Mobile Header (ลบปุ่มอ่านทั้งหมดออกแล้ว) */}
         <div className="md:hidden bg-white pt-2 pb-4">
           <div className="flex items-center gap-3">
             <button
@@ -121,7 +120,6 @@ const NotificationPage = () => {
           <ProfileSidebar />
 
           <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
-            {/* Desktop Header (ปรับ Layout คลีนๆ ลบปุ่มอ่านทั้งหมดออกแล้ว) */}
             <div className="hidden sm:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">การแจ้งเตือน</h1>
               <p className="text-[14px] mt-1 text-black">
@@ -153,7 +151,6 @@ const NotificationPage = () => {
                 ))}
               </div>
 
-              {/* Notifications List Column */}
               <div className="flex-1 flex flex-col gap-3 w-full">
                 {isLoading ? (
                   <div className="text-center py-10 text-gray-400 text-sm">
@@ -163,7 +160,6 @@ const NotificationPage = () => {
                   filteredNotifications.map((item) => (
                     <button
                       key={item.id}
-                      // ใส่ ?? false เพื่อการันตีว่ายังไงก็ส่งเป็น boolean แน่นอน ไม่เป็น undefined
                       onClick={() =>
                         handleNotificationClick(item.id, item.isRead ?? false)
                       }

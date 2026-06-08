@@ -1,17 +1,15 @@
 import api from "./api";
-import type { CreateReviewPayload } from "../types/review";
+import type { CreateReviewPayload, Review } from "../types/review";
 
-//ดูรีวิวสินค้าตาม productId
-const getReviews = async (productId: number) => {
+const getReviews = async (productId: number): Promise<Review[]> => {
   const res = await api.get(`${import.meta.env.VITE_REVIEW_API}/${productId}`);
   return res.data;
 };
 
-//ใช้ review สินค้าใน order
 const createReviews = async (
   orderItemId: number,
   payload: CreateReviewPayload,
-) => {
+): Promise<Review> => {
   const res = await api.post(
     `${import.meta.env.VITE_REVIEW_API}/${orderItemId}`,
     payload,
@@ -19,17 +17,26 @@ const createReviews = async (
   return res.data;
 };
 
-const editReviews = async (id: number, paypload: CreateReviewPayload) => {
+const editReviews = async (
+  reviewId: number,
+  payload: CreateReviewPayload,
+): Promise<Review> => {
   const res = await api.put(
-    `${import.meta.env.VITE_REVIEW_API}/${id}`,
-    paypload,
+    `${import.meta.env.VITE_REVIEW_API}/${reviewId}`,
+    payload,
   );
   return res.data;
 };
-const deleteReviews = async (id: number) => {
-  const res = await api.delete(`${import.meta.env.VITE_REVIEW_API}/${id}`);
+
+const deleteReviews = async (
+  reviewId: number,
+): Promise<{ message: string } | void> => {
+  const res = await api.delete(
+    `${import.meta.env.VITE_REVIEW_API}/${reviewId}`,
+  );
   return res.data;
 };
+
 export const ReviewsService = {
   getReviews,
   createReviews,

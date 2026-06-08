@@ -30,14 +30,10 @@ const NotificationManagementPage: React.FC = () => {
   const totalPages = useSelector(
     (state: RootState) => state.notification.totalPages,
   );
-  // const currentPage = useSelector(
-  //   (state: RootState) => state.notification.currentPage,
-  // );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
-
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -46,10 +42,36 @@ const NotificationManagementPage: React.FC = () => {
     recipients: "ทั้งหมด",
   });
 
-  const role = useSelector((state: RootState) => state.auth.user?.roleName);
+  const userRoles =
+    useSelector((state: RootState) => state.auth.user?.roles) || [];
 
-  const isAdmin = role === "ADMIN";
+  const isOwner = userRoles.includes("ADMIN") || userRoles.includes("OWNER");
+  const isModerator = userRoles.includes("MODERATOR");
 
+  if (!isOwner && !isModerator) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 font-prompt p-4 text-center">
+        <Icon
+          icon="lucide:shield-alert"
+          width="64"
+          height="64"
+          className="text-red-500 mb-4"
+        />
+        <h1 className="text-xl font-bold text-gray-800 mb-2">
+          คุณไม่มีสิทธิ์เข้าถึง
+        </h1>
+        <p className="text-sm text-gray-500 mb-6">
+          เฉพาะผู้บริหารและพนักงานที่ได้รับอนุญาตเท่านั้น
+        </p>
+        <button
+          onClick={() => (window.location.href = "/store")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
+        >
+          กลับหน้าหลัก (Store Page)
+        </button>
+      </div>
+    );
+  }
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -59,14 +81,16 @@ const NotificationManagementPage: React.FC = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    dispatch(
-      fetchOwnerNotify({
-        keyword: debouncedSearch,
-        page: page,
-        size: 10,
-      }),
-    );
-  }, [dispatch, debouncedSearch, page]);
+    if (isOwner || isModerator) {
+      dispatch(
+        fetchOwnerNotify({
+          keyword: debouncedSearch,
+          page: page,
+          size: 10,
+        }),
+      );
+    }
+  }, [dispatch, debouncedSearch, page, isOwner, isModerator]);
 
   const getRecipientConfig = (sendTo: string) => {
     if (sendTo.includes("moderator")) {
@@ -75,14 +99,12 @@ const NotificationManagementPage: React.FC = () => {
         className: "bg-blue-50 text-blue-600 border border-blue-100",
       };
     }
-
     if (sendTo.includes("customer")) {
       return {
         label: "ผู้ใช้งาน",
         className: "bg-green-50 text-green-600 border border-green-100",
       };
     }
-
     return {
       label: "ทั้งหมด",
       className: "bg-gray-100 text-gray-600",
@@ -110,6 +132,7 @@ const NotificationManagementPage: React.FC = () => {
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
+
     if (!formData.subject.trim() || !formData.message.trim()) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
@@ -167,7 +190,6 @@ const NotificationManagementPage: React.FC = () => {
 
         <div className="p-8 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            {/* Search & Action Bar */}
             <div className="flex justify-between items-center mb-6">
               <div className="relative w-80">
                 <Icon
@@ -186,7 +208,7 @@ const NotificationManagementPage: React.FC = () => {
                   }
                 />
               </div>
-              {isAdmin && (
+              {isOwner && (
                 <button
                   onClick={() => setIsModalOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
@@ -202,7 +224,6 @@ const NotificationManagementPage: React.FC = () => {
               )}
             </div>
 
-            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -257,7 +278,8 @@ const NotificationManagementPage: React.FC = () => {
                                 )
                               : "-"}
                           </td>
-                          {isAdmin && (
+
+                          {isOwner && (
                             <td className="py-4 text-right">
                               <button
                                 onClick={() => handleDelete(noti.id)}
@@ -303,11 +325,9 @@ const NotificationManagementPage: React.FC = () => {
                     >
                       <Icon icon="lucide:chevron-left" width="18" height="18" />
                     </button>
-
                     <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs">
                       {page + 1}
                     </span>
-
                     <button
                       type="button"
                       onClick={() =>
@@ -330,7 +350,6 @@ const NotificationManagementPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -382,7 +401,6 @@ const NotificationManagementPage: React.FC = () => {
 
                 <div className="flex space-x-3">
                   <button
-                    data-test="cancel-noti-btn"
                     type="button"
                     onClick={handleCancel}
                     className="px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
@@ -390,7 +408,6 @@ const NotificationManagementPage: React.FC = () => {
                     ยกเลิก
                   </button>
                   <button
-                    data-test="submit-noti-btn"
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
                   >

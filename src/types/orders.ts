@@ -1,4 +1,5 @@
 import type { PaymentMethod } from "./payment";
+import type { Review } from "./review";
 
 export interface OrderAddress {
   id: number;
@@ -48,6 +49,8 @@ export interface OrderItem {
   price: number;
   quantity: number;
   subTotal: number;
+  is_review: boolean;
+  review?: Review | null;
 }
 
 export interface OrderRecipient {

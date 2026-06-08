@@ -13,10 +13,10 @@ let currentNotifyToken: string | null = null;
 const useNotificationSocket = () => {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector((state: RootState) => state.auth.token);
-  const userRole = useSelector((state: RootState) => state.auth.user?.roleName); // สมมติว่าคืนกลับมาเป็น OWNER, MODERATOR, USER
+  const userRole = useSelector((state: RootState) => state.auth.user?.roleName); // USER, MODERATOR, OWNER/ADMIN
 
   useEffect(() => {
-    // แก้ไขบั๊ก Logout: ถ้าไม่มี Token แต่มี Client ค้างอยู่ ให้สั่งปิดทันที!
+    // 🚪 จัดการกรณี Logout หรือสิทธิ์หลุด
     if (!token || !userRole) {
       if (globalNotifyClient) {
         console.log("[NOTIFY STOMP] Disconnecting due to logout...");
@@ -27,12 +27,12 @@ const useNotificationSocket = () => {
       return;
     }
 
-    // ถ้า Token เดิมยังเหมือนเดิม ไม่ต้องทำอะไรซ้ำ
+    // ป้องกันการสร้าง Connection ซ้ำถ้า Token เดิมยังไม่เปลี่ยน
     if (globalNotifyClient && currentNotifyToken === token) {
       return;
     }
 
-    // ถ้าเปลี่ยน User (Token เปลี่ยน) ให้ปิดตัวเก่าก่อนสร้างตัวใหม่
+    // เคลียร์อันเก่าทิ้งซะถ้ามีการเปลี่ยนบัญชีผู้ใช้ในหน้าต่างเดิม
     if (globalNotifyClient && currentNotifyToken !== token) {
       globalNotifyClient.deactivate();
       globalNotifyClient = null;
@@ -55,18 +55,23 @@ const useNotificationSocket = () => {
           if (!message.body) return;
           const data = JSON.parse(message.body);
 
+          // แสดงแจ้งเตือน Popup แบบ Realtime ด้วย React Hot Toast
           toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
+
+          // อัปเดตข้อมูลเข้า Redux Store ทันทีเพื่อให้ List Table อัปเดตข้อมูลปัจจุบัน (Postcondition UC-42)
           dispatch(addNotificationFromSocket(data));
         };
 
+        // 🌐 ทุกคน (ทุก Role) ต้องรับข่าวสารจากช่องทางส่วนกลางเสมอ
         client.subscribe("/topic/all", handleIncomingNotification);
 
-        // แยกเส้นตามกลุ่มเป้าหมาย (Recipients) ใน Use Case
+        // 🔐 แยกเส้นตรวจจับตามโครงสร้าง Role และสิทธิ์ตาม Requirement
         if (userRole === "USER") {
           client.subscribe("/topic/customer", handleIncomingNotification);
         } else if (userRole === "MODERATOR") {
           client.subscribe("/topic/moderator", handleIncomingNotification);
-        } else if (userRole === "ADMIN") {
+        } else {
+          // ส่วนที่เหลือ (เช่น OWNER หรือ ADMIN) ให้จับเส้นแอดมินกลาง
           client.subscribe("/topic/owner", handleIncomingNotification);
         }
       },
