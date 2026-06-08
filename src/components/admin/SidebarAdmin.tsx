@@ -19,6 +19,7 @@ import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 import type { RootState } from "../../redux/store";
 import { getProfile } from "../../redux/auth/authReducer";
+
 function SidebarAdmin() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -93,24 +94,24 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="dashboard-button"
-              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 
-     hover:text-blue-600 rounded-lg transition-all -mt-7.5"
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all -mt-7.5"
               onClick={() =>
                 navigate(isOwner ? "/owner/dashboard" : "/moderator/dashboard")
-
               }
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
             </button>
           </li>
+
           {isOwner && (
             <li>
               <button
                 data-test="report-button"
                 className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
                 onClick={() =>
-                navigate(isAdmin ? "/owner/analytic" : "/moderator/analytic")
+                  navigate(isOwner ? "/owner/analytic" : "/moderator/analytic")
+                }
               >
                 <TrendingUp size={18} />
                 รายงานยอดขาย
