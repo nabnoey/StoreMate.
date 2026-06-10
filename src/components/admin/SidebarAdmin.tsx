@@ -165,7 +165,7 @@ function SidebarAdmin() {
                 <button
                   data-test="user-edit-button"
                   className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/owner/user-edit")}
+                  onClick={() => navigate("/owner/user-management")}
                 >
                   <Users size={18} />
                   จัดการผู้ใช้

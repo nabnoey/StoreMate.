@@ -42,11 +42,11 @@ import Dashboard from "../pages/admin/Dashboard";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
-import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
 
 import NotificationManagementPage from "../pages/admin/NotificationManagementPage";
 import Analytic from "../pages/admin/Analytic";
+import UserManagement from "../pages/admin/UserManagement";
 
 const router = createBrowserRouter([
   {
@@ -235,6 +235,7 @@ const router = createBrowserRouter([
         path: "notification",
         element: <NotificationManagementPage />,
       },
+      
     ],
   },
   {
@@ -275,10 +276,6 @@ const router = createBrowserRouter([
         element: <RefundModeratorPage />,
       },
       {
-        path: "user-edit",
-        element: <UserEdit />,
-      },
-      {
         path: "store-edit",
         element: <StoreEdit />,
       },
@@ -286,6 +283,10 @@ const router = createBrowserRouter([
         path: "notification",
         element: <NotificationManagementPage />,
       },
+      {
+        path: "user-management",
+        element: <UserManagement />,
+      }
     ],
   },
 ]);
