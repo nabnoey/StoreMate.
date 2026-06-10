@@ -42,14 +42,6 @@ export const getStore = createAsyncThunk("owner/getStore", async () => {
   return res;
 });
 
-// export const updateStore = createAsyncThunk(
-//   "owner/updateStore",
-//   async (data: import("../../types/owner").Store) => {
-//     const res = await ownerService.updateStore(data);
-//     return res;
-//   }
-// );
-
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
   async ({ userId, roleName }: { userId: number; roleName: string }) => {
@@ -152,32 +144,11 @@ const ownerSlice = createSlice({
           storeData.streetAddress = fullAddress.substring(0, streetAddrEnd).trim();
         }
         
-        // Fallback for missing email: pull from auth data
-        // if (!storeData.email) {
-        //   try {
-        //     const auth = localStorage.getItem("auth") || sessionStorage.getItem("auth");
-        //     if (auth) {
-        //       const authData = JSON.parse(auth);
-        //       if (authData?.user?.email) {
-        //         storeData.email = authData.user.email;
-        //       }
-        //     }
-        //   } catch (e) {
-        //     // Ignore parse errors
-        //   }
-        // }
-        
+      
         state.store = storeData;
       })
 
-      // .addCase(updateStore.fulfilled, (state, action) => {
-      //   // Merge the submitted form values back into the state to keep the parsed address fields
-      //   if (state.store && action.meta && action.meta.arg) {
-      //     state.store = { ...state.store, ...action.meta.arg };
-      //   } else {
-      //     state.store = action.payload.data;
-      //   }
-      // })
+
 
       .addCase(updateUserRole.fulfilled, (state, action) => {
         const { userId, roleName } = action.payload;
@@ -211,7 +182,7 @@ const ownerSlice = createSlice({
         }
       })
 .addCase(updateStore.fulfilled, (state, action) => {
-  state.store = action.payload.data;
+  state.store = action.payload;
 })
 
   },

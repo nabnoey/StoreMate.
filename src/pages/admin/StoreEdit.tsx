@@ -298,16 +298,22 @@ function StoreEdit() {
                         <label className={labelClass}>รหัสไปรษณีย์</label>
                         <select
                           name="zipcode"
-                          value={values.zipcode}
                           disabled={!zipcodes.length}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           className={`${getSelectClass("zipcode")} disabled:bg-gray-100 disabled:text-gray-400`}
                         >
+          
+
                           <option value="" hidden>กรุณาเลือกรหัสไปรษณีย์</option>
-                          {zipcodes.map((z: { id: number; name: string }) => (
-                            <option key={z.id} value={z.name}>{z.name}</option>
-                          ))}
+                          {zipcodes.map((z: { id: number; name: string }) => {
+                            return (
+
+                            <option key={z.id} value={z.id} selected={z.name === values.zipcode}>{z.name}</option>
+                            )
+
+            })}
+
                         </select>
                         <ErrorMessage name="zipcode" component="div" className={errorTextClass} />
                       </div>
