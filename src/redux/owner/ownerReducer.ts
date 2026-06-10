@@ -32,8 +32,8 @@ const initialState: OwnerState = {
 export const getUserManagement = createAsyncThunk<
   UserManagementResponse,
   GetUserManagementParams
->("owner/getUserManagement", async ({ page, size, keyword }) => {
-  const res = await ownerService.getUserManagement(page, size, keyword);
+>("owner/getUserManagement", async ({ page, size }) => {
+  const res = await ownerService.getUserManagement(page, size);
   return res;
 });
 

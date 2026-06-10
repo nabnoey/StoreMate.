@@ -3,10 +3,9 @@ import api from "./api";
 const getUserManagement = async (
   page?: number,
   size?: number,
-  keyword?: string
 ) => {
   const res = await api.get(`${import.meta.env.VITE_OWNER_API}/users`, {
-    params: { page, size, keyword, sort: "role,asc" },
+    params: { page, size },
   });
   return res.data;
 };
