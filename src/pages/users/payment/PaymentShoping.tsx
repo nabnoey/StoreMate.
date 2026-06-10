@@ -19,7 +19,6 @@ import { PaymentService } from "../../../services/payment.service";
 import { fetchAddressDefault } from "../../../redux/address/addressReducer";
 import { addSavedCard } from "../../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../../redux/carts/CartReducer";
-import { PAYMENT_OPTIONS } from "../../../constants/payment";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 

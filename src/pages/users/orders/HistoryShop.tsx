@@ -34,6 +34,10 @@ const HistoryPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
 
+  useEffect(() => {
+    console.log("ORDERS FROM REDUX", orders);
+  }, [orders]);
+
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -266,7 +270,7 @@ const HistoryPage = () => {
     }
   };
 
-  // ฟังก์ชันแยกย่อยสำหรับดึงรีวิวและเปิด Modal แสดงรีวิว
+  // ฟังก์ชันแยกย่อยสำหรับดึงรีวิว
   const fetchAndShowReview = async (order: any, itemFromList: any) => {
     try {
       const orderItemId = itemFromList.id;
@@ -274,7 +278,7 @@ const HistoryPage = () => {
         fetchProductReviews(orderItemId),
       ).unwrap();
 
-      console.log("ตรวจสอบข้อมูล reviews ที่ดึงมาได้จริง:", reviewData);
+      // console.log("ตรวจสอบข้อมูล reviews ที่ดึงมาได้จริง:", reviewData);
 
       if (reviewData && reviewData.id) {
         setOrderForReview(order);
@@ -700,30 +704,7 @@ const HistoryPage = () => {
                               ยกเลิกคำสั่งซื้อ
                             </button>
                           </div>
-                        ) : // ) : order.status === "PENDING" ||
-                        //   order.status !== "RECEIVED" ? (
-                        //   <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
-                        //     <button
-                        //       data-test="btn-cancel-orders"
-                        //       type="button"
-                        //       onClick={(e) => {
-                        //         e.stopPropagation();
-                        //         navigate(
-                        //           `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-                        //           {
-                        //             state: {
-                        //               status: order.status,
-                        //               paymentMethod: order.checkoutType,
-                        //             },
-                        //           },
-                        //         );
-                        //       }}
-                        //       className="col-start-2 sm:col-start-auto w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer"
-                        //     >
-                        //       ยกเลิกคำสั่งซื้อ
-                        //     </button>
-                        //   </div>
-                        null}
+                        ) : null}
                       </div>
                     </div>
                   );
