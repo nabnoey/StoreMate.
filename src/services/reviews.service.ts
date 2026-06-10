@@ -1,8 +1,10 @@
 import api from "./api";
 import type { CreateReviewPayload, Review } from "../types/review";
 
-const getReviews = async (productId: number): Promise<Review[]> => {
-  const res = await api.get(`${import.meta.env.VITE_REVIEW_API}/${productId}`);
+const getReviews = async (orderItemId: number): Promise<Review> => {
+  const res = await api.get(
+    `${import.meta.env.VITE_REVIEW_API}/order-item/${orderItemId}`,
+  );
   return res.data;
 };
 

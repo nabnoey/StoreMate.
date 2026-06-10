@@ -59,15 +59,15 @@ const CancelOrderPage = () => {
       await PaymentService.sendRefund(payload);
 
       if (isPendingPayment) {
-        toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวสอบ");
+        toast.success("ส่งคำขอคืนเงินสำเร็จ");
 
         setTimeout(() => {
-          navigate("/orders?status=REFUND");
+          navigate("/orders?status=CANCELLED");
         }, 1500);
       } else {
-        toast.success("ส่งคำขอยกเลิกสำเร็จ");
+        toast.success("ส่งคำขอยกเลิกสำเร็จ อยู่ระหว่างการตรวสอบ");
         setTimeout(() => {
-          navigate("/orders?status=CANCELLED");
+          navigate("/orders?status=REFUNDED");
         }, 1500);
       }
     } catch (error: any) {
@@ -148,7 +148,6 @@ const CancelOrderPage = () => {
           </div>
 
           <div className="bg-white rounded-lg md:rounded-none shadow-sm md:shadow-none border border-gray-200 md:border-none p-4 md:p-0 mx-4 md:mx-0 flex flex-col gap-5 md:gap-6">
-            {/* Warning Box (ปรับข้อความให้ตรงตามสถานะจริงไดนามิก) */}
             <div className="rounded-lg p-4 flex items-start gap-3 bg-[#FFEB55]">
               <Icon
                 icon="lucide:info"

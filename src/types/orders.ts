@@ -1,5 +1,4 @@
 import type { PaymentMethod } from "./payment";
-import type { Review } from "./review";
 
 export interface OrderAddress {
   id: number;
@@ -50,7 +49,6 @@ export interface OrderItem {
   quantity: number;
   subTotal: number;
   is_review: boolean;
-  review?: Review | null;
 }
 
 export interface OrderRecipient {
@@ -58,7 +56,9 @@ export interface OrderRecipient {
   phone?: string;
 }
 
-export interface Order {
+export interface Order extends Partial<
+  Pick<RefundRequest, "reason" | "description">
+> {
   id: number;
   orderNo: string;
   status: OrderStatus;
@@ -72,9 +72,6 @@ export interface Order {
 
   total: number;
   createdAt: string;
-
-  //mock ของยกเลิกคำสั่งซื้อเฉยๆ
-  cancelReason?: string;
 }
 
 export interface OrdersState {
