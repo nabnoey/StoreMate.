@@ -20,6 +20,7 @@ export interface Store {
   zipcode: string;
   email: string;
   promotionImage: string;
+  imageFile: string | File
 }
 
 export interface OwnerState {
