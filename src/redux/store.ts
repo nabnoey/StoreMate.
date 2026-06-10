@@ -9,6 +9,7 @@ import orderReducer from "./orders/orderReducer";
 import moderatorReducer from "./moderator/ModeratorReducer";
 import refundReducer from "./moderator/refundReducer";
 import notificationReducer from "./notification/notificationReducer";
+import ownerReducer from "./owner/ownerReducer"
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   moderator: moderatorReducer,
   refunds: refundReducer,
   notification: notificationReducer,
+  owner: ownerReducer
 });
 
 export const store = configureStore({
