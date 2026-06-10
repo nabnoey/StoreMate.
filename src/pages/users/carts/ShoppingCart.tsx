@@ -285,6 +285,7 @@ const ShoppingCart = () => {
                           disabled={!item.isAvailable}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
+                          data-test="checkbox-product"
                           className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                         />
                       </div>

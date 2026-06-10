@@ -1,4 +1,6 @@
 import api from "./api";
+import type {Store} from "../types/owner"
+
 
 const getUserManagement = async (
   page?: number,
@@ -13,30 +15,40 @@ const getUserManagement = async (
 const getStore = async () => {
   const res = await api.get(`${import.meta.env.VITE_OWNER_API}/store`);
   return res.data
+
+  
 }
 
-const updateStore = async (data: any) => {
-  // Combine address fields into a single streetAddress string for the backend
-  let fullAddress = data.streetAddress || "";
-  if (data.subdistrict) fullAddress += ` ต.${data.subdistrict}`;
-  if (data.district) fullAddress += ` อ.${data.district}`;
-  if (data.province) fullAddress += ` จ.${data.province}`;
-  if (data.zipcode) fullAddress += ` ${data.zipcode}`;
-
+const updateStore = async (data: Store) => {
   const formData = new FormData();
-  if (data.storeName) formData.append("storeName", data.storeName);
-  if (data.phone) formData.append("phone", data.phone);
-  if (fullAddress) formData.append("streetAddress", fullAddress.trim());
-  if (data.email) formData.append("email", data.email);
-  
-  const imageFile = data.promotionImage || data.image;
-  if (imageFile instanceof File) {
+
+  const requestPayload = {
+    storeName: data.storeName,
+    phone: data.phone,
+    email: data.email,
+    streetAddress: data.streetAddress,
+    zipcodeId: data.zipcode,
+  };
+
+
+  formData.append(
+    "data",
+    JSON.stringify(requestPayload)
+  );
+
+  const imageFile = data.promotionImage 
+
+  if (imageFile) {
     formData.append("image", imageFile);
   }
 
-  const res = await api.put(`${import.meta.env.VITE_OWNER_API}/store/${data.id}`, formData);
+  const res = await api.put(
+    `${import.meta.env.VITE_OWNER_API}/store/${data.id}`,
+    formData
+  );
+
   return res.data;
-}
+};
 
 const updateUserRole = async (userId: number, roleName: string) => {
   const res = await api.put(`${import.meta.env.VITE_OWNER_API}/users/${userId}/roles`, { roleName });
