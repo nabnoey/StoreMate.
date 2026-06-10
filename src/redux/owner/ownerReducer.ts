@@ -42,13 +42,13 @@ export const getStore = createAsyncThunk("owner/getStore", async () => {
   return res;
 });
 
-export const updateStore = createAsyncThunk(
-  "owner/updateStore",
-  async (data: import("../../types/owner").Store) => {
-    const res = await ownerService.updateStore(data);
-    return res;
-  }
-);
+// export const updateStore = createAsyncThunk(
+//   "owner/updateStore",
+//   async (data: import("../../types/owner").Store) => {
+//     const res = await ownerService.updateStore(data);
+//     return res;
+//   }
+// );
 
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
@@ -74,10 +74,10 @@ export const activeUser = createAsyncThunk(
   }
 );
 
-export const storeEdit = createAsyncThunk(
-  "owner/storeEdit",
+export const updateStore = createAsyncThunk(
+  "owner/updateStore",
   async (data: import("../../types/owner").Store) => {
-    const res = await ownerService.storeEdit(data);
+    const res = await ownerService.updateStore(data);
     return res;
   }
 )
@@ -119,7 +119,7 @@ const ownerSlice = createSlice({
       })
 
       .addCase(getStore.fulfilled, (state, action) => {
-        let storeData = { ...action.payload };
+        const  storeData = { ...action.payload };
         
         // If province is missing or empty but streetAddress contains it, try to parse
         if (storeData.streetAddress && (!storeData.province || storeData.province === "")) {
@@ -153,31 +153,31 @@ const ownerSlice = createSlice({
         }
         
         // Fallback for missing email: pull from auth data
-        if (!storeData.email) {
-          try {
-            const auth = localStorage.getItem("auth") || sessionStorage.getItem("auth");
-            if (auth) {
-              const authData = JSON.parse(auth);
-              if (authData?.user?.email) {
-                storeData.email = authData.user.email;
-              }
-            }
-          } catch (e) {
-            // Ignore parse errors
-          }
-        }
+        // if (!storeData.email) {
+        //   try {
+        //     const auth = localStorage.getItem("auth") || sessionStorage.getItem("auth");
+        //     if (auth) {
+        //       const authData = JSON.parse(auth);
+        //       if (authData?.user?.email) {
+        //         storeData.email = authData.user.email;
+        //       }
+        //     }
+        //   } catch (e) {
+        //     // Ignore parse errors
+        //   }
+        // }
         
         state.store = storeData;
       })
 
-      .addCase(updateStore.fulfilled, (state, action) => {
-        // Merge the submitted form values back into the state to keep the parsed address fields
-        if (state.store && action.meta && action.meta.arg) {
-          state.store = { ...state.store, ...action.meta.arg };
-        } else {
-          state.store = action.payload;
-        }
-      })
+      // .addCase(updateStore.fulfilled, (state, action) => {
+      //   // Merge the submitted form values back into the state to keep the parsed address fields
+      //   if (state.store && action.meta && action.meta.arg) {
+      //     state.store = { ...state.store, ...action.meta.arg };
+      //   } else {
+      //     state.store = action.payload;
+      //   }
+      // })
 
       .addCase(updateUserRole.fulfilled, (state, action) => {
         const { userId, roleName } = action.payload;
@@ -210,7 +210,7 @@ const ownerSlice = createSlice({
           }
         }
       })
-.addCase(storeEdit.fulfilled, (state, action) => {
+.addCase(updateStore.fulfilled, (state, action) => {
   state.store = action.payload;
 })
 

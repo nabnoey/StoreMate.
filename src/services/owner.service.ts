@@ -1,6 +1,5 @@
 import api from "./api";
 
-
 const getUserManagement = async (
   page?: number,
   size?: number,
@@ -36,7 +35,6 @@ const updateStore = async (data: any) => {
     formData.append("image", imageFile);
   }
 
-  // Use the correct endpoint with storeId and FormData
   const res = await api.put(`${import.meta.env.VITE_OWNER_API}/store/${data.id}`, formData);
   return res.data;
 }
@@ -58,12 +56,6 @@ const activeUser = async (userId: number) => {
 
 }
 
-const storeEdit = async (storeId: number) => {
-  const res = await api.put(`${import.meta.env.VITE_OWNER_API}/store/${storeId}`);
-  return res.data;
-
-}
-
 
 
 export const ownerService = {
@@ -73,6 +65,6 @@ export const ownerService = {
   updateUserRole,
   suspendUser,
   activeUser,
-  storeEdit
+ 
 
 };
