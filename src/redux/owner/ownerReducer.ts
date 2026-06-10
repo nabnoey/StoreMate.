@@ -175,7 +175,7 @@ const ownerSlice = createSlice({
       //   if (state.store && action.meta && action.meta.arg) {
       //     state.store = { ...state.store, ...action.meta.arg };
       //   } else {
-      //     state.store = action.payload;
+      //     state.store = action.payload.data;
       //   }
       // })
 
@@ -211,7 +211,7 @@ const ownerSlice = createSlice({
         }
       })
 .addCase(updateStore.fulfilled, (state, action) => {
-  state.store = action.payload;
+  state.store = action.payload.data;
 })
 
   },
