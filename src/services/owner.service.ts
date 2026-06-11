@@ -5,9 +5,10 @@ import type {Store} from "../types/owner"
 const getUserManagement = async (
   page?: number,
   size?: number,
+  keyword?: string
 ) => {
   const res = await api.get(`${import.meta.env.VITE_OWNER_API}/users`, {
-    params: { page, size },
+    params: { page, size , keyword},
   });
   return res.data;
 };
@@ -18,7 +19,35 @@ const getStore = async () => {
 
   
 }
+// const updateStore = async (storeId: number, data: Store) => {
+//   const formData = new FormData();
 
+//   const requestPayload = {
+//     storeName: data.storeName,
+//     phone: data.phone,
+//     email: data.email,
+//     streetAddress: data.streetAddress,
+//     zipcodeId: data.zipcode,
+//   };
+
+//   formData.append(
+//     "data",
+//     JSON.stringify(requestPayload)
+//   );
+
+//   const imageFile = data.promotionImage;
+
+//   if (imageFile) {
+//     formData.append("image", imageFile);
+//   }
+
+//   const res = await api.put(
+//     `${import.meta.env.VITE_OWNER_API}/store/${storeId}`,
+//     formData
+//   );
+
+//   return res.data;
+// };
 const updateStore = async (data: Store) => {
   const formData = new FormData();
 

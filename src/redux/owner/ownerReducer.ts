@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ownerService } from "../../services/owner.service";
 import type {
+
+  UserRole,
   OwnerState,
   GetUserManagementParams,
   UserManagementResponse,
@@ -32,8 +34,8 @@ const initialState: OwnerState = {
 export const getUserManagement = createAsyncThunk<
   UserManagementResponse,
   GetUserManagementParams
->("owner/getUserManagement", async ({ page, size }) => {
-  const res = await ownerService.getUserManagement(page, size);
+>("owner/getUserManagement", async ({ page, size, keyword}) => {
+  const res = await ownerService.getUserManagement(page, size, keyword);
   return res;
 });
 
@@ -44,7 +46,7 @@ export const getStore = createAsyncThunk("owner/getStore", async () => {
 
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
-  async ({ userId, roleName }: { userId: number; roleName: string }) => {
+  async ({ userId, roleName }: { userId: number; roleName: UserRole }) => {
     await ownerService.updateUserRole(userId, roleName);
     return { userId, roleName };
   }
@@ -65,6 +67,20 @@ export const activeUser = createAsyncThunk(
     return { userId, response: res };
   }
 );
+
+// export const updateStore = createAsyncThunk(
+//   "owner/updateStore",
+//   async ({
+//     storeId,
+//     data
+//   }: {
+//     storeId: number;
+//     data: Store;
+//   }) => {
+//     const res = await ownerService.updateStore(storeId, data);
+//     return res;
+//   }
+// )
 
 export const updateStore = createAsyncThunk(
   "owner/updateStore",
@@ -150,25 +166,31 @@ const ownerSlice = createSlice({
 
 
 
-      .addCase(updateUserRole.fulfilled, (state, action) => {
-        const { userId, roleName } = action.payload;
-        const user = state.users.find((u) => u.id === userId);
-        if (user) {
-          user.role = roleName;
-        }
-      })
-      .addCase(suspendUser.fulfilled, (state, action) => {
-        const { userId, response } = action.payload;
-        const user = state.users.find((u) => u.id === userId);
-        if (user) {
-          const updatedData = response?.data || response;
-          if (updatedData && typeof updatedData.suspended === 'boolean') {
-            user.suspended = updatedData.suspended;
-          } else {
-            user.suspended = true; // explicitly set to suspended
-          }
-        }
-      })
+//       .addCase(updateStore.fulfilled, (state, action) => {
+//   state.loading = false;
+
+//   const updatedStore = action.payload?.data || action.payload;
+  
+//   if (updatedStore && updatedStore.storeName) {
+//     state.store = updatedStore;
+//   }
+// })
+//       .addCase(suspendUser.fulfilled, (state, action) => {
+//         const { userId, response } = action.payload;
+//         const user = state.users.find((u) => u.id === userId);
+//         if (user) {
+//           const updatedData = response?.data || response;
+//           if (updatedData && typeof updatedData.suspended === 'boolean') {
+//             user.suspended = updatedData.suspended;
+//           } else {
+//             user.suspended = true; // explicitly set to suspended
+//           }
+//         }
+//       })
+
+.addCase(updateStore.fulfilled, (state, action) => {
+  state.store = action.payload;
+})
       .addCase(activeUser.fulfilled, (state, action) => {
         const { userId, response } = action.payload;
         const user = state.users.find((u) => u.id === userId);
@@ -181,9 +203,9 @@ const ownerSlice = createSlice({
           }
         }
       })
-.addCase(updateStore.fulfilled, (state, action) => {
-  state.store = action.payload;
-})
+// .addCase(updateStore.fulfilled, (state, action) => {
+//   state.store = action.payload;
+// })
 
   },
 });

@@ -98,24 +98,16 @@ function OrderDetail() {
 
   const { orderToPrint, loading } = useSelector((state: RootState) => state.moderator);
   const order = orderToPrint && orderToPrint.length > 0 ? orderToPrint[0] : null;
+const [selectedStatus, setSelectedStatus] = useState("");
 
-const [selectedStatus, setSelectedStatus] = useState(
-  order?.status || ""
-);
-const [prevStatus, setPrevStatus] = useState(order?.status || "");
 
-if (order?.status !== prevStatus) {
-    setPrevStatus(order?.status || "");
-    setSelectedStatus(order?.status || "");
+useEffect(() => {
+  if (orderNo && orderNo !== "undefined") {
+    dispatch(getoOrderByOrderNo(orderNo)); 
+  } else {
+    console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
   }
-
-  useEffect(() => {
-    if (orderNo && orderNo !== "undefined") {
-      dispatch(getoOrderByOrderNo(orderNo)); 
-    } else {
-      console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
-    }
-  }, [orderNo, dispatch]);
+}, [orderNo, dispatch]);
 
 
 

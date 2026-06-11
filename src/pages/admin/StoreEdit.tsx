@@ -298,6 +298,7 @@ function StoreEdit() {
                         <label className={labelClass}>รหัสไปรษณีย์</label>
                         <select
                           name="zipcode"
+                          value={values.zipcode}
                           disabled={!zipcodes.length}
                           onChange={handleChange}
                           onBlur={handleBlur}
@@ -309,7 +310,7 @@ function StoreEdit() {
                           {zipcodes.map((z: { id: number; name: string }) => {
                             return (
 
-                            <option key={z.id} value={z.id} selected={z.name === values.zipcode}>{z.name}</option>
+                            <option key={z.id} value={z.name}>{z.name}</option>
                             )
 
             })}

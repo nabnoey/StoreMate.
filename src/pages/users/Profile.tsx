@@ -532,8 +532,9 @@ const ProfilePage = () => {
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       วันที่สมัคร
                     </div>
-                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
-                      <div className="text-[14px] sm:text-[16px] text-black truncate">
+                    <div  data-test="profile-created-at" className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                      <div className="text-[14px] sm:text-[16px] text-black truncate"
+                      data-test="profile-created-at">
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
                           : "-"}

@@ -6,30 +6,23 @@ import { useFormik } from "formik";
 import toast from "react-hot-toast";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { getUserManagement, updateUserRole } from "../../redux/owner/ownerReducer";
-import type { User } from "../../types/owner";
+import type { User,UserRole } from "../../types/owner";
+
 
 // ─── Pagination config ───
-const ITEMS_PER_PAGE = 5; // จำนวนรายการต่อ 1 หน้าแสดงผล
-const PAGES_PER_GROUP = 3; // จำนวนหน้าแสดงผลต่อ 1 API page
-const API_PAGE_SIZE = ITEMS_PER_PAGE * PAGES_PER_GROUP; // 15
+const ITEMS_PER_PAGE = 10; 
 
 /** แปลง role จาก API เป็นภาษาไทย */
-const ROLE_LABEL_MAP: Record<string, string> = {
-  OWNER: "เจ้าของร้าน",
-  ROLE_OWNER: "เจ้าของร้าน",
+const ROLE_LABEL_MAP: Record<UserRole, string> = {
   ADMIN: "เจ้าของร้าน",
-  ROLE_ADMIN: "เจ้าของร้าน",
   MODERATOR: "พนักงาน",
-  ROLE_MODERATOR: "พนักงาน",
   USER: "ผู้ใช้งาน",
-  ROLE_USER: "ผู้ใช้งาน",
 };
 
-const getRoleLabel = (role: string): string =>
-  ROLE_LABEL_MAP[role] ?? role;
+const getRoleLabel = (role: UserRole): string =>
+  ROLE_LABEL_MAP[role];
 
-/** สี Badge ตามบทบาท */
-const getRoleBadgeClass = (role: string): string => {
+const getRoleBadgeClass = (role: UserRole): string => {
   const norm = role.replace("ROLE_", "");
   switch (norm) {
     case "OWNER":
@@ -64,22 +57,25 @@ function UserManagement() {
     (state: RootState) => state.owner
   );
 
-  // ─── displayPage (1-based) — หน้าแสดงผลปัจจุบัน ───
+  // อ่านหน้าปัจจุบันจาก URL (ค่าเริ่มต้นเริ่มที่หน้า 1)
   const [displayPage, setDisplayPage] = useState(() => {
-    const apiPageFromUrl = Number(searchParams.get("page") || 0);
-    return apiPageFromUrl * PAGES_PER_GROUP + 1;
+    return Number(searchParams.get("page") || 1);
   });
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeKeyword, setActiveKeyword] = useState("");
+  // อ่านค่า keyword จาก URL มาเป็นสถานะเริ่มต้น
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return searchParams.get("keyword") || "";
+  });
+  const [activeKeyword, setActiveKeyword] = useState(() => {
+    return searchParams.get("keyword") || "";
+  });
+  
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const prevKeywordRef = useRef(activeKeyword);
 
   // Modal State
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  // ─── Formik สำหรับ Modal ───
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -99,15 +95,12 @@ function UserManagement() {
           let roleChanged = false;
           let suspendChanged = false;
 
-          // 1. Update Role if changed
           if (values.role !== currentRole) {
-            await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role })).unwrap();
+await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role as UserRole })).unwrap();
             roleChanged = true;
           }
 
-          // 2. Suspend/Unsuspend if changed (assuming API toggles or sets based on endpoint)
           if (values.suspended !== currentSuspended) {
-            // Import actions from ownerReducer
             const { suspendUser, activeUser } = await import("../../redux/owner/ownerReducer");
             if (values.suspended === "suspended") {
               await dispatch(suspendUser(selectedUser.id)).unwrap();
@@ -127,8 +120,8 @@ function UserManagement() {
              toast.success("อัปเดตสำเร็จ");
           }
 
-          setSelectedUser(null); // ปิด Modal
-        } catch (error) {
+          setSelectedUser(null);
+        } catch{
           toast.error("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
         }
       }
@@ -136,97 +129,85 @@ function UserManagement() {
   });
 
   // ─── Derived values ───
-  const apiPage = Math.floor((displayPage - 1) / PAGES_PER_GROUP);
-  const offsetInGroup = (displayPage - 1) % PAGES_PER_GROUP;
+  // แปลงหน้าแสดงผล (1-based) เป็นหน้าสำหรับส่งให้ API (0-based)
+  const apiPage = displayPage - 1;
   const totalDisplayPages = total > 0 ? Math.ceil(total / ITEMS_PER_PAGE) : 0;
 
   // ─── Stable ref สำหรับ setSearchParams ───
   const setSearchParamsRef = useRef(setSearchParams);
   setSearchParamsRef.current = setSearchParams;
 
+  // ฟังก์ชันเขียนค่าลง URL
   const updateSearchParams = useCallback(
-    (newApiPage: number) => {
-      setSearchParamsRef.current(
-        { page: String(newApiPage), size: String(API_PAGE_SIZE) },
-        { replace: true }
-      );
+    (pageValue: number, keywordValue: string) => {
+      const params: Record<string, string> = {
+        page: String(pageValue),
+        size: String(ITEMS_PER_PAGE),
+      };
+
+      if (keywordValue.trim()) {
+        params.keyword = keywordValue.trim();
+      }
+
+      setSearchParamsRef.current(params, { replace: true });
     },
-    [] // stable ตลอด lifecycle
+    []
   );
 
 
   useEffect(() => {
-    updateSearchParams(apiPage);
-  }, [apiPage, updateSearchParams]);
+    updateSearchParams(displayPage, activeKeyword);
+  }, [displayPage, activeKeyword, updateSearchParams]);
 
-  useEffect(() => {
-    if (prevKeywordRef.current !== activeKeyword) {
-      prevKeywordRef.current = activeKeyword;
-      setDisplayPage(1);
-    }
-  }, [activeKeyword]);
-
-
+  // เรียกดึงข้อมูลจาก API เมื่อ apiPage หรือ activeKeyword มีการเปลี่ยนแปลง
   useEffect(() => {
     dispatch(
       getUserManagement({
         page: apiPage,
-        size: API_PAGE_SIZE,
-        keyword: activeKeyword || undefined,
+        size: ITEMS_PER_PAGE,
+        keyword: activeKeyword.trim(),
       })
     );
   }, [dispatch, apiPage, activeKeyword]);
 
-  
-
-  // ─── Slice + Filter ข้อมูลสำหรับหน้าแสดงผลปัจจุบัน ───
-const displayedUsers = useMemo(() => {
-  let result: User[] = [...users]; // คัดลอก Array ออกมาก่อนป้องกัน Side Effect
-
-  // 1. กรองข้อมูลตาม Keyword
-  if (activeKeyword) {
-    const lower = activeKeyword.toLowerCase();
-    result = result.filter(
-      (u) =>
-        u.name.toLowerCase().includes(lower) ||
-        u.email.toLowerCase().includes(lower)
-    );
-  }
-
-  // 2. กรองข้อมูลตาม Role
-  if (roleFilter) {
-    const matchRoles = [roleFilter, `ROLE_${roleFilter}`];
-    if (roleFilter === "ADMIN" || roleFilter === "OWNER") {
-      matchRoles.push("ADMIN", "ROLE_ADMIN", "OWNER", "ROLE_OWNER");
-    }
-    result = result.filter((u) => matchRoles.includes(u.role));
-  }
-
-  // 3. กรองข้อมูลตาม Status
-  if (statusFilter === "active") {
-    result = result.filter((u) => !u.suspended);
-  } else if (statusFilter === "suspended") {
-    result = result.filter((u) => u.suspended);
-  }
-
-  // 🔥 4. เพิ่มการ SORT ตรงนี้ เพื่อให้เรียงลำดับในหน้าแสดงผลปัจจุบันได้อย่างถูกต้อง
-  const ROLE_PRIORITY: Record<string, number> = {
-    OWNER: 0, ROLE_OWNER: 0, ADMIN: 0, ROLE_ADMIN: 0,
-    MODERATOR: 1, ROLE_MODERATOR: 1,
-    USER: 2, ROLE_USER: 2,
+  // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
+  const handleSearchSubmit = () => {
+    setDisplayPage(1); // ย้อนกลับไปหน้าแรกเมื่อค้นหาคำใหม่
+    setActiveKeyword(searchTerm);
   };
 
-  result.sort((a, b) => {
-    const priorityA = ROLE_PRIORITY[a.role] ?? 99;
-    const priorityB = ROLE_PRIORITY[b.role] ?? 99;
-    return priorityA - priorityB;
-  });
+  const displayedUsers = useMemo(() => {
+    let result: User[] = [...users];
 
-  // 5. ตัดข้อมูลตาม display page (5 รายการ) หลังจาก Sort เรียบร้อยแล้ว
-  const start = offsetInGroup * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  return result.slice(start, end);
-}, [users, offsetInGroup, activeKeyword, roleFilter, statusFilter]);
+    if (roleFilter) {
+      const matchRoles:string[] = [roleFilter, `ROLE_${roleFilter}`];
+      if (roleFilter === "ADMIN" || roleFilter === "OWNER") {
+        matchRoles.push("ADMIN");
+      }
+      result = result.filter((u) => matchRoles.includes(u.role));
+    }
+
+    if (statusFilter === "active") {
+      result = result.filter((u) => !u.suspended);
+    } else if (statusFilter === "suspended") {
+      result = result.filter((u) => u.suspended);
+    }
+
+    // 3. จัดเรียงลำดับบทบาท (Owner -> Moderator -> User)
+    const ROLE_PRIORITY_LOCAL: Record<string, number> = {
+      OWNER: 0, ROLE_OWNER: 0, ADMIN: 0, ROLE_ADMIN: 0,
+      MODERATOR: 1, ROLE_MODERATOR: 1,
+      USER: 2, ROLE_USER: 2,
+    };
+
+    result.sort((a, b) => {
+      const priorityA = ROLE_PRIORITY_LOCAL[a.role] ?? 99;
+      const priorityB = ROLE_PRIORITY_LOCAL[b.role] ?? 99;
+      return priorityA - priorityB;
+    });
+
+    return result; // ไม่ต้องทำ .slice() แล้ว เพราะได้ข้อมูลตรงจำนวนจาก API มาแล้ว
+  }, [users, roleFilter, statusFilter]);
 
   // ──────────────────────────────────────────────
   // Pagination helpers
@@ -239,6 +220,10 @@ const displayedUsers = useMemo(() => {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
+    if (value.trim() === "") {
+      setDisplayPage(1);
+      setActiveKeyword("");
+    }
   };
 
   const maxVisiblePages = 5;
@@ -260,9 +245,6 @@ const displayedUsers = useMemo(() => {
     return pages;
   }, [totalDisplayPages, displayPage]);
 
-  // ──────────────────────────────────────────────
-  // Render
-  // ──────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       <HeaderAdmin
@@ -278,19 +260,31 @@ const displayedUsers = useMemo(() => {
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                 ค้นหาชื่อผู้ใช้งาน
               </label>
-              <input
-                id="search-input"
-                type="text"
-                placeholder="ค้นหาโดย ชื่อ หรือ อีเมล"
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setActiveKeyword(searchTerm);
-                  }
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
+              <div className="relative flex items-center">
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="ค้นหาโดย ชื่อ หรือ อีเมล แล้วกด Enter หรือปุ่มค้นหา"
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchSubmit();
+                    }
+                  }}
+                  className="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleSearchSubmit}
+                  className="absolute right-2 p-1.5 text-gray-400 hover:text-blue-600 rounded-md transition-colors"
+                  title="ค้นหา"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.604 10.604z" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="flex gap-4 w-full md:w-auto">
@@ -322,8 +316,8 @@ const displayedUsers = useMemo(() => {
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none"
                 >
                   <option value="">สถานะบัญชี</option>
-                  <option value="active" className="px-3 py-1 rounded-full text-xs font-medium bg-[#E8F5E9] text-[#2E7D32]">ใช้งานได้</option>
-                  <option value="suspended" className="px-3 py-1 rounded-full text-xs font-medium bg-[#FEE2E2] text-[#DC2626]">ระงับการใช้งาน</option>
+                  <option value="active">ใช้งานได้</option>
+                  <option value="suspended">ระงับการใช้งาน</option>
                 </select>
               </div>
             </div>
@@ -466,7 +460,6 @@ const displayedUsers = useMemo(() => {
             
             <form onSubmit={formik.handleSubmit} className="p-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-8">
-                {/* Col 1 */}
                 <div className="space-y-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">ชื่อ - นามสกุล</label>
@@ -488,14 +481,13 @@ const displayedUsers = useMemo(() => {
                   </div>
                 </div>
                 
-                {/* Col 2 */}
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">อีเมล</label>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">เบอร์โทรศัพท์</label>
                     <input 
                       type="text" 
                       disabled 
-                      value={selectedUser.email} 
+                      value={selectedUser.phone ?? "-"} 
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 outline-none"
                     />
                   </div>
