@@ -31,12 +31,11 @@ export const createNotify = createAsyncThunk(
   },
 );
 
-// ✨ ปรับปรุง: การันตีการส่ง ID กลับไปที่ Reducer เพื่อป้องกันปัญหา API ไม่คืนค่า ID
 export const deleteNotify = createAsyncThunk(
   "notification/delete",
   async (id: number) => {
     await NotificationService.deleteNotify(id);
-    return id; // ส่ง id ตัวเลขออกไปแน่นอน ไม่ต้องลุ้น payload จาก backend
+    return id;
   },
 );
 

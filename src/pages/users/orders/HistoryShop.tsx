@@ -486,9 +486,12 @@ const HistoryPage = () => {
                   const hasUnreviewed = unreviewedItems.length > 0;
                   const isExpanded = !!expandedOrders[order.id];
 
-                  const visibleItems = isExpanded
-                    ? order.orderItems || []
-                    : (order.orderItems || []).slice(0, 1);
+                  const visibleItems =
+                    window.innerWidth >= 768
+                      ? order.orderItems || []
+                      : isExpanded
+                        ? order.orderItems || []
+                        : (order.orderItems || []).slice(0, 1);
                   return (
                     <div
                       key={order.id}
@@ -591,46 +594,22 @@ const HistoryPage = () => {
                         </div>
 
                         {order.status === "COMPLETED" ? (
-                          <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
+                          <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
-                              data-test="btn-add-orders"
+                              data-test="btn-retry-orders"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleBuyAgain(order);
                               }}
-                              className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
+                              className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                             >
                               ซื้ออีกครั้ง
                             </button>
 
-                            {hasReviewed && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (reviewedItems.length === 1) {
-                                    handleOpenViewReview(
-                                      order,
-                                      reviewedItems[0],
-                                    );
-                                  } else {
-                                    setOrderForReview(order);
-                                    setSelectModalMode("VIEW");
-                                    setLocalSelectedItemId(
-                                      reviewedItems[0]?.id || null,
-                                    );
-                                    setIsSelectModalOpen(true);
-                                  }
-                                }}
-                                className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF]/10 text-[#1E40AF] font-semibold text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#1E40AF]/20 cursor-pointer shadow-sm border border-blue-200"
-                              >
-                                ดูรีวิว
-                              </button>
-                            )}
-
                             {hasUnreviewed && (
                               <button
+                                data-test="btn-add-review"
                                 type="button"
                                 onClick={async (e) => {
                                   e.stopPropagation();
@@ -649,9 +628,35 @@ const HistoryPage = () => {
                                     setIsSelectModalOpen(true);
                                   }
                                 }}
-                                className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                               >
                                 เขียนรีวิว
+                              </button>
+                            )}
+
+                            {hasReviewed && (
+                              <button
+                                data-test="btn-see-review"
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (reviewedItems.length === 1) {
+                                    handleOpenViewReview(
+                                      order,
+                                      reviewedItems[0],
+                                    );
+                                  } else {
+                                    setOrderForReview(order);
+                                    setSelectModalMode("VIEW");
+                                    setLocalSelectedItemId(
+                                      reviewedItems[0]?.id || null,
+                                    );
+                                    setIsSelectModalOpen(true);
+                                  }
+                                }}
+                                className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                              >
+                                ดูรีวิว
                               </button>
                             )}
                           </div>
@@ -678,7 +683,7 @@ const HistoryPage = () => {
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
-                              data-test={`btn-pay-order-${order.id}`}
+                              data-test="btn-retry-payment"
                               onClick={(e) =>
                                 handleRetryPayment(e, order, orderTotal)
                               }
@@ -687,7 +692,7 @@ const HistoryPage = () => {
                               ชำระเงิน
                             </button>
                             <button
-                              data-test={`btn-cancel-order-${order.id}`}
+                              data-test="btn-cancel-order"
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -718,17 +723,17 @@ const HistoryPage = () => {
       </div>
 
       {isSelectModalOpen && orderForReview && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-h-[85vh] md:max-w-[700px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center gap-4 p-5 border-b border-gray-100 bg-white flex-shrink-0">
-              <h2 className="text-[18px] font-bold text-gray-950">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-xs transition-all animate-fade-in">
+          <div className="w-full max-h-[90vh] max-w-[95%] sm:max-w-[550px] md:max-w-[650px] bg-white rounded-xl shadow-xl overflow-hidden flex flex-col border border-gray-100">
+            <div className="flex items-center p-4 md:p-5 border-b border-gray-100 bg-white flex-shrink-0">
+              <h2 className="text-[18px] md:text-[20px] font-bold text-gray-900">
                 {selectModalMode === "VIEW"
-                  ? "เลือกสินค้าเพื่อดูรีวิว"
+                  ? "เลือกรีวิว"
                   : "เลือกสินค้าเพื่อเขียนรีวิว"}
               </h2>
             </div>
 
-            <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
+            <div className="p-0 overflow-y-auto flex flex-col flex-1 bg-white divide-y divide-gray-100">
               {orderForReview.orderItems
                 ?.filter((item: any) => {
                   return selectModalMode === "VIEW"
@@ -741,42 +746,54 @@ const HistoryPage = () => {
                     <div
                       key={item.id}
                       onClick={() => setLocalSelectedItemId(item.id)}
-                      className={`flex items-center gap-4 p-4 bg-white rounded-xl border transition-all cursor-pointer ${isSelected ? "border-blue-500 ring-2 ring-blue-500/20" : "border-gray-200"}`}
+                      className={`flex items-start gap-4 p-4 md:p-5 transition-all cursor-pointer relative ${
+                        isSelected
+                          ? "bg-blue-50/30"
+                          : "bg-white hover:bg-gray-50/50"
+                      }`}
                     >
                       <img
                         src={item.imageUrl || ""}
                         alt=""
-                        className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
+                        className={`w-20 h-20 md:w-24 md:h-24 object-contain rounded-lg border flex-shrink-0 transition-all ${
+                          isSelected
+                            ? "border-blue-400 shadow-xs"
+                            : "border-gray-200"
+                        }`}
                       />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[14px] text-gray-950 line-clamp-2 leading-snug">
+
+                      <div className="flex-1 min-w-0 pt-1">
+                        <p
+                          className={`font-semibold text-[14px] md:text-[15px] leading-snug line-clamp-3 transition-colors ${
+                            isSelected ? "text-blue-600" : "text-gray-900"
+                          }`}
+                        >
                           {item.productName}
                         </p>
                       </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
-                      >
-                        {isSelected && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
-                        )}
-                      </div>
+
+                      {isSelected && (
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600" />
+                      )}
                     </div>
                   );
                 })}
             </div>
 
-            <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3 flex-shrink-0 bg-white">
+            <div className="p-4 md:p-5 border-t border-gray-100 flex justify-end items-center gap-3 flex-shrink-0 bg-white">
               <button
+                data-test="btn-open-model-review"
                 type="button"
                 onClick={handleConfirmProductSelection}
-                className="w-full sm:w-auto px-6 py-2.5 bg-black hover:bg-gray-800 text-white rounded-lg font-medium text-[14px] transition cursor-pointer"
+                className="px-5 py-2 bg-[#1E40AF] text-white rounded-lg font-medium text-[14px] transition cursor-pointer shadow-xs min-w-[80px] text-center"
               >
                 เลือก
               </button>
               <button
+                data-test="btn-cancel-model-review"
                 type="button"
                 onClick={() => setIsSelectModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-[14px] transition cursor-pointer"
+                className="px-5 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium text-[14px] transition cursor-pointer min-w-[80px] text-center"
               >
                 ยกเลิก
               </button>
@@ -786,84 +803,104 @@ const HistoryPage = () => {
       )}
 
       {isReviewModalOpen && selectedItem && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-h-[85vh] md:max-w-xl bg-white p-5 md:p-6 rounded-2xl shadow-2xl relative flex flex-col overflow-y-auto">
-            <div className="flex items-center gap-3 border-b pb-4 mb-4 flex-shrink-0">
+        <div
+          data-test="modal-write-review"
+          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
+            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
               <button
                 type="button"
+                data-test="btn-close-write-review-mobile"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="text-black p-1 hover:bg-gray-100 rounded-full transition cursor-pointer"
+                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
               >
                 <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
               </button>
-              <h2 className="text-[18px] font-bold text-gray-950">
-                เขียนรีวิว
+              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
+                <span className="hidden sm:inline">รีวิว</span>
+                <span className="sm:hidden">เขียนรีวิว</span>
               </h2>
             </div>
 
-            <div className="flex gap-4 p-3 bg-gray-50 rounded-xl mb-4 border border-gray-100 flex-shrink-0">
-              <img
-                src={selectedItem.imageUrl || ""}
-                alt=""
-                className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-[14px] text-gray-950 line-clamp-2 leading-snug">
-                  {selectedItem.productName}
-                </p>
-                <p className="text-[12px] text-gray-500 mt-1">
-                  จำนวน x {selectedItem.quantity}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 flex-1">
-              <div>
-                <p className="text-[14px] font-medium text-gray-900 mb-2">
-                  คะแนนความพึงพอใจ
-                </p>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setReviewScore(star)}
-                      className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
-                    >
-                      <Icon
-                        icon="material-symbols:star-rounded"
-                        className={`w-9 h-9 transition-colors ${star <= reviewScore ? "text-amber-400" : "text-gray-200"}`}
-                      />
-                    </button>
-                  ))}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-5 sm:gap-6 bg-white">
+              <div className="flex items-start gap-4">
+                <img
+                  src={selectedItem.imageUrl || ""}
+                  alt=""
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
+                />
+                <div className="flex flex-col">
+                  <p className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug">
+                    {selectedItem.productName}
+                  </p>
+                  <p className="text-[13px] text-gray-500 mt-1">
+                    จำนวน x {selectedItem.quantity}
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[14px] font-medium text-gray-900">
-                  รายละเอียด
-                </label>
-                <textarea
-                  rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="รายละเอียดความพึงพอใจของคุณ"
-                  className="w-full border border-gray-200 rounded-xl p-3 text-[14px] outline-none focus:border-blue-500 bg-white resize-none shadow-sm transition-colors"
-                />
+
+              <hr className="hidden sm:block border-gray-100" />
+
+              <div className="bg-gray-50 sm:bg-transparent p-4 sm:p-0 rounded-xl sm:rounded-none flex flex-col gap-5 border border-gray-100 sm:border-none">
+                <h3 className="font-bold text-[15px] sm:hidden text-gray-900 -mb-2">
+                  รีวิว
+                </h3>
+                <div>
+                  <p className="text-[14px] font-medium text-gray-800 mb-2">
+                    คะแนนความพึงพอใจ
+                  </p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        data-test={`btn-star-write-${star}`}
+                        onClick={() => setReviewScore(star)}
+                        className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
+                      >
+                        <Icon
+                          icon="material-symbols:star-rounded"
+                          className={`w-10 h-10 transition-colors ${
+                            star <= reviewScore
+                              ? "text-[#facc15]"
+                              : "text-gray-200"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[14px] font-medium text-gray-800 mb-2">
+                    รายละเอียด
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={message}
+                    data-test="input-write-review-message"
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg p-3 text-[14px] outline-none focus:border-[#2A4494] bg-white resize-none shadow-sm transition-colors"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6 flex-shrink-0">
+            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 sm:justify-end bg-white flex-shrink-0">
               <button
                 type="button"
+                data-test="btn-submit-write-review"
                 onClick={handleReviewSubmit}
-                className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg text-[15px] transition cursor-pointer"
+                className="flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
               >
-                ส่งรีวิว
+                ส่ง
               </button>
               <button
                 type="button"
+                data-test="btn-cancel-write-review"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="flex-1 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-lg text-[15px] transition cursor-pointer"
+                className="flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
               >
                 ยกเลิก
               </button>
@@ -873,66 +910,114 @@ const HistoryPage = () => {
       )}
 
       {isViewReviewModalOpen && activeReviewData && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-w-[650px] max-h-[85vh] bg-white rounded-2xl shadow-2xl p-5 md:p-6 relative flex flex-col gap-4 overflow-y-auto">
-            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3 flex-shrink-0">
-              รีวิว
-            </h2>
-            <div className="flex flex-col sm:flex-row gap-4 items-start border border-gray-100 p-4 rounded-xl bg-gray-50/40 flex-1">
-              <img
-                src={activeReviewData.imageUrl || ""}
-                alt=""
-                className="w-20 h-20 object-contain rounded-lg border bg-white flex-shrink-0 mx-auto sm:mx-0"
-              />
-              <div className="flex-1 min-w-0 w-full">
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4">
-                  <h3 className="font-bold text-[15px] text-gray-900 line-clamp-2 leading-snug">
+        <div
+          data-test="modal-view-review"
+          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
+            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
+              <button
+                type="button"
+                data-test="btn-close-view-review-mobile"
+                onClick={() => setIsViewReviewModalOpen(false)}
+                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
+              >
+                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              </button>
+              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
+                รีวิว
+              </h2>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col bg-white">
+              <div className="flex items-start gap-4 mb-6">
+                <img
+                  src={activeReviewData.imageUrl || ""}
+                  alt=""
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
+                />
+                <div className="flex-1 flex justify-between items-start">
+                  <h3 className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug pr-2">
                     {activeReviewData.productName}
                   </h3>
-                  <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto justify-end">
+                  <div className="hidden sm:flex gap-2 flex-shrink-0">
                     <button
                       type="button"
+                      data-test="btn-delete-review-desktop"
                       onClick={handleDeleteReview}
-                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-[13px] font-medium transition cursor-pointer"
+                      className="px-4 py-1.5 border border-red-500 text-red-500 rounded-md text-[13px] font-medium hover:bg-red-50 transition"
                     >
                       ลบ
                     </button>
                     <button
                       type="button"
+                      data-test="btn-edit-review-desktop"
                       onClick={handleSwitchToEditReview}
-                      className="px-3 py-1 bg-[#1E40AF] hover:bg-blue-800 text-white rounded-md text-[13px] font-medium transition cursor-pointer"
+                      className="px-4 py-1.5 border border-[#2A4494] text-[#2A4494] rounded-md text-[13px] font-medium hover:bg-blue-50 transition"
                     >
                       แก้ไข
                     </button>
                   </div>
                 </div>
-                <div className="mt-3 space-y-0.5 text-sm text-gray-600">
-                  <p className="font-semibold text-gray-900">
-                    {activeReviewData.reviewerName}
-                  </p>
-                  <p className="text-[12px] text-gray-400">
-                    {activeReviewData.createdAt}
-                  </p>
-                  <div className="flex gap-0.5 py-1">
+              </div>
+
+              <div className="flex flex-col">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <p className="font-medium text-[14px] sm:text-[15px] text-gray-900">
+                      {activeReviewData.reviewerName}
+                    </p>
+                    <p className="text-[12px] sm:text-[13px] text-gray-500 mt-0.5">
+                      {activeReviewData.createdAt}
+                    </p>
+                  </div>
+                  <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Icon
                         key={star}
                         icon="material-symbols:star-rounded"
-                        className={`w-5 h-5 ${star <= activeReviewData.reviewScore ? "text-amber-400" : "text-gray-200"}`}
+                        className={`w-5 h-5 ${
+                          star <= activeReviewData.reviewScore
+                            ? "text-[#facc15]"
+                            : "text-gray-200"
+                        }`}
                       />
                     ))}
                   </div>
-                  <p className="text-gray-700 bg-white p-3 border border-gray-100 rounded-lg mt-2 text-[14px] break-words">
-                    {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
-                  </p>
                 </div>
+                <p
+                  data-test="text-view-review-message"
+                  className="text-gray-800 text-[14px] leading-relaxed break-words bg-white sm:bg-transparent"
+                >
+                  {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
+                </p>
               </div>
             </div>
-            <div className="flex justify-end pt-2 flex-shrink-0">
+
+            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 justify-end bg-white flex-shrink-0">
+              <div className="flex gap-3 w-full sm:hidden">
+                <button
+                  type="button"
+                  data-test="btn-edit-review-mobile"
+                  onClick={handleSwitchToEditReview}
+                  className="flex-1 py-2.5 border border-[#2A4494] text-[#2A4494] font-medium rounded-lg text-[15px] hover:bg-blue-50 transition"
+                >
+                  แก้ไข
+                </button>
+                <button
+                  type="button"
+                  data-test="btn-delete-review-mobile"
+                  onClick={handleDeleteReview}
+                  className="flex-1 py-2.5 border border-red-500 text-red-500 font-medium rounded-lg text-[15px] hover:bg-red-50 transition"
+                >
+                  ลบ
+                </button>
+              </div>
               <button
                 type="button"
+                data-test="btn-close-view-review-desktop"
                 onClick={() => setIsViewReviewModalOpen(false)}
-                className="w-full sm:w-auto px-6 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium text-[14px] hover:bg-gray-50 transition cursor-pointer"
+                className="hidden sm:block px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition"
               >
                 ปิด
               </button>
@@ -942,78 +1027,126 @@ const HistoryPage = () => {
       )}
 
       {isEditReviewModalOpen && activeReviewData && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-w-[650px] max-h-[85vh] bg-white rounded-2xl shadow-2xl p-5 md:p-6 relative flex flex-col gap-4 overflow-y-auto">
-            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3 flex-shrink-0">
-              แก้ไขรีวิว
-            </h2>
-            <div className="flex gap-4 items-center flex-shrink-0">
-              <img
-                src={activeReviewData.imageUrl || ""}
-                alt=""
-                className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
-              />
-              <div className="min-w-0">
-                <h3 className="font-bold text-[15px] text-gray-900 line-clamp-2 leading-snug">
-                  {activeReviewData.productName}
-                </h3>
-                <p className="text-[13px] text-gray-500 font-medium mt-0.5">
-                  {activeReviewData.reviewerName}
-                </p>
-                <p className="text-[11px] text-gray-400">
-                  {activeReviewData.createdAt}
-                </p>
-              </div>
+        <div
+          data-test="modal-edit-review"
+          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
+            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
+              <button
+                type="button"
+                data-test="btn-close-edit-review-mobile"
+                onClick={() => setIsEditReviewModalOpen(false)}
+                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
+              >
+                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              </button>
+              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
+                แก้ไขรีวิว
+              </h2>
             </div>
-            <div className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100 flex flex-col gap-4 flex-1">
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6 bg-white">
               <div>
-                <p className="text-[14px] font-medium text-gray-900 mb-1">
-                  คะแนนความพึงพอใจ
-                </p>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setReviewScore(star)}
-                      className="transition-transform active:scale-90 focus:outline-none cursor-pointer"
-                    >
-                      <Icon
-                        icon="material-symbols:star-rounded"
-                        className={`w-9 h-9 transition-colors ${star <= reviewScore ? "text-amber-400" : "text-gray-200"}`}
-                      />
-                    </button>
-                  ))}
+                <div className="flex items-start gap-4 mb-4">
+                  <img
+                    src={activeReviewData.imageUrl || ""}
+                    alt=""
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
+                  />
+                  <h3 className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug">
+                    {activeReviewData.productName}
+                  </h3>
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-medium text-gray-900 text-[14px] sm:text-[15px]">
+                        {activeReviewData.reviewerName}
+                      </p>
+                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-0.5">
+                        {activeReviewData.createdAt}
+                      </p>
+                    </div>
+                    <div className="flex gap-0.5 mt-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Icon
+                          key={star}
+                          icon="material-symbols:star-rounded"
+                          className={`w-5 h-5 ${
+                            star <= activeReviewData.reviewScore
+                              ? "text-[#facc15]"
+                              : "text-gray-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-gray-800 text-[14px] leading-relaxed break-words">
+                    {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[14px] font-medium text-gray-900">
-                  รายละเอียด
-                </label>
-                <textarea
-                  rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="รายละเอียดความพึงพอใจสำหรับการแก้ไขครั้งนี้..."
-                  className="w-full border border-gray-200 rounded-xl p-3 text-[14px] text-gray-950 outline-none focus:border-blue-500 transition-colors bg-white resize-none shadow-inner"
-                />
+
+              <div className="bg-gray-50 p-4 sm:p-5 rounded-xl flex flex-col gap-5 border border-gray-100">
+                <div>
+                  <p className="text-[14px] font-medium text-gray-800 mb-2">
+                    คะแนนความพึงพอใจ
+                  </p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        data-test={`btn-star-edit-${star}`}
+                        onClick={() => setReviewScore(star)}
+                        className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
+                      >
+                        <Icon
+                          icon="material-symbols:star-rounded"
+                          className={`w-10 h-10 transition-colors ${
+                            star <= reviewScore
+                              ? "text-[#facc15]"
+                              : "text-gray-200"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-[14px] font-medium text-gray-800 mb-2">
+                    รายละเอียด
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={message}
+                    data-test="input-edit-review-message"
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg p-3 text-[14px] outline-none focus:border-[#2A4494] bg-white resize-none shadow-sm transition-colors"
+                  />
+                </div>
               </div>
-              <div className="flex justify-end gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={handleEditReviewSubmit}
-                  className="px-6 py-2 text-[14px] font-semibold text-white bg-black rounded-lg hover:bg-gray-800 transition cursor-pointer"
-                >
-                  ส่ง
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditReviewModalOpen(false)}
-                  className="px-6 py-2 text-[14px] font-semibold border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition cursor-pointer"
-                >
-                  ยกเลิก
-                </button>
-              </div>
+            </div>
+
+            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 sm:justify-end bg-white flex-shrink-0">
+              <button
+                type="button"
+                data-test="btn-submit-edit-review"
+                onClick={handleEditReviewSubmit}
+                className="flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
+              >
+                ส่ง
+              </button>
+              <button
+                type="button"
+                data-test="btn-cancel-edit-review"
+                onClick={() => setIsEditReviewModalOpen(false)}
+                className="flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
+              >
+                ยกเลิก
+              </button>
             </div>
           </div>
         </div>

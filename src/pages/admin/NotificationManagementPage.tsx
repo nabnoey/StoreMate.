@@ -32,7 +32,6 @@ const NotificationManagementPage: React.FC = () => {
   );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -74,32 +73,32 @@ const NotificationManagementPage: React.FC = () => {
   }
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
       setPage(0);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // ค้นหา
   useEffect(() => {
     if (isOwner || isModerator) {
       dispatch(
         fetchOwnerNotify({
-          keyword: debouncedSearch,
-          page: page,
+          keyword: searchTerm,
+          page,
           size: 10,
         }),
       );
     }
-  }, [dispatch, debouncedSearch, page, isOwner, isModerator]);
+  }, [dispatch, page, isOwner, isModerator]);
 
   const getRecipientConfig = (sendTo: string) => {
-    if (sendTo.includes("moderator")) {
+    if (sendTo.includes("MODERATOR")) {
       return {
         label: "พนักงาน",
         className: "bg-blue-50 text-blue-600 border border-blue-100",
       };
     }
-    if (sendTo.includes("customer")) {
+    if (sendTo.includes("CUSTOMER")) {
       return {
         label: "ผู้ใช้งาน",
         className: "bg-green-50 text-green-600 border border-green-100",
@@ -111,21 +110,59 @@ const NotificationManagementPage: React.FC = () => {
     };
   };
 
-  const handleDelete = async (id: number): Promise<void> => {
-    if (window.confirm("คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?")) {
-      try {
-        await dispatch(deleteNotify(id)).unwrap();
-        toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
-      } catch (error) {
-        toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
-      }
-    }
+  const handleDelete = (id: number): void => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-2">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?
+          </span>
+
+          <div className="flex gap-3 mt-2">
+            <button
+              data-test="btn-confirm-delete-notification"
+              type="button"
+              onClick={async () => {
+                try {
+                  toast.dismiss(t.id);
+
+                  await dispatch(deleteNotify(id)).unwrap();
+
+                  toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
+                } catch (error) {
+                  toast.error(
+                    "เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+                  );
+                }
+              }}
+              className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              ยืนยันการลบ
+            </button>
+
+            <button
+              data-test="btn-cancel-delete-notification"
+              type="button"
+              onClick={() => toast.dismiss(t.id)}
+              className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+        id: `delete-notification-${id}`,
+      },
+    );
   };
 
   const TOPIC_MAP = {
-    ทั้งหมด: "/topic/all",
-    ผู้ใช้งาน: "/topic/customer",
-    พนักงาน: "/topic/moderator",
+    ทั้งหมด: "ALL",
+    ผู้ใช้งาน: "CUSTOMER",
+    พนักงาน: "MODERATOR",
   } as const;
 
   const handleSubmit = async (
@@ -178,6 +215,17 @@ const NotificationManagementPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSearch = () => {
+    setPage(0);
+
+    dispatch(
+      fetchOwnerNotify({
+        keyword: searchTerm,
+        page: 0,
+        size: 10,
+      }),
+    );
+  };
   return (
     <div className="flex h-screen bg-gray-50 font-prompt">
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -201,11 +249,14 @@ const NotificationManagementPage: React.FC = () => {
                 <input
                   type="text"
                   placeholder="ค้นหาหัวข้อการแจ้งเตือน"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
                   value={searchTerm}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSearchTerm(e.target.value)
-                  }
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
                 />
               </div>
               {isOwner && (
