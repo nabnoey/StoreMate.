@@ -527,40 +527,7 @@ const ProductDetailPage: React.FC = () => {
                             })}
                           </div>
 
-                          {/* {isLoggedIn &&
-                            currentUserId === review.reviewer?.id && (
-                              <div className="relative">
-                                <Icon
-                                  icon="mdi:dots-vertical"
-                                  width="24"
-                                  height="24"
-                                  data-test="onclick-toggle-menu"
-                                  className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
-                                  onClick={() => toggleMenu(review.id)}
-                                />
-
-                                {openMenuId === review.id && (
-                                  <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-100 rounded-md shadow-lg z-10 py-1 overflow-hidden">
-                                    <button
-                                      type="button"
-                                      data-test="edit-review"
-                                      onClick={() => setOpenMenuId(null)}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-50 transition-colors"
-                                    >
-                                      แก้ไข
-                                    </button>
-                                    <button
-                                      type="button"
-                                      data-test="delete-review"
-                                      onClick={() => setOpenMenuId(null)}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
-                                    >
-                                      ลบ
-                                    </button>
-                                  </div>
-                                )}
-                              </div> */}
-                          {/* )} */}
+                      
                         </div>
                       </div>
                       <p className="text-gray-600 text-sm mt-2">

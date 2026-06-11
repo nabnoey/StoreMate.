@@ -13,11 +13,15 @@ import type { OrderStatus } from "../../../types/orders";
 import { statusConfig, getOrderLabel } from "../../../utils/order";
 import type { CreateReviewPayload } from "../../../types/review";
 import {
+  fetchProductReviews,
   submitProductReview,
   updateProductReview,
   deleteProductReview,
 } from "../../../redux/reviews/reviewsReducer";
 import { toast } from "react-hot-toast";
+
+import { PaymentService } from "../../../services/payment.service";
+import type { Order } from "../../../types/orders";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -27,25 +31,27 @@ const HistoryPage = () => {
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders, error } = useSelector((state: RootState) => state.orders);
-
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    console.log("ORDERS FROM REDUX", orders);
+  }, [orders]);
 
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [reviewScore, setReviewScore] = useState<number>(0);
   const [message, setMessage] = useState<string>("");
-  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // const [isFetchingDetail, setIsFetchingDetail] = useState<boolean>(false);
 
   const [isSelectModalOpen, setIsSelectModalOpen] = useState<boolean>(false);
   const [orderForReview, setOrderForReview] = useState<any>(null);
   const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
     null,
   );
-
+  const [selectModalMode, setSelectModalMode] = useState<"WRITE" | "VIEW">(
+    "WRITE",
+  );
   const [isViewReviewModalOpen, setIsViewReviewModalOpen] =
     useState<boolean>(false);
   const [isEditReviewModalOpen, setIsEditReviewModalOpen] =
@@ -111,11 +117,47 @@ const HistoryPage = () => {
     }
   };
 
+  const handleBuyAgain = (order: any) => {
+    const firstItem = order.orderItems?.[0];
+
+    if (!firstItem) {
+      toast.error("ไม่พบข้อมูลสินค้าในคำสั่งซื้อนี้");
+      return;
+    }
+
+    const checkoutData = {
+      isBuyNow: true,
+      items: [
+        {
+          productId: firstItem.productId || firstItem.id,
+          cartItemId: null,
+          quantity: firstItem.quantity || 1,
+          price: firstItem.price,
+          totalPrice: firstItem.price * (firstItem.quantity || 1),
+          productName: firstItem.productName || firstItem.product?.productName,
+          imageUrl:
+            firstItem.imageUrl ||
+            firstItem.product?.productImages?.[0]?.imageUrl,
+          product: {
+            id: firstItem.productId || firstItem.id,
+            productName:
+              firstItem.productName || firstItem.product?.productName,
+            price: firstItem.price,
+            imageUrl:
+              firstItem.imageUrl ||
+              firstItem.product?.productImages?.[0]?.imageUrl,
+          },
+        },
+      ],
+      total: firstItem.price * (firstItem.quantity || 1),
+    };
+
+    navigate("/payment", { state: checkoutData });
+  };
+
   const launchReviewModalForItem = async (order: any, itemFromList: any) => {
     try {
-      // setIsFetchingDetail(true);
-      // setErrorMessage(null);
-      setIsSelectModalOpen(false); // ปิด popup เลือกสินค้า (ถ้ามีเปิดอยู่)
+      setIsSelectModalOpen(false);
 
       const orderNo = order.orderNo || `ORD-${order.id}`;
       const orderDetailData = await dispatch(
@@ -148,8 +190,6 @@ const HistoryPage = () => {
     } catch (error) {
       console.error("Fetch order details error:", error);
       toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
-    } finally {
-      // setIsFetchingDetail(false);
     }
   };
 
@@ -167,7 +207,6 @@ const HistoryPage = () => {
     };
 
     try {
-      // setErrorMessage(null);
       await dispatch(
         submitProductReview({ orderItemId: selectedItem.orderItemId, payload }),
       ).unwrap();
@@ -187,24 +226,6 @@ const HistoryPage = () => {
       toast.dismiss();
       toast.error("ไม่สามารถส่งรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
-  };
-
-  const handleOpenViewReview = (order: any, item: any) => {
-    setOrderForReview(order);
-    setSelectedItem(item);
-
-    setActiveReviewData({
-      id: item.review?.id,
-      reviewerName: item.review?.reviewer?.name || "ผู้ใช้งานระบบ",
-      reviewerImage: item.review?.reviewer?.imageUrl || "",
-      createdAt: formatOrderDate(item.review?.createdAt || order.createdAt),
-      reviewScore: item.review?.reviewScore || 5,
-      message: item.review?.message || "",
-      productName: item.productName,
-      imageUrl: item.imageUrl,
-    });
-
-    setIsViewReviewModalOpen(true);
   };
 
   const handleSwitchToEditReview = () => {
@@ -249,28 +270,67 @@ const HistoryPage = () => {
     }
   };
 
-  const handleDeleteReview = async () => {
-    if (!activeReviewData?.id) return;
+  // ฟังก์ชันแยกย่อยสำหรับดึงรีวิว
+  const fetchAndShowReview = async (order: any, itemFromList: any) => {
+    try {
+      const orderItemId = itemFromList.id;
+      const reviewData = await dispatch(
+        fetchProductReviews(orderItemId),
+      ).unwrap();
 
-    if (confirm("คุณต้องการลบรีวิวนี้ใช่หรือไม่?")) {
-      try {
-        await dispatch(
-          deleteProductReview({ id: activeReviewData.id }),
-        ).unwrap();
+      // console.log("ตรวจสอบข้อมูล reviews ที่ดึงมาได้จริง:", reviewData);
 
-        toast.dismiss();
-        toast.success("คุณลบรีวิวเรียบร้อยแล้ว");
+      if (reviewData && reviewData.id) {
+        setOrderForReview(order);
+        setSelectedItem(itemFromList);
 
-        setIsViewReviewModalOpen(false);
-        dispatch(fetchOrders(status as any));
-      } catch (err) {
-        console.error("Delete review error:", err);
-        toast.dismiss();
-        toast.error("ไม่สามารถลบรีวิวได้ กรุณาลองใหม่อีกครั้ง");
+        setActiveReviewData({
+          id: reviewData.id,
+          reviewerName: reviewData.reviewer?.name || "ผู้ใช้งานระบบ",
+          reviewerImage: reviewData.reviewer?.imageUrl || "",
+          createdAt: formatOrderDate(reviewData.createdAt || order.createdAt),
+          reviewScore: reviewData.reviewScore,
+          message: reviewData.message,
+          productName: itemFromList.productName,
+          imageUrl: itemFromList.imageUrl,
+        });
+
+        setIsViewReviewModalOpen(true);
+      } else {
+        toast.error("ไม่พบข้อมูลรีวิวสำหรับสินค้านี้");
       }
+    } catch (error) {
+      console.error("Error fetching review by orderItemId:", error);
+      toast.error("เกิดข้อผิดพลาดในการดึงข้อมูลรีวิว");
     }
   };
 
+  const handleOpenViewReview = async (order: any, itemFromList?: any) => {
+    if (itemFromList) {
+      await fetchAndShowReview(order, itemFromList);
+      return;
+    }
+
+    const reviewedItems =
+      order.orderItems?.filter((item: any) => item.is_review) || [];
+
+    if (reviewedItems.length === 0) {
+      toast.error("คำสั่งซื้อนี้ยังไม่มีรายการสินค้าที่ถูกรีวิว");
+      return;
+    }
+
+    if (reviewedItems.length === 1) {
+      // สินค้าที่รีวิวชิ้นเดียว -> ให้เปิดดูรีวิวได้เลย
+      await fetchAndShowReview(order, reviewedItems[0]);
+    } else {
+      // มีสินค้าที่รีวิวมากกว่า 1 ชิ้น -> ให้เลือกรายการสินค้าก่อน
+      setOrderForReview(order);
+      setSelectModalMode("VIEW");
+      setIsSelectModalOpen(true);
+    }
+  };
+
+  // ฟังก์ชันกดยืนยันเลือกสินค้า
   const handleConfirmProductSelection = async () => {
     if (!orderForReview || !localSelectedItemId) return;
 
@@ -279,7 +339,62 @@ const HistoryPage = () => {
     );
 
     if (!selectedItemFromList) return;
-    await launchReviewModalForItem(orderForReview, selectedItemFromList);
+
+    setIsSelectModalOpen(false);
+
+    // ตรวจว่าจะ "ดูรีวิว" หรือ "เขียนรีวิว"
+    if (selectModalMode === "VIEW") {
+      await fetchAndShowReview(orderForReview, selectedItemFromList);
+    } else {
+      await launchReviewModalForItem(orderForReview, selectedItemFromList);
+    }
+
+    setLocalSelectedItemId(null);
+  };
+
+  // ลบรีวิว
+  const handleDeleteReview = async () => {
+    if (!activeReviewData?.id) return;
+
+    try {
+      await dispatch(deleteProductReview({ id: activeReviewData.id })).unwrap();
+
+      toast.dismiss();
+      toast.success("คุณลบรีวิวเรียบร้อยแล้ว");
+
+      setIsViewReviewModalOpen(false);
+
+      dispatch(fetchOrders(status as any));
+    } catch (err) {
+      console.error("Delete review error:", err);
+      toast.dismiss();
+      toast.error("ไม่สามารถลบรีวิวได้ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
+
+  // ชำระเงินอีกครั้ง กรณ๊ของ qr-code ที่ผู้ใช้งานกดตกลง หรือ ไม่ได้ชำระเงินภายใน 15 นาที
+  const handleRetryPayment = async (
+    e: React.MouseEvent,
+    order: Order,
+    orderTotal: number,
+  ) => {
+    e.stopPropagation();
+
+    try {
+      const response = await PaymentService.retryPayment({
+        orderNo: order.orderNo,
+      });
+
+      navigate("/payment-qr", {
+        state: {
+          orderNo: order.orderNo,
+          totalPrice: orderTotal,
+          clientSecret: response.clientSecret,
+        },
+      });
+    } catch (error) {
+      toast.error("ไม่สามารถสร้างรายการชำระเงินได้");
+    }
   };
 
   return (
@@ -360,8 +475,6 @@ const HistoryPage = () => {
                       0,
                     );
 
-                  const firstProductId = order?.orderItems?.[0]?.id;
-                  // เปลี่ยนให้ตรงกับคีย์ที่มาจากหลังบ้านจริง ๆ
                   const reviewedItems =
                     order.orderItems?.filter((item: any) => item.is_review) ||
                     [];
@@ -369,9 +482,13 @@ const HistoryPage = () => {
                     order.orderItems?.filter((item: any) => !item.is_review) ||
                     [];
 
-                  // 4. เช็กสถานะเพื่อเปิด-ปิด การแสดงผลปุ่ม "ดูรีวิว" หรือ "เขียนรีวิว"
                   const hasReviewed = reviewedItems.length > 0;
                   const hasUnreviewed = unreviewedItems.length > 0;
+                  const isExpanded = !!expandedOrders[order.id];
+
+                  const visibleItems = isExpanded
+                    ? order.orderItems || []
+                    : (order.orderItems || []).slice(0, 1);
                   return (
                     <div
                       key={order.id}
@@ -411,43 +528,31 @@ const HistoryPage = () => {
                       </div>
 
                       <div className="flex flex-col gap-2 py-3 border-b border-gray-100 w-full">
-                        {order.orderItems?.map((item, index) => {
-                          const isExpanded = expandedOrders[order.id];
-                          const shouldHideOnMobile = index > 0 && !isExpanded;
+                        {visibleItems.map((item: any, idx: number) => (
+                          <div key={item.id || idx} className="flex gap-3 py-1">
+                            <img
+                              src={item.imageUrl || ""}
+                              alt=""
+                              className="w-16 h-16 sm:w-28 sm:h-28 object-contain rounded-lg flex-shrink-0 bg-gray-50 border border-gray-100"
+                            />
 
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={(e) => e.stopPropagation()}
-                              className={`items-center gap-3 sm:gap-6 py-3 border-b border-gray-100 last:border-0 w-full ${
-                                shouldHideOnMobile ? "hidden md:flex" : "flex"
-                              }`}
-                            >
-                              <img
-                                src={item.imageUrl || ""}
-                                alt=""
-                                className="w-16 h-16 sm:w-28 sm:h-28 object-contain rounded-lg flex-shrink-0 bg-gray-50 border border-gray-100"
-                              />
-
-                              <div className="flex flex-col flex-1 gap-0.5 min-w-0">
-                                <div className="font-bold text-[14px] sm:text-[16px] text-black line-clamp-2 leading-snug">
-                                  {item.productName}
-                                </div>
-                                <div className="text-black text-[12px] sm:text-[14px]">
-                                  ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
-                                </div>
-                                <div className="text-black text-[12px] sm:text-[14px]">
-                                  จำนวน x {item.quantity}
-                                </div>
+                            <div className="flex flex-col flex-1 gap-0.5 min-w-0">
+                              <div className="font-bold text-[14px] sm:text-[16px] text-black line-clamp-2 leading-snug">
+                                {item.productName}
                               </div>
-
-                              <div className="text-right text-[#3B82F6] font-bold text-[15px] sm:text-lg flex-shrink-0 self-center pl-2">
-                                ฿{" "}
-                                {(item.price * item.quantity).toLocaleString()}
+                              <div className="text-black text-[12px] sm:text-[14px]">
+                                ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
+                              </div>
+                              <div className="text-black text-[12px] sm:text-[14px]">
+                                จำนวน x {item.quantity}
                               </div>
                             </div>
-                          );
-                        })}
+
+                            <div className="text-right text-[#3B82F6] font-bold text-[15px] sm:text-lg flex-shrink-0 self-center pl-2">
+                              ฿ {(item.price * item.quantity).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
                       </div>
 
                       {order.orderItems && order.orderItems.length > 1 && (
@@ -491,8 +596,7 @@ const HistoryPage = () => {
                               data-test="btn-add-orders"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (firstProductId)
-                                  navigate(`/product/${firstProductId}`);
+                                handleBuyAgain(order);
                               }}
                               className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                             >
@@ -504,7 +608,19 @@ const HistoryPage = () => {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleOpenViewReview(order, reviewedItems[0]);
+                                  if (reviewedItems.length === 1) {
+                                    handleOpenViewReview(
+                                      order,
+                                      reviewedItems[0],
+                                    );
+                                  } else {
+                                    setOrderForReview(order);
+                                    setSelectModalMode("VIEW");
+                                    setLocalSelectedItemId(
+                                      reviewedItems[0]?.id || null,
+                                    );
+                                    setIsSelectModalOpen(true);
+                                  }
                                 }}
                                 className="w-full sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF]/10 text-[#1E40AF] font-semibold text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#1E40AF]/20 cursor-pointer shadow-sm border border-blue-200"
                               >
@@ -525,6 +641,7 @@ const HistoryPage = () => {
                                     );
                                   } else {
                                     setOrderForReview(order);
+                                    setSelectModalMode("WRITE");
                                     setLocalSelectedItemId(
                                       unreviewedItems[0]?.id || null,
                                     );
@@ -537,29 +654,32 @@ const HistoryPage = () => {
                               </button>
                             )}
                           </div>
-                        ) : order.status === "CANCELLED" ? (
+                        ) : order.status === "CANCELLED" ||
+                          order.status === "REFUNDED" ? (
                           <div className="mt-3 flex flex-col items-start w-full px-1">
                             <p className="text-gray-600 text-[14px] sm:text-[16px]">
                               <span className="font-medium text-black">
                                 เหตุผล :
-                              </span>{" "}
-                              {order.cancelReason || "ไม่ได้ระบุเหตุผล"}
+                              </span>
+                              {order.reason || "ไม่ได้ระบุเหตุผล"}
                             </p>
+                            {order.description && (
+                              <p className="text-gray-400 text-[13px] sm:text-[14px]">
+                                <span className="font-medium text-gray-500">
+                                  รายละเอียดเพิ่มเติม:
+                                </span>
+                                {order.description}
+                              </p>
+                            )}
                           </div>
-                        ) : order.status === "PENDING" &&
-                          order.checkoutType === "PROMPTPAY" ? (
+                        ) : order.status === "PENDING" ||
+                          order.status === "PROCESSING" ? (
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate("/payment-qr", {
-                                  state: {
-                                    orderNo: order.orderNo || `ORD-${order.id}`,
-                                    totalPrice: orderTotal,
-                                  },
-                                });
-                              }}
+                              onClick={(e) =>
+                                handleRetryPayment(e, order, orderTotal)
+                              }
                               className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer"
                             >
                               ชำระเงิน
@@ -584,29 +704,6 @@ const HistoryPage = () => {
                               ยกเลิกคำสั่งซื้อ
                             </button>
                           </div>
-                        ) : order.status === "PENDING" ||
-                          order.status !== "RECEIVED" ? (
-                          <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
-                            <button
-                              data-test="btn-cancel-orders"
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(
-                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-                                  {
-                                    state: {
-                                      status: order.status,
-                                      paymentMethod: order.checkoutType,
-                                    },
-                                  },
-                                );
-                              }}
-                              className="col-start-2 sm:col-start-auto w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer"
-                            >
-                              ยกเลิกคำสั่งซื้อ
-                            </button>
-                          </div>
                         ) : null}
                       </div>
                     </div>
@@ -619,16 +716,23 @@ const HistoryPage = () => {
       </div>
 
       {isSelectModalOpen && orderForReview && (
-        <div className="fixed inset-0 z-50 flex flex-col md:bg-black/50 md:items-center md:justify-center md:p-4 backdrop-blur-xs">
-          <div className="w-full h-full md:h-auto md:min-h-0 md:max-h-[85vh] md:max-w-[700px] bg-white md:rounded-xl md:shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center gap-4 p-5 border-b border-gray-100 bg-white">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="w-full max-h-[85vh] md:max-w-[700px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center gap-4 p-5 border-b border-gray-100 bg-white flex-shrink-0">
               <h2 className="text-[18px] font-bold text-gray-950">
-                เลือกรีวิวสินค้า
+                {selectModalMode === "VIEW"
+                  ? "เลือกสินค้าเพื่อดูรีวิว"
+                  : "เลือกสินค้าเพื่อเขียนรีวิว"}
               </h2>
             </div>
+
             <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-gray-50/30">
               {orderForReview.orderItems
-                ?.filter((item: any) => !item.is_review)
+                ?.filter((item: any) => {
+                  return selectModalMode === "VIEW"
+                    ? item.is_review
+                    : !item.is_review;
+                })
                 ?.map((item: any) => {
                   const isSelected = localSelectedItemId === item.id;
                   return (
@@ -640,15 +744,15 @@ const HistoryPage = () => {
                       <img
                         src={item.imageUrl || ""}
                         alt=""
-                        className="w-16 h-16 object-contain rounded-lg border"
+                        className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[14px] text-gray-950 line-clamp-2">
+                        <p className="font-semibold text-[14px] text-gray-950 line-clamp-2 leading-snug">
                           {item.productName}
                         </p>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? "border-blue-500 bg-blue-500" : "border-gray-300"}`}
                       >
                         {isSelected && (
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -658,18 +762,19 @@ const HistoryPage = () => {
                   );
                 })}
             </div>
-            <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3">
+
+            <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3 flex-shrink-0 bg-white">
               <button
                 type="button"
                 onClick={handleConfirmProductSelection}
-                className="px-6 py-2.5 bg-black text-white rounded-lg font-medium text-[14px]"
+                className="w-full sm:w-auto px-6 py-2.5 bg-black hover:bg-gray-800 text-white rounded-lg font-medium text-[14px] transition cursor-pointer"
               >
                 เลือก
               </button>
               <button
                 type="button"
                 onClick={() => setIsSelectModalOpen(false)}
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium text-[14px]"
+                className="w-full sm:w-auto px-6 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-[14px] transition cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -679,13 +784,13 @@ const HistoryPage = () => {
       )}
 
       {isReviewModalOpen && selectedItem && (
-        <div className="fixed inset-0 bg-white md:bg-black/50 z-50 flex items-start md:items-center justify-center overflow-y-auto backdrop-blur-xs">
-          <div className="w-full min-h-screen md:min-h-0 bg-white p-4 md:p-6 md:max-w-xl md:w-full md:rounded-2xl md:shadow-2xl relative flex flex-col">
-            <div className="flex items-center gap-3 border-b pb-4 mb-4">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="w-full max-h-[85vh] md:max-w-xl bg-white p-5 md:p-6 rounded-2xl shadow-2xl relative flex flex-col overflow-y-auto">
+            <div className="flex items-center gap-3 border-b pb-4 mb-4 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="text-black p-1"
+                className="text-black p-1 hover:bg-gray-100 rounded-full transition cursor-pointer"
               >
                 <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
               </button>
@@ -693,22 +798,24 @@ const HistoryPage = () => {
                 เขียนรีวิว
               </h2>
             </div>
-            <div className="flex gap-4 p-3 bg-gray-50 rounded-xl mb-4 border border-gray-100">
+
+            <div className="flex gap-4 p-3 bg-gray-50 rounded-xl mb-4 border border-gray-100 flex-shrink-0">
               <img
                 src={selectedItem.imageUrl || ""}
                 alt=""
-                className="w-16 h-16 object-contain rounded-lg"
+                className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[14px] text-gray-950 line-clamp-1">
+                <p className="font-bold text-[14px] text-gray-950 line-clamp-2 leading-snug">
                   {selectedItem.productName}
                 </p>
-                <p className="text-[12px] text-gray-500">
+                <p className="text-[12px] text-gray-500 mt-1">
                   จำนวน x {selectedItem.quantity}
                 </p>
               </div>
             </div>
-            <div className="space-y-4">
+
+            <div className="space-y-4 flex-1">
               <div>
                 <p className="text-[14px] font-medium text-gray-900 mb-2">
                   คะแนนความพึงพอใจ
@@ -719,11 +826,11 @@ const HistoryPage = () => {
                       key={star}
                       type="button"
                       onClick={() => setReviewScore(star)}
-                      className="focus:outline-none cursor-pointer"
+                      className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
                     >
                       <Icon
                         icon="material-symbols:star-rounded"
-                        className={`w-9 h-9 ${star <= reviewScore ? "text-amber-400" : "text-gray-200"}`}
+                        className={`w-9 h-9 transition-colors ${star <= reviewScore ? "text-amber-400" : "text-gray-200"}`}
                       />
                     </button>
                   ))}
@@ -738,22 +845,23 @@ const HistoryPage = () => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="รายละเอียดความพึงพอใจของคุณ"
-                  className="w-full border border-gray-200 rounded-xl p-3 text-[14px] outline-none focus:border-blue-500 bg-white resize-none"
+                  className="w-full border border-gray-200 rounded-xl p-3 text-[14px] outline-none focus:border-blue-500 bg-white resize-none shadow-sm transition-colors"
                 />
               </div>
             </div>
-            <div className="flex gap-3 mt-6">
+
+            <div className="flex gap-3 mt-6 flex-shrink-0">
               <button
                 type="button"
                 onClick={handleReviewSubmit}
-                className="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-lg text-[15px]"
+                className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg text-[15px] transition cursor-pointer"
               >
                 ส่งรีวิว
               </button>
               <button
                 type="button"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg text-[15px]"
+                className="flex-1 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-lg text-[15px] transition cursor-pointer"
               >
                 ยกเลิก
               </button>
@@ -764,22 +872,22 @@ const HistoryPage = () => {
 
       {isViewReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3">
+          <div className="w-full max-w-[650px] max-h-[85vh] bg-white rounded-2xl shadow-2xl p-5 md:p-6 relative flex flex-col gap-4 overflow-y-auto">
+            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3 flex-shrink-0">
               รีวิว
             </h2>
-            <div className="flex gap-4 items-start border border-gray-100 p-4 rounded-xl bg-gray-50/40">
+            <div className="flex flex-col sm:flex-row gap-4 items-start border border-gray-100 p-4 rounded-xl bg-gray-50/40 flex-1">
               <img
                 src={activeReviewData.imageUrl || ""}
                 alt=""
-                className="w-20 h-20 object-contain rounded-lg border bg-white flex-shrink-0"
+                className="w-20 h-20 object-contain rounded-lg border bg-white flex-shrink-0 mx-auto sm:mx-0"
               />
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 min-w-0 w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4">
                   <h3 className="font-bold text-[15px] text-gray-900 line-clamp-2 leading-snug">
                     {activeReviewData.productName}
                   </h3>
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto justify-end">
                     <button
                       type="button"
                       onClick={handleDeleteReview}
@@ -812,17 +920,17 @@ const HistoryPage = () => {
                       />
                     ))}
                   </div>
-                  <p className="text-gray-700 bg-white p-3 border border-gray-100 rounded-lg mt-2 text-[14px]">
+                  <p className="text-gray-700 bg-white p-3 border border-gray-100 rounded-lg mt-2 text-[14px] break-words">
                     {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end pt-2 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setIsViewReviewModalOpen(false)}
-                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium text-[14px] hover:bg-gray-50 transition cursor-pointer"
+                className="w-full sm:w-auto px-6 py-2 rounded-lg border border-gray-300 text-gray-700 bg-white font-medium text-[14px] hover:bg-gray-50 transition cursor-pointer"
               >
                 ปิด
               </button>
@@ -833,18 +941,18 @@ const HistoryPage = () => {
 
       {isEditReviewModalOpen && activeReviewData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="w-full max-w-[650px] bg-white rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4">
-            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3">
+          <div className="w-full max-w-[650px] max-h-[85vh] bg-white rounded-2xl shadow-2xl p-5 md:p-6 relative flex flex-col gap-4 overflow-y-auto">
+            <h2 className="text-[20px] font-bold text-gray-950 border-b pb-3 flex-shrink-0">
               แก้ไขรีวิว
             </h2>
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-4 items-center flex-shrink-0">
               <img
                 src={activeReviewData.imageUrl || ""}
                 alt=""
                 className="w-16 h-16 object-contain rounded-lg border bg-white flex-shrink-0"
               />
               <div className="min-w-0">
-                <h3 className="font-bold text-[15px] text-gray-900 line-clamp-1">
+                <h3 className="font-bold text-[15px] text-gray-900 line-clamp-2 leading-snug">
                   {activeReviewData.productName}
                 </h3>
                 <p className="text-[13px] text-gray-500 font-medium mt-0.5">
@@ -855,7 +963,7 @@ const HistoryPage = () => {
                 </p>
               </div>
             </div>
-            <div className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100 flex flex-col gap-4">
+            <div className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100 flex flex-col gap-4 flex-1">
               <div>
                 <p className="text-[14px] font-medium text-gray-900 mb-1">
                   คะแนนความพึงพอใจ

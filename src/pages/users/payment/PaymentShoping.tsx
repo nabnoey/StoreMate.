@@ -19,7 +19,6 @@ import { PaymentService } from "../../../services/payment.service";
 import { fetchAddressDefault } from "../../../redux/address/addressReducer";
 import { addSavedCard } from "../../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../../redux/carts/CartReducer";
-import { PAYMENT_OPTIONS } from "../../../constants/payment";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -328,93 +327,160 @@ const PaymentContent = () => {
                 เลือกช่องทางการชำระเงิน
               </h2>
               <div className="flex flex-col gap-3">
-                {PAYMENT_OPTIONS.map((method: any) => (
-                  <div key={method.id} className="flex flex-col">
-                    <button
-                      data-test="btn-select-payment-method-mobile"
-                      onClick={() => setPaymentMethod(method.id)}
-                      className={`cursor-pointer font-anuphan flex items-center text-left gap-4 w-full lg:w-[585px] min-h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
-                        paymentMethod === method.id
-                          ? "border-black bg-[#EAEAEA]"
-                          : "border-gray-200 bg-white"
-                      }`}
-                    >
-                      <div className="w-10 h-10 flex items-center text-black justify-center bg-white border border-gray-100 rounded-lg">
-                        <Icon icon={method.icon} className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-anuphan text-[14px] font-semibold text-[#0F172A] leading-[14px] break-words">
-                          {method.title}
-                        </p>
-                        <p className="font-anuphan text-[12px] font-normal text-[#64748B] leading-[16px] break-words mt-1">
-                          {method.desc}
-                        </p>
-                      </div>
-                      {paymentMethod === method.id && (
-                        <div className="text-black flex-shrink-0 pr-2">
-                          <Icon
-                            icon="lucide:check-circle"
-                            className="w-5 h-5"
-                          />
-                        </div>
-                      )}
-                    </button>
-                    {method.id === "CARD" && paymentMethod === "CARD" && (
-                      <div className="ml-0 sm:ml-12 mt-3 space-y-3">
-                        {savedCards.map((card: any) => (
-                          <button
-                            key={card.id}
-                            data-test="btn-select-card-method-mobile"
-                            onClick={() => setSelectedCardId(card.id)}
-                            className="flex items-center gap-3 cursor-pointer"
-                          >
-                            <div
-                              className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                                selectedCardId === card.id
-                                  ? "border-blue-500"
-                                  : "border-gray-400"
-                              }`}
-                            >
-                              {selectedCardId === card.id && (
-                                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
-                              )}
-                            </div>
-                            <div className="w-12 h-8 border border-gray-300 rounded flex items-center justify-center bg-white">
-                              {card.brand === "mastercard" ? (
-                                <Icon
-                                  icon="logos:mastercard"
-                                  className="text-xl"
-                                />
-                              ) : (
-                                <Icon icon="logos:visa" className="text-xl" />
-                              )}
-                            </div>
-                            <span className="text-sm text-black">
-                              {card.bankName}
-                            </span>
-                            <span className="text-sm text-black font-mono ml-2">
-                              **** {card.last4}
-                            </span>
-                          </button>
-                        ))}
+                {/* PromptPay */}
+                <button
+                  data-test="select-promptpay-desktop"
+                  onClick={() => setPaymentMethod("PROMPTPAY")}
+                  className={`cursor-pointer font-anuphan flex items-center text-left gap-4 w-full lg:w-[585px] min-h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
+                    paymentMethod === "PROMPTPAY"
+                      ? "border-black bg-[#EAEAEA]"
+                      : "border-gray-200 bg-white"
+                  }`}
+                >
+                  <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg text-black">
+                    <Icon icon="lucide:wallet" className="w-5 h-5 text-black" />
+                  </div>
+
+                  <div className="flex-1">
+                    <p className="font-anuphan text-[14px] font-semibold text-[#0F172A]">
+                      พร้อมเพย์ (PromptPay)
+                    </p>
+                    <p className="font-anuphan text-[12px] text-[#64748B] mt-1">
+                      สแกน QR Code เพื่อชำระเงินทันที
+                    </p>
+                  </div>
+
+                  {paymentMethod === "PROMPTPAY" && (
+                    <Icon
+                      icon="lucide:check-circle"
+                      className="w-5 h-5 text-black"
+                    />
+                  )}
+                </button>
+
+                {/* Card */}
+                <div className="flex flex-col">
+                  <button
+                    data-test="select-credit-desktop"
+                    onClick={() => setPaymentMethod("CARD")}
+                    className={`cursor-pointer font-anuphan flex items-center text-left gap-4 w-full lg:w-[585px] min-h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
+                      paymentMethod === "CARD"
+                        ? "border-black bg-[#EAEAEA]"
+                        : "border-gray-200 bg-white"
+                    }`}
+                  >
+                    <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
+                      <Icon
+                        icon="lucide:credit-card"
+                        className="w-5 h-5 text-black"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <p className="font-anuphan text-[14px] font-semibold text-[#0F172A]">
+                        บัตรเครดิต / บัตรเดบิต
+                      </p>
+                      <p className="font-anuphan text-[12px] text-[#64748B] mt-1">
+                        Visa , Mastercard
+                      </p>
+                    </div>
+
+                    {paymentMethod === "CARD" && (
+                      <Icon
+                        icon="lucide:check-circle"
+                        className="w-5 h-5 text-black"
+                      />
+                    )}
+                  </button>
+
+                  {paymentMethod === "CARD" && (
+                    <div className="ml-0 sm:ml-12 mt-3 space-y-3">
+                      {savedCards.map((card: any) => (
                         <button
-                          data-test="click-add-credit-card-mobile"
-                          onClick={handleAddNewCard}
-                          className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 transition-all bg-white ml-7"
+                          key={card.id}
+                          data-test="btn-select-card-method-desktop"
+                          onClick={() => setSelectedCardId(card.id)}
+                          className="flex items-center gap-3 cursor-pointer"
                         >
-                          <Icon
-                            icon="lucide:plus"
-                            className="w-3.5 h-3.5 text-black"
-                            style={{ strokeWidth: 3 }}
-                          />
-                          <span className="font-medium text-xs text-black">
-                            กรอกบัตรเครดิต/เดบิต
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              selectedCardId === card.id
+                                ? "border-blue-500"
+                                : "border-gray-400"
+                            }`}
+                          >
+                            {selectedCardId === card.id && (
+                              <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                            )}
+                          </div>
+
+                          <div className="w-12 h-8 border border-gray-300 rounded flex items-center justify-center bg-white">
+                            <Icon
+                              icon={
+                                card.brand === "mastercard"
+                                  ? "logos:mastercard"
+                                  : "logos:visa"
+                              }
+                              className="text-xl text-black"
+                            />
+                          </div>
+
+                          <span className="text-sm text-black">
+                            {card.bankName}
+                          </span>
+                          <span className="text-sm text-black font-mono ml-2">
+                            **** {card.last4}
                           </span>
                         </button>
-                      </div>
-                    )}
+                      ))}
+
+                      <button
+                        data-test="btn-add-credit-card-desktop"
+                        onClick={handleAddNewCard}
+                        className="cursor-pointer flex items-center w-fit px-3 py-1.5 gap-2 mt-2 border border-black rounded-md hover:bg-gray-50 bg-white ml-7"
+                      >
+                        <Icon
+                          icon="lucide:plus"
+                          className="w-3.5 h-3.5 text-black"
+                        />
+                        <span className="font-medium text-xs text-black">
+                          กรอกบัตรเครดิต/เดบิต
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* COD */}
+                <button
+                  data-test="select-destination-desktop"
+                  onClick={() => setPaymentMethod("DESTINATION")}
+                  className={`cursor-pointer font-anuphan flex items-center text-left gap-4 w-full lg:w-[585px] min-h-[71px] p-[10px] rounded-[12px] border-[2px] transition-all ${
+                    paymentMethod === "DESTINATION"
+                      ? "border-black bg-[#EAEAEA]"
+                      : "border-gray-200 bg-white"
+                  }`}
+                >
+                  <div className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-lg">
+                    <Icon icon="lucide:truck" className="w-5 h-5 text-black" />
                   </div>
-                ))}
+
+                  <div className="flex-1">
+                    <p className="font-anuphan text-[14px] font-semibold text-[#0F172A]">
+                      เก็บเงินปลายทาง
+                    </p>
+                    <p className="font-anuphan text-[12px] text-[#64748B] mt-1">
+                      ชำระเงินเมื่อได้รับสินค้า
+                    </p>
+                  </div>
+
+                  {paymentMethod === "DESTINATION" && (
+                    <Icon
+                      icon="lucide:check-circle"
+                      className="w-5 h-5 text-black"
+                    />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -519,84 +585,133 @@ const PaymentContent = () => {
                 เลือกช่องทางการชำระเงิน
               </h2>
               <div className="flex flex-col gap-3">
-                {PAYMENT_OPTIONS.map((method: any) => (
-                  <div key={method.id} className="flex flex-col">
-                    <button
-                      data-test="btn-select-payment-method-mobile"
-                      onClick={() => setPaymentMethod(method.id)}
-                      className={`flex items-center p-3 border rounded-[8px] transition-all cursor-pointer ${
-                        paymentMethod === method.id
-                          ? "border-gray-500 bg-gray-50"
-                          : "border-gray-300 bg-white"
-                      }`}
-                    >
-                      <div className="w-8 h-8 flex items-center justify-center mr-3 bg-white">
-                        <Icon
-                          icon={method.icon}
-                          className="w-6 h-6 text-black"
-                        />
-                      </div>
-                      <div className="text-left flex-1">
-                        <p className="text-[14px] font-semibold text-black leading-tight">
-                          {method.title}
-                        </p>
-                        <p className="text-[12px] text-gray-500 mt-1 leading-tight">
-                          {method.desc}
-                        </p>
-                      </div>
-                    </button>
-
-                    {/* Sub-menu Credit Card Mobile */}
-                    {method.id === "CARD" && paymentMethod === "CARD" && (
-                      <div className="ml-11 mt-3 space-y-3">
-                        {savedCards.map((card: any) => (
-                          <button
-                            key={card.id}
-                            data-test="btn-select-card-method-mobile"
-                            onClick={() => setSelectedCardId(card.id)}
-                            className="flex items-center gap-3 cursor-pointer w-full text-left"
-                          >
-                            <div
-                              className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                                selectedCardId === card.id
-                                  ? "border-blue-500"
-                                  : "border-gray-400"
-                              }`}
-                            >
-                              {selectedCardId === card.id && (
-                                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
-                              )}
-                            </div>
-                            <div className="w-10 h-6 border border-gray-200 rounded flex items-center justify-center bg-white">
-                              <Icon
-                                icon={
-                                  card.brand === "mastercard"
-                                    ? "logos:mastercard"
-                                    : "logos:visa"
-                                }
-                                className="text-lg text-black"
-                              />
-                            </div>
-                            <span className="text-[13px] text-black">
-                              {card.bankName} **** {card.last4}
-                            </span>
-                          </button>
-                        ))}
-                        <button
-                          data-test="click-add-credit-card-mobile"
-                          onClick={handleAddNewCard}
-                          className="flex items-center gap-2 text-[13px] text-black font-medium border border-gray-300 px-3 py-1.5 rounded-md cursor-pointer transition-all bg-white mt-2"
-                        >
-                          <Icon
-                            icon="lucide:plus"
-                            className="w-3.5 h-3.5 text-black"
-                          />
-                          กรอกบัตรเครดิต/เดบิต
-                        </button>
-                      </div>
-                    )}
+                {/* PromptPay */}
+                <button
+                  data-test="select-promptpay-mobile"
+                  onClick={() => setPaymentMethod("PROMPTPAY")}
+                  className={`flex items-center p-3 border rounded-[8px] transition-all cursor-pointer ${
+                    paymentMethod === "PROMPTPAY"
+                      ? "border-gray-500 bg-gray-50"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  <div className="w-8 h-8 flex items-center justify-center mr-3 bg-white">
+                    <Icon icon="lucide:wallet" className="w-6 h-6 text-black" />
                   </div>
-                ))}
+                  <div className="text-left flex-1">
+                    <p className="text-[14px] font-semibold text-black leading-tight">
+                      พร้อมเพย์ (PromptPay)
+                    </p>
+                    <p className="text-[12px] text-gray-500 mt-1 leading-tight">
+                      สแกน QR Code เพื่อชำระเงินทันที
+                    </p>
+                  </div>
+                </button>
+
+                {/* Credit Card */}
+                <div className="flex flex-col">
+                  <button
+                    data-test="select-credit-mobile"
+                    onClick={() => setPaymentMethod("CARD")}
+                    className={`flex items-center p-3 border rounded-[8px] transition-all cursor-pointer ${
+                      paymentMethod === "CARD"
+                        ? "border-gray-500 bg-gray-50"
+                        : "border-gray-300 bg-white"
+                    }`}
+                  >
+                    <div className="w-8 h-8 flex items-center justify-center mr-3 bg-white">
+                      <Icon
+                        icon="lucide:credit-card"
+                        className="w-6 h-6 text-black"
+                      />
+                    </div>
+
+                    <div className="text-left flex-1">
+                      <p className="text-[14px] font-semibold text-black leading-tight">
+                        บัตรเครดิต / บัตรเดบิต
+                      </p>
+                      <p className="text-[12px] text-gray-500 mt-1 leading-tight">
+                        Visa , Mastercard
+                      </p>
+                    </div>
+                  </button>
+
+                  {paymentMethod === "CARD" && (
+                    <div className="ml-11 mt-3 space-y-3">
+                      {savedCards.map((card: any) => (
+                        <button
+                          key={card.id}
+                          data-test="select-credit-mobile"
+                          onClick={() => setSelectedCardId(card.id)}
+                          className="flex items-center gap-3 cursor-pointer w-full text-left"
+                        >
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              selectedCardId === card.id
+                                ? "border-blue-500"
+                                : "border-gray-400"
+                            }`}
+                          >
+                            {selectedCardId === card.id && (
+                              <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                            )}
+                          </div>
+
+                          <div className="w-10 h-6 border border-gray-200 rounded flex items-center justify-center bg-white">
+                            <Icon
+                              icon={
+                                card.brand === "mastercard"
+                                  ? "logos:mastercard"
+                                  : "logos:visa"
+                              }
+                              className="text-lg"
+                            />
+                          </div>
+
+                          <span className="text-[13px] text-black">
+                            {card.bankName} **** {card.last4}
+                          </span>
+                        </button>
+                      ))}
+
+                      <button
+                        data-test="btn-add-credit-card-mobile"
+                        onClick={handleAddNewCard}
+                        className="flex items-center gap-2 text-[13px] text-black font-medium border border-gray-300 px-3 py-1.5 rounded-md cursor-pointer transition-all bg-white mt-2"
+                      >
+                        <Icon
+                          icon="lucide:plus"
+                          className="w-3.5 h-3.5 text-black"
+                        />
+                        กรอกบัตรเครดิต/เดบิต
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* COD */}
+                <button
+                  data-test="select-destination-mobile"
+                  onClick={() => setPaymentMethod("DESTINATION")}
+                  className={`flex items-center p-3 border rounded-[8px] transition-all cursor-pointer ${
+                    paymentMethod === "DESTINATION"
+                      ? "border-gray-500 bg-gray-50"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  <div className="w-8 h-8 flex items-center justify-center mr-3 bg-white">
+                    <Icon icon="lucide:truck" className="w-6 h-6 text-black" />
+                  </div>
+
+                  <div className="text-left flex-1">
+                    <p className="text-[14px] font-semibold text-black leading-tight">
+                      เก็บเงินปลายทาง
+                    </p>
+                    <p className="text-[12px] text-gray-500 mt-1 leading-tight">
+                      ชำระเงินเมื่อได้รับสินค้า
+                    </p>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
@@ -604,7 +719,6 @@ const PaymentContent = () => {
 
         {/* --- MOBILE BOTTOM SECTION (Summary & Button - NON-FIXED) --- */}
         <div className="mt-auto flex flex-col p-4 w-full bg-white">
-          {/* Total Summary Mobile */}
           <div className="space-y-3 mb-4">
             <div className="flex justify-between text-[16px] text-black">
               <span>ยอดชำระทั้งหมด</span>
