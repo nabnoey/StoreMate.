@@ -492,6 +492,7 @@ const HistoryPage = () => {
                   return (
                     <div
                       key={order.id}
+                      data-test={`order-card-${order.id}`}
                       className="w-full cursor-pointer hover:shadow-md transition-shadow rounded-xl p-4 bg-white border border-gray-200/80 shadow-sm"
                       onClick={() => {
                         const orderNo = order.orderNo || `ORD-${order.id}`;
@@ -677,6 +678,7 @@ const HistoryPage = () => {
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             <button
                               type="button"
+                              data-test={`btn-pay-order-${order.id}`}
                               onClick={(e) =>
                                 handleRetryPayment(e, order, orderTotal)
                               }
@@ -685,7 +687,7 @@ const HistoryPage = () => {
                               ชำระเงิน
                             </button>
                             <button
-                              data-test="btn-cancel-orders"
+                              data-test={`btn-cancel-order-${order.id}`}
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();

@@ -102,12 +102,12 @@ function OrderDetail() {
 const [selectedStatus, setSelectedStatus] = useState(
   order?.status || ""
 );
+const [prevStatus, setPrevStatus] = useState(order?.status || "");
 
-  useEffect(() => {
-    if (order?.status) {
-      setSelectedStatus(order.status);
-    }
-  }, [order?.status]);
+if (order?.status !== prevStatus) {
+    setPrevStatus(order?.status || "");
+    setSelectedStatus(order?.status || "");
+  }
 
   useEffect(() => {
     if (orderNo && orderNo !== "undefined") {
@@ -164,9 +164,8 @@ const [selectedStatus, setSelectedStatus] = useState(
       setTimeout(() => {
         navigate("/moderator/orders");
       }, 1500);
-    } catch (error: any) {
-      console.error("Update status failed:", error);
-      toast.error(error.message || "ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
+    } catch {
+      toast.error("ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)")
     }
   };
 
