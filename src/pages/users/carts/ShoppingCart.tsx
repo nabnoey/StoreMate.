@@ -435,6 +435,7 @@ const ShoppingCart = () => {
 
                 <button
                   onClick={() => navigate("/search")}
+                  data-test="btn-add-product"
                   className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
                 >
                   เลือกซื้อสินค้า

@@ -262,7 +262,7 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("แก้ไขที่อยู่สำเร็จ");
+      toast.success("แก้ไขที่อยู่สำเร็จ" , {duration:1700});
     } else {
       await dispatch(
         addAddress({
@@ -272,7 +272,7 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("เพิ่มที่อยู่สำเร็จ");
+      toast.success("เพิ่มที่อยู่สำเร็จ", {duration: 1700});
     }
     dispatch(fetchAllAddresses());
     setIsModalOpen(false);
@@ -286,7 +286,7 @@ const AddressProfile = () => {
       toast.dismiss(toastId);
       setIsBlocking(false);
       dispatch(deleteAddress(addressId));
-      toast.success("ลบที่อยู่สำเร็จ", { duration: 800 });
+      toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
     };
 
     const cancelDelete = (toastId: string) => {
@@ -319,153 +319,125 @@ const AddressProfile = () => {
       { duration: Infinity, position: "top-center" },
     );
   };
-  return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-50 sm:pt-20">
-      <div className="max-w-[1200px] mx-auto px-4">
-        {/* 1. Nav อยู่ด้านบนสุด */}
+return (
+    <div className="min-h-screen bg-gray-50 md:bg-white font-anuphan text-gray-950 pt-0 md:pt-10 pb-24 md:pb-10">
+      <div className="max-w-[1200px] mx-auto px-0 md:px-4">
+        
+        {/* 1. Breadcrumbs Nav (Desktop Only) */}
         <div className="hidden md:block">
-          <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 md:mb-4 font-medium">
-            <Link
-              data-test="click-home"
-              to="/"
-              className="transition-colors cursor-pointer"
-            >
+          <nav className="flex flex-wrap items-center text-sm text-black mb-6 font-medium">
+            <Link data-test="click-home" to="/" className="transition-colors cursor-pointer hover:text-blue-600">
               หน้าหลัก
             </Link>
-            <Icon
-              icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-black"
-            />
-            <Link
-              to="/profile"
-              data-test="click-profile"
-              className="transition-colors cursor-pointer"
-            >
+            <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-gray-400" />
+            <Link to="/profile" data-test="click-profile" className="transition-colors cursor-pointer hover:text-blue-600">
               โปรไฟล์
             </Link>
-            <Icon
-              icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-black"
-            />
-            <span className="text-black">จัดการที่อยู่</span>
+            <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-gray-400" />
+            <span className="text-gray-500">จัดการที่อยู่</span>
           </nav>
         </div>
-        <div className="md:hidden bg-white pt-2 pb-4">
-          <div className="flex items-center gap-3">
-            <button
-              className="mt-[2px] text-black p-0 flex-shrink-0 -ml-2"
-              onClick={() => navigate("/profile")}
-            >
-              <Icon icon="material-symbols:arrow-back" className="w-5 h-5" />
-            </button>
 
-            <div className="flex-1">
-              <h1 className="text-[16px] leading-[28px] font-bold text-black">
-                ที่อยู่ของฉัน
-              </h1>
-            </div>
-          </div>
-
-          <div className=" w-[calc(95%+16px)] border-t border-black mt-3 pt-1" />
+        {/* 2. Mobile Header Bar (Sticky Top) */}
+        <div className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm">
+          <button
+            className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors"
+            onClick={() => navigate("/profile")}
+          >
+            <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-bold text-gray-900">ที่อยู่ของฉัน</h1>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start flex-1">
-          {" "}
-          <div className="hidden md:block">
+        {/* Main Content Layout */}
+        <div className="flex flex-col md:flex-row gap-6 items-start px-4 md:px-0 mt-4 md:mt-0">
+          
+          {/* Sidebar (Desktop Only) */}
+          <div className="hidden md:block shrink-0">
             <ProfileSidebar />
           </div>
-          <main className="flex flex-col flex-1 w-full bg-white md:rounded-lg shadow-none md:shadow-sm border-none md:border-gray-100 min-h-[calc(100vh-80px)] md:min-h-[500px] relative">
-            <div className="flex justify-between items-center p-5 border-b border-none md:border-gray-100">
-              <h1 className="hidden md:block text-[20px] sm:text-[20px] font-bold">
-                ที่อยู่ของฉัน
-              </h1>
+
+          {/* Address List Container */}
+          <main className="flex flex-col flex-1 w-full bg-white rounded-xl md:shadow-sm border border-transparent md:border-gray-200 overflow-hidden min-h-[500px]">
+            <div className="hidden md:flex justify-between items-center p-5 border-b border-gray-100">
+              <h1 className="text-xl font-bold text-gray-900">ที่อยู่ของฉัน</h1>
               <button
                 data-test="btn-add-address"
                 onClick={openAddModal}
-                className="hidden md:flex bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm items-center gap-1 transition-colors cursor-pointer"
+                className="bg-[#4285F4] hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
               >
-                <span className="text-xl leading-none">+</span> เพิ่มที่อยู่
+                <span className="text-lg leading-none">+</span> เพิ่มที่อยู่ใหม่
               </button>
             </div>
 
-            <div className="flex flex-col flex-1 w-full">
+            <div className="flex flex-col flex-1 divide-y divide-gray-100">
               {addresses.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-4">
-                  <Icon
-                    icon="basil:location-outline"
-                    className="w-10 h-10 sm:w-30 sm:h-30 text-black mb-6"
-                  />
-                  <p className="text-[20px] sm:text-[36px] font-medium text-black mb-6">
-                    ไม่มีข้อมูลที่อยู่
-                  </p>
+                <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[350px]">
+                  <Icon icon="basil:location-outline" className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300 mb-4" />
+                  <p className="text-lg sm:text-xl font-medium text-gray-500">ไม่มีข้อมูลที่อยู่ของคุณ</p>
                 </div>
               ) : (
                 addresses.map((address: Address) => (
                   <div
                     key={address.id}
-                    className="p-4 sm:p-5 flex flex-col gap-2 sm:gap-3 border-b border-gray-300 last:border-0"
+                    className="p-4 sm:p-5 flex flex-col gap-3 transition-colors hover:bg-gray-50/50"
                   >
-                    {/* แถวที่ 1: ชื่อ | เบอร์โทร และปุ่ม แก้ไข | ลบ */}
-                    <div className="flex justify-between items-start w-full">
-                      <div className="flex items-center gap-2 text-sm sm:text-base">
-                        <span className="font-medium text-black">
-                          {address.receiverName}
-                        </span>
-                        <span className="text-gray-300">|</span>
-                        <span className="text-gray-500">
-                          {address.receiverPhone}
-                        </span>
+                    {/* แถวที่ 1: ข้อมูลผู้รับ & ปุ่มควบคุมหลัก */}
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-base">
+                        <span className="font-bold text-gray-900">{address.receiverName}</span>
+                        <span className="text-gray-300 hidden sm:inline">|</span>
+                        <span className="text-gray-500 font-medium">{address.receiverPhone}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm shrink-0 ml-2">
+                      <div className="flex items-center gap-3 text-sm shrink-0">
                         <button
-                          data-test="btn-edit-address"
+                         data-test={`btn-edit-address-${address.id}`}
                           onClick={() => openEditModal(address)}
-                          className="text-[#4285F4] hover:underline cursor-pointer"
+                          className="text-[#4285F4] hover:underline font-medium cursor-pointer"
                         >
                           แก้ไข
                         </button>
-                        <span className="text-gray-300">|</span>
+                        <span className="text-gray-200">|</span>
                         <button
-                          data-test="btn-delete-address"
+                          data-test= {`btn-delete-address-${address.id}`}
                           onClick={() => handleDeleteAddress(address.id)}
-                          className="text-orange-500 hover:underline cursor-pointer"
+                          className="text-red-500 hover:underline font-medium cursor-pointer"
                         >
                           ลบ
                         </button>
                       </div>
                     </div>
 
-                    {/* แถวที่ 2: ที่อยู่ และปุ่ม ตั้งเป็นค่าเริ่มต้น */}
-                    <div className="flex justify-between items-end gap-3 w-full">
-                      <div className="text-sm text-gray-500 leading-relaxed flex-1">
-                        {address.streetAddress} ต.{address.subdistrict} อ.
-                        {address.district} จ.{address.province}{" "}
-                        {address.zipcode}
+                    {/* แถวที่ 2: รายละเอียดที่อยู่ตัวเต็ม */}
+                    <div className="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                      {address.streetAddress} ต.{address.subdistrict} อ.{address.district} จ.{address.province} {address.zipcode}
+                    </div>
+
+                    {/* แถวที่ 3: ป้ายบอกสถานะ และ ปุ่มตั้งเป็นค่าเริ่มต้น */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                      <div className="flex flex-wrap gap-2">
+                        {address.isDefault && (
+                          <span className="px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#4285F4] border border-blue-200 rounded">
+                            ค่าเริ่มต้น
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded">
+                          ที่อยู่ในการรับสินค้า
+                        </span>
                       </div>
+                      
                       <button
                         data-test="btn-set-default"
                         disabled={address.isDefault}
                         onClick={() => dispatch(addAdressDefault(address.id))}
-                        className={`shrink-0 px-2 py-1 border rounded text-[12px] transition-colors ${
+                        className={`shrink-0 px-3 py-1.5 border rounded-lg text-xs font-medium transition-all text-center w-full sm:w-auto ${
                           address.isDefault
-                            ? "bg-white text-gray-400 border-gray-300 cursor-not-allowed"
-                            : "bg-white text-gray-600 border-gray-400 hover:bg-gray-50 cursor-pointer"
+                            ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
+                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 active:bg-gray-100 cursor-pointer shadow-sm"
                         }`}
                       >
                         ตั้งเป็นค่าเริ่มต้น
                       </button>
-                    </div>
-
-                    {/* แถวที่ 3: ป้าย Tag*/}
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {address.isDefault && (
-                        <span className="px-2 py-0.5 text-[12px] bg-white text-[#4285F4] border border-[#4285F4]">
-                          ค่าเริ่มต้น
-                        </span>
-                      )}
-                      <span className="px-2 py-0.5 text-[12px] bg-white text-gray-500 border border-gray-400">
-                        ที่อยู่ในการรับสินค้า
-                      </span>
                     </div>
                   </div>
                 ))
@@ -473,101 +445,90 @@ const AddressProfile = () => {
             </div>
           </main>
         </div>
-        <div className="md:hidden px-4 py-6">
+
+        {/* 3. Mobile Add Address Sticky Button (Fixed Bottom) */}
+        <div className="md:hidden fixed bottom-0 inset-x-0 bg-white p-4 border-t border-gray-200 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
           <button
             data-test="btn-add-address-mobile"
             onClick={openAddModal}
-            className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-2.5 rounded-md text-[15px] flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-sm"
+            className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-3 rounded-xl text-base font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md"
           >
-            <span className="text-xl leading-none mt-[-2px]">+</span>
-            เพิ่มที่อยู่
+            <span className="text-xl leading-none mt-[-2px]">+</span> เพิ่มที่อยู่ใหม่
           </button>
         </div>
 
+        {/* 4. Overlay & Form Modal (Responsive Style matching the Image) */}
         {isModalOpen && (
-          <div className="fixed inset-x-0 top-[75px] bottom-0 z-[100] md:inset-0 p-4 flex items-start md:items-center justify-center md:p-6 bg-white md:bg-transparent overflow-y-auto">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-100/80 md:bg-black/60 backdrop-blur-[1px] p-4 overflow-y-auto">
+            
+            {/* Backdrop ปิด Modal เมื่อคลิกด้านนอก (ทำงานบนจอใหญ่) */}
             <div
-              className="hidden md:block absolute inset-0 bg-black/50 backdrop-blur-[2px] transition-opacity cursor-pointer"
+              className="hidden md:block absolute inset-0 transition-opacity cursor-pointer"
               onClick={() => setIsModalOpen(false)}
             />
-            <div className="relative w-full min-h-full md:min-h-0 md:h-auto md:max-w-2xl bg-white md:rounded-xl md:shadow-2xl flex flex-col">
-              {/* Header */}
-              <div className="md:hidden bg-white pt-2 pb-4">
-                <div className="flex items-center gap-3 pb-3">
-                  <button
-                    className="text-black p-0 flex-shrink-0"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    <Icon
-                      icon="material-symbols:arrow-back"
-                      className="w-5 h-5"
-                    />
-                  </button>
-
-                  <h1 className="text-[16px] leading-[28px] font-bold text-black">
-                    {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "ที่อยู่ใหม่"}
-                  </h1>
-                </div>
-                <hr className="sm:hidden border-t-2 border-black w-full" />
+            
+            {/* กล่องเนื้อหา Modal ที่ปรับแต่งตามภาพ */}
+            <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl flex flex-col overflow-hidden transition-all duration-300 border border-gray-100 p-5">
+              
+              {/* ส่วนหัวแสดงหมุดตำแหน่งตรงกลางตามภาพ */}
+              <div className="flex flex-col items-center justify-center pt-2 pb-4">
+                <Icon icon="material-symbols:location-on-outline-rounded" className="w-14 h-14 text-gray-400" />
               </div>
-              <div className="hidden md:block px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
-                <h2 className="text-xl font-bold text-gray-800 text-[36px] stroke-[600px]">
+
+              {/* หัวข้อฟอร์ม */}
+              <div className="border-b border-gray-300 pb-1.5 mb-4">
+                <h2 className="text-base font-bold text-gray-900">
                   {isEditMode ? "แก้ไขข้อมูลที่อยู่" : "ที่อยู่ใหม่"}
                 </h2>
               </div>
 
-              {/* Body: Scrollable area if content is long */}
-              <div className="flex-1 md:flex-none p-4 md:p-6 overflow-y-auto md:max-h-[70vh]">
-                <div className="space-y-5">
-                  {/* ที่อยู่รายละเอียด */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-gray-700">
-                      ที่อยู่ (บ้านเลขที่ / ถนน / ซอย)
-                    </label>
-                    <textarea
-                      id="streetAddress"
-                      name="streetAddress"
-                      value={formData.streetAddress}
-                      onChange={handleInputChange}
-                      placeholder="ตัวอย่าง: 123/45 หมู่ 6 ซอยสุขุมวิท..."
-                      className="w-full min-h-[100px] border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none transition-all resize-none"
-                    />
-                  </div>
+              {/* ส่วนฟอร์มข้อมูลภายใน */}
+              <div className="flex-1 space-y-4">
+                
+                {/* Input รายละเอียดที่อยู่ */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-gray-700">
+                    ที่อยู่
+                  </label>
+                  <input
+                    type="text"
+                    id="streetAddress"
+                    name="streetAddress"
+                    value={formData.streetAddress}
+                    onChange={handleInputChange}
+                    placeholder="บ้านเลขที่ / ถนน / ซอย"
+                    className="w-full h-11 border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all bg-white"
+                  />
+                </div>
 
-                  {/* แถวที่ 1: จังหวัด & อำเภอ */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
-                        จังหวัด
-                      </label>
+                {/* แถวที่ 1: จังหวัด & อำเภอ (คงรูปเป็น 2 คอลัมน์บนโมบายล์ตามรูปภาพตัวอย่าง) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">จังหวัด</label>
+                    <div className="relative">
                       <select
                         name="province"
                         value={formData.province}
                         onChange={handleProvinceChange}
-                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value={0} hidden>
-                          กรุณาเลือกจังหวัด
-                        </option>
+                        <option value={0} hidden>จังหวัด</option>
                         {provinces.map((p: { id: number; name: string }) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
+                          <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
                       </select>
+                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
                     </div>
+                  </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
-                        เขต/อำเภอ
-                      </label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">อำเภอ</label>
+                    <div className="relative">
                       <select
                         name="district"
                         value={formData.district}
                         disabled={!formData.province}
-                        onChange={async (
-                          e: React.ChangeEvent<HTMLSelectElement>,
-                        ) => {
+                        onChange={async (e: React.ChangeEvent<HTMLSelectElement>) => {
                           const dId = Number(e.target.value);
                           setFormData((prev) => ({
                             ...prev,
@@ -585,33 +546,28 @@ const AddressProfile = () => {
                             }),
                           ).unwrap();
                         }}
-                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>
-                          กรุณาเลือกอำเภอ
-                        </option>
+                        <option value="" hidden>อำเภอ</option>
                         {districts.map((d: { id: number; name: string }) => (
-                          <option key={d.id} value={d.id}>
-                            {d.name}
-                          </option>
+                          <option key={d.id} value={d.id}>{d.name}</option>
                         ))}
                       </select>
+                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
                     </div>
                   </div>
+                </div>
 
-                  {/* แถวที่ 2: ตำบล & รหัสไปรษณีย์ */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
-                        แขวง/ตำบล
-                      </label>
+                {/* แถวที่ 2: ตำบล & รหัสไปรษณีย์ (คงรูปเป็น 2 คอลัมน์บนโมบายล์ตามรูปภาพตัวอย่าง) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">ตำบล</label>
+                    <div className="relative">
                       <select
                         name="subDistrict"
                         value={formData.subDistrict}
                         disabled={!formData.district}
-                        onChange={async (
-                          e: React.ChangeEvent<HTMLSelectElement>,
-                        ) => {
+                        onChange={async (e: React.ChangeEvent<HTMLSelectElement>) => {
                           const sId = Number(e.target.value);
                           setFormData((prev) => ({
                             ...prev,
@@ -637,23 +593,20 @@ const AddressProfile = () => {
                             }));
                           }
                         }}
-                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>
-                          กรุณาเลือกตำบล
-                        </option>
+                        <option value="" hidden>ตำบล</option>
                         {subdistricts.map((s: { id: number; name: string }) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
+                          <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                       </select>
+                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
                     </div>
+                  </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-base md:text-sm font-normal md:font-semibold text-gray-700">
-                        รหัสไปรษณีย์
-                      </label>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">รหัสไปรษณีย์</label>
+                    <div className="relative">
                       <select
                         value={formData.zipcodeId}
                         disabled={!zipcodes.length}
@@ -667,44 +620,44 @@ const AddressProfile = () => {
                             zipcode: selected?.name || "",
                           }));
                         }}
-                        className="w-full h-11 rounded-lg px-3 text-base md:text-sm bg-gray-100 md:bg-white border border-transparent md:border-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-[#4285F4] outline-none disabled:bg-gray-50 md:disabled:bg-gray-50 disabled:text-gray-400 appearance-none cursor-pointer"
+                        className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>
-                          กรุณาเลือกรหัสไปรษณีย์
-                        </option>
+                        <option value="" hidden>รหัสไปรษณีย์</option>
                         {zipcodes.map((z) => (
-                          <option key={z.id} value={z.id}>
-                            {z.name}
-                          </option>
+                          <option key={z.id} value={z.id}>{z.name}</option>
                         ))}
                       </select>
+                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
                     </div>
                   </div>
                 </div>
               </div>
-              {/* Footer Actions */}
-              <div className="p-4 md:px-6 md:py-5 bg-white md:bg-gray-50 flex flex-col-reverse md:flex-row gap-3 border-t border-gray-100 mt-auto">
+
+              {/* ปุ่ม Action ท้าย Modal แสดงคู่กันซ้ายขวา (บันทึกสีเขียวอยู่ซ้าย, ยกเลิกอยู่ขวา ตามภาพ) */}
+              <div className="mt-6 grid grid-cols-2 gap-3 bg-white">
                 <button
                   data-test="btn-save-address"
                   onClick={handleSaveAddress}
-                  className="w-full md:flex-[2] py-3 md:py-2.5 bg-green-500 md:bg-green-500 text-white rounded-md md:rounded-lg text-[15px] md:text-sm font-medium md:shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="w-full py-2 bg-[#0cc485] hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-md text-sm font-semibold shadow-sm transition-all cursor-pointer text-center"
                 >
-                  {isEditMode ? "บันทึก" : "บันทึก"}
+                  บันทึก
                 </button>
                 <button
                   data-test="btn-cancel-address"
                   onClick={() => setIsModalOpen(false)}
-                  className="hidden md:block flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-white hover:border-gray-400 transition-all cursor-pointer"
+                  className="w-full py-2 border border-gray-300 text-gray-600 rounded-md text-sm font-semibold bg-white hover:bg-gray-50 active:bg-gray-100 transition-all cursor-pointer text-center"
                 >
                   ยกเลิก
                 </button>
               </div>
+
             </div>
           </div>
         )}
 
+        {/* Backdrop กันการคลิกซ้อนตอนบันทึกข้อมูล */}
         {isBlocking && (
-          <div className="fixed inset-0 bg-white/20 z-[999] cursor-wait backdrop-blur-[1px]" />
+          <div className="fixed inset-0 bg-black/10 z-[999] cursor-wait backdrop-blur-[0.5px]" />
         )}
       </div>
     </div>
