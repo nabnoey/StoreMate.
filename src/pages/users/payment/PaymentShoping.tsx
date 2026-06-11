@@ -285,7 +285,16 @@ const PaymentContent = () => {
               </div>
               <button
                 data-test="btn-change-address-mobile"
-                onClick={() => navigate("/address-profile")}
+                // onClick={() => navigate("/address-profile")}
+                onClick={() =>
+  navigate("/address-profile", {
+    state: {
+      from: "payment",
+      items: selectedItems,
+      isBuyNow,
+    },
+  })
+}
                 className="cursor-pointer font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
                 เปลี่ยน

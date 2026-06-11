@@ -1,9 +1,14 @@
+export type UserRole =
+  | "ADMIN"
+  | "MODERATOR"
+  | "USER"
+
 export interface User {
   id: number;
   name: string;
   email: string;
   phone: string;
-  role: string;
+  role: UserRole;
   suspensionReason: string | null;
   suspendAt: string | null;
   suspended: boolean;

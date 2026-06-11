@@ -14,8 +14,12 @@ import {
 } from "../../redux/address/addressReducer";
 import type { Address } from "../../types/address";
 import { Icon } from "@iconify/react";
+import { useLocation } from "react-router-dom";
 
 const AddressProfile = () => {
+  console.log("Address Profile Render");
+
+
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const addresses = useSelector((state: RootState) => state.address.addresses);
@@ -28,6 +32,10 @@ const AddressProfile = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [targetAddressId, setTargetAddressId] = useState<string | null>(null);
   const [isBlocking, setIsBlocking] = useState(false);
+  const location = useLocation();
+const from = location.state?.from;
+
+console.log("location.state =", location.state);
 
   const [formData, setFormData] = useState({
     streetAddress: "",
@@ -342,8 +350,39 @@ return (
         <div className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm">
           <button
             className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors"
-            onClick={() => navigate("/profile")}
+            // onClick={() => navigate("/profile")}
+//             onClick={() => {
+                
+              
+//   if (from === "payment") {
+//     navigate("/payment", {
+//       state: {
+//         items: location.state?.items,
+//         isBuyNow: location.state?.isBuyNow,
+        
+//       },
+      
+//     });
+  
+//   } else {
+//     navigate("/profile");
+//   }
+// }}
+onClick={() => {
+  console.log("BACK STATE", {
+    items: location.state?.items,
+    isBuyNow: location.state?.isBuyNow,
+  });
+
+  navigate("/payment", {
+    state: {
+      items: location.state?.items,
+      isBuyNow: location.state?.isBuyNow,
+    },
+  });
+}}
           >
+            
             <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
           </button>
           <h1 className="text-lg font-bold text-gray-900">ที่อยู่ของฉัน</h1>
