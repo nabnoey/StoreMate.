@@ -96,7 +96,7 @@ function UserManagement() {
           let suspendChanged = false;
 
           if (values.role !== currentRole) {
-            await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role })).unwrap();
+await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role as UserRole })).unwrap();
             roleChanged = true;
           }
 

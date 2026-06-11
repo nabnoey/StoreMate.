@@ -33,7 +33,7 @@ const AddressProfile = () => {
   const [targetAddressId, setTargetAddressId] = useState<string | null>(null);
   const [isBlocking, setIsBlocking] = useState(false);
   const location = useLocation();
-const from = location.state?.from;
+// const from = location.state?.from;
 
 console.log("location.state =", location.state);
 
