@@ -3,17 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import {
-  getProfile,
-  updateProfile,
-  logout,
-} from "../../redux/auth/authReducer";
+import { getProfile, updateProfile } from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
 import { Icon } from "@iconify/react";
 
-// --- Utility Function สำหรับการ Crop รูปภาพ ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -64,7 +59,6 @@ async function getCroppedImg(
   });
 }
 
-// --- Sub-Component: Modal ทั่วไป ---
 interface ModalProps {
   isOpen: boolean;
   title: string;
@@ -257,7 +251,7 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("อัปเดตรูปโปรไฟล์สำเร็จ!", { id: toastId });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
@@ -283,6 +277,15 @@ const ProfilePage = () => {
     const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
 
     try {
+      // ตรวจรูปแบบอีเมล
+      if (activeModal === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(tempData.email)) {
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { id: toastId });
+          return;
+        }
+      }
+
       const fullName =
         `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
 
@@ -301,25 +304,14 @@ const ProfilePage = () => {
 
       await dispatch(updateProfile(formData) as any).unwrap();
 
-      if (tempData.email !== user.email) {
-        toast.success("เปลี่ยนอีเมลสำเร็จ กรุณาเข้าสู่ระบบใหม่ด้วยอีเมลใหม่", {
-          id: toastId,
-        });
-        setActiveModal(null);
-
-        setTimeout(() => {
-          dispatch(logout());
-          window.location.href = "/login";
-        }, 2000);
-        return;
-      }
-
       await dispatch(getProfile() as any).unwrap();
-      toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
+
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
+      // ดึงเอา error ของ BE มาโชว์
       const errorMessage =
         typeof error === "string"
           ? error
@@ -345,13 +337,11 @@ const ProfilePage = () => {
     setActiveModal(null);
   };
 
-  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
   const formatDate = (dateString: string) => {
     if (!dateString || dateString === "null") return "-";
 
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
-    // ถ้าอยากได้ พ.ศ. ปัจจุบัน ให้บวก 543
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
@@ -532,9 +522,14 @@ const ProfilePage = () => {
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       วันที่สมัคร
                     </div>
-                    <div  data-test="profile-created-at" className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
-                      <div className="text-[14px] sm:text-[16px] text-black truncate"
-                      data-test="profile-created-at">
+                    <div
+                      data-test="profile-created-at"
+                      className="flex-1 flex items-center justify-between gap-2 overflow-hidden"
+                    >
+                      <div
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                        data-test="profile-created-at"
+                      >
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
                           : "-"}

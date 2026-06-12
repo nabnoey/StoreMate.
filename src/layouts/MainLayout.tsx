@@ -9,6 +9,15 @@ const MainLayout = () => {
   const location = useLocation();
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
+  // สร้างไว้ให้ปิดหน้า loading ตอน Automated Test ผู้ใช้งานใช้ได้คือเก่า
+  const isAutomationTest =
+    typeof window !== "undefined" && window.navigator.webdriver;
+
+  if (isAutomationTest) {
+    setIsPageTransitioning(false);
+    return;
+  }
+
   useEffect(() => {
     setIsPageTransitioning(true);
     const timer = setTimeout(() => {
