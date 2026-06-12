@@ -40,7 +40,12 @@ export default function Analytic() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await DashboardService.getSalesAnalytics();
+      let periodValue = "day";
+      if (filter === "today") periodValue = "day";
+      else if (filter === "week") periodValue = "week";
+      else if (filter === "month") periodValue = "month";
+
+      const res = await DashboardService.getSalesAnalytics(periodValue);
       setSalesData(res?.data || res);
     } catch (error) {
       console.error("Error loading sales analytics from API:", error);
@@ -51,7 +56,7 @@ export default function Analytic() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [filter]);
 
   if (loading) {
     return <Loading />;
