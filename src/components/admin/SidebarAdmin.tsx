@@ -96,7 +96,7 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all -mt-7.5"
               onClick={() =>
-                navigate(isOwner ? "/owner/dashboard" : "/moderator/dashboard")
+                navigate("/owner/dashboard" )
               }
             >
               <LayoutDashboard size={18} />
@@ -110,7 +110,7 @@ function SidebarAdmin() {
                 data-test="report-button"
                 className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
                 onClick={() =>
-                  navigate(isOwner ? "/owner/analytic" : "/moderator/analytic")
+                  navigate("/owner/analytic")
                 }
               >
                 <TrendingUp size={18} />
@@ -124,7 +124,7 @@ function SidebarAdmin() {
               data-test="stock-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isOwner ? "/owner/stock" : "/moderator/stock")
+                navigate("/moderator/stock")
               }
             >
               <Package size={18} />
@@ -138,7 +138,7 @@ function SidebarAdmin() {
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
 
-                navigate(isOwner ? "/owner/orders" : "/moderator/orders")
+                navigate("/moderator/orders")
               }
             >
               <Truck size={18} />

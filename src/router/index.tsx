@@ -254,23 +254,23 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
-      {
-        path: "stock",
-        element: <Stock />,
-      },
+      // {
+      //   path: "stock",
+      //   element: <Stock />,
+      // },
       {
         path: "analytic",
         element: <Analytic />,
       },
 
-      {
-        path: "ordersMod",
-        element: <Order />,
-      },
-      {
-        path: "ordersMod/:orderNo",
-        element: <OrderDetail />,
-      },
+      // {
+      //   path: "ordersMod",
+      //   element: <Order />,
+      // },
+      // {
+      //   path: "ordersMod/:orderNo",
+      //   element: <OrderDetail />,
+      // },
       {
         path: "refund",
         element: <RefundModeratorPage />,

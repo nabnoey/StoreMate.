@@ -11,13 +11,9 @@ import type {
 /** เรียงลำดับ: เจ้าของร้าน → พนักงาน → ผู้ใช้งาน */
 const ROLE_PRIORITY: Record<string, number> = {
   OWNER: 0,
-  ROLE_OWNER: 0,
   ADMIN: 0,
-  ROLE_ADMIN: 0,
   MODERATOR: 1,
-  ROLE_MODERATOR: 1,
   USER: 2,
-  ROLE_USER: 2,
 };
 
 const initialState: OwnerState = {
@@ -108,8 +104,10 @@ const ownerSlice = createSlice({
 
         // เรียงตาม role: OWNER → MODERATOR → USER
         const sortedUsers = [...(action.payload.data ?? [])].sort((a, b) => {
-          const priorityA = ROLE_PRIORITY[a.role] ?? 99;
-          const priorityB = ROLE_PRIORITY[b.role] ?? 99;
+          const normA = (a.role || "").toUpperCase().replace("ROLE_", "").trim();
+          const normB = (b.role || "").toUpperCase().replace("ROLE_", "").trim();
+          const priorityA = ROLE_PRIORITY[normA] ?? 99;
+          const priorityB = ROLE_PRIORITY[normB] ?? 99;
           return priorityA - priorityB;
         });
         state.users = sortedUsers;
@@ -119,7 +117,7 @@ const ownerSlice = createSlice({
         state.total = action.payload.total ?? 0;
         const total = action.payload.total ?? 0;
         const size = action.payload.size || 5;
-        state.totalPages = Math.ceil(total / size);
+        state.totalPages = (action.payload as any).totalPages ?? Math.ceil(total / size);
 
       })
       .addCase(getUserManagement.rejected, (state, action) => {
