@@ -9,11 +9,14 @@ import { getUserManagement, updateUserRole, suspendUser, activeUser } from "../.
 import type { User, UserRole } from "../../types/owner";
 
 
+
 // ─── Pagination config ───
 const ITEMS_PER_PAGE = 10;
 
+
 /** แปลง role จาก API เป็นภาษาไทย */
 const ROLE_LABEL_MAP: Record<UserRole, string> = {
+  OWNER: "เจ้าของร้าน",
   ADMIN: "เจ้าของร้าน",
   MODERATOR: "พนักงาน",
   USER: "ผู้ใช้งาน",
@@ -53,7 +56,7 @@ function UserManagement() {
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { users, total, loading } = useSelector(
+  const { users } = useSelector(
     (state: RootState) => state.owner
   );
 
@@ -79,18 +82,20 @@ function UserManagement() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      role: selectedUser?.role?.replace("ROLE_", "") === "OWNER"
-        ? "ADMIN"
-        : (selectedUser?.role?.replace("ROLE_", "") || "USER"),
+      // role: selectedUser?.role?.replace("ROLE_", "") === "OWNER"
+      //   ? "ADMIN"
+      //   : (selectedUser?.role?.replace("ROLE_", "") || "USER"),
+      role: selectedUser?.role?.replace("ROLE_", "") || "USER",
       suspended: selectedUser?.suspended ? "suspended" : "active",
     },
     onSubmit: async (values) => {
       if (!selectedUser) return;
 
       try {
-        const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER"
-          ? "ADMIN"
-          : (selectedUser.role.replace("ROLE_", "") || "USER");
+        // const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER"
+        //   ? "ADMIN"
+        //   : (selectedUser.role.replace("ROLE_", "") || "USER");
+         const currentRole = selectedUser.role.replace("ROLE_", "") || "USER";
         const currentSuspended = selectedUser.suspended ? "suspended" : "active";
 
         const roleChanged = values.role !== currentRole;
@@ -140,11 +145,17 @@ function UserManagement() {
   });
 
   // ─── Derived values ───
-  const totalDisplayPages = total > 0 ? Math.ceil(total / ITEMS_PER_PAGE) : 0;
+  // totalDisplayPages will be computed after filtering
 
   // ─── Stable ref สำหรับ setSearchParams ───
+  // const setSearchParamsRef = useRef(setSearchParams);
+  // setSearchParamsRef.current = setSearchParams;
+
   const setSearchParamsRef = useRef(setSearchParams);
+
+useEffect(() => {
   setSearchParamsRef.current = setSearchParams;
+}, [setSearchParams]);
 
   // ฟังก์ชันเขียนค่าลง URL
   const updateSearchParams = useCallback(
@@ -168,20 +179,20 @@ function UserManagement() {
     updateSearchParams(displayPage, activeKeyword);
   }, [displayPage, activeKeyword, updateSearchParams]);
 
-  // เรียกดึงข้อมูลจาก API เมื่อ apiPage หรือ activeKeyword มีการเปลี่ยนแปลง
+  // เรียกดึงข้อมูลจาก API เมื่อ activeKeyword มีการเปลี่ยนแปลง (ดึงทั้งหมดมาแบ่งหน้าเอง)
   useEffect(() => {
     dispatch(
       getUserManagement({
-        page: displayPage - 1,
-        size: ITEMS_PER_PAGE,
+        page: 0,
+        size: 1000,
         search: activeKeyword.trim(),
       })
     );
-  }, [dispatch,displayPage, activeKeyword]);
+  }, [dispatch, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
-    setDisplayPage(1);
+    setDisplayPage(0);
     setActiveKeyword(searchTerm);
   };
 
@@ -202,27 +213,36 @@ function UserManagement() {
       result = result.filter((u) => u.suspended);
     }
 
-    // 3. จัดเรียงลำดับบทบาท (Owner -> Moderator -> User)
     const ROLE_PRIORITY_LOCAL: Record<string, number> = {
-      OWNER: 0, ROLE_OWNER: 0, ADMIN: 0, ROLE_ADMIN: 0,
-      MODERATOR: 1, ROLE_MODERATOR: 1,
-      USER: 2, ROLE_USER: 2,
+      OWNER: 0,
+      ADMIN: 0,
+      MODERATOR: 1,
+      USER: 2,
     };
 
     result.sort((a, b) => {
-      const priorityA = ROLE_PRIORITY_LOCAL[a.role] ?? 99;
-      const priorityB = ROLE_PRIORITY_LOCAL[b.role] ?? 99;
+      const normA = (a.role || "").toUpperCase().replace("ROLE_", "").trim();
+      const normB = (b.role || "").toUpperCase().replace("ROLE_", "").trim();
+      const priorityA = ROLE_PRIORITY_LOCAL[normA] ?? 99;
+      const priorityB = ROLE_PRIORITY_LOCAL[normB] ?? 99;
       return priorityA - priorityB;
     });
 
-    return result; // ไม่ต้องทำ .slice() แล้ว เพราะได้ข้อมูลตรงจำนวนจาก API มาแล้ว
+    return result; 
   }, [users, roleFilter, statusFilter]);
+
+  const totalDisplayPages = Math.ceil(displayedUsers.length / ITEMS_PER_PAGE);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = displayPage * ITEMS_PER_PAGE;
+    return displayedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [displayedUsers, displayPage]);
 
   // ──────────────────────────────────────────────
   // Pagination helpers
   // ──────────────────────────────────────────────
   const handlePageChange = (newDisplayPage: number) => {
-    if (newDisplayPage >= 0 && newDisplayPage <= totalDisplayPages) {
+    if (newDisplayPage >= 0 && newDisplayPage < totalDisplayPages) {
       setDisplayPage(newDisplayPage);
     }
   };
@@ -230,7 +250,7 @@ function UserManagement() {
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (value.trim() === "") {
-      setDisplayPage(1);
+      setDisplayPage(0);
       setActiveKeyword("");
     }
   };
@@ -239,12 +259,12 @@ function UserManagement() {
   const pageNumbers = useMemo(() => {
     if (totalDisplayPages <= 0) return [];
 
-    let start = Math.max(1, displayPage - Math.floor(maxVisiblePages / 2));
+    let start = Math.max(0, displayPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
 
-    if (end > totalDisplayPages) {
-      end = totalDisplayPages;
-      start = Math.max(1, end - maxVisiblePages + 1);
+    if (end >= totalDisplayPages) {
+      end = Math.max(0, totalDisplayPages - 1);
+      start = Math.max(0, end - maxVisiblePages + 1);
     }
 
     const pages: number[] = [];
@@ -304,7 +324,10 @@ function UserManagement() {
                 <select
                   id="role-filter"
                   value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
+                  onChange={(e) => {
+                    setRoleFilter(e.target.value);
+                    setDisplayPage(0);
+                  }}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none"
                 >
                   <option value="">บทบาท</option>
@@ -321,7 +344,10 @@ function UserManagement() {
                 <select
                   id="status-filter"
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setDisplayPage(0);
+                  }}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none"
                 >
                   <option value="">สถานะบัญชี</option>
@@ -347,24 +373,14 @@ function UserManagement() {
               </thead>
 
               <tbody className="divide-y divide-gray-100 text-sm">
-                {loading && (
+                {paginatedUsers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-gray-400">
-                      กำลังโหลด...
+                      ไม่พบข้อมูล
                     </td>
                   </tr>
-                )}
-
-                {!loading && displayedUsers.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400">
-                      ไม่พบข้อมูลผู้ใช้
-                    </td>
-                  </tr>
-                )}
-
-                {!loading &&
-                  displayedUsers.map((user) => {
+                ) : (
+                  paginatedUsers.map((user) => {
                     const status = getStatusBadge(user.suspended);
                     return (
                       <tr
@@ -393,16 +409,19 @@ function UserManagement() {
                           </span>
                         </td>
                         <td className="py-4 text-right">
-                          <button
-                            onClick={() => setSelectedUser(user)}
-                            className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
-                          >
-                            จัดการ
-                          </button>
+                         <button
+  data-test={`management-button-${user.id}`}
+  type="button"
+  onClick={() => setSelectedUser(user)}
+  className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+>
+  จัดการ
+</button>
                         </td>
                       </tr>
                     );
-                  })}
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -414,8 +433,8 @@ function UserManagement() {
                 id="pagination-prev"
                 type="button"
                 onClick={() => handlePageChange(displayPage - 1)}
-                disabled={displayPage === 1}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage === 1
+                disabled={displayPage === 0}
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage === 0
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
                   }`}
@@ -434,7 +453,7 @@ function UserManagement() {
                         : "text-gray-600 hover:bg-gray-50"
                       }`}
                   >
-                    {p}
+                    {p + 1}
                   </button>
                 ))}
               </div>
@@ -443,8 +462,8 @@ function UserManagement() {
                 id="pagination-next"
                 type="button"
                 onClick={() => handlePageChange(displayPage + 1)}
-                disabled={displayPage >= totalDisplayPages}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage >= totalDisplayPages
+                disabled={displayPage >= totalDisplayPages - 1}
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage >= totalDisplayPages - 1
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
                   }`}
