@@ -64,13 +64,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   toast.error(error.message || "เกิดข้อผิดพลาดในการลบสินค้า");
                 }
               }}
-              className="px-4 py-1.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors"
+              className="px-4 py-1.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors cursor-pointer"
             >
               ลบสินค้า
             </button>
             <button
               onClick={() => toast.dismiss(t.id)}
-              className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors"
+              className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors cursor-pointer "
             >
               ยกเลิก
             </button>
@@ -326,7 +326,7 @@ if (isEditMode) {
                     <button
                       type="button"
                       onClick={handleDelete}
-                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors"
+                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors c"
                     >
                       ลบสินค้า
                     </button>

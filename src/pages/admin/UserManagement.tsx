@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import toast from "react-hot-toast";
 import type { AppDispatch, RootState } from "../../redux/store";
-import { getUserManagement, updateUserRole } from "../../redux/owner/ownerReducer";
-import type { User,UserRole } from "../../types/owner";
+import { getUserManagement, updateUserRole, suspendUser, activeUser } from "../../redux/owner/ownerReducer";
+import type { User, UserRole } from "../../types/owner";
 
 
 // ─── Pagination config ───
-const ITEMS_PER_PAGE = 10; 
+const ITEMS_PER_PAGE = 10;
 
 /** แปลง role จาก API เป็นภาษาไทย */
 const ROLE_LABEL_MAP: Record<UserRole, string> = {
@@ -59,7 +59,7 @@ function UserManagement() {
 
   // อ่านหน้าปัจจุบันจาก URL (ค่าเริ่มต้นเริ่มที่หน้า 1)
   const [displayPage, setDisplayPage] = useState(() => {
-    return Number(searchParams.get("page") || 1);
+    return Number(searchParams.get("page") || 0);
   });
 
   // อ่านค่า keyword จาก URL มาเป็นสถานะเริ่มต้น
@@ -67,9 +67,9 @@ function UserManagement() {
     return searchParams.get("keyword") || "";
   });
   const [activeKeyword, setActiveKeyword] = useState(() => {
-    return searchParams.get("keyword") || "";
+    return searchParams.get("search") || "";
   });
-  
+
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -79,58 +79,67 @@ function UserManagement() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      role: selectedUser?.role?.replace("ROLE_", "") === "OWNER" 
-            ? "ADMIN" 
-            : (selectedUser?.role?.replace("ROLE_", "") || "USER"),
+      role: selectedUser?.role?.replace("ROLE_", "") === "OWNER"
+        ? "ADMIN"
+        : (selectedUser?.role?.replace("ROLE_", "") || "USER"),
       suspended: selectedUser?.suspended ? "suspended" : "active",
     },
     onSubmit: async (values) => {
-      if (selectedUser) {
-        try {
-          const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER" 
-            ? "ADMIN" 
-            : (selectedUser.role.replace("ROLE_", "") || "USER");
-          const currentSuspended = selectedUser.suspended ? "suspended" : "active";
-          
-          let roleChanged = false;
-          let suspendChanged = false;
+      if (!selectedUser) return;
 
-          if (values.role !== currentRole) {
-await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role as UserRole })).unwrap();
-            roleChanged = true;
-          }
+      try {
+        const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER"
+          ? "ADMIN"
+          : (selectedUser.role.replace("ROLE_", "") || "USER");
+        const currentSuspended = selectedUser.suspended ? "suspended" : "active";
 
-          if (values.suspended !== currentSuspended) {
-            const { suspendUser, activeUser } = await import("../../redux/owner/ownerReducer");
-            if (values.suspended === "suspended") {
-              await dispatch(suspendUser(selectedUser.id)).unwrap();
-            } else {
-              await dispatch(activeUser(selectedUser.id)).unwrap();
-            }
-            suspendChanged = true;
-          }
+        const roleChanged = values.role !== currentRole;
+        const suspendChanged = values.suspended !== currentSuspended;
 
-          if (roleChanged && suspendChanged) {
-             toast.success("อัปเดตบทบาทและสถานะสำเร็จ");
-          } else if (roleChanged) {
-             toast.success("อัปเดตบทบาทสำเร็จ");
-          } else if (suspendChanged) {
-             toast.success("อัปเดตสถานะสำเร็จ");
-          } else {
-             toast.success("อัปเดตสำเร็จ");
-          }
-
+        if (!roleChanged && !suspendChanged) {
           setSelectedUser(null);
-        } catch{
-          toast.error("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
+          return;
         }
+
+        const promises: Promise<any>[] = [];
+
+        // 1. Update Role
+        if (roleChanged) {
+          promises.push(dispatch(updateUserRole({
+            userId: selectedUser.id,
+            roleName: values.role as UserRole
+          })).unwrap());
+        }
+
+        // 2. Update Status
+        if (suspendChanged) {
+          if (values.suspended === "suspended") {
+            promises.push(dispatch(suspendUser(selectedUser.id)).unwrap());
+          } else {
+            promises.push(dispatch(activeUser(selectedUser.id)).unwrap());
+          }
+        }
+
+        await Promise.all(promises);
+
+        // 3. Show success toast and close modal
+        if (roleChanged && suspendChanged) {
+          toast.success("อัปเดตบทบาทและสถานะสำเร็จ");
+        } else if (roleChanged) {
+          toast.success("อัปเดตบทบาทสำเร็จ");
+        } else if (suspendChanged) {
+          toast.success("อัปเดตสถานะสำเร็จ");
+        }
+
+        setSelectedUser(null);
+      } catch (error) {
+        console.error("Update error:", error);
+        toast.error("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
       }
     },
   });
 
   // ─── Derived values ───
-  // แปลงหน้าแสดงผล (1-based) เป็นหน้าสำหรับส่งให้ API (0-based)
-  const apiPage = displayPage - 1;
   const totalDisplayPages = total > 0 ? Math.ceil(total / ITEMS_PER_PAGE) : 0;
 
   // ─── Stable ref สำหรับ setSearchParams ───
@@ -146,7 +155,7 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
       };
 
       if (keywordValue.trim()) {
-        params.keyword = keywordValue.trim();
+        params.search = keywordValue.trim();
       }
 
       setSearchParamsRef.current(params, { replace: true });
@@ -163,16 +172,16 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
   useEffect(() => {
     dispatch(
       getUserManagement({
-        page: apiPage,
+        page: displayPage,
         size: ITEMS_PER_PAGE,
-        keyword: activeKeyword.trim(),
+        search: activeKeyword.trim(),
       })
     );
-  }, [dispatch, apiPage, activeKeyword]);
+  }, [dispatch, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
-    setDisplayPage(1); // ย้อนกลับไปหน้าแรกเมื่อค้นหาคำใหม่
+    setDisplayPage(1);
     setActiveKeyword(searchTerm);
   };
 
@@ -180,7 +189,7 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
     let result: User[] = [...users];
 
     if (roleFilter) {
-      const matchRoles:string[] = [roleFilter, `ROLE_${roleFilter}`];
+      const matchRoles: string[] = [roleFilter, `ROLE_${roleFilter}`];
       if (roleFilter === "ADMIN" || roleFilter === "OWNER") {
         matchRoles.push("ADMIN");
       }
@@ -384,7 +393,7 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                           </span>
                         </td>
                         <td className="py-4 text-right">
-                          <button 
+                          <button
                             onClick={() => setSelectedUser(user)}
                             className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
                           >
@@ -406,11 +415,10 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                 type="button"
                 onClick={() => handlePageChange(displayPage - 1)}
                 disabled={displayPage === 1}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${
-                  displayPage === 1
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage === 1
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 ก่อนหน้า
               </button>
@@ -421,11 +429,10 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                     key={p}
                     type="button"
                     onClick={() => handlePageChange(p)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                      p === displayPage
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${p === displayPage
                         ? "text-blue-600 font-bold bg-transparent"
                         : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {p}
                   </button>
@@ -437,11 +444,10 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                 type="button"
                 onClick={() => handlePageChange(displayPage + 1)}
                 disabled={displayPage >= totalDisplayPages}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${
-                  displayPage >= totalDisplayPages
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage >= totalDisplayPages
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 ต่อไป
               </button>
@@ -457,37 +463,37 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
             <div className="bg-[#3B82F6] p-6 text-center">
               <h3 className="text-white text-xl font-bold tracking-wide">บัญชีผู้ใช้</h3>
             </div>
-            
+
             <form onSubmit={formik.handleSubmit} className="p-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-8">
                 <div className="space-y-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">ชื่อ - นามสกุล</label>
-                    <input 
-                      type="text" 
-                      disabled 
-                      value={selectedUser.name} 
+                    <input
+                      type="text"
+                      disabled
+                      value={selectedUser.name}
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">อีเมล</label>
-                    <input 
-                      type="text" 
-                      disabled 
-                      value={selectedUser.email} 
+                    <input
+                      type="text"
+                      disabled
+                      value={selectedUser.email}
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 outline-none"
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-5">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">เบอร์โทรศัพท์</label>
-                    <input 
-                      type="text" 
-                      disabled 
-                      value={selectedUser.phone ?? "-"} 
+                    <input
+                      type="text"
+                      disabled
+                      value={selectedUser.phone ?? "-"}
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 outline-none"
                     />
                   </div>
@@ -498,13 +504,12 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                         name="role"
                         value={formik.values.role}
                         onChange={formik.handleChange}
-                        className={`w-full px-2 py-2 border-none rounded-lg text-xs font-medium focus:outline-none cursor-pointer ${
-                          formik.values.role === "ADMIN" || formik.values.role === "OWNER"
+                        className={`w-full px-2 py-2 border-none rounded-lg text-xs font-medium focus:outline-none cursor-pointer ${formik.values.role === "ADMIN" || formik.values.role === "OWNER"
                             ? "bg-[#F3E8FF] text-[#7E22CE]"
                             : formik.values.role === "MODERATOR"
-                            ? "bg-[#EFF6FF] text-[#1D4ED8]"
-                            : "bg-[#F3F4F6] text-[#4B5563]"
-                        }`}
+                              ? "bg-[#EFF6FF] text-[#1D4ED8]"
+                              : "bg-[#F3F4F6] text-[#4B5563]"
+                          }`}
                       >
                         <option value="ADMIN">เจ้าของร้าน</option>
                         <option value="MODERATOR">พนักงาน</option>
@@ -517,11 +522,10 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
                         name="suspended"
                         value={formik.values.suspended}
                         onChange={formik.handleChange}
-                        className={`w-full px-2 py-2 border-none rounded-lg text-xs font-medium focus:outline-none cursor-pointer ${
-                          formik.values.suspended === "suspended"
+                        className={`w-full px-2 py-2 border-none rounded-lg text-xs font-medium focus:outline-none cursor-pointer ${formik.values.suspended === "suspended"
                             ? "bg-[#FEE2E2] text-[#DC2626]"
                             : "bg-[#E8F5E9] text-[#2E7D32]"
-                        }`}
+                          }`}
                       >
                         <option value="active">ใช้งานได้</option>
                         <option value="suspended">ระงับการใช้งาน</option>

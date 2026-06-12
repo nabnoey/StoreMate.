@@ -5,10 +5,10 @@ import type {Store} from "../types/owner"
 const getUserManagement = async (
   page?: number,
   size?: number,
-  keyword?: string
+  search?: string
 ) => {
   const res = await api.get(`${import.meta.env.VITE_OWNER_API}/users`, {
-    params: { page, size , keyword},
+    params: { page, size , search},
   });
   return res.data;
 };
@@ -48,7 +48,7 @@ const getStore = async () => {
 
 //   return res.data;
 // };
-const updateStore = async (data: Store) => {
+const updateStore = async ( data: Store) => {
   const formData = new FormData();
 
   const requestPayload = {

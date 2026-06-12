@@ -30,14 +30,16 @@ const initialState: OwnerState = {
   error: null,
   store: null,
 };
-
 export const getUserManagement = createAsyncThunk<
   UserManagementResponse,
   GetUserManagementParams
->("owner/getUserManagement", async ({ page, size, keyword}) => {
-  const res = await ownerService.getUserManagement(page, size, keyword);
-  return res;
-});
+>(
+  "owner/getUserManagement",
+  async ({ page, size, search }) => {
+    const res = await ownerService.getUserManagement(page, size, search);
+    return res;
+  }
+);
 
 export const getStore = createAsyncThunk("owner/getStore", async () => {
   const res = await ownerService.getStore();
@@ -127,25 +129,25 @@ const ownerSlice = createSlice({
       })
 
       .addCase(getStore.fulfilled, (state, action) => {
-        const  storeData = { ...action.payload };
-        
+        const storeData = { ...action.payload };
+
         // If province is missing or empty but streetAddress contains it, try to parse
         if (storeData.streetAddress && (!storeData.province || storeData.province === "")) {
           const fullAddress = storeData.streetAddress;
-          
+
           const zipMatch = fullAddress.match(/\b(\d{5})\b/);
           if (zipMatch) storeData.zipcode = zipMatch[1];
-          
+
           // Non-greedy matches looking ahead for the next expected keyword or end of string
           const provMatch = fullAddress.match(/(?:จ\.|จังหวัด)\s*(.*?)(?=\s*(?:\d{5}|$))/);
           if (provMatch) storeData.province = provMatch[1].trim();
-          
+
           const distMatch = fullAddress.match(/(?:อ\.|อำเภอ|เขต)\s*(.*?)(?=\s*(?:จ\.|จังหวัด|\d{5}|$))/);
           if (distMatch) storeData.district = distMatch[1].trim();
-          
+
           const subMatch = fullAddress.match(/(?:ต\.|ตำบล|แขวง)\s*(.*?)(?=\s*(?:อ\.|อำเภอ|เขต|จ\.|จังหวัด|\d{5}|$))/);
           if (subMatch) storeData.subdistrict = subMatch[1].trim();
-          
+
           // Clean up streetAddress by taking the substring before the first admin division
           let streetAddrEnd = fullAddress.length;
           const matchT = fullAddress.search(/(?:ต\.|ตำบล|แขวง)/);
@@ -156,41 +158,38 @@ const ownerSlice = createSlice({
           if (matchJ !== -1 && matchJ < streetAddrEnd) streetAddrEnd = matchJ;
           const matchZ = fullAddress.search(/\b\d{5}\b/);
           if (matchZ !== -1 && matchZ < streetAddrEnd) streetAddrEnd = matchZ;
-          
+
           storeData.streetAddress = fullAddress.substring(0, streetAddrEnd).trim();
         }
-        
-      
+
+
         state.store = storeData;
       })
 
 
 
-//       .addCase(updateStore.fulfilled, (state, action) => {
-//   state.loading = false;
+      //       .addCase(updateStore.fulfilled, (state, action) => {
+      //   state.loading = false;
 
-//   const updatedStore = action.payload?.data || action.payload;
-  
-//   if (updatedStore && updatedStore.storeName) {
-//     state.store = updatedStore;
-//   }
-// })
-//       .addCase(suspendUser.fulfilled, (state, action) => {
-//         const { userId, response } = action.payload;
-//         const user = state.users.find((u) => u.id === userId);
-//         if (user) {
-//           const updatedData = response?.data || response;
-//           if (updatedData && typeof updatedData.suspended === 'boolean') {
-//             user.suspended = updatedData.suspended;
-//           } else {
-//             user.suspended = true; // explicitly set to suspended
-//           }
-//         }
-//       })
+      //   const updatedStore = action.payload?.data || action.payload;
 
-.addCase(updateStore.fulfilled, (state, action) => {
-  state.store = action.payload;
-})
+      //   if (updatedStore && updatedStore.storeName) {
+      //     state.store = updatedStore;
+      //   }
+      // })
+      .addCase(suspendUser.fulfilled, (state, action) => {
+        const { userId, response } = action.payload;
+        const user = state.users.find((u) => u.id === userId);
+        if (user) {
+          const updatedData = response?.data || response;
+          // API returns the updated user object or the state
+          if (updatedData && typeof updatedData.suspended === 'boolean') {
+            user.suspended = updatedData.suspended;
+          } else {
+            user.suspended = true;
+          }
+        }
+      })
       .addCase(activeUser.fulfilled, (state, action) => {
         const { userId, response } = action.payload;
         const user = state.users.find((u) => u.id === userId);
@@ -199,13 +198,21 @@ const ownerSlice = createSlice({
           if (updatedData && typeof updatedData.suspended === 'boolean') {
             user.suspended = updatedData.suspended;
           } else {
-            user.suspended = false; // explicitly set to active (not suspended)
+            user.suspended = false;
           }
         }
       })
-// .addCase(updateStore.fulfilled, (state, action) => {
-//   state.store = action.payload;
-// })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        const { userId, roleName } = action.payload;
+        const user = state.users.find((u) => u.id === userId);
+        if (user) {
+          user.role = roleName;
+        }
+      })
+
+      .addCase(updateStore.fulfilled, (state, action) => {
+        state.store = action.payload;
+      })
 
   },
 });
