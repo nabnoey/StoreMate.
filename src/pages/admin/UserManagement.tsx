@@ -67,7 +67,7 @@ function UserManagement() {
     return searchParams.get("keyword") || "";
   });
   const [activeKeyword, setActiveKeyword] = useState(() => {
-    return searchParams.get("keyword") || "";
+    return searchParams.get("search") || "";
   });
   
   const [roleFilter, setRoleFilter] = useState("");
@@ -84,7 +84,7 @@ function UserManagement() {
             : (selectedUser?.role?.replace("ROLE_", "") || "USER"),
       suspended: selectedUser?.suspended ? "suspended" : "active",
     },
-    onSubmit: async (values) => {
+   onSubmit: async (values) => {
       if (selectedUser) {
         try {
           const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER" 
@@ -95,21 +95,31 @@ function UserManagement() {
           let roleChanged = false;
           let suspendChanged = false;
 
+          // 1. ยิง API อัปเดตบทบาท
           if (values.role !== currentRole) {
-await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role as UserRole })).unwrap();
+            await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role as UserRole })).unwrap();
             roleChanged = true;
+            
+            // 🔥 อัปเดตค่าในตัวแปร Object บนหน้าจอนี้ทันที
+            selectedUser.role = (values.role.startsWith("ROLE_") ? values.role : `ROLE_${values.role}`) as UserRole;
           }
 
+          // 2. ยิง API อัปเดตสถานะ (ระงับ/ใช้งาน)
           if (values.suspended !== currentSuspended) {
             const { suspendUser, activeUser } = await import("../../redux/owner/ownerReducer");
             if (values.suspended === "suspended") {
               await dispatch(suspendUser(selectedUser.id)).unwrap();
+              // 🔥 อัปเดตค่าในตัวแปร Object บนหน้าจอนี้ทันที
+              selectedUser.suspended = true;
             } else {
               await dispatch(activeUser(selectedUser.id)).unwrap();
+              // 🔥 อัปเดตค่าในตัวแปร Object บนหน้าจอนี้ทันที
+              selectedUser.suspended = false;
             }
             suspendChanged = true;
           }
 
+          // 3. แสดงแจ้งเตือนความสำเร็จ
           if (roleChanged && suspendChanged) {
              toast.success("อัปเดตบทบาทและสถานะสำเร็จ");
           } else if (roleChanged) {
@@ -120,8 +130,11 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
              toast.success("อัปเดตสำเร็จ");
           }
 
+          // ─── 🌟 จุดสำคัญ ───
+          // สั่งปิด Modal ทันที ข้อมูลในตารางแถวนั้นจะเปลี่ยนตาม SelectedUser ที่เราแอบไปเปลี่ยนค่ามันเมื่อกี้แบบเนียนๆ
           setSelectedUser(null);
-        } catch{
+
+        } catch {
           toast.error("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
         }
       }
@@ -146,7 +159,7 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
       };
 
       if (keywordValue.trim()) {
-        params.keyword = keywordValue.trim();
+        params.search = keywordValue.trim();
       }
 
       setSearchParamsRef.current(params, { replace: true });
@@ -158,31 +171,22 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
   useEffect(() => {
     updateSearchParams(displayPage, activeKeyword);
   }, [displayPage, activeKeyword, updateSearchParams]);
-  useEffect(() => {
-dispatch(
-  getUserManagement({
-    page: apiPage,
-    size: ITEMS_PER_PAGE,
-    keyword: (activeKeyword ?? "").trim(),
-  })
-);
-}, [dispatch, apiPage, activeKeyword]);
 
   // เรียกดึงข้อมูลจาก API เมื่อ apiPage หรือ activeKeyword มีการเปลี่ยนแปลง
-  // useEffect(() => {
-  //   dispatch(
-  //     getUserManagement({
-  //       page: apiPage,
-  //       size: ITEMS_PER_PAGE,
-  //       keyword: activeKeyword.trim(),
-  //     })
-  //   );
-  // }, [dispatch, apiPage, activeKeyword]);
+  useEffect(() => {
+    dispatch(
+      getUserManagement({
+        page: apiPage,
+        size: ITEMS_PER_PAGE,
+        search: activeKeyword.trim(),
+      })
+    );
+  }, [dispatch, apiPage, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
     setDisplayPage(1); 
-    setActiveKeyword(searchTerm.trim());
+    setActiveKeyword(searchTerm);
   };
 
   const displayedUsers = useMemo(() => {

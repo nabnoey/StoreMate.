@@ -30,14 +30,16 @@ const initialState: OwnerState = {
   error: null,
   store: null,
 };
-
 export const getUserManagement = createAsyncThunk<
   UserManagementResponse,
   GetUserManagementParams
->("owner/getUserManagement", async ({ page, size, keyword}) => {
-  const res = await ownerService.getUserManagement(page, size, keyword);
-  return res;
-});
+>(
+  "owner/getUserManagement", 
+  async ({ page, size, search }) => { 
+    const res = await ownerService.getUserManagement(page, size, search);
+    return res;
+  }
+);
 
 export const getStore = createAsyncThunk("owner/getStore", async () => {
   const res = await ownerService.getStore();
@@ -175,18 +177,18 @@ const ownerSlice = createSlice({
 //     state.store = updatedStore;
 //   }
 // })
-//       .addCase(suspendUser.fulfilled, (state, action) => {
-//         const { userId, response } = action.payload;
-//         const user = state.users.find((u) => u.id === userId);
-//         if (user) {
-//           const updatedData = response?.data || response;
-//           if (updatedData && typeof updatedData.suspended === 'boolean') {
-//             user.suspended = updatedData.suspended;
-//           } else {
-//             user.suspended = true; // explicitly set to suspended
-//           }
-//         }
-//       })
+      .addCase(suspendUser.fulfilled, (state, action) => {
+        const { userId, response } = action.payload;
+        const user = state.users.find((u) => u.id === userId);
+        if (user) {
+          const updatedData = response?.data || response;
+          if (updatedData && typeof updatedData.suspended === 'boolean') {
+            user.suspended = updatedData.suspended;
+          } else {
+            user.suspended = true; // explicitly set to suspended
+          }
+        }
+      })
 
 // .addCase(updateStore.fulfilled, (state, action) => {
 //   state.store = action.payload;

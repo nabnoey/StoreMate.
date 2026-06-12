@@ -42,7 +42,7 @@ export interface OwnerState {
 export interface GetUserManagementParams {
   page: number;
   size: number;
-  keyword?: string;
+  search?: string;
 }
 
 /** API response จาก GET /owner/users?page=0&size=5 */
