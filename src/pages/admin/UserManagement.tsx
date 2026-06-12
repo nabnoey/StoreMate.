@@ -64,7 +64,7 @@ function UserManagement() {
 
   // อ่านค่า keyword จาก URL มาเป็นสถานะเริ่มต้น
   const [searchTerm, setSearchTerm] = useState(() => {
-    return searchParams.get("keyword") || "";
+    return searchParams.get("search") || "";
   });
   const [activeKeyword, setActiveKeyword] = useState(() => {
     return searchParams.get("search") || "";
@@ -172,12 +172,12 @@ function UserManagement() {
   useEffect(() => {
     dispatch(
       getUserManagement({
-        page: displayPage,
+        page: displayPage - 1,
         size: ITEMS_PER_PAGE,
         search: activeKeyword.trim(),
       })
     );
-  }, [dispatch, activeKeyword]);
+  }, [dispatch,displayPage, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
@@ -222,7 +222,7 @@ function UserManagement() {
   // Pagination helpers
   // ──────────────────────────────────────────────
   const handlePageChange = (newDisplayPage: number) => {
-    if (newDisplayPage >= 1 && newDisplayPage <= totalDisplayPages) {
+    if (newDisplayPage >= 0 && newDisplayPage <= totalDisplayPages) {
       setDisplayPage(newDisplayPage);
     }
   };
@@ -333,7 +333,7 @@ function UserManagement() {
           </div>
 
           {/* ─── Table ─── */}
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto relative">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-gray-200 text-gray-500 text-sm font-medium">
