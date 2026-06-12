@@ -188,24 +188,24 @@ const ownerSlice = createSlice({
 //         }
 //       })
 
-.addCase(updateStore.fulfilled, (state, action) => {
-  state.store = action.payload;
-})
-      .addCase(activeUser.fulfilled, (state, action) => {
-        const { userId, response } = action.payload;
-        const user = state.users.find((u) => u.id === userId);
-        if (user) {
-          const updatedData = response?.data || response;
-          if (updatedData && typeof updatedData.suspended === 'boolean') {
-            user.suspended = updatedData.suspended;
-          } else {
-            user.suspended = false; // explicitly set to active (not suspended)
-          }
-        }
-      })
 // .addCase(updateStore.fulfilled, (state, action) => {
 //   state.store = action.payload;
 // })
+//       .addCase(activeUser.fulfilled, (state, action) => {
+//         const { userId, response } = action.payload;
+//         const user = state.users.find((u) => u.id === userId);
+//         if (user) {
+//           const updatedData = response?.data || response;
+//           if (updatedData && typeof updatedData.suspended === 'boolean') {
+//             user.suspended = updatedData.suspended;
+//           } else {
+//             user.suspended = false; // explicitly set to active (not suspended)
+//           }
+//         }
+//       })
+.addCase(updateStore.fulfilled, (state, action) => {
+  state.store = action.payload;
+})
 
   },
 });

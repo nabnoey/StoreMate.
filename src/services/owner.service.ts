@@ -48,7 +48,7 @@ const getStore = async () => {
 
 //   return res.data;
 // };
-const updateStore = async (data: Store) => {
+const updateStore = async ( data: Store) => {
   const formData = new FormData();
 
   const requestPayload = {

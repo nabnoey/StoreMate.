@@ -158,22 +158,31 @@ await dispatch(updateUserRole({ userId: selectedUser.id, roleName: values.role a
   useEffect(() => {
     updateSearchParams(displayPage, activeKeyword);
   }, [displayPage, activeKeyword, updateSearchParams]);
+  useEffect(() => {
+dispatch(
+  getUserManagement({
+    page: apiPage,
+    size: ITEMS_PER_PAGE,
+    keyword: (activeKeyword ?? "").trim(),
+  })
+);
+}, [dispatch, apiPage, activeKeyword]);
 
   // เรียกดึงข้อมูลจาก API เมื่อ apiPage หรือ activeKeyword มีการเปลี่ยนแปลง
-  useEffect(() => {
-    dispatch(
-      getUserManagement({
-        page: apiPage,
-        size: ITEMS_PER_PAGE,
-        keyword: activeKeyword.trim(),
-      })
-    );
-  }, [dispatch, apiPage, activeKeyword]);
+  // useEffect(() => {
+  //   dispatch(
+  //     getUserManagement({
+  //       page: apiPage,
+  //       size: ITEMS_PER_PAGE,
+  //       keyword: activeKeyword.trim(),
+  //     })
+  //   );
+  // }, [dispatch, apiPage, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
-    setDisplayPage(1); // ย้อนกลับไปหน้าแรกเมื่อค้นหาคำใหม่
-    setActiveKeyword(searchTerm);
+    setDisplayPage(1); 
+    setActiveKeyword(searchTerm.trim());
   };
 
   const displayedUsers = useMemo(() => {

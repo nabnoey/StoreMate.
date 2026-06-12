@@ -310,7 +310,13 @@ function StoreEdit() {
                           {zipcodes.map((z: { id: number; name: string }) => {
                             return (
 
-                            <option key={z.id} value={z.name}>{z.name}</option>
+                           <option 
+  key={z.id} 
+  value={z.id} 
+  selected={z.name === values.zipcode}
+>
+  {z.name}
+</option>
                             )
 
             })}
