@@ -23,11 +23,11 @@ const StoreEditSchema = Yup.object().shape({
 function StoreEdit() {
   const dispatch = useDispatch<AppDispatch>();
   const { store, loading } = useSelector((state: RootState) => state.owner);
-  
+
   const { provinces, districts, subdistricts } = useSelector(
     (state: RootState) => state.address
   );
-  
+
   const [zipcodes, setZipcodes] = useState<{ id: number; name: string }[]>([]);
   const [selectedAddressIds, setSelectedAddressIds] = useState({
     provinceId: 0,
@@ -36,6 +36,7 @@ function StoreEdit() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+
 
   useEffect(() => {
     dispatch(getStore());
@@ -50,27 +51,27 @@ function StoreEdit() {
 
         let dId = 0;
         if (pId) {
-           const distResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: 0, subdistrictId: 0 })).unwrap();
-           const distRes = Array.isArray(distResRaw) ? distResRaw : distResRaw?.data || [];
-           dId = distRes.find((d: { id: number; name: string }) => d.name === store.district)?.id || 0;
+          const distResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: 0, subdistrictId: 0 })).unwrap();
+          const distRes = Array.isArray(distResRaw) ? distResRaw : distResRaw?.data || [];
+          dId = distRes.find((d: { id: number; name: string }) => d.name === store.district)?.id || 0;
         }
 
         let sId = 0;
         if (dId) {
-           const subResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: dId, subdistrictId: 0 })).unwrap();
-           const subRes = Array.isArray(subResRaw) ? subResRaw : subResRaw?.data || [];
-           sId = subRes.find((s: { id: number; name: string }) => s.name === store.subdistrict)?.id || 0;
+          const subResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: dId, subdistrictId: 0 })).unwrap();
+          const subRes = Array.isArray(subResRaw) ? subResRaw : subResRaw?.data || [];
+          sId = subRes.find((s: { id: number; name: string }) => s.name === store.subdistrict)?.id || 0;
         }
 
         if (sId) {
-           const zipResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: dId, subdistrictId: sId })).unwrap();
-           const zipRes = Array.isArray(zipResRaw) ? zipResRaw : zipResRaw?.data || [];
-           setZipcodes(zipRes);
+          const zipResRaw = await dispatch(addressDropdown({ provinceId: pId, districtId: dId, subdistrictId: sId })).unwrap();
+          const zipRes = Array.isArray(zipResRaw) ? zipResRaw : zipResRaw?.data || [];
+          setZipcodes(zipRes);
         }
 
         setSelectedAddressIds({ provinceId: pId, districtId: dId, subdistrictId: sId });
       } else {
-         dispatch(addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }));
+        dispatch(addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }));
       }
     };
 
@@ -109,13 +110,19 @@ function StoreEdit() {
           {loading && (
             <div className="text-center text-gray-500 mb-4 animate-pulse">กำลังโหลดข้อมูลร้านค้า...</div>
           )}
-          
+
           <Formik
             enableReinitialize={true}
             initialValues={initialValues}
             validationSchema={StoreEditSchema}
             onSubmit={(values) => {
-              dispatch(updateStore(values as import("../../types/owner").Store))
+              const selectedZip = zipcodes.find(z => z.name === values.zipcode);
+              const dataToSend = {
+                ...values,
+                zipcode: selectedZip ? selectedZip.id : values.zipcode
+              };
+
+              dispatch(updateStore(dataToSend as import("../../types/owner").Store))
                 .unwrap()
                 .then(() => {
                   toast.success("บันทึกข้อมูลร้านค้าสำเร็จ");
@@ -127,7 +134,7 @@ function StoreEdit() {
             }}
           >
             {({ setFieldValue, values, isSubmitting, handleBlur, handleChange, touched, errors }) => {
-              
+
               const getSelectClass = (fieldName: keyof typeof initialValues) => {
                 return `${inputClass} cursor-pointer appearance-none ${touched[fieldName] && errors[fieldName] ? "border-red-500 focus:ring-red-500/40 focus:border-red-500" : ""}`;
               };
@@ -142,6 +149,7 @@ function StoreEdit() {
                         <label className={labelClass}>ชื่อร้านค้า</label>
                         <Field
                           type="text"
+                          data-test="store-name-input"
                           name="storeName"
                           placeholder="ชื่อร้านค้า"
                           className={`${inputClass} ${touched.storeName && errors.storeName ? "border-red-500" : ""}`}
@@ -154,6 +162,7 @@ function StoreEdit() {
                           <label className={labelClass}>อีเมลร้านค้า</label>
                           <Field
                             type="email"
+                            data-test="store-email-input"
                             name="email"
                             placeholder="shop@example.com"
                             className={`${inputClass} ${touched.email && errors.email ? "border-red-500" : ""}`}
@@ -164,6 +173,7 @@ function StoreEdit() {
                           <label className={labelClass}>เบอร์โทรศัพท์</label>
                           <Field
                             type="text"
+                            data-test="store-phone-input"
                             name="phone"
                             placeholder="099-999-9999"
                             className={`${inputClass} ${touched.phone && errors.phone ? "border-red-500" : ""}`}
@@ -177,11 +187,12 @@ function StoreEdit() {
                   {/* ที่อยู่ร้านค้า */}
                   <section>
                     <h2 className="text-xl font-bold text-gray-800 mb-5 pb-2 border-b border-gray-200">ที่อยู่ร้านค้า</h2>
-                    
+
                     <div className="mb-5">
                       <label className={labelClass}>ที่อยู่ (บ้านเลขที่ / ถนน / ซอย)</label>
                       <Field
                         type="text"
+                        data-test="store-address-input"
                         name="streetAddress"
                         placeholder="บ้านเลขที่ / ถนน / ซอย"
                         className={`${inputClass} ${touched.streetAddress && errors.streetAddress ? "border-red-500" : ""}`}
@@ -194,6 +205,7 @@ function StoreEdit() {
                         <label className={labelClass}>จังหวัด</label>
                         <select
                           name="province"
+                          data-test="province-select"
                           value={values.province}
                           onChange={async (e) => {
                             const selectedName = e.target.value;
@@ -221,11 +233,12 @@ function StoreEdit() {
                         </select>
                         <ErrorMessage name="province" component="div" className={errorTextClass} />
                       </div>
-                      
+
                       <div className="relative">
                         <label className={labelClass}>อำเภอ</label>
                         <select
                           name="district"
+                          data-test="district-select"
                           value={values.district}
                           disabled={!selectedAddressIds.provinceId}
                           onChange={async (e) => {
@@ -258,6 +271,7 @@ function StoreEdit() {
                         <label className={labelClass}>ตำบล</label>
                         <select
                           name="subdistrict"
+                          data-test="subdistrict-select"
                           value={values.subdistrict}
                           disabled={!selectedAddressIds.districtId}
                           onChange={async (e) => {
@@ -304,22 +318,17 @@ function StoreEdit() {
                           onBlur={handleBlur}
                           className={`${getSelectClass("zipcode")} disabled:bg-gray-100 disabled:text-gray-400`}
                         >
-          
+
 
                           <option value="" hidden>กรุณาเลือกรหัสไปรษณีย์</option>
                           {zipcodes.map((z: { id: number; name: string }) => {
                             return (
-
-                           <option 
-  key={z.id} 
-  value={z.id} 
-  selected={z.name === values.zipcode}
->
-  {z.name}
-</option>
+                              <option key={z.id} value={z.name}>
+                                {z.name}
+                              </option>
                             )
 
-            })}
+                          })}
 
                         </select>
                         <ErrorMessage name="zipcode" component="div" className={errorTextClass} />
@@ -356,20 +365,20 @@ function StoreEdit() {
                           }
                         }}
                       />
-                      
+
                       {preview || values.promotionImage ? (
                         <div className="text-center w-full">
-                          <img 
-                            src={preview || (typeof values.promotionImage === 'string' ? values.promotionImage : '')} 
-                            alt="Preview" 
+                          <img
+                            src={preview || (typeof values.promotionImage === 'string' ? values.promotionImage : '')}
+                            alt="Preview"
                             className="max-h-48 rounded-lg object-contain mx-auto mb-3 shadow-sm"
                           />
                           <p className="text-sm text-gray-600 truncate max-w-[250px] sm:max-w-xs mx-auto">
-                            {typeof values.promotionImage === 'object' && values.promotionImage !== null 
-                              ? (values.promotionImage as File).name 
+                            {typeof values.promotionImage === 'object' && values.promotionImage !== null
+                              ? (values.promotionImage as File).name
                               : 'รูปภาพปัจจุบัน'}
                           </p>
-                          <p className="text-xs text-blue-500 mt-2 font-medium group-hover:text-blue-600 transition-colors">คลิกเพื่อเปลี่ยนรูปภาพใหม่</p>
+                          <p className="text-xs text-blue-500 mt-2 font-medium group-hover:text-blue-600 transition-colors" data-test="click-change-img">คลิกเพื่อเปลี่ยนรูปภาพใหม่</p>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center">
@@ -391,14 +400,16 @@ function StoreEdit() {
                   <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200 mt-8">
                     <button
                       type="button"
-                      className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors shadow-sm order-2 sm:order-1"
+                      data-test="store-cancel-button"
+                      className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors shadow-sm order-2 sm:order-1 cursor-pointer"
                     >
                       ยกเลิก
                     </button>
                     <button
                       type="submit"
+                      data-test="store-save-button"
                       disabled={isSubmitting}
-                      className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-[#003399] hover:bg-blue-800 text-white rounded-lg font-medium transition-colors disabled:bg-gray-400 shadow-sm order-1 sm:order-2"
+                      className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-[#003399] hover:bg-blue-800 text-white rounded-lg font-medium transition-colors disabled:bg-gray-400 shadow-sm order-1 sm:order-2 cursor-pointer"
                     >
                       {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
                     </button>
