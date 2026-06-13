@@ -101,7 +101,7 @@ const EditModal = ({
             </h3>
           </div>
         </div>
-        <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
+        <div className="px-4 py-4 flex-1 overflow-y-auto">{children}</div>
         <div className="px-4 pb-6 pt-4 mt-auto bg-white">
           <div
             data-test="edit-modal-actions"
@@ -269,7 +269,6 @@ const ProfilePage = () => {
     const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
 
     try {
-      // ตรวจรูปแบบอีเมล
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
@@ -292,7 +291,6 @@ const ProfilePage = () => {
       }
 
       await dispatch(updateProfile(formData) as any).unwrap();
-
       await dispatch(getProfile() as any).unwrap();
 
       toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
@@ -300,7 +298,6 @@ const ProfilePage = () => {
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
-      // ดึงเอา error ของ BE มาโชว์
       const errorMessage =
         typeof error === "string"
           ? error
@@ -378,7 +375,7 @@ const ProfilePage = () => {
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
+          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
             <div className="hidden sm:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
@@ -549,14 +546,15 @@ const ProfilePage = () => {
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-100 pb-4">
+              {/* ปรับแก้ให้ใช้ px-4 เสมอตาม EditModal ด้านบนเพื่อความสมมาตร */}
+              <div className="px-4 pt-6 pb-4 border-b border-gray-100">
                 {imageUploadStep === "upload" ? (
                   <div
                     data-test="image-upload-area"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center p-12 transition-colors w-full min-h-[260px] ${
+                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12 transition-colors w-full min-h-[260px] ${
                       isDragging ? "border-blue-500 bg-blue-50/50" : ""
                     }`}
                   >
@@ -615,7 +613,7 @@ const ProfilePage = () => {
                       )}
                     </div>
 
-                    {/* แถบย่อ-ขยาย พร้อมเอฟเฟกต์สีวิ่ง */}
+                    {/* แถบย่อ-ขยาย */}
                     <div className="w-full max-w-xs mt-6 flex items-center gap-4">
                       <span className="text-xs text-gray-500 font-medium">
                         0
@@ -648,7 +646,7 @@ const ProfilePage = () => {
               </div>
 
               {imageUploadStep === "crop" && (
-                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                <div className="px-4 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                   <button
                     data-test="btn-cancel-crop"
                     onClick={closeImageModal}
@@ -676,7 +674,6 @@ const ProfilePage = () => {
           onClose={handleCloseModal}
           onSave={handleSave}
         >
-          {/* <div className="space-y-4"> */}
           <div>
             <label
               htmlFor="name"

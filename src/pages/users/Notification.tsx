@@ -112,8 +112,8 @@ const NotificationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
-      <div className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
+      <div className="max-w-[1280px] mx-auto px-4">
         <nav className="hidden md:flex items-center text-sm text-gray-600 mb-6 font-medium">
           <Link
             to="/"
@@ -121,6 +121,10 @@ const NotificationPage = () => {
           >
             หน้าหลัก
           </Link>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1"
+          />
           <Link
             to="/proflie"
             className="hover:text-black transition-colors cursor-pointer"
@@ -139,11 +143,12 @@ const NotificationPage = () => {
             <ProfileSidebar />
           </div>
 
-          <main className="flex-1 w-full bg-white md:rounded-lg md:shadow-sm md:border border-gray-200 px-4 py-4 md:px-8 md:py-8 min-h-[500px]">
+          <main className="flex-1 w-full bg-white md:rounded-lg md:shadow-sm md:border border-gray-200 px-4 py-4 md:py-8 min-h-[500px]">
             <div className="md:hidden flex items-start gap-3 pb-3 border-b border-gray-300 mb-4">
               <button
                 className="mt-1 text-black p-0 flex-shrink-0"
                 onClick={() => navigate(-1)}
+                data-test="btn-mobile-back"
               >
                 <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
               </button>
@@ -166,11 +171,13 @@ const NotificationPage = () => {
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 lg:gap-10 w-full">
+              {/* Desktop Filters */}
               <div className="hidden md:flex flex-col gap-1 w-[200px] flex-shrink-0">
                 {filters.map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => setActiveFilter(filter.id)}
+                    data-test={`filter-desktop-${filter.id}`}
                     className={`flex items-center justify-between px-4 py-2.5 rounded-md transition-colors text-[15px] cursor-pointer w-full text-start ${
                       activeFilter === filter.id
                         ? "bg-[#F3F4F6] text-blue-600 font-bold"
@@ -187,12 +194,14 @@ const NotificationPage = () => {
                 ))}
               </div>
 
+              {/* Mobile Filters */}
               <div
                 className="md:hidden relative w-full mb-2"
                 ref={filterMenuRef}
               >
                 <button
                   onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                  data-test="btn-mobile-filter"
                   className="w-full flex items-center justify-between bg-[#F9FAFB] border border-gray-200 px-4 py-3 rounded-md"
                 >
                   <div className="flex items-center gap-2">
@@ -220,6 +229,7 @@ const NotificationPage = () => {
                           setActiveFilter(filter.id);
                           setIsMobileFilterOpen(false);
                         }}
+                        data-test={`filter-mobile-${filter.id}`}
                         className={`flex items-center justify-between w-full px-4 py-3 text-start border-b last:border-b-0 ${
                           activeFilter === filter.id
                             ? "bg-blue-50/50 text-blue-600 font-bold"
@@ -238,9 +248,13 @@ const NotificationPage = () => {
                 )}
               </div>
 
+              {/* Notifications List */}
               <div className="flex-1 flex flex-col gap-3 w-full">
                 {isLoading ? (
-                  <div className="text-center py-10 text-gray-400 text-sm">
+                  <div
+                    className="text-center py-10 text-gray-400 text-sm"
+                    data-test="loading-state"
+                  >
                     กำลังโหลดข้อมูลการแจ้งเตือน...
                   </div>
                 ) : filteredNotifications.length > 0 ? (
@@ -248,6 +262,7 @@ const NotificationPage = () => {
                     <button
                       key={item.id}
                       onClick={() => handleNotificationClick(item)}
+                      data-test={`notification-item-${item.id}`}
                       className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
                         !item.isRead
                           ? "bg-[#EBF2FE] border-blue-100"
@@ -272,7 +287,10 @@ const NotificationPage = () => {
                     </button>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-gray-500 text-[15px] bg-gray-50 rounded-lg border border-gray-100">
+                  <div
+                    className="text-center py-12 text-gray-500 text-[15px] bg-gray-50 rounded-lg border border-gray-100"
+                    data-test="empty-state"
+                  >
                     ไม่มีการแจ้งเตือนในหมวดหมู่นี้
                   </div>
                 )}

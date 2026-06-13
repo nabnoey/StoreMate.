@@ -14,7 +14,6 @@ const useNotificationSocket = () => {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector((state: RootState) => state.auth.token);
 
-  // 🛠️ ปรับปรุงการดึงสิทธิ์ให้รองรับทั้งแบบ String และแบบ Array เพื่อความปลอดภัย
   const userRoles: string[] = useSelector((state: RootState) => {
     const roles = state.auth.user?.roles || state.auth.user?.roleName;
     if (Array.isArray(roles)) return roles;
@@ -22,7 +21,6 @@ const useNotificationSocket = () => {
   });
 
   useEffect(() => {
-    // 🚪 จัดการกรณี Logout หรือไม่มี Token เข้าใช้งาน
     if (!token || userRoles.length === 0) {
       if (globalNotifyClient) {
         console.log("[NOTIFY STOMP] Disconnecting due to logout...");
@@ -69,11 +67,9 @@ const useNotificationSocket = () => {
           dispatch(addNotificationFromSocket(formattedData));
         };
 
-        // 🌐 1. สมาชิกทุกทุกคนสตรีมรับข่าวสารจากส่วนกลางเสมอ
         client.subscribe("/topic/all", handleIncomingNotification);
 
-        // 🔐 2. แยกเส้นตรวจจับตามโครงสร้างสิทธิ์จริงที่ระบบระบุไว้
-        // เช็กทั้งคำว่า CUSTOMER และ USER เพื่อป้องกันความผิดพลาดของคำคีย์เวิร์ด
+        // เช็กทั้งคำว่า CUSTOMER และ USER เพื่อผิด
         if (userRoles.includes("CUSTOMER") || userRoles.includes("USER")) {
           console.log("[STOMP] Subscribing to /topic/customer");
           client.subscribe("/topic/customer", handleIncomingNotification);

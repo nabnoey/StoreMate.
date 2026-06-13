@@ -32,7 +32,6 @@ const NotificationManagementPage: React.FC = () => {
   );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  // ✅ สร้าง State สำหรับคำค้นหาที่หน่วงเวลาแล้ว เพื่อใช้ยิง API อย่างมีประสิทธิภาพ
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -44,24 +43,21 @@ const NotificationManagementPage: React.FC = () => {
   });
 
   const userRoles =
-    // ป้องกันกรณี roles เป็น string เดี่ยว ๆ หรือไม่ได้ส่งมา
     useSelector((state: RootState) => state.auth.user?.roles) || [];
 
   const isOwner = userRoles.includes("ADMIN") || userRoles.includes("OWNER");
-  const isModerator = userRoles.includes("MODERATOR");
+  const isModifier = userRoles.includes("MODERATOR");
 
-  // ✅ 1. ทำระบบ Debounce Search (หน่วงเวลาพิมพ์ 500ms แล้วค่อยค้นหาอัตโนมัติ)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-      setPage(0); // รีเซ็ตไปหน้าแรกทุกครั้งที่เริ่มค้นหาคำใหม่
+      setPage(0);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // ✅ 2. ฟังก์ชันกลางสำหรับดึงข้อมูลใหม่ (ช่วยลดโค้ดซ้ำซ้อน)
   const refreshNotificationList = () => {
-    if (isOwner || isModerator) {
+    if (isOwner || isModifier) {
       dispatch(
         fetchOwnerNotify({
           keyword: debouncedSearch,
@@ -72,10 +68,9 @@ const NotificationManagementPage: React.FC = () => {
     }
   };
 
-  // ✅ 3. ดึงข้อมูลเมื่อ Page หรือคำค้นหา (Debounced) เปลี่ยนแปลง
   useEffect(() => {
     refreshNotificationList();
-  }, [dispatch, page, debouncedSearch, isOwner, isModerator]);
+  }, [dispatch, page, debouncedSearch, isOwner, isModifier]);
 
   const getRecipientConfig = (sendTo: string) => {
     if (sendTo?.includes("MODERATOR")) {
@@ -106,19 +101,16 @@ const NotificationManagementPage: React.FC = () => {
 
           <div className="flex gap-3 mt-2">
             <button
-              data-test="btn-confirm-delete-notification"
+              data-test={`btn-confirm-delete-${id}`}
               type="button"
               onClick={async () => {
                 try {
                   toast.dismiss(t.id);
                   await dispatch(deleteNotify(id)).unwrap();
                   toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
-                  // ✅ รีเฟรชข้อมูลในตารางทันทีหลังจากลบสำเร็จ
                   refreshNotificationList();
                 } catch (error) {
-                  toast.error(
-                    "เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
-                  );
+                  toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้");
                 }
               }}
               className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
@@ -127,7 +119,7 @@ const NotificationManagementPage: React.FC = () => {
             </button>
 
             <button
-              data-test="btn-cancel-delete-notification"
+              data-test={`btn-cancel-delete-${id}`}
               type="button"
               onClick={() => toast.dismiss(t.id)}
               className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
@@ -154,22 +146,17 @@ const NotificationManagementPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ดึงค่าจาก formData (ตัวที่มีการผูก onChange กับ Input จริงๆ)
     const { subject, message, recipients } = formData;
 
     if (!subject.trim() || !message.trim()) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { id: "error-incomplete-data" });
       return;
     }
 
     try {
-      // setIsSubmitting(true);
-
-      // 🚀 แปลงค่าภาษาไทยจากฟอร์ม (ทั้งหมด, ผู้ใช้งาน, พนักงาน) ให้เป็น "ALL" | "CUSTOMER" | "MODERATOR"
       const mappedSendTo =
         TOPIC_MAP[recipients as keyof typeof TOPIC_MAP] || "ALL";
 
-      // ยิง API โดยนำค่าจากฟอร์มมาจับคู่คีย์ที่ Backend ต้องการ (subject -> title)
       await dispatch(
         createNotify({
           title: subject,
@@ -178,20 +165,15 @@ const NotificationManagementPage: React.FC = () => {
         }),
       ).unwrap();
 
-      toast.success("ส่งแจ้งเตือนแบบ Realtime สำเร็จแล้ว! 🎉");
+      toast.success("ส่งการแจ้งเตือนสำเร็จ");
 
-      // ล้างข้อมูลในฟอร์มและปิด Modal
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
       setIsModalOpen(false);
 
-      // โหลดตารางฝั่ง Admin ใหม่
       refreshNotificationList();
     } catch (error: any) {
       toast.error(error?.message || "เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
     }
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
   };
 
   const handleCancel = (): void => {
@@ -216,11 +198,10 @@ const NotificationManagementPage: React.FC = () => {
 
   const handleSearch = () => {
     setPage(0);
-    setDebouncedSearch(searchTerm); // บังคับอัปเดตคำค้นหาทันทีเมื่อกด Enter
+    setDebouncedSearch(searchTerm);
   };
 
-  // ✅ 4. ย้ายตัวเช็คสิทธิ์ (Early Return) มาไว้ตรงนี้ (หลังประกาศ Hooks ทั้งหมดครบถ้วนตามกฎ React)
-  if (!isOwner && !isModerator) {
+  if (!isOwner && !isModifier) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50 font-prompt p-4 text-center">
         <Icon
@@ -236,6 +217,7 @@ const NotificationManagementPage: React.FC = () => {
           เฉพาะผู้บริหารและพนักงานที่ได้รับอนุญาตเท่านั้น
         </p>
         <button
+          data-test="btn-back-to-store"
           onClick={() => (window.location.href = "/store")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
         >
@@ -266,6 +248,7 @@ const NotificationManagementPage: React.FC = () => {
                   className="absolute left-3 top-2.5 text-gray-400"
                 />
                 <input
+                  data-test="input-search-notification"
                   type="text"
                   placeholder="ค้นหาหัวข้อการแจ้งเตือน"
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
@@ -278,8 +261,10 @@ const NotificationManagementPage: React.FC = () => {
                   }}
                 />
               </div>
+
               {isOwner && (
                 <button
+                  data-test="btn-open-create-modal"
                   onClick={() => setIsModalOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
                 >
@@ -305,14 +290,15 @@ const NotificationManagementPage: React.FC = () => {
                     <th className="pb-4 font-medium text-center">
                       วันที่ส่ง (Sent Date)
                     </th>
-                    <th className="pb-4 font-medium"></th>
+
+                    {isOwner && <th className="pb-4 font-medium"></th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={isOwner ? 4 : 3}
                         className="py-20 text-center text-gray-400 text-sm"
                       >
                         กำลังโหลดข้อมูลระบบ...
@@ -352,8 +338,10 @@ const NotificationManagementPage: React.FC = () => {
                           {isOwner && (
                             <td className="py-4 text-right">
                               <button
+                                data-test={`btn-open-delete-${noti.id}`}
                                 onClick={() => handleDelete(noti.id)}
                                 className="text-gray-300 hover:text-red-500 p-2 transition-colors"
+                                title="ลบการแจ้งเตือน"
                               >
                                 <Icon
                                   icon="lucide:trash-2"
@@ -369,7 +357,7 @@ const NotificationManagementPage: React.FC = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={isOwner ? 4 : 3}
                         className="py-20 text-center text-gray-400 text-sm"
                       >
                         {searchTerm
@@ -388,6 +376,7 @@ const NotificationManagementPage: React.FC = () => {
                   </span>
                   <div className="flex items-center space-x-2">
                     <button
+                      data-test="btn-prev-page"
                       type="button"
                       onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
                       disabled={page === 0}
@@ -399,6 +388,7 @@ const NotificationManagementPage: React.FC = () => {
                       {page + 1}
                     </span>
                     <button
+                      data-test="btn-next-page"
                       type="button"
                       onClick={() =>
                         setPage((prev) => Math.min(prev + 1, totalPages - 1))
@@ -432,9 +422,10 @@ const NotificationManagementPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="p-8 space-y-5">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                  หัวข้อการแจ้งเตือน
+                  หัวข้อ (Subject)
                 </label>
                 <input
+                  data-test="input-subject"
                   type="text"
                   name="subject"
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all text-gray-800"
@@ -446,9 +437,10 @@ const NotificationManagementPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                  รายละเอียด
+                  รายละเอียด (Message)
                 </label>
                 <textarea
+                  data-test="input-message"
                   name="message"
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all h-28 resize-none text-gray-800"
                   placeholder="ข้อความที่ต้องการแจ้ง..."
@@ -459,6 +451,7 @@ const NotificationManagementPage: React.FC = () => {
 
               <div className="flex items-center justify-between pt-4">
                 <select
+                  data-test="select-recipients"
                   name="recipients"
                   className="bg-gray-100 border-none text-gray-600 text-xs rounded-xl px-4 py-2.5 outline-none cursor-pointer"
                   value={formData.recipients}
@@ -471,6 +464,7 @@ const NotificationManagementPage: React.FC = () => {
 
                 <div className="flex space-x-3">
                   <button
+                    data-test="btn-cancel-create"
                     type="button"
                     onClick={handleCancel}
                     className="px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
@@ -478,6 +472,7 @@ const NotificationManagementPage: React.FC = () => {
                     ยกเลิก
                   </button>
                   <button
+                    data-test="btn-submit-create"
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
                   >

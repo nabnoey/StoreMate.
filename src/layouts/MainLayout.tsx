@@ -18,8 +18,8 @@ const MainLayout = () => {
     const timer = setTimeout(() => {
       setIsPageTransitioning(false);
 
-      // หน่วงไว้ 1 วินาที ถ้าไม่หน่วงไม่โผล่นะจ้ะ
-    }, 1000);
+      // หน่วงไม่ถึง 1 วินาที ถ้าไม่หน่วงไม่โผล่นะจ้ะ
+    }, 900);
 
     return () => clearTimeout(timer);
   }, [location.pathname]);

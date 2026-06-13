@@ -15,7 +15,6 @@ import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
-  clearUnreadBadge,
   markAsReadInStore,
 } from "../../redux/notification/notificationReducer";
 
@@ -66,9 +65,6 @@ const Navbar: React.FC = () => {
 
   const handleBellClick = () => {
     setOpenNotifyDropdown(!openNotifyDropdown);
-    if (!openNotifyDropdown) {
-      dispatch(clearUnreadBadge());
-    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

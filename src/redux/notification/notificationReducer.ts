@@ -10,7 +10,6 @@ import type {
   FetchNotifyParams,
 } from "../../types/notification";
 
-// --- Async Thunks ---
 export const fetchOwnerNotify = createAsyncThunk(
   "notification/fetchOwner",
   async (params: FetchNotifyParams) => {
@@ -61,7 +60,6 @@ const initialState: NotificationState = {
   currentPage: 0,
 };
 
-// 🛡️ Helper function สำหรับดึงข้อมูลจาก localStorage อย่างปลอดภัย
 const getSafeReadIds = (): number[] => {
   try {
     return JSON.parse(localStorage.getItem("read_notifications") || "[]");
@@ -75,11 +73,11 @@ const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
-    // 🔔 รับข้อมูลจาก WebSocket แบบ Realtime
+    // รับข้อมูลจาก WebSocket
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
       const exists = state.items.some((item) => item.id === action.payload.id);
       if (!exists) {
-        // ดึงจาก local มาเช็กซ้ำเพื่อความแม่นยำ
+        // ดึงจาก local มาเช็กซ้ำ
         const readIds = getSafeReadIds();
         state.items.unshift({
           ...action.payload,
@@ -89,7 +87,7 @@ const notificationSlice = createSlice({
       }
     },
 
-    // 🎯 แก้ไข: กดเปิดกระดิ่งแล้วให้เคลียร์ตัวเลข Badge ทั้งหมดทันที
+    // กดเปิดกระดิ่งแล้วให้เคลียร์ตัวเลข Badge ทั้งหมดทันที
     clearUnreadBadge: (state) => {
       const readIds = getSafeReadIds();
 
@@ -115,11 +113,8 @@ const notificationSlice = createSlice({
       }
     },
 
-    // 👆 คลิกอ่านเฉพาะเจาะจงรายการใดรายการหนึ่ง
     markAsReadInStore: (state, action: PayloadAction<number | string>) => {
-      const targetId = String(action.payload); // ✅ บังคับเป็น String
-
-      // ✅ ใช้ .map() เพื่อสร้าง Reference ใหม่ให้ Array บังคับให้ React รีเรนเดอร์หน้า NotificationPage
+      const targetId = String(action.payload);
       state.items = state.items.map((item) => {
         if (String(item.id) === targetId) {
           return { ...item, isRead: true, isNew: false };
@@ -170,12 +165,12 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchUserNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        const readIds = getSafeReadIds().map(String); // ✅ บังคับเป็น String
+        const readIds = getSafeReadIds().map(String);
 
         state.items = (action.payload || []).map((item: Notification) => ({
           ...item,
           isNew: false,
-          isRead: readIds.includes(String(item.id)), // ✅ เทียบ String กับ String ป้องกันบั๊ก
+          isRead: readIds.includes(String(item.id)),
         }));
       })
       .addCase(fetchUserNotify.rejected, (state) => {
