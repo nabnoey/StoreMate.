@@ -151,36 +151,47 @@ const NotificationManagementPage: React.FC = () => {
     พนักงาน: "MODERATOR",
   } as const;
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.subject.trim() || !formData.message.trim()) {
+    // ดึงค่าจาก formData (ตัวที่มีการผูก onChange กับ Input จริงๆ)
+    const { subject, message, recipients } = formData;
+
+    if (!subject.trim() || !message.trim()) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
-    const targetTopic =
-      TOPIC_MAP[formData.recipients as keyof typeof TOPIC_MAP];
-
     try {
+      // setIsSubmitting(true);
+
+      // 🚀 แปลงค่าภาษาไทยจากฟอร์ม (ทั้งหมด, ผู้ใช้งาน, พนักงาน) ให้เป็น "ALL" | "CUSTOMER" | "MODERATOR"
+      const mappedSendTo =
+        TOPIC_MAP[recipients as keyof typeof TOPIC_MAP] || "ALL";
+
+      // ยิง API โดยนำค่าจากฟอร์มมาจับคู่คีย์ที่ Backend ต้องการ (subject -> title)
       await dispatch(
         createNotify({
-          title: formData.subject.trim(),
-          message: formData.message.trim(),
-          sendTo: targetTopic,
+          title: subject,
+          message: message,
+          sendTo: mappedSendTo,
         }),
       ).unwrap();
 
-      toast.success("ส่งการแจ้งเตือนสำเร็จ");
-      setIsModalOpen(false);
+      toast.success("ส่งแจ้งเตือนแบบ Realtime สำเร็จแล้ว! 🎉");
+
+      // ล้างข้อมูลในฟอร์มและปิด Modal
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
-      // ✅ รีเฟรชข้อมูลในตารางทันทีหลังจากสร้างสำเร็จ เพื่อให้เห็นรายการใหม่ด้านบน
+      setIsModalOpen(false);
+
+      // โหลดตารางฝั่ง Admin ใหม่
       refreshNotificationList();
-    } catch (error) {
-      toast.error("เกิดข้อผิดพลาด ไม่สามารถส่งการแจ้งเตือนได้");
+    } catch (error: any) {
+      toast.error(error?.message || "เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
     }
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   const handleCancel = (): void => {

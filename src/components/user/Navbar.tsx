@@ -338,7 +338,7 @@ const Navbar: React.FC = () => {
                     <button
                       className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 text-center text-sm font-semibold transition-colors font-Anuphan block"
                       onClick={() => {
-                        setOpenNotifyDropdown(false); // ✅ ปิด Dropdown เมื่อกดปุ่ม "ดูทั้งหมด"
+                        setOpenNotifyDropdown(false);
                         navigate("/notification");
                       }}
                     >

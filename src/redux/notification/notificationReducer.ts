@@ -10,6 +10,7 @@ import type {
   FetchNotifyParams,
 } from "../../types/notification";
 
+// --- Async Thunks ---
 export const fetchOwnerNotify = createAsyncThunk(
   "notification/fetchOwner",
   async (params: FetchNotifyParams) => {
@@ -60,42 +61,85 @@ const initialState: NotificationState = {
   currentPage: 0,
 };
 
+// 🛡️ Helper function สำหรับดึงข้อมูลจาก localStorage อย่างปลอดภัย
+const getSafeReadIds = (): number[] => {
+  try {
+    return JSON.parse(localStorage.getItem("read_notifications") || "[]");
+  } catch (e) {
+    console.error("Failed to parse read_notifications from localStorage", e);
+    return [];
+  }
+};
+
 const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
+    // 🔔 รับข้อมูลจาก WebSocket แบบ Realtime
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
       const exists = state.items.some((item) => item.id === action.payload.id);
       if (!exists) {
-        state.items.unshift({ ...action.payload, isNew: true, isRead: false });
+        // ดึงจาก local มาเช็กซ้ำเพื่อความแม่นยำ
+        const readIds = getSafeReadIds();
+        state.items.unshift({
+          ...action.payload,
+          isNew: true,
+          isRead: readIds.includes(action.payload.id),
+        });
       }
     },
-    clearUnreadBadge: (state) => {
-      state.items = state.items.map((item) => ({
-        ...item,
-        isNew: false,
-      }));
-    },
-    markAsReadInStore: (state, action: PayloadAction<number>) => {
-      const target = state.items.find((item) => item.id === action.payload);
-      if (target) {
-        target.isRead = true;
 
-        // ✅ บันทึก ID การแจ้งเตือนที่อ่านแล้วลง LocalStorage
-        try {
-          const readIds: number[] = JSON.parse(
-            localStorage.getItem("read_notifications") || "[]",
-          );
-          if (!readIds.includes(action.payload)) {
-            readIds.push(action.payload);
-            localStorage.setItem("read_notifications", JSON.stringify(readIds));
-          }
-        } catch (e) {
-          console.error("Failed to save read status", e);
+    // 🎯 แก้ไข: กดเปิดกระดิ่งแล้วให้เคลียร์ตัวเลข Badge ทั้งหมดทันที
+    clearUnreadBadge: (state) => {
+      const readIds = getSafeReadIds();
+
+      state.items = state.items.map((item) => {
+        if (!item.isRead && !readIds.includes(item.id)) {
+          readIds.push(item.id);
         }
+        return {
+          ...item,
+          isNew: false,
+          isRead: true, // ปรับเป็นอ่านแล้วเพื่อลดจำนวน unreadCount ใน Navbar
+        };
+      });
+
+      // บันทึกก้อน ID ทั้งหมดกลับลงฐานข้อมูลจำลอง (localStorage)
+      try {
+        localStorage.setItem("read_notifications", JSON.stringify(readIds));
+      } catch (e) {
+        console.error(
+          "Failed to update clearUnreadBadge inside localStorage",
+          e,
+        );
+      }
+    },
+
+    // 👆 คลิกอ่านเฉพาะเจาะจงรายการใดรายการหนึ่ง
+    markAsReadInStore: (state, action: PayloadAction<number | string>) => {
+      const targetId = String(action.payload); // ✅ บังคับเป็น String
+
+      // ✅ ใช้ .map() เพื่อสร้าง Reference ใหม่ให้ Array บังคับให้ React รีเรนเดอร์หน้า NotificationPage
+      state.items = state.items.map((item) => {
+        if (String(item.id) === targetId) {
+          return { ...item, isRead: true, isNew: false };
+        }
+        return item;
+      });
+
+      // บันทึกลง LocalStorage
+      try {
+        const readIds = getSafeReadIds().map(String); // แปลงของเก่าในเครื่องเป็น String ให้หมด
+        if (!readIds.includes(targetId)) {
+          readIds.push(targetId);
+          localStorage.setItem("read_notifications", JSON.stringify(readIds));
+        }
+      } catch (e) {
+        console.error("Failed to save read status", e);
       }
     },
   },
+
   extraReducers: (builder) => {
     builder
       // --- Fetch Owner Notify ---
@@ -104,16 +148,13 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchOwnerNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        // ดึงรายการ ID ที่เคยอ่านแล้วจาก localStorage
-        const readIds: number[] = JSON.parse(
-          localStorage.getItem("read_notifications") || "[]",
-        );
+        const readIds = getSafeReadIds();
 
         state.items = (action.payload.content || []).map(
           (item: Notification) => ({
             ...item,
             isNew: false,
-            isRead: readIds.includes(item.id), // ✅ เช็กว่าเคยอ่านหรือยัง
+            isRead: readIds.includes(item.id),
           }),
         );
         state.totalPages = action.payload.totalPages || 0;
@@ -129,15 +170,12 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchUserNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        // ✅ ดึงรายการ ID ที่เคยอ่านแล้วจาก localStorage
-        const readIds: number[] = JSON.parse(
-          localStorage.getItem("read_notifications") || "[]",
-        );
+        const readIds = getSafeReadIds().map(String); // ✅ บังคับเป็น String
 
         state.items = (action.payload || []).map((item: Notification) => ({
           ...item,
           isNew: false,
-          isRead: readIds.includes(item.id), // ✅ ถ้ามี ID ใน localStorage ให้เป็น true ทันที
+          isRead: readIds.includes(String(item.id)), // ✅ เทียบ String กับ String ป้องกันบั๊ก
         }));
       })
       .addCase(fetchUserNotify.rejected, (state) => {

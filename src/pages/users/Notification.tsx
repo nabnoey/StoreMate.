@@ -6,6 +6,7 @@ import type { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchUserNotify,
   markAsReadInStore,
+  clearUnreadBadge,
   type ClientNotification,
 } from "../../redux/notification/notificationReducer";
 import { Icon } from "@iconify/react";
@@ -37,6 +38,7 @@ const NotificationPage = () => {
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchUserNotify());
+      dispatch(clearUnreadBadge());
     }
   }, [dispatch, isAuthenticated]);
 
