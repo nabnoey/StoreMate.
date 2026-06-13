@@ -157,7 +157,6 @@ const requestPayload: any = {
   description: values.description,
 };
 
-// 2. ถ้าเป็นโหมดแก้ไข (Edit) ค่อยแอบเติม removeImages เข้าไป
 if (isEditMode) {
   requestPayload.removeImages = values.files && fullProduct?.productImages 
     ? fullProduct.productImages.map((img: any) => img.id) 
@@ -193,7 +192,6 @@ if (isEditMode) {
           >
             {({ setFieldValue, isSubmitting }) => (
               <Form className="space-y-5">
-                {/* Row 1: ชื่อสินค้า, หมวดหมู่ */}
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อสินค้า</label>
@@ -325,23 +323,26 @@ if (isEditMode) {
                   {isEditMode && (
                     <button
                       type="button"
+                      data-test={`delete-product-${product?.id}`}
                       onClick={handleDelete}
-                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors c"
+                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors cursor-pointer"
                     >
                       ลบสินค้า
                     </button>
                   )}
                   <button
                     type="submit"
+                    data-test={isEditMode ? `submit-product-${product?.id}` : "submit-product-add"}
                     disabled={isSubmitting}
-                    className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400"
+                    className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400 cursor-pointer"
                   >
                     {isSubmitting ? "กำลังบันทึก..." : (isEditMode ? "แก้ไขสินค้า" : "บันทึก")}
                   </button>
                   <button
                     type="button"
+                    data-test="cancel-edit-product"
                     onClick={onClose}
-                    className="px-8 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors"
+                    className="px-8 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors cursor-pointer"
                   >
                     ยกเลิก
                   </button>

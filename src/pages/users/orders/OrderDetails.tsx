@@ -32,26 +32,25 @@ function StatusStep({
   isCompleted: boolean;
   isCurrent: boolean;
 }) {
+  const active = isCompleted || isCurrent;
+
   return (
     <div className="flex flex-col items-center gap-2">
       <div
         className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-          isCurrent
-            ? "bg-white border-2 border-black text-black shadow-sm"
-            : isCompleted
-              ? "bg-white border-2 border-gray-800 text-black shadow-sm"
-              : "bg-white border-2 border-gray-300 text-gray-400"
+          active
+            ? "bg-white border-2 border-blue-500 text-blue-500 shadow-sm"
+            : "bg-white border-2 border-gray-300 text-gray-400"
         }`}
       >
         {Icon}
       </div>
+
       <span
         className={`text-xs font-medium text-center ${
-          isCurrent
-            ? "font-bold text-gray-800"
-            : isCompleted
-              ? "font-medium text-gray-600"
-              : "text-gray-400"
+          active
+            ? "font-bold text-blue-500"
+            : "text-gray-400"
         }`}
       >
         {label}
@@ -192,7 +191,14 @@ console.log("order", order)
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-6 ">
             <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative ">
-              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-[#3B82F6] z-0"></div>
+             <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-gray-200 z-0">
+  <div
+    className="h-full bg-blue-500 transition-all duration-300"
+    style={{
+      width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
+    }}
+  />
+</div>
 
               <div className="flex justify-between  items-center relative z-10 ">
                 {steps.map((step, index) => (

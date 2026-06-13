@@ -24,7 +24,7 @@ function RegisterPage() {
   const validationSchema = Yup.object({
     name: Yup.string().required("กรุณากรอกชื่อ-นามสกุล"),
     email: Yup.string()
-      .email("รูปแบบอีเมลไม่ถูกต้อง")
+      .email("กรุณากรอกอีเมลให้ถูกต้อง")
       .required("กรุณากรอกอีเมล"),
     phone: Yup.string()
       .matches(/^0\d{9}$/, "เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก")

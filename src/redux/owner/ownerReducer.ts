@@ -102,7 +102,6 @@ const ownerSlice = createSlice({
       .addCase(getUserManagement.fulfilled, (state, action) => {
         state.loading = false;
 
-        // เรียงตาม role: OWNER → MODERATOR → USER
         const sortedUsers = [...(action.payload.data ?? [])].sort((a, b) => {
           const normA = (a.role || "").toUpperCase().replace("ROLE_", "").trim();
           const normB = (b.role || "").toUpperCase().replace("ROLE_", "").trim();
@@ -209,7 +208,10 @@ const ownerSlice = createSlice({
       })
 
       .addCase(updateStore.fulfilled, (state, action) => {
-        state.store = action.payload;
+        const updatedStore = action.payload?.data || action.payload;
+        if (updatedStore && updatedStore.storeName) {
+          state.store = updatedStore;
+        }
       })
 
   },

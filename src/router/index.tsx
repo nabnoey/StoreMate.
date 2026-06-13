@@ -279,10 +279,10 @@ const router = createBrowserRouter([
         path: "store-edit",
         element: <StoreEdit />,
       },
-      {
-        path: "notification",
-        element: <NotificationManagementPage />,
-      },
+      // {
+      //   path: "notification",
+      //   element: <NotificationManagementPage />,
+      // },
       {
         path: "user-management",
         element: <UserManagement />,

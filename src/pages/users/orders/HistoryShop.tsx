@@ -678,38 +678,39 @@ const HistoryPage = () => {
                               </p>
                             )}
                           </div>
-                        ) : order.status === "PENDING" ||
-                          order.status === "PROCESSING" ? (
+                        ) : order.status === "PENDING" || order.status === "PROCESSING" ? (
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
-                            <button
-                              type="button"
-                              data-test="btn-retry-payment"
-                              onClick={(e) =>
-                                handleRetryPayment(e, order, orderTotal)
-                              }
-                              className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer"
-                            >
-                              ชำระเงิน
-                            </button>
-                            <button
-                              data-test="btn-cancel-order"
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(
-                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-                                  {
-                                    state: {
-                                      status: order.status,
-                                      paymentMethod: order.checkoutType,
-                                    },
-                                  },
-                                );
-                              }}
-                              className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer"
-                            >
-                              ยกเลิกคำสั่งซื้อ
-                            </button>
+                         {order.status === "PENDING" && (
+  <button
+    type="button"
+    data-test="btn-retry-payment"
+    onClick={(e) =>
+      handleRetryPayment(e, order, orderTotal)
+    }
+    className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium"
+  >
+    ชำระเงิน
+  </button>
+)}
+                          <button
+  data-test="btn-cancel-order"
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    navigate(
+      `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+      {
+        state: {
+          status: order.status,
+          paymentMethod: order.checkoutType,
+        },
+      },
+    );
+  }}
+  className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium"
+>
+  ยกเลิกคำสั่งซื้อ
+</button>
                           </div>
                         ) : null}
                       </div>
