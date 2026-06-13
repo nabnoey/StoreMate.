@@ -1,13 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
-
 import { Suspense, useState, useEffect } from "react";
-
 import Loading from "../components/loading/Loading";
-
 import NavBar from "../components/user/Navbar";
-
 import Footer from "../components/user/Footer";
-
 import ScrollToTop from "../components/user/ScrollToTop";
 
 const MainLayout = () => {

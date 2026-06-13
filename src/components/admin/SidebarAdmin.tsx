@@ -32,7 +32,7 @@ function SidebarAdmin() {
     : false;
 
   useEffect(() => {
-    // dispatch(getProfile() as any);
+    dispatch(getProfile() as any);
   }, [dispatch]);
 
   const handleLogout = () => {
