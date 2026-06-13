@@ -32,7 +32,7 @@ function SidebarAdmin() {
     : false;
 
   useEffect(() => {
-    dispatch(getProfile() as any);
+    // dispatch(getProfile() as any);
   }, [dispatch]);
 
   const handleLogout = () => {
@@ -95,9 +95,7 @@ function SidebarAdmin() {
             <button
               data-test="dashboard-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() =>
-                navigate("/owner/dashboard" )
-              }
+              onClick={() => navigate("/owner/dashboard")}
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
@@ -109,9 +107,7 @@ function SidebarAdmin() {
               <button
                 data-test="report-button"
                 className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                onClick={() =>
-                  navigate("/owner/analytic")
-                }
+                onClick={() => navigate("/owner/analytic")}
               >
                 <TrendingUp size={18} />
                 รายงานยอดขาย
@@ -123,9 +119,7 @@ function SidebarAdmin() {
             <button
               data-test="stock-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() =>
-                navigate("/moderator/stock")
-              }
+              onClick={() => navigate("/moderator/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
@@ -136,10 +130,7 @@ function SidebarAdmin() {
             <button
               data-test="orders-button"
               className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-              onClick={() =>
-
-                navigate("/moderator/orders")
-              }
+              onClick={() => navigate("/moderator/orders")}
             >
               <Truck size={18} />
               จัดการคำสั่งซื้อ

@@ -1,35 +1,36 @@
 import { Outlet, useLocation } from "react-router-dom";
+
 import { Suspense, useState, useEffect } from "react";
+
 import Loading from "../components/loading/Loading";
+
 import NavBar from "../components/user/Navbar";
+
 import Footer from "../components/user/Footer";
+
 import ScrollToTop from "../components/user/ScrollToTop";
 
 const MainLayout = () => {
   const location = useLocation();
+
   const [isPageTransitioning, setIsPageTransitioning] = useState(false);
-
-  // สร้างไว้ให้ปิดหน้า loading ตอน Automated Test ผู้ใช้งานใช้ได้คือเก่า
-  const isAutomationTest =
-    typeof window !== "undefined" && window.navigator.webdriver;
-
-  if (isAutomationTest) {
-    setIsPageTransitioning(false);
-    return;
-  }
 
   useEffect(() => {
     setIsPageTransitioning(true);
+
     const timer = setTimeout(() => {
       setIsPageTransitioning(false);
+
       // หน่วงไว้ 1 วินาที ถ้าไม่หน่วงไม่โผล่นะจ้ะ
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* NavBar */}
+
       <ScrollToTop />
 
       {isPageTransitioning && <Loading fullScreen={true} size={250} />}
@@ -43,6 +44,7 @@ const MainLayout = () => {
           <Outlet />
         </Suspense>
       </main>
+
       <div className="mt-25 lg:mt-35">
         <Footer />
       </div>
