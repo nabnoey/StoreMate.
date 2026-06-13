@@ -144,7 +144,7 @@ const maxVisiblePages = 5;
             <button
               type="button"
               onClick={handleAddProduct}
-              className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium"
+              className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium cursor-pointer "
             >
               <span>+</span> เพิ่มสินค้า
             </button>
@@ -198,8 +198,9 @@ const maxVisiblePages = 5;
                   <td className="py-4">
                     <button
                       type="button"
+                      data-test={`menagemate-product-${product.id}`}
                       onClick={() => handleEditProduct(product as ProductMod)}
-                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0"
+                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
                     >
                       จัดการ
                     </button>
