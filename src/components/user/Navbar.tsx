@@ -102,9 +102,6 @@ const Navbar: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
   const totalItems = cartItems?.length;
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated,
-  );
 
   const isActive = (path: string, searchParam: string = "") => {
     if (searchParam) {
@@ -237,7 +234,7 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {isAuthenticated ? (
+        {isAuthentication ? (
           <>
             <div className="flex items-center gap-3 lg:gap-4 text-black">
               <button
@@ -378,7 +375,7 @@ const Navbar: React.FC = () => {
       {/* MOBILE MENU DROPDOWN */}
       {openMenu && (
         <div className="absolute top-[60px] right-4 w-[280px] sm:w-[320px] bg-white shadow-xl z-50 lg:hidden rounded-lg overflow-hidden border border-gray-100 animate-in fade-in zoom-in origin-top-right">
-          {isAuthenticated ? (
+          {isAuthentication ? (
             <UserProfile
               variant="mobile"
               onCloseMenu={() => setOpenMenu(false)}
