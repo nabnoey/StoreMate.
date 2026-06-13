@@ -268,6 +268,10 @@ const maxVisiblePages = 5;
           setIsAddModalOpen(false);
           setSelectedProduct(null);
         }}
+        onSuccess={() => {
+    setIsAddModalOpen(false);
+    setSelectedProduct(null);
+  }}
         product={selectedProduct}
       />
     </div>

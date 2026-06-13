@@ -55,11 +55,11 @@ function Orders() {
   const totalPages = useSelector((state: RootState) => state.moderator.totalPages);
 
   const PAGE_SIZE = 10;
-  const TIME_FILTER_MAP: Record<string, string> = {
-    "วันนี้": "day",
-    "สัปดาห์นี้": "week",
-    "เดือนนี้": "month",
-  };
+const TIME_FILTER_MAP: Record<string, string> = {
+  "วันนี้": "today",
+  "สัปดาห์นี้": "week",
+  "เดือนนี้": "month",
+};
 
   useEffect(() => {
     const periodValue = TIME_FILTER_MAP[timeFilter];
@@ -188,14 +188,14 @@ function Orders() {
                   <button
                     type="button"
                     onClick={handleEnterPrintMode}
-                    className="h-[40px] px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    className="h-[40px] px-4 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                   >
                     <span>🖨️</span>
                     ปริ้นใบปะหน้า
                   </button>
                 ) : (
                   <>
-                    <div className="h-[40px] px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                    <div className="h-[40px] cursor-pointer px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                       <span>🖨️</span>
                       ปริ้นใบปะหน้าที่เลือก ({selectedOrders.length})
                     </div>
@@ -203,14 +203,14 @@ function Orders() {
                       type="button"
                       onClick={handleConfirmPrint}
                       disabled={selectedOrders.length === 0}
-                      className="h-[40px] w-[100px] bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                      className="h-[40px] w-[100px] bg-blue-700 cursor-pointer hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                     >
                       ยืนยัน
                     </button>
                     <button
                       type="button"
                       onClick={handleCancelPrintMode}
-                      className="h-[40px] w-[100px] rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
+                      className="h-[40px] w-[100px] cursor-pointer rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
                     >
                       ยกเลิก
                     </button>
@@ -236,7 +236,7 @@ function Orders() {
 
                   {/* 🛠️ จุดแก้ไขหลัก: อัปเกรดให้กาง 2 เดือนคู่กัน */}
                  {/* 🛠️ ส่วนปฏิทินสไตล์ DaisyUI + Cally */}
-<div className="relative text-sm font-['Anuphan'] w-full sm:w-72">
+<div className="relative text-sm font-['Anuphan'] w-full sm:w-72 cursor-pointer">
   <input
     type="text"
     readOnly
@@ -249,7 +249,11 @@ function Orders() {
           )}`
         : ""
     }
-    onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+   onClick={() => {
+  setStartDate(null);
+  setEndDate(null);
+  setCurrentPage(1);
+}}
     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full text-gray-700 bg-white cursor-pointer"
   />
 
@@ -283,7 +287,7 @@ function Orders() {
             setStartDate(null);
             setEndDate(null);
           }}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg cursor-pointer"
         >
           ล้างค่า
         </button>
@@ -291,7 +295,7 @@ function Orders() {
         <button
           type="button"
           onClick={() => setIsDatePickerOpen(false)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
         >
           บันทึก
         </button>
@@ -302,13 +306,13 @@ function Orders() {
 
                 </div>
 
-                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
+                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto ">
                   {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
                     <button
                       key={tab}
                       type="button"
                       onClick={() => setTimeFilter(tab)}
-                      className={`px-4 py-2 border-r last:border-r-0 transition-colors ${
+                      className={`px-4 py-2 border-r last:border-r-0 transition-colors cursor-pointer ${
                         timeFilter === tab
                           ? "bg-gray-100 text-black"
                           : "bg-white text-gray-500 hover:bg-gray-50"
@@ -354,6 +358,8 @@ function Orders() {
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {orders.length > 0 ? (
                     orders.map((order: OrderMod) => {
+
+                      
                       const { dateStr, timeStr } = formatDateTime(order.createdAt || "");
                       const isSelected = selectedOrders.includes(String(order.orderNo));
 
