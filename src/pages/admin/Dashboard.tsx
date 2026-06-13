@@ -17,8 +17,9 @@ import ReactGA from 'react-ga4';
 import { DashboardService } from "../../services/dashboard.service";
 import Loading from "../../components/loading/Loading";
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../redux/store';
+import { getStore } from '../../redux/owner/ownerReducer';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -77,7 +78,9 @@ const getReviewColor = (score: number) => {
 
 function Dashboard() {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { store } = useSelector((state: RootState) => state.owner);
   const isAdmin = Array.isArray(user?.roles)
     ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
     : false;
@@ -88,6 +91,7 @@ function Dashboard() {
 
   useEffect(() => {
     ReactGA.send({ hitType: "pageview", page: window.location.pathname, title: "Admin Dashboard" });
+    dispatch(getStore());
     
     const fetchData = async () => {
       try {
@@ -189,6 +193,9 @@ function Dashboard() {
       </div>
       <div className="mb-6">
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">แดชบอร์ด</h1>
+        {store?.storeName && (
+          <p className="text-sm font-medium text-gray-500 mt-1">{store.storeName}</p>
+        )}
       </div>
 
       {/* Top Cards */}
