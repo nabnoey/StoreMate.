@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -21,6 +21,12 @@ const AddCreditCardFormInner = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const cartItems = location.state?.cartItems;
+
+  useEffect(() => {
+    if (!location.state) {
+      navigate("/payment");
+    }
+  }, [location.state, navigate]);
 
   const [cardName, setCardName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -194,6 +200,7 @@ const AddCreditCardFormInner = () => {
               ชื่อที่ปรากฏบนบัตร
             </label>
             <input
+              data-test="card-name-input"
               id="cardName"
               type="text"
               placeholder="ชื่อบนบัตร"
@@ -210,7 +217,10 @@ const AddCreditCardFormInner = () => {
             >
               หมายเลขบัตร
             </label>
-            <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
+            <div
+              data-test="card-number-input"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white"
+            >
               <CardNumberElement options={cardNumberOptions} />
             </div>
           </div>
@@ -223,7 +233,10 @@ const AddCreditCardFormInner = () => {
               >
                 วันหมดอายุ
               </label>
-              <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
+              <div
+                data-test="card-expiry-input"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white"
+              >
                 <CardExpiryElement options={cardExpiryOptions} />
               </div>
             </div>
@@ -235,7 +248,10 @@ const AddCreditCardFormInner = () => {
               >
                 CVC
               </label>
-              <div className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white">
+              <div
+                data-test="card-cvc-input"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white"
+              >
                 <CardCvcElement options={cardCvcOptions} />
               </div>
             </div>
@@ -245,7 +261,7 @@ const AddCreditCardFormInner = () => {
           <button
             data-test="confirm-add-card-btn"
             type="submit"
-            disabled={!stripe || isProcessing}
+            disabled={!stripe || isProcessing || !cardName.trim()}
             className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
           >
             {isProcessing ? "กำลังประมวลผล..." : "ยืนยันข้อมูลบัตร"}

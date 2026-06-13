@@ -16,6 +16,7 @@ import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
   clearUnreadBadge,
+  markAsReadInStore,
 } from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
@@ -38,7 +39,7 @@ const Navbar: React.FC = () => {
   const [openNotifyDropdown, setOpenNotifyDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter((n) => n.isNew).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const previewNotifications = notifications.slice(0, 5);
 
@@ -260,7 +261,7 @@ const Navbar: React.FC = () => {
                 )}
               </button>
 
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   data-test="click-notifications"
                   className="relative cursor-pointer p-1 block"
@@ -290,9 +291,16 @@ const Navbar: React.FC = () => {
                         previewNotifications.map((item) => (
                           <div
                             key={item.id}
-                            className="flex gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer"
+                            className={`flex gap-3 p-4 border-b border-gray-50 transition-colors cursor-pointer ${
+                              !item.isRead
+                                ? "bg-[#EBF2FE] hover:bg-[#e2ecfc]"
+                                : "bg-white hover:bg-gray-50"
+                            }`}
                             onClick={() => {
                               setOpenNotifyDropdown(false);
+                              if (!item.isRead) {
+                                dispatch(markAsReadInStore(item.id));
+                              }
                               navigate("/notification");
                             }}
                           >
@@ -308,10 +316,14 @@ const Navbar: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col flex-1 min-w-0">
-                              <span className="text-sm font-semibold text-gray-800 truncate">
+                              <span
+                                className={`text-sm truncate ${!item.isRead ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`}
+                              >
                                 {item.title}
                               </span>
-                              <span className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">
+                              <span
+                                className={`text-xs mt-0.5 line-clamp-2 leading-relaxed ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
+                              >
                                 {item.message}
                               </span>
                               <span className="text-[11px] text-gray-400 mt-1">
@@ -326,7 +338,7 @@ const Navbar: React.FC = () => {
                     <button
                       className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 text-center text-sm font-semibold transition-colors font-Anuphan block"
                       onClick={() => {
-                        setOpenNotifyDropdown(false);
+                        setOpenNotifyDropdown(false); // ✅ ปิด Dropdown เมื่อกดปุ่ม "ดูทั้งหมด"
                         navigate("/notification");
                       }}
                     >

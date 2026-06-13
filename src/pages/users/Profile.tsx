@@ -112,7 +112,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึก
+              บันทึกข้อมูล
             </button>
 
             <button
@@ -136,8 +136,7 @@ const ProfilePage = () => {
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [tempData, setTempData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
     image: "",
@@ -161,13 +160,8 @@ const ProfilePage = () => {
   useEffect(() => {
     setLoading(true);
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
       setTempData({
-        firstName: firstName,
-        lastName: lastName,
+        name: user.name,
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
@@ -237,10 +231,8 @@ const ProfilePage = () => {
         setImageFileForUpload(blob);
 
         const formData = new FormData();
-        const fullName =
-          `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
         const userData = {
-          name: fullName,
+          name: tempData.name,
           email: tempData.email,
           phone: tempData.phone,
         };
@@ -286,11 +278,8 @@ const ProfilePage = () => {
         }
       }
 
-      const fullName =
-        `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
-
       const userData = {
-        name: fullName,
+        name: tempData.name,
         email: tempData.email,
         phone: tempData.phone,
       };
@@ -325,10 +314,8 @@ const ProfilePage = () => {
 
   const handleCloseModal = () => {
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
       setTempData({
-        firstName: nameParts[0] || "",
-        lastName: nameParts.slice(1).join(" ") || "",
+        name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
@@ -440,7 +427,7 @@ const ProfilePage = () => {
                         data-test="profile-name"
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
-                        {tempData.firstName} {tempData.lastName}
+                        {tempData.name}
                       </div>
                       <button
                         data-test="btn-change-name"
@@ -490,7 +477,7 @@ const ProfilePage = () => {
 
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
-                      หมายเลขโทรศัพท์
+                      เบอร์โทรศัพท์
                     </div>
                     <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
                       <div
@@ -674,7 +661,7 @@ const ProfilePage = () => {
                     onClick={handleSaveCrop}
                     className="cursor-pointer px-6 py-2 bg-[#00BFA5] text-white rounded-lg text-sm font-medium hover:bg-[#009E88] transition"
                   >
-                    บันทึก
+                    บันทึกข้อมูล
                   </button>
                 </div>
               )}
@@ -689,41 +676,24 @@ const ProfilePage = () => {
           onClose={handleCloseModal}
           onSave={handleSave}
         >
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block"
-              >
-                ชื่อ
-              </label>
-              <input
-                id="input-first-name"
-                data-test="input-first-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.firstName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, firstName: e.target.value })
-                }
-              />
-              <label
-                htmlFor="lastName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block mt-4"
-              >
-                นามสกุล
-              </label>
-              <input
-                id="input-last-name"
-                data-test="input-last-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.lastName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, lastName: e.target.value })
-                }
-              />
-            </div>
+          {/* <div className="space-y-4"> */}
+          <div>
+            <label
+              htmlFor="name"
+              className="text-sm text-gray-600 font-medium mb-1.5 block"
+            >
+              ชื่อ-นามสกุล
+            </label>
+            <input
+              id="input-name"
+              data-test="input-name"
+              type="text"
+              className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
+              value={tempData.name}
+              onChange={(e) =>
+                setTempData({ ...tempData, name: e.target.value })
+              }
+            />
           </div>
         </EditModal>
 
@@ -762,9 +732,9 @@ const ProfilePage = () => {
           <div>
             <label
               htmlFor="phone"
-              className="text-sm text-gray-600 font-medium mb-1.5 block"
+              className="text-md text-gray-600 font-medium mb-1.5 block"
             >
-              เบอร์โทรศัพท์ (10 หลัก)
+              เบอร์โทร
             </label>
             <input
               id="input-phone"

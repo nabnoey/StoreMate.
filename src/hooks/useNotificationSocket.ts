@@ -13,7 +13,7 @@ let currentNotifyToken: string | null = null;
 const useNotificationSocket = () => {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector((state: RootState) => state.auth.token);
-  const userRole = useSelector((state: RootState) => state.auth.user?.roleName); // USER, MODERATOR, OWNER/ADMIN
+  const userRole = useSelector((state: RootState) => state.auth.user?.roleName);
 
   useEffect(() => {
     // 🚪 จัดการกรณี Logout หรือสิทธิ์หลุด
@@ -58,8 +58,14 @@ const useNotificationSocket = () => {
           // แสดงแจ้งเตือน Popup แบบ Realtime ด้วย React Hot Toast
           toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
 
+          // ✅ บังคับให้มี property isRead: false เพื่อสอดคล้องกับลอจิกหักลบตัวเลขแจ้งเตือนที่เราทำไว้ก่อนหน้า
+          const formattedData = {
+            ...data,
+            isRead: data.isRead ?? false,
+          };
+
           // อัปเดตข้อมูลเข้า Redux Store ทันทีเพื่อให้ List Table อัปเดตข้อมูลปัจจุบัน (Postcondition UC-42)
-          dispatch(addNotificationFromSocket(data));
+          dispatch(addNotificationFromSocket(formattedData));
         };
 
         // 🌐 ทุกคน (ทุก Role) ต้องรับข่าวสารจากช่องทางส่วนกลางเสมอ

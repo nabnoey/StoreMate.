@@ -32,6 +32,8 @@ const NotificationManagementPage: React.FC = () => {
   );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
+  // ✅ สร้าง State สำหรับคำค้นหาที่หน่วงเวลาแล้ว เพื่อใช้ยิง API อย่างมีประสิทธิภาพ
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -42,63 +44,47 @@ const NotificationManagementPage: React.FC = () => {
   });
 
   const userRoles =
+    // ป้องกันกรณี roles เป็น string เดี่ยว ๆ หรือไม่ได้ส่งมา
     useSelector((state: RootState) => state.auth.user?.roles) || [];
 
   const isOwner = userRoles.includes("ADMIN") || userRoles.includes("OWNER");
   const isModerator = userRoles.includes("MODERATOR");
 
-  if (!isOwner && !isModerator) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 font-prompt p-4 text-center">
-        <Icon
-          icon="lucide:shield-alert"
-          width="64"
-          height="64"
-          className="text-red-500 mb-4"
-        />
-        <h1 className="text-xl font-bold text-gray-800 mb-2">
-          คุณไม่มีสิทธิ์เข้าถึง
-        </h1>
-        <p className="text-sm text-gray-500 mb-6">
-          เฉพาะผู้บริหารและพนักงานที่ได้รับอนุญาตเท่านั้น
-        </p>
-        <button
-          onClick={() => (window.location.href = "/store")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
-        >
-          กลับหน้าหลัก (Store Page)
-        </button>
-      </div>
-    );
-  }
+  // ✅ 1. ทำระบบ Debounce Search (หน่วงเวลาพิมพ์ 500ms แล้วค่อยค้นหาอัตโนมัติ)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPage(0);
+      setDebouncedSearch(searchTerm);
+      setPage(0); // รีเซ็ตไปหน้าแรกทุกครั้งที่เริ่มค้นหาคำใหม่
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // ค้นหา
-  useEffect(() => {
+  // ✅ 2. ฟังก์ชันกลางสำหรับดึงข้อมูลใหม่ (ช่วยลดโค้ดซ้ำซ้อน)
+  const refreshNotificationList = () => {
     if (isOwner || isModerator) {
       dispatch(
         fetchOwnerNotify({
-          keyword: searchTerm,
+          keyword: debouncedSearch,
           page,
           size: 10,
         }),
       );
     }
-  }, [dispatch, page, isOwner, isModerator]);
+  };
+
+  // ✅ 3. ดึงข้อมูลเมื่อ Page หรือคำค้นหา (Debounced) เปลี่ยนแปลง
+  useEffect(() => {
+    refreshNotificationList();
+  }, [dispatch, page, debouncedSearch, isOwner, isModerator]);
 
   const getRecipientConfig = (sendTo: string) => {
-    if (sendTo.includes("MODERATOR")) {
+    if (sendTo?.includes("MODERATOR")) {
       return {
         label: "พนักงาน",
         className: "bg-blue-50 text-blue-600 border border-blue-100",
       };
     }
-    if (sendTo.includes("CUSTOMER")) {
+    if (sendTo?.includes("CUSTOMER")) {
       return {
         label: "ผู้ใช้งาน",
         className: "bg-green-50 text-green-600 border border-green-100",
@@ -125,10 +111,10 @@ const NotificationManagementPage: React.FC = () => {
               onClick={async () => {
                 try {
                   toast.dismiss(t.id);
-
                   await dispatch(deleteNotify(id)).unwrap();
-
                   toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
+                  // ✅ รีเฟรชข้อมูลในตารางทันทีหลังจากลบสำเร็จ
+                  refreshNotificationList();
                 } catch (error) {
                   toast.error(
                     "เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
@@ -190,6 +176,8 @@ const NotificationManagementPage: React.FC = () => {
       toast.success("ส่งการแจ้งเตือนสำเร็จ");
       setIsModalOpen(false);
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
+      // ✅ รีเฟรชข้อมูลในตารางทันทีหลังจากสร้างสำเร็จ เพื่อให้เห็นรายการใหม่ด้านบน
+      refreshNotificationList();
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด ไม่สามารถส่งการแจ้งเตือนได้");
     }
@@ -217,15 +205,35 @@ const NotificationManagementPage: React.FC = () => {
 
   const handleSearch = () => {
     setPage(0);
-
-    dispatch(
-      fetchOwnerNotify({
-        keyword: searchTerm,
-        page: 0,
-        size: 10,
-      }),
-    );
+    setDebouncedSearch(searchTerm); // บังคับอัปเดตคำค้นหาทันทีเมื่อกด Enter
   };
+
+  // ✅ 4. ย้ายตัวเช็คสิทธิ์ (Early Return) มาไว้ตรงนี้ (หลังประกาศ Hooks ทั้งหมดครบถ้วนตามกฎ React)
+  if (!isOwner && !isModerator) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 font-prompt p-4 text-center">
+        <Icon
+          icon="lucide:shield-alert"
+          width="64"
+          height="64"
+          className="text-red-500 mb-4"
+        />
+        <h1 className="text-xl font-bold text-gray-800 mb-2">
+          คุณไม่มีสิทธิ์เข้าถึง
+        </h1>
+        <p className="text-sm text-gray-500 mb-6">
+          เฉพาะผู้บริหารและพนักงานที่ได้รับอนุญาตเท่านั้น
+        </p>
+        <button
+          onClick={() => (window.location.href = "/store")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
+        >
+          กลับหน้าหลัก (Store Page)
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 font-prompt">
       <main className="flex-1 flex flex-col overflow-hidden">
