@@ -43,12 +43,12 @@ const getStatusBadge = (suspended: boolean) => {
   if (suspended) {
     return {
       label: "ระงับการใช้งาน",
-      className: "bg-[#FEE2E2] text-[#DC2626]",
+      className: "px-3 py-1 rounded-full text-xs font-medium bg-[#FEE2E2] text-[#DC2626]",
     };
   }
   return {
     label: "ใช้งานได้",
-    className: "bg-[#E8F5E9] text-[#2E7D32]",
+    className: "px-3 py-1 rounded-full text-xs font-medium bg-[#E8F5E9] text-[#2E7D32]",
   };
 };
 
@@ -92,9 +92,6 @@ function UserManagement() {
       if (!selectedUser) return;
 
       try {
-        // const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER"
-        //   ? "ADMIN"
-        //   : (selectedUser.role.replace("ROLE_", "") || "USER");
          const currentRole = selectedUser.role.replace("ROLE_", "") || "USER";
         const currentSuspended = selectedUser.suspended ? "suspended" : "active";
 
@@ -306,7 +303,7 @@ useEffect(() => {
                 <button
                   type="button"
                   onClick={handleSearchSubmit}
-                  className="absolute right-2 p-1.5 text-gray-400 hover:text-blue-600 rounded-md transition-colors"
+                  className="absolute right-2 p-1.5 text-gray-400 hover:text-blue-600 rounded-md transition-colors cursor-pointer"
                   title="ค้นหา"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -322,13 +319,13 @@ useEffect(() => {
                   กรองโดยบทบาท
                 </label>
                 <select
-                  id="role-filter"
+                  data-test="role-filter"
                   value={roleFilter}
                   onChange={(e) => {
                     setRoleFilter(e.target.value);
                     setDisplayPage(0);
                   }}
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none cursor-pointer"
                 >
                   <option value="">บทบาท</option>
                   <option value="ADMIN">เจ้าของร้าน</option>
@@ -342,13 +339,13 @@ useEffect(() => {
                   กรองโดยสถานะ
                 </label>
                 <select
-                  id="status-filter"
+                  data-test="status-filter"
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value);
                     setDisplayPage(0);
                   }}
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none cursor-pointer"
                 >
                   <option value="">สถานะบัญชี</option>
                   <option value="active">ใช้งานได้</option>
@@ -413,7 +410,7 @@ useEffect(() => {
   data-test={`management-button-${user.id}`}
   type="button"
   onClick={() => setSelectedUser(user)}
-  className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
+  className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors cursor-pointer"
 >
   จัดการ
 </button>
@@ -434,7 +431,7 @@ useEffect(() => {
                 type="button"
                 onClick={() => handlePageChange(displayPage - 1)}
                 disabled={displayPage === 0}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage === 0
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors cursor-pointer ${displayPage === 0
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
                   }`}
@@ -448,7 +445,7 @@ useEffect(() => {
                     key={p}
                     type="button"
                     onClick={() => handlePageChange(p)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${p === displayPage
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors cursor-pointer ${p === displayPage
                         ? "text-blue-600 font-bold bg-transparent"
                         : "text-gray-600 hover:bg-gray-50"
                       }`}
@@ -463,7 +460,7 @@ useEffect(() => {
                 type="button"
                 onClick={() => handlePageChange(displayPage + 1)}
                 disabled={displayPage >= totalDisplayPages - 1}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors ${displayPage >= totalDisplayPages - 1
+                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors cursor-pointer ${displayPage >= totalDisplayPages - 1
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-700 hover:bg-gray-50"
                   }`}

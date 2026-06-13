@@ -12,19 +12,23 @@ const MainLayout = () => {
 
   useNotificationSocket();
 
+
   useEffect(() => {
     setIsPageTransitioning(true);
 
     const timer = setTimeout(() => {
       setIsPageTransitioning(false);
-
       // หน่วงไม่ถึง 1 วินาที ถ้าไม่หน่วงไม่โผล่นะจ้ะ
     }, 900);
 
+
     return () => clearTimeout(timer);
   }, [location.pathname]);
+
   return (
     <div className="flex flex-col min-h-screen">
+      {/* NavBar */}
+
       <ScrollToTop />
 
       {isPageTransitioning && <Loading fullScreen={true} size={250} />}
