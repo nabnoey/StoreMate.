@@ -92,9 +92,6 @@ function UserManagement() {
       if (!selectedUser) return;
 
       try {
-        // const currentRole = selectedUser.role.replace("ROLE_", "") === "OWNER"
-        //   ? "ADMIN"
-        //   : (selectedUser.role.replace("ROLE_", "") || "USER");
          const currentRole = selectedUser.role.replace("ROLE_", "") || "USER";
         const currentSuspended = selectedUser.suspended ? "suspended" : "active";
 

@@ -42,12 +42,12 @@ function Orders() {
   
   const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
-  // const calendarRef = useRef<HTMLElement | null>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // 🛡️ ดึงข้อมูลจาก URL
-  const initialPage = Number(searchParams.get("page")) || 1;
+  // 🛡️ ดึงข้อมูลจาก URL (ถ้า URL เป็น 0 ให้ UI มองเป็น 1)
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
@@ -55,11 +55,11 @@ function Orders() {
   const totalPages = useSelector((state: RootState) => state.moderator.totalPages);
 
   const PAGE_SIZE = 10;
-const TIME_FILTER_MAP: Record<string, string> = {
-  "วันนี้": "today",
-  "สัปดาห์นี้": "week",
-  "เดือนนี้": "month",
-};
+  const TIME_FILTER_MAP: Record<string, string> = {
+    "วันนี้": "today",
+    "สัปดาห์นี้": "week",
+    "เดือนนี้": "month",
+  };
 
   useEffect(() => {
     const periodValue = TIME_FILTER_MAP[timeFilter];
@@ -69,7 +69,7 @@ const TIME_FILTER_MAP: Record<string, string> = {
 
     dispatch(
       fetchAllOrders({
-        page: currentPage,
+        page: currentPage - 1, 
         size: PAGE_SIZE,
         keyword: submittedSearchTerm || undefined,
         startDate: formattedStartDate,
@@ -78,7 +78,12 @@ const TIME_FILTER_MAP: Record<string, string> = {
       })
     );
 
-    const params: Record<string, string> = { page: String(currentPage), size: String(PAGE_SIZE) };
+  
+    const params: Record<string, string> = { 
+      page: String(currentPage - 1), 
+      size: String(PAGE_SIZE) 
+    };
+    
     if (submittedSearchTerm) params.keyword = submittedSearchTerm;
     if (formattedStartDate) params.startDate = formattedStartDate;
     if (formattedEndDate) params.endDate = formattedEndDate;
@@ -142,7 +147,8 @@ const TIME_FILTER_MAP: Record<string, string> = {
       if (selectedData.length > 0) {
         const orderIds = selectedData.map((order) => Number(order.id));
         await dispatch(shippingOrder(orderIds)).unwrap();
-        dispatch(fetchAllOrders({ page: currentPage, size: PAGE_SIZE }));
+        // 🛠️ ตอนรีเฟรชข้อมูลก็ต้อง -1 ให้ API เหมือนกัน
+        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);
       setIsPrinting(true);
@@ -234,9 +240,7 @@ const TIME_FILTER_MAP: Record<string, string> = {
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
                   />
 
-                  {/* 🛠️ จุดแก้ไขหลัก: อัปเกรดให้กาง 2 เดือนคู่กัน */}
-                 {/* 🛠️ ส่วนปฏิทินสไตล์ DaisyUI + Cally */}
-<div className="relative text-sm font-['Anuphan'] w-full sm:w-72 cursor-pointer">
+                 <div className="relative text-sm font-['Anuphan'] w-full sm:w-72 cursor-pointer">
   <input
     type="text"
     readOnly
@@ -250,10 +254,8 @@ const TIME_FILTER_MAP: Record<string, string> = {
         : ""
     }
    onClick={() => {
-  setStartDate(null);
-  setEndDate(null);
-  setCurrentPage(1);
-}}
+     setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
+   }}
     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full text-gray-700 bg-white cursor-pointer"
   />
 
@@ -286,6 +288,7 @@ const TIME_FILTER_MAP: Record<string, string> = {
           onClick={() => {
             setStartDate(null);
             setEndDate(null);
+            setCurrentPage(1); // รีเซ็ตหน้ากลับไปหน้าแรกด้วย
           }}
           className="px-4 py-2 border rounded-lg cursor-pointer"
         >
@@ -294,7 +297,10 @@ const TIME_FILTER_MAP: Record<string, string> = {
 
         <button
           type="button"
-          onClick={() => setIsDatePickerOpen(false)}
+          onClick={() => {
+            setIsDatePickerOpen(false);
+            setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
+          }}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
         >
           บันทึก
@@ -311,7 +317,10 @@ const TIME_FILTER_MAP: Record<string, string> = {
                     <button
                       key={tab}
                       type="button"
-                      onClick={() => setTimeFilter(tab)}
+                      onClick={() => {
+                        setTimeFilter(tab);
+                        setCurrentPage(1); // เปลี่ยน Tab ก็ควรกลับไปหน้าแรก
+                      }}
                       className={`px-4 py-2 border-r last:border-r-0 transition-colors cursor-pointer ${
                         timeFilter === tab
                           ? "bg-gray-100 text-black"
@@ -419,27 +428,28 @@ const TIME_FILTER_MAP: Record<string, string> = {
                             </span>
                           </td>
                           <td className="py-4 text-right text-xs space-x-3 pr-2">
-                            {order.is_printed && (
-                              <span className="text-[#60A5FA] text-xs font-medium">printed</span>
-                            )}
-                            {isPrintMode ? (
-                              <button
-                                type="button"
-                                onClick={() => handleSelectOrder(String(order.orderNo))}
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                {isSelected ? "ยกเลิก" : "เลือก"}
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                จัดการ
-                              </button>
-                            )}
-                          </td>
+  {order.is_printed && (
+    <span className="text-[#60A5FA] text-xs font-medium">printed</span>
+  )}
+  {isPrintMode ? (
+    <button
+      type="button"
+      onClick={() => handleSelectOrder(String(order.orderNo))}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      {isSelected ? "ยกเลิก" : "เลือก"}
+    </button>
+  ) : (
+    <button
+      type="button"
+      data-test={`menagemate-order-${order.orderNo}`}
+      onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      จัดการ
+    </button>
+  )}
+</td>
                         </tr>
                       );
                     })
