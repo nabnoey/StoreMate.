@@ -48,6 +48,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   subTotal: number;
+  is_review: boolean;
 }
 
 export interface OrderRecipient {
@@ -55,7 +56,9 @@ export interface OrderRecipient {
   phone?: string;
 }
 
-export interface Order {
+export interface Order extends Partial<
+  Pick<RefundRequest, "reason" | "description">
+> {
   id: number;
   orderNo: string;
   status: OrderStatus;
@@ -69,9 +72,6 @@ export interface Order {
 
   total: number;
   createdAt: string;
-
-  //mock ของยกเลิกคำสั่งซื้อเฉยๆ
-  cancelReason?: string;
 }
 
 export interface OrdersState {

@@ -21,3 +21,18 @@ body {
     color-adjust: exact !important;
   }
 }
+.react-datepicker {
+  display: flex !important;
+  flex-direction: row !important;
+  border: none !important;
+}
+
+.react-datepicker__month-container {
+  float: none !important;
+  width: 320px;
+}
+
+.react-datepicker__month-container + .react-datepicker__month-container {
+  border-left: 1px solid #e5e7eb;
+}
+

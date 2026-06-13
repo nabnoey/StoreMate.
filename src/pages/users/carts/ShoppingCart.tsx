@@ -285,6 +285,7 @@ const ShoppingCart = () => {
                           disabled={!item.isAvailable}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
+                          data-test={`checkbox-product-${item.productId}`}
                           className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                         />
                       </div>
@@ -434,6 +435,7 @@ const ShoppingCart = () => {
 
                 <button
                   onClick={() => navigate("/search")}
+                  data-test="btn-add-product"
                   className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
                 >
                   เลือกซื้อสินค้า

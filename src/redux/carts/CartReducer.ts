@@ -6,7 +6,7 @@ import {
 import type { CartItem, CartItemRequestDTO } from "../../types/cartItem";
 import { CartItemService } from "../../services/cartitem.service";
 
-interface CartState {
+export interface CartState {
   items: CartItem[];
   selectedItems: CartItem[];
   status: "idle" | "loading" | "succeeded" | "failed";

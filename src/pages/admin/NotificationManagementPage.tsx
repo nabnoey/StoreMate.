@@ -16,7 +16,7 @@ interface NotificationFormData {
   recipients: string;
 }
 
-const AdminNotificationPage: React.FC = () => {
+const NotificationManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const notifications = useSelector(
@@ -30,14 +30,9 @@ const AdminNotificationPage: React.FC = () => {
   const totalPages = useSelector(
     (state: RootState) => state.notification.totalPages,
   );
-  // const currentPage = useSelector(
-  //   (state: RootState) => state.notification.currentPage,
-  // );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(0);
-
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -46,67 +41,148 @@ const AdminNotificationPage: React.FC = () => {
     recipients: "ทั้งหมด",
   });
 
+  const userRoles =
+    useSelector((state: RootState) => state.auth.user?.roles) || [];
+
+  const isOwner = userRoles.includes("ADMIN") || userRoles.includes("OWNER");
+  const isModerator = userRoles.includes("MODERATOR");
+
+  if (!isOwner && !isModerator) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 font-prompt p-4 text-center">
+        <Icon
+          icon="lucide:shield-alert"
+          width="64"
+          height="64"
+          className="text-red-500 mb-4"
+        />
+        <h1 className="text-xl font-bold text-gray-800 mb-2">
+          คุณไม่มีสิทธิ์เข้าถึง
+        </h1>
+        <p className="text-sm text-gray-500 mb-6">
+          เฉพาะผู้บริหารและพนักงานที่ได้รับอนุญาตเท่านั้น
+        </p>
+        <button
+          onClick={() => (window.location.href = "/store")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
+        >
+          กลับหน้าหลัก (Store Page)
+        </button>
+      </div>
+    );
+  }
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
       setPage(0);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // ค้นหา
   useEffect(() => {
-    dispatch(
-      fetchOwnerNotify({
-        keyword: debouncedSearch,
-        page: page,
-        size: 10,
-      }),
-    );
-  }, [dispatch, debouncedSearch, page]);
-
-  const getRecipientLabel = (sendTo: string) => {
-    if (sendTo.includes("moderator")) return "พนักงาน";
-    if (sendTo.includes("customer")) return "ผู้ใช้งาน";
-    return "ทั้งหมด";
-  };
-
-  const getRecipientBadgeClass = (sendTo: string) => {
-    if (sendTo.includes("moderator"))
-      return "bg-blue-50 text-blue-600 border border-blue-100";
-    if (sendTo.includes("customer"))
-      return "bg-green-50 text-green-600 border border-green-100";
-    return "bg-gray-100 text-gray-600";
-  };
-
-  const handleDelete = async (id: number): Promise<void> => {
-    if (window.confirm("คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?")) {
-      try {
-        await dispatch(deleteNotify(id)).unwrap();
-        toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
-      } catch (error) {
-        toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
-      }
+    if (isOwner || isModerator) {
+      dispatch(
+        fetchOwnerNotify({
+          keyword: searchTerm,
+          page,
+          size: 10,
+        }),
+      );
     }
+  }, [dispatch, page, isOwner, isModerator]);
+
+  const getRecipientConfig = (sendTo: string) => {
+    if (sendTo.includes("MODERATOR")) {
+      return {
+        label: "พนักงาน",
+        className: "bg-blue-50 text-blue-600 border border-blue-100",
+      };
+    }
+    if (sendTo.includes("CUSTOMER")) {
+      return {
+        label: "ผู้ใช้งาน",
+        className: "bg-green-50 text-green-600 border border-green-100",
+      };
+    }
+    return {
+      label: "ทั้งหมด",
+      className: "bg-gray-100 text-gray-600",
+    };
   };
+
+  const handleDelete = (id: number): void => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-2">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการลบการแจ้งเตือนนี้ใช่หรือไม่?
+          </span>
+
+          <div className="flex gap-3 mt-2">
+            <button
+              data-test="btn-confirm-delete-notification"
+              type="button"
+              onClick={async () => {
+                try {
+                  toast.dismiss(t.id);
+
+                  await dispatch(deleteNotify(id)).unwrap();
+
+                  toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
+                } catch (error) {
+                  toast.error(
+                    "เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+                  );
+                }
+              }}
+              className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              ยืนยันการลบ
+            </button>
+
+            <button
+              data-test="btn-cancel-delete-notification"
+              type="button"
+              onClick={() => toast.dismiss(t.id)}
+              className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+        id: `delete-notification-${id}`,
+      },
+    );
+  };
+
+  const TOPIC_MAP = {
+    ทั้งหมด: "ALL",
+    ผู้ใช้งาน: "CUSTOMER",
+    พนักงาน: "MODERATOR",
+  } as const;
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
-    if (!formData.subject || !formData.message) {
+
+    if (!formData.subject.trim() || !formData.message.trim()) {
       toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
-    let targetTopic = "/topic/all";
-    if (formData.recipients === "ผู้ใช้งาน") targetTopic = "/topic/customer";
-    if (formData.recipients === "พนักงาน") targetTopic = "/topic/moderator";
+    const targetTopic =
+      TOPIC_MAP[formData.recipients as keyof typeof TOPIC_MAP];
 
     try {
       await dispatch(
         createNotify({
-          title: formData.subject,
-          message: formData.message,
+          title: formData.subject.trim(),
+          message: formData.message.trim(),
           sendTo: targetTopic,
         }),
       ).unwrap();
@@ -120,7 +196,7 @@ const AdminNotificationPage: React.FC = () => {
   };
 
   const handleCancel = (): void => {
-    if (formData.subject || formData.message) {
+    if (formData.subject.trim() || formData.message.trim()) {
       if (window.confirm("คุณต้องการละทิ้งการแจ้งเตือนนี้หรือไม่?")) {
         setIsModalOpen(false);
         setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
@@ -139,6 +215,17 @@ const AdminNotificationPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSearch = () => {
+    setPage(0);
+
+    dispatch(
+      fetchOwnerNotify({
+        keyword: searchTerm,
+        page: 0,
+        size: 10,
+      }),
+    );
+  };
   return (
     <div className="flex h-screen bg-gray-50 font-prompt">
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -151,7 +238,6 @@ const AdminNotificationPage: React.FC = () => {
 
         <div className="p-8 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            {/* Search & Action Bar */}
             <div className="flex justify-between items-center mb-6">
               <div className="relative w-80">
                 <Icon
@@ -163,28 +249,32 @@ const AdminNotificationPage: React.FC = () => {
                 <input
                   type="text"
                   placeholder="ค้นหาหัวข้อการแจ้งเตือน"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
                   value={searchTerm}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSearchTerm(e.target.value)
-                  }
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearch();
+                    }
+                  }}
                 />
               </div>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
-              >
-                <Icon
-                  icon="lucide:plus"
-                  width="18"
-                  height="18"
-                  className="mr-2"
-                />
-                สร้างการแจ้งเตือน
-              </button>
+              {isOwner && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
+                >
+                  <Icon
+                    icon="lucide:plus"
+                    width="18"
+                    height="18"
+                    className="mr-2"
+                  />
+                  สร้างการแจ้งเตือน
+                </button>
+              )}
             </div>
 
-            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -210,48 +300,53 @@ const AdminNotificationPage: React.FC = () => {
                       </td>
                     </tr>
                   ) : notifications && notifications.length > 0 ? (
-                    notifications.map((noti) => (
-                      <tr
-                        key={noti.id}
-                        className="hover:bg-gray-50 transition-colors group"
-                      >
-                        <td className="py-4 pl-2">
-                          <p className="text-sm font-semibold text-gray-800">
-                            {noti.title}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            {noti.message}
-                          </p>
-                        </td>
-                        <td className="py-4 text-center">
-                          {/* 💡 ปรับคลาสสีตรงนี้เพื่อแยกรสชาติสีของกลุ่มผู้รับปลายทาง */}
-                          <span
-                            className={`text-[10px] px-3 py-1 rounded-full font-medium ${getRecipientBadgeClass(noti.sendTo)}`}
-                          >
-                            {getRecipientLabel(noti.sendTo)}
-                          </span>
-                        </td>
-                        <td className="py-4 text-center text-sm text-gray-500">
-                          {noti.createdAt
-                            ? new Date(noti.createdAt).toLocaleDateString(
-                                "th-TH",
-                              )
-                            : "-"}
-                        </td>
-                        <td className="py-4 text-right">
-                          <button
-                            onClick={() => handleDelete(noti.id)}
-                            className="text-gray-300 hover:text-red-500 p-2 transition-colors"
-                          >
-                            <Icon
-                              icon="lucide:trash-2"
-                              width="16"
-                              height="16"
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                    notifications.map((noti) => {
+                      const recipient = getRecipientConfig(noti.sendTo);
+                      return (
+                        <tr
+                          key={noti.id}
+                          className="hover:bg-gray-50 transition-colors group"
+                        >
+                          <td className="py-4 pl-2">
+                            <p className="text-sm font-semibold text-gray-800">
+                              {noti.title}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {noti.message}
+                            </p>
+                          </td>
+                          <td className="py-4 text-center">
+                            <span
+                              className={`text-[10px] px-3 py-1 rounded-full font-medium ${recipient.className}`}
+                            >
+                              {recipient.label}
+                            </span>
+                          </td>
+                          <td className="py-4 text-center text-sm text-gray-500">
+                            {noti.createdAt
+                              ? new Date(noti.createdAt).toLocaleDateString(
+                                  "th-TH",
+                                )
+                              : "-"}
+                          </td>
+
+                          {isOwner && (
+                            <td className="py-4 text-right">
+                              <button
+                                onClick={() => handleDelete(noti.id)}
+                                className="text-gray-300 hover:text-red-500 p-2 transition-colors"
+                              >
+                                <Icon
+                                  icon="lucide:trash-2"
+                                  width="16"
+                                  height="16"
+                                />
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td
@@ -281,11 +376,9 @@ const AdminNotificationPage: React.FC = () => {
                     >
                       <Icon icon="lucide:chevron-left" width="18" height="18" />
                     </button>
-
                     <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs">
                       {page + 1}
                     </span>
-
                     <button
                       type="button"
                       onClick={() =>
@@ -308,7 +401,6 @@ const AdminNotificationPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -382,4 +474,4 @@ const AdminNotificationPage: React.FC = () => {
   );
 };
 
-export default AdminNotificationPage;
+export default NotificationManagementPage;

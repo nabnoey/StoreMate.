@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -11,33 +12,28 @@ import {
   Store,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 import type { RootState } from "../../redux/store";
+import { getProfile } from "../../redux/auth/authReducer";
 
 function SidebarAdmin() {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state: RootState) => state.auth);
-  const isAdmin = Array.isArray(user?.roles)
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isOwner = Array.isArray(user?.roles)
     ? user.roles.some(
         (role: any) => role === "ADMIN" || role?.roleName === "ADMIN",
       )
     : false;
 
-  const getMenuClass = (paths: string[]) => {
-    const isActive = paths.some((path) => location.pathname === path);
-    const baseClass =
-      "cursor-pointer w-full text-left flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium rounded-lg transition-all";
-    return isActive
-      ? `${baseClass} bg-blue-50 text-blue-600 font-semibold`
-      : `${baseClass} text-gray-700 hover:bg-gray-50 hover:text-blue-600`;
-  };
+  useEffect(() => {
+    dispatch(getProfile() as any);
+  }, [dispatch]);
 
   const handleLogout = () => {
     toast(
@@ -98,34 +94,37 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="dashboard-button"
-              className="cursor-pointer w-full text-left hover:bg-blue-100 
-     hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/owner/dashboard")}
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all -mt-7.5"
+              onClick={() =>
+                navigate("/owner/dashboard" )
+              }
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
             </button>
           </li>
 
-          <li>
-            <button
-              data-test="report-button"
-              className={getMenuClass(["/owner/analytic", "/moderator/analytic"])}
-              onClick={() =>
-                navigate(isAdmin ? "/owner/analytic" : "/moderator/analytic")
-              }
-            >
-              <TrendingUp size={18} />
-              รายงานยอดขาย
-            </button>
-          </li>
+          {isOwner && (
+            <li>
+              <button
+                data-test="report-button"
+                className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                onClick={() =>
+                  navigate("/owner/analytic")
+                }
+              >
+                <TrendingUp size={18} />
+                รายงานยอดขาย
+              </button>
+            </li>
+          )}
 
           <li>
             <button
               data-test="stock-button"
-              className={getMenuClass(["/admin/stock", "/moderator/stock"])}
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
+                navigate("/moderator/stock")
               }
             >
               <Package size={18} />
@@ -135,12 +134,11 @@ function SidebarAdmin() {
 
           <li>
             <button
-              className={getMenuClass([
-                "/admin/ordersMod",
-                "/moderator/ordersMod",
-              ])}
+              data-test="orders-button"
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")
+
+                navigate("/moderator/orders")
               }
             >
               <Truck size={18} />
@@ -150,9 +148,10 @@ function SidebarAdmin() {
 
           <li>
             <button
-              className={getMenuClass(["/admin/refund", "/moderator/refund"])}
+              data-test="refund-button"
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
               onClick={() =>
-                navigate(isAdmin ? "/owner/refund" : "/moderator/refund")
+                navigate(isOwner ? "/owner/refund" : "/moderator/refund")
               }
             >
               <CircleDollarSign size={18} />
@@ -160,12 +159,13 @@ function SidebarAdmin() {
             </button>
           </li>
 
-          {isAdmin && (
+          {isOwner && (
             <>
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/owner/user-edit")}
+                  data-test="user-edit-button"
+                  className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  onClick={() => navigate("/owner/user-management")}
                 >
                   <Users size={18} />
                   จัดการผู้ใช้
@@ -174,26 +174,30 @@ function SidebarAdmin() {
 
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+                  data-test="store-edit-button"
+                  className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
                   onClick={() => navigate("/owner/store-edit")}
                 >
                   <Settings size={18} />
                   ตั้งค่าร้านค้า
                 </button>
               </li>
-
-              <li>
-                <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  // onClick={() => navigate("/owner/notify")}
-                  onClick={() => navigate("/owner/notification")}
-                >
-                  <Bell size={18} />
-                  จัดการแจ้งเตือน
-                </button>
-              </li>
             </>
           )}
+          <li>
+            <button
+              data-test="notification-button"
+              className="cursor-pointer w-full text-left text-[16px] hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
+              onClick={() =>
+                navigate(
+                  isOwner ? "/owner/notification" : "/moderator/notification",
+                )
+              }
+            >
+              <Bell size={18} />
+              จัดการแจ้งเตือน
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -216,7 +220,7 @@ function SidebarAdmin() {
           </div>
           <div className="overflow-hidden">
             <p className="font-medium text-sm text-gray-900 truncate">
-              {user?.name || user?.email?.split("@")[0] || "กำลังโหลด..."}
+              {user?.name || "กำลังโหลด..."}
             </p>
             <p className="text-xs text-gray-500 truncate">
               {user?.email || "กำลังโหลด..."}
@@ -225,8 +229,9 @@ function SidebarAdmin() {
         </div>
 
         <button
+          data-test="home-button"
           onClick={() => navigate("/")}
-          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-lg transition-all w-full text-left"
+          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[16px] font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-lg transition-all w-full text-left"
         >
           <Store size={18} />
           หน้าหลักร้านค้า
@@ -235,7 +240,7 @@ function SidebarAdmin() {
         <button
           onClick={handleLogout}
           data-test="logout-button"
-          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all w-full text-left"
+          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[16px] font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all w-full text-left"
         >
           <LogOut size={18} />
           ลงชื่อออกจากระบบ

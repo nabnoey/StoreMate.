@@ -3,13 +3,11 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import {
-  NotificationService,
-  type FetchNotifyParams,
-} from "../../services/notification.service"; // ปรับ path ให้ตรงกับไฟล์ Service ของคุณ
+import { NotificationService } from "../../services/notification.service";
 import type {
   Notification,
   NotificationRequest,
+  FetchNotifyParams,
 } from "../../types/notification";
 
 export const fetchOwnerNotify = createAsyncThunk(
@@ -41,9 +39,15 @@ export const deleteNotify = createAsyncThunk(
   },
 );
 
+export interface ClientNotification extends Notification {
+  isNew?: boolean;
+  isRead?: boolean;
+}
+
 interface NotificationState {
-  items: Notification[];
+  items: ClientNotification[];
   isLoading: boolean;
+  isSubmitting: boolean;
   totalPages: number;
   currentPage: number;
 }
@@ -51,6 +55,7 @@ interface NotificationState {
 const initialState: NotificationState = {
   items: [],
   isLoading: false,
+  isSubmitting: false,
   totalPages: 0,
   currentPage: 0,
 };
@@ -60,38 +65,96 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
-      state.items.unshift(action.payload);
+      const exists = state.items.some((item) => item.id === action.payload.id);
+      if (!exists) {
+        // ดันขึ้นบนสุด สภาพพร้อมใช้งาน Realtime
+        state.items.unshift({ ...action.payload, isNew: true, isRead: false });
+      }
+    },
+    clearUnreadBadge: (state) => {
+      state.items = state.items.map((item) => ({
+        ...item,
+        isNew: false,
+      }));
+    },
+    markAsReadInStore: (state, action: PayloadAction<number>) => {
+      const target = state.items.find((item) => item.id === action.payload);
+      if (target) {
+        target.isRead = true;
+      }
     },
   },
   extraReducers: (builder) => {
     builder
-      // จัดการตอนดึงข้อมูล Admin / User
+      // --- Fetch Owner Notify ---
       .addCase(fetchOwnerNotify.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(fetchOwnerNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload.content || [];
+        state.items = (action.payload.content || []).map(
+          (item: Notification) => ({
+            ...item,
+            isNew: false,
+            isRead: false, // หมายเหตุ: หาก Backend มีฟิลด์สถานะการอ่าน ให้เปลี่ยนเป็น item.isRead แทนข้อมูล Hardcode
+          }),
+        );
         state.totalPages = action.payload.totalPages || 0;
         state.currentPage = action.payload.number || 0;
       })
-      .addCase(fetchUserNotify.fulfilled, (state, action) => {
-        state.items = action.payload;
+      .addCase(fetchOwnerNotify.rejected, (state) => {
+        state.isLoading = false;
       })
 
-      //สร้างการแจ้งเตือน
+      // --- Fetch User Notify ---
+      .addCase(fetchUserNotify.fulfilled, (state, action) => {
+        state.items = (action.payload || []).map((item: Notification) => ({
+          ...item,
+          isNew: false,
+          isRead: false,
+        }));
+      })
+
+      // --- Create Notify ---
+      .addCase(createNotify.pending, (state) => {
+        state.isSubmitting = true;
+      })
       .addCase(createNotify.fulfilled, (state, action) => {
-        if (action.payload) {
-          state.items.unshift(action.payload);
+        state.isSubmitting = false;
+        if (!action.payload) return;
+        const exists = state.items.some(
+          (item) => item.id === action.payload.id,
+        );
+        if (!exists) {
+          state.items.unshift({
+            ...action.payload,
+            isNew: false,
+            isRead: false,
+          });
         }
       })
+      .addCase(createNotify.rejected, (state) => {
+        state.isSubmitting = false;
+      })
 
-      // ลบการแจ้งเตือน
+      // --- Delete Notify ---
+      .addCase(deleteNotify.pending, (state) => {
+        state.isSubmitting = true;
+      })
       .addCase(deleteNotify.fulfilled, (state, action) => {
+        state.isSubmitting = false;
+        // ลบข้อมูลออกจากตารางในสเตตทันทีตาม postcondition ของ UC-43
         state.items = state.items.filter((item) => item.id !== action.payload);
+      })
+      .addCase(deleteNotify.rejected, (state) => {
+        state.isSubmitting = false;
       });
   },
 });
 
-export const { addNotificationFromSocket } = notificationSlice.actions;
+export const {
+  addNotificationFromSocket,
+  clearUnreadBadge,
+  markAsReadInStore,
+} = notificationSlice.actions;
 export default notificationSlice.reducer;

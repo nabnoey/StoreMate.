@@ -128,68 +128,87 @@ const RefundModeratorPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 items-center mb-5">
-            <div className="relative max-w-sm w-full">
-              <input
-                type="text"
-                placeholder="ค้นหาด้วยชื่อ , หมายเลขคำสั่งซื้อ หรือ หมายเลขคำขอ..."
-                value={keywordInput}
-                onChange={(e) => setKeywordInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setSearchParams({
-                      page: "1",
-                      status: statusFilter,
-                      keyword: keywordInput,
-                    });
-                  }
-                }}
-                className="w-full bg-white border border-gray-200 rounded-xl pl-3 pr-10 py-1.5 text-xs text-gray-600 focus:outline-none focus:border-blue-400 transition-colors placeholder:text-gray-300"
-              />
+          <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm max-w-xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              {/* Search */}
+              <div className="relative w-full sm:w-[400px]">
+                <Icon
+                  icon="lucide:search"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
+                />
 
-              {keywordInput && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setKeywordInput("");
+                <input
+                  type="text"
+                  placeholder="ค้นหาด้วยชื่อ, หมายเลขคำสั่งซื้อ หรือ หมายเลขคำขอ"
+                  value={keywordInput}
+                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setSearchParams({
+                        page: "1",
+                        status: statusFilter,
+                        keyword: keywordInput,
+                      });
+                    }
+                  }}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-200 rounded-md
+        focus:outline-none focus:ring-1 focus:ring-blue-500
+        focus:border-blue-500 text-sm text-gray-600"
+                />
+
+                {keywordInput && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setKeywordInput("");
+                      setSearchParams({
+                        page: "1",
+                        status: statusFilter,
+                        keyword: "",
+                      });
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <Icon icon="lucide:x" className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter */}
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
                     setSearchParams({
                       page: "1",
-                      status: statusFilter,
-                      keyword: "",
+                      status: e.target.value,
+                      keyword: searchParams.get("keyword") || "",
                     });
                   }}
-                  className="absolute right-3 top-2 text-gray-400 hover:text-gray-600 transition-colors "
+                  className="min-w-[180px] bg-white border border-gray-200 rounded-md
+  px-3 py-2 text-sm text-gray-700 font-medium
+  focus:outline-none focus:ring-1 focus:ring-blue-500
+  appearance-none cursor-pointer"
+                  data-test="refund-status-filter"
                 >
-                  <Icon icon="lucide:x" className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setSearchParams({
-                    page: "1",
-                    status: e.target.value,
-                    keyword: searchParams.get("keyword") || "",
-                  });
-                }}
-                className="bg-white border border-gray-200 rounded-xl pl-3 pr-8 py-1.5 text-md text-black font-medium focus:outline-none appearance-none cursor-pointer"
-              >
-                <option value="ALL">สถานะทั้งหมด</option>
-                <option value="APPROVED">อนุมัติ</option>
-                <option value="PENDING">รอดำเนินการ</option>
-                <option value="REJECTED">ปฏิเสธ</option>
-              </select>
-              <Icon
-                icon="lucide:chevron-down"
-                className="w-3.5 h-3.5 absolute right-2.5 top-2.5 text-gray-400 cursor-pointer"
-              />
+                  <option value="ALL" disabled hidden>
+                    สถานะทั้งหมด
+                  </option>
+                  <option value="APPROVED">อนุมัติ</option>
+                  <option value="PENDING">รอดำเนินการ</option>
+                  <option value="REJECTED">ปฏิเสธ</option>
+                </select>
+
+                <Icon
+                  icon="lucide:chevron-down"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                />
+              </div>
             </div>
           </div>
 
           <div className="w-full overflow-x-auto bg-white p-4 rounded-[14px] border border-black/10 flex-1">
-            <table className="w-full text-left border-collapse min-w-[1000px]">
+            <table className="w-full text-left border-collapse min-w-[1000px] table-auto">
               <thead>
                 <tr className="border-b border-gray-100 text-black text-[16px] font-medium bg-[#fafafa]">
                   <th className="px-4 py-3 font-medium ">หมายเลขคำขอ</th>
@@ -226,10 +245,10 @@ const RefundModeratorPage = () => {
                       key={row.orderNo}
                       className="hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="px-4 py-4 text-[#4B5563] font-normal text-[16px]">
+                      <td className="px-4 py-4 text-[#4B5563] font-medium text-[16px] min-w-[100px]">
                         {row.refundNo || "ไม่มีข้อมูลหมายเลข"}
                       </td>
-                      <td className="px-4 py-4 text-[#4B5563] font-medium text-[16px]">
+                      <td className="px-4 py-4 text-[#4B5563] font-medium text-[16px] min-w-[100px] whitespace-nowrap">
                         {row.receiverName}
                       </td>
                       <td className="px-4 py-4 text-[#4B5563] text-[16px]">

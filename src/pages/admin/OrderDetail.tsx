@@ -98,24 +98,16 @@ function OrderDetail() {
 
   const { orderToPrint, loading } = useSelector((state: RootState) => state.moderator);
   const order = orderToPrint && orderToPrint.length > 0 ? orderToPrint[0] : null;
+const [selectedStatus, setSelectedStatus] = useState("");
 
-const [selectedStatus, setSelectedStatus] = useState(
-  order?.status || ""
-);
 
-  useEffect(() => {
-    if (order?.status) {
-      setSelectedStatus(order.status);
-    }
-  }, [order?.status]);
-
-  useEffect(() => {
-    if (orderNo && orderNo !== "undefined") {
-      dispatch(getoOrderByOrderNo(orderNo)); 
-    } else {
-      console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
-    }
-  }, [orderNo, dispatch]);
+useEffect(() => {
+  if (orderNo && orderNo !== "undefined") {
+    dispatch(getoOrderByOrderNo(orderNo)); 
+  } else {
+    console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
+  }
+}, [orderNo, dispatch]);
 
 
 
@@ -164,9 +156,8 @@ const [selectedStatus, setSelectedStatus] = useState(
       setTimeout(() => {
         navigate("/moderator/orders");
       }, 1500);
-    } catch (error: any) {
-      console.error("Update status failed:", error);
-      toast.error(error.message || "ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
+    } catch {
+      toast.error("ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)")
     }
   };
 

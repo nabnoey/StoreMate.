@@ -2,21 +2,18 @@ export interface Notification {
   id: number;
   title: string;
   message: string;
-  sendTo: string;
+  sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
   createdAt: string;
-}
-
-export interface NotificationResponse {
-  id: number;
-  title: string;
-  message: string;
-  createdAt: string;
-  type: string; // จำลอง: 'orders' | 'refunds' | 'shop'
-  isRead: boolean; // จำลองผ่าน localStorage
 }
 
 export interface NotificationRequest {
   title: string;
   message: string;
-  sendTo: string;
+  sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
+}
+
+export interface FetchNotifyParams {
+  keyword: string;
+  page: number;
+  size: number;
 }

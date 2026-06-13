@@ -42,10 +42,11 @@ import Dashboard from "../pages/admin/Dashboard";
 import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
-import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
-import AdminNotificationPage from "../pages/admin/Notification";
+
+import NotificationManagementPage from "../pages/admin/NotificationManagementPage";
 import Analytic from "../pages/admin/Analytic";
+import UserManagement from "../pages/admin/UserManagement";
 
 const router = createBrowserRouter([
   {
@@ -230,6 +231,11 @@ const router = createBrowserRouter([
         path: "refund",
         element: <RefundModeratorPage />,
       },
+      {
+        path: "notification",
+        element: <NotificationManagementPage />,
+      },
+      
     ],
   },
   {
@@ -248,30 +254,26 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
-      {
-        path: "stock",
-        element: <Stock />,
-      },
+      // {
+      //   path: "stock",
+      //   element: <Stock />,
+      // },
       {
         path: "analytic",
         element: <Analytic />,
       },
 
-      {
-        path: "ordersMod",
-        element: <Order />,
-      },
-      {
-        path: "ordersMod/:orderNo",
-        element: <OrderDetail />,
-      },
+      // {
+      //   path: "ordersMod",
+      //   element: <Order />,
+      // },
+      // {
+      //   path: "ordersMod/:orderNo",
+      //   element: <OrderDetail />,
+      // },
       {
         path: "refund",
         element: <RefundModeratorPage />,
-      },
-      {
-        path: "user-edit",
-        element: <UserEdit />,
       },
       {
         path: "store-edit",
@@ -279,8 +281,12 @@ const router = createBrowserRouter([
       },
       {
         path: "notification",
-        element: <AdminNotificationPage />,
+        element: <NotificationManagementPage />,
       },
+      {
+        path: "user-management",
+        element: <UserManagement />,
+      }
     ],
   },
 ]);

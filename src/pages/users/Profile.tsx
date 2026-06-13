@@ -3,17 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import {
-  getProfile,
-  updateProfile,
-  logout,
-} from "../../redux/auth/authReducer";
+import { getProfile, updateProfile } from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
 import { Icon } from "@iconify/react";
 
-// --- Utility Function สำหรับการ Crop รูปภาพ ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -64,7 +59,6 @@ async function getCroppedImg(
   });
 }
 
-// --- Sub-Component: Modal ทั่วไป ---
 interface ModalProps {
   isOpen: boolean;
   title: string;
@@ -82,28 +76,32 @@ const EditModal = ({
 }: ModalProps) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 top-[60px] sm:top-0 sm:inset-0 z-[60] flex items-start sm:items-center justify-center bg-white sm:bg-black/50 sm:backdrop-blur-sm">
-      <div className="bg-white w-full h-full sm:h-auto sm:max-w-[450px] sm:rounded-xl shadow-none sm:shadow-2xl flex flex-col animate-in slide-in-from-right-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 font-['Anuphan'] relative">
+    <div
+      className="
+    fixed inset-0 z-[60]
+    flex items-center justify-center
+    bg-black/50 backdrop-blur-sm
+    p-4
+  "
+    >
+      <div
+        className="
+    bg-white
+    w-[92%]
+    max-w-[420px]
+    rounded-xl
+    shadow-2xl
+    overflow-hidden
+  "
+      >
         <div className="px-4 pt-6 pb-2">
           <div className="flex items-center gap-2 mb-3">
-            <button
-              onClick={onClose}
-              className="text-black p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-            >
-              <Icon
-                icon="material-symbols:arrow-back"
-                className="sm:hidden w-6 h-6"
-              />
-            </button>
             <h3 className="text-[#374151] text-[16px] sm:text-[18px] font-bold break-words">
               {title}
             </h3>
           </div>
-          <hr className="sm:hidden border-t-2 border-black w-full" />
         </div>
-
         <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
-
         <div className="px-4 pb-6 pt-4 mt-auto bg-white">
           <div
             data-test="edit-modal-actions"
@@ -253,7 +251,7 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("อัปเดตรูปโปรไฟล์สำเร็จ!", { id: toastId });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
@@ -279,6 +277,15 @@ const ProfilePage = () => {
     const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
 
     try {
+      // ตรวจรูปแบบอีเมล
+      if (activeModal === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(tempData.email)) {
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { id: toastId });
+          return;
+        }
+      }
+
       const fullName =
         `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
 
@@ -297,25 +304,14 @@ const ProfilePage = () => {
 
       await dispatch(updateProfile(formData) as any).unwrap();
 
-      if (tempData.email !== user.email) {
-        toast.success("เปลี่ยนอีเมลสำเร็จ กรุณาเข้าสู่ระบบใหม่ด้วยอีเมลใหม่", {
-          id: toastId,
-        });
-        setActiveModal(null);
-
-        setTimeout(() => {
-          dispatch(logout());
-          window.location.href = "/login";
-        }, 2000);
-        return;
-      }
-
       await dispatch(getProfile() as any).unwrap();
-      toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
+
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
+      // ดึงเอา error ของ BE มาโชว์
       const errorMessage =
         typeof error === "string"
           ? error
@@ -341,13 +337,11 @@ const ProfilePage = () => {
     setActiveModal(null);
   };
 
-  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
   const formatDate = (dateString: string) => {
     if (!dateString || dateString === "null") return "-";
 
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
-    // ถ้าอยากได้ พ.ศ. ปัจจุบัน ให้บวก 543
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
@@ -434,8 +428,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Desktop Divider */}
-              <div className="hidden md:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
-
+              <div className="hidden md:hidden xl:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
@@ -529,8 +522,14 @@ const ProfilePage = () => {
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       วันที่สมัคร
                     </div>
-                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
-                      <div className="text-[14px] sm:text-[16px] text-black truncate">
+                    <div
+                      data-test="profile-created-at"
+                      className="flex-1 flex items-center justify-between gap-2 overflow-hidden"
+                    >
+                      <div
+                        className="text-[14px] sm:text-[16px] text-black truncate"
+                        data-test="profile-created-at"
+                      >
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
                           : "-"}
@@ -559,7 +558,7 @@ const ProfilePage = () => {
             }}
           >
             <div
-            data-test="stop-Propagation"
+              data-test="stop-Propagation"
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
@@ -661,7 +660,6 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* 🟢 ย้ายปุ่มควบคุมมาครอบด้วยเงื่อนไข crop เท่านั้น (หน้าจอ upload จะไม่มีปุ่มและไม่มีแถบสีเทาด้านล่างกวนใจ) */}
               {imageUploadStep === "crop" && (
                 <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                   <button
