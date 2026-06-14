@@ -101,7 +101,7 @@ const EditModal = ({
             </h3>
           </div>
         </div>
-        <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
+        <div className="px-4 py-4 flex-1 overflow-y-auto">{children}</div>
         <div className="px-4 pb-6 pt-4 mt-auto bg-white">
           <div
             data-test="edit-modal-actions"
@@ -112,7 +112,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึก
+              บันทึกข้อมูล
             </button>
 
             <button
@@ -136,8 +136,7 @@ const ProfilePage = () => {
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [tempData, setTempData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
     image: "",
@@ -161,13 +160,8 @@ const ProfilePage = () => {
   useEffect(() => {
     setLoading(true);
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
       setTempData({
-        firstName: firstName,
-        lastName: lastName,
+        name: user.name,
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
@@ -237,10 +231,8 @@ const ProfilePage = () => {
         setImageFileForUpload(blob);
 
         const formData = new FormData();
-        const fullName =
-          `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
         const userData = {
-          name: fullName,
+          name: tempData.name,
           email: tempData.email,
           phone: tempData.phone,
         };
@@ -277,7 +269,6 @@ const ProfilePage = () => {
     const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
 
     try {
-      // ตรวจรูปแบบอีเมล
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
@@ -286,11 +277,8 @@ const ProfilePage = () => {
         }
       }
 
-      const fullName =
-        `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
-
       const userData = {
-        name: fullName,
+        name: tempData.name,
         email: tempData.email,
         phone: tempData.phone,
       };
@@ -303,7 +291,6 @@ const ProfilePage = () => {
       }
 
       await dispatch(updateProfile(formData) as any).unwrap();
-
       await dispatch(getProfile() as any).unwrap();
 
       toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
@@ -311,7 +298,6 @@ const ProfilePage = () => {
       setImageFileForUpload(null);
     } catch (error: any) {
       console.error(error);
-      // ดึงเอา error ของ BE มาโชว์
       const errorMessage =
         typeof error === "string"
           ? error
@@ -325,10 +311,8 @@ const ProfilePage = () => {
 
   const handleCloseModal = () => {
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
       setTempData({
-        firstName: nameParts[0] || "",
-        lastName: nameParts.slice(1).join(" ") || "",
+        name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
@@ -391,7 +375,7 @@ const ProfilePage = () => {
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
+          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
             <div className="hidden sm:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
@@ -440,7 +424,7 @@ const ProfilePage = () => {
                         data-test="profile-name"
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
-                        {tempData.firstName} {tempData.lastName}
+                        {tempData.name}
                       </div>
                       <button
                         data-test="btn-change-name"
@@ -490,7 +474,7 @@ const ProfilePage = () => {
 
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
-                      หมายเลขโทรศัพท์
+                      เบอร์โทรศัพท์
                     </div>
                     <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
                       <div
@@ -562,14 +546,15 @@ const ProfilePage = () => {
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-100 pb-4">
+              {/* ปรับแก้ให้ใช้ px-4 เสมอตาม EditModal ด้านบนเพื่อความสมมาตร */}
+              <div className="px-4 pt-6 pb-4 border-b border-gray-100">
                 {imageUploadStep === "upload" ? (
                   <div
                     data-test="image-upload-area"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center p-12 transition-colors w-full min-h-[260px] ${
+                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12 transition-colors w-full min-h-[260px] ${
                       isDragging ? "border-blue-500 bg-blue-50/50" : ""
                     }`}
                   >
@@ -628,7 +613,7 @@ const ProfilePage = () => {
                       )}
                     </div>
 
-                    {/* แถบย่อ-ขยาย พร้อมเอฟเฟกต์สีวิ่ง */}
+                    {/* แถบย่อ-ขยาย */}
                     <div className="w-full max-w-xs mt-6 flex items-center gap-4">
                       <span className="text-xs text-gray-500 font-medium">
                         0
@@ -661,7 +646,7 @@ const ProfilePage = () => {
               </div>
 
               {imageUploadStep === "crop" && (
-                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                <div className="px-4 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                   <button
                     data-test="btn-cancel-crop"
                     onClick={closeImageModal}
@@ -674,7 +659,7 @@ const ProfilePage = () => {
                     onClick={handleSaveCrop}
                     className="cursor-pointer px-6 py-2 bg-[#00BFA5] text-white rounded-lg text-sm font-medium hover:bg-[#009E88] transition"
                   >
-                    บันทึก
+                    บันทึกข้อมูล
                   </button>
                 </div>
               )}
@@ -689,41 +674,23 @@ const ProfilePage = () => {
           onClose={handleCloseModal}
           onSave={handleSave}
         >
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block"
-              >
-                ชื่อ
-              </label>
-              <input
-                id="input-first-name"
-                data-test="input-first-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.firstName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, firstName: e.target.value })
-                }
-              />
-              <label
-                htmlFor="lastName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block mt-4"
-              >
-                นามสกุล
-              </label>
-              <input
-                id="input-last-name"
-                data-test="input-last-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.lastName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, lastName: e.target.value })
-                }
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="name"
+              className="text-sm text-gray-600 font-medium mb-1.5 block"
+            >
+              ชื่อ-นามสกุล
+            </label>
+            <input
+              id="input-name"
+              data-test="input-name"
+              type="text"
+              className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
+              value={tempData.name}
+              onChange={(e) =>
+                setTempData({ ...tempData, name: e.target.value })
+              }
+            />
           </div>
         </EditModal>
 
@@ -762,9 +729,9 @@ const ProfilePage = () => {
           <div>
             <label
               htmlFor="phone"
-              className="text-sm text-gray-600 font-medium mb-1.5 block"
+              className="text-md text-gray-600 font-medium mb-1.5 block"
             >
-              เบอร์โทรศัพท์ (10 หลัก)
+              เบอร์โทร
             </label>
             <input
               id="input-phone"

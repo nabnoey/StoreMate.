@@ -73,7 +73,7 @@ const usePaymentSocket = () => {
             data.status === "COMPLETED"
           ) {
             toast.dismiss();
-            toast.success("ชำระเงินสำเร็จ");
+            toast.success("คำสั่งซื้อสำเร็จ");
 
             localStorage.removeItem("orderNo");
 
@@ -90,7 +90,7 @@ const usePaymentSocket = () => {
             data.paymentStatus === "PAYMENT_FAILS" ||
             data.status === "CANCELLED"
           ) {
-            toast.error("ชำระเงินไม่สำเร็จ");
+            toast.error("QR Code หมดอายุการใช้งาน");
 
             dispatch(
               setPaymentStatus({
