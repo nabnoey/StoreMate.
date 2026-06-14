@@ -56,6 +56,10 @@ const SearchPage = () => {
   };
 
   const [inputValue, setInputValue] = useState(keyword);
+  useEffect(() => {
+    setInputValue(keyword);
+  }, [keyword]);
+
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

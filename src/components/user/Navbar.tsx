@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
-import { search } from "../../redux/products/productReducer";
+// import { search } from "../../redux/products/productReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
@@ -30,6 +30,9 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
+  useEffect(() => {
+    setInputValue(keyword);
+  }, [keyword]);
 
   const notifications = useSelector(
     (state: RootState) => state.notification.items,
@@ -74,26 +77,26 @@ const Navbar: React.FC = () => {
     const value = e.target.value;
     setInputValue(value);
 
-    if (value.trim() !== "") {
-      dispatch(
-        search({
-          keyword: value,
-          categoryId: 0,
-          minPrice: 0,
-          maxPrice: 0,
-          page: 1,
-          size: 1000,
-        }),
-      );
-    }
+    // if (value.trim() !== "") {
+    //   dispatch(
+    //     search({
+    //       keyword: value,
+    //       categoryId: 0,
+    //       minPrice: 0,
+    //       maxPrice: 0,
+    //       page: 1,
+    //       size: 1000,
+    //     }),
+    //   );
+    // }
   };
 
   const handleSubmitSearch = () => {
-    if (!inputValue.trim()) {
-      return;
-    }
+    // if (!inputValue.trim()) {
+    //   return;
+    // }
     navigate(`/search?keyword=${inputValue}`);
-    setOpenSearch(false);
+    // setOpenSearch(false);
   };
 
   const [openSearch, setOpenSearch] = useState(false);
@@ -202,6 +205,7 @@ const Navbar: React.FC = () => {
             width="24"
             height="24"
             className="cursor-pointer text-black hover:text-indigo-600 transition-colors z-50"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               if (openSearch) {
                 handleSubmitSearch();
