@@ -153,7 +153,7 @@ const PaymentContent = () => {
       }
 
       if (confirmResult.paymentIntent?.status === "succeeded") {
-        toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
+        toast.success("คำสั่งซื้อสำเร็จ", { duration: 2000 });
         setTimeout(() => {
           navigate("/orders", {
             state: {
@@ -176,7 +176,7 @@ const PaymentContent = () => {
     }
 
     if (checkoutType === "DESTINATION") {
-      toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
+      toast.success("คำสั่งซื้อสำเร็จ", { duration: 2000 });
       setTimeout(() => {
         navigate("/orders", {
           state: { status: "success", checkoutType: "DESTINATION" },
@@ -270,7 +270,10 @@ const PaymentContent = () => {
             <h2 className="font-anuphan text-[16px] font-semibold text-black leading-[32px] break-words mb-2">
               ที่อยู่ในการจัดส่ง
             </h2>
-            <div className="flex justify-between items-center py-3 border-b border-gray-200">
+            <div
+              data-test="shipping-address"
+              className="flex justify-between items-center py-3 border-b border-gray-200"
+            >
               <div className="font-anuphan text-[16px] font-normal text-[#7E7E7E] leading-[24px] break-words">
                 {defaultAddress ? (
                   <span className="flex items-center gap-2">
@@ -284,17 +287,17 @@ const PaymentContent = () => {
                 )}
               </div>
               <button
-                data-test="btn-change-address-mobile"
+                data-test="btn-change-address"
                 // onClick={() => navigate("/address-profile")}
                 onClick={() =>
-  navigate("/address-profile", {
-    state: {
-      from: "payment",
-      items: selectedItems,
-      isBuyNow,
-    },
-  })
-}
+                  navigate("/address-profile", {
+                    state: {
+                      from: "payment",
+                      items: selectedItems,
+                      isBuyNow,
+                    },
+                  })
+                }
                 className="cursor-pointer font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
                 เปลี่ยน
@@ -305,6 +308,7 @@ const PaymentContent = () => {
           <div className="max-h-[250px] overflow-y-auto mb-10 pr-2">
             {selectedItems.map((item: any) => (
               <div
+                data-test="order-item"
                 key={item.productId}
                 className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0"
               >
@@ -403,7 +407,10 @@ const PaymentContent = () => {
                   </button>
 
                   {paymentMethod === "CARD" && (
-                    <div className="ml-0 sm:ml-12 mt-3 space-y-3">
+                    <div
+                      data-test="saved-card-list"
+                      className="ml-0 sm:ml-12 mt-3 space-y-3"
+                    >
                       {savedCards.map((card: any) => (
                         <button
                           key={card.id}
@@ -499,7 +506,10 @@ const PaymentContent = () => {
                   <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                     ยอดชำระทั้งหมด
                   </span>
-                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
+                  <span
+                    data-test="order-total-price-desktop"
+                    className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right"
+                  >
                     ฿ {subtotal.toLocaleString()}
                   </span>
                   <div className="col-start-2 flex justify-end mt-2 lg:mt-0">
@@ -650,7 +660,7 @@ const PaymentContent = () => {
                       {savedCards.map((card: any) => (
                         <button
                           key={card.id}
-                          data-test="select-credit-mobile"
+                          data-test="btn-select-card-method-mobile"
                           onClick={() => setSelectedCardId(card.id)}
                           className="flex items-center gap-3 cursor-pointer w-full text-left"
                         >
@@ -731,7 +741,10 @@ const PaymentContent = () => {
           <div className="space-y-3 mb-4">
             <div className="flex justify-between text-[16px] text-black">
               <span>ยอดชำระทั้งหมด</span>
-              <span className="font-semibold text-[16px]">
+              <span
+                data-test="order-total-price-mobile"
+                className="font-semibold text-[16px]"
+              >
                 ฿ {subtotal.toLocaleString()}
               </span>
             </div>

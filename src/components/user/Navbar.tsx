@@ -15,7 +15,7 @@ import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
-  clearUnreadBadge,
+  markAsReadInStore,
 } from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
   const [openNotifyDropdown, setOpenNotifyDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter((n) => n.isNew).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const previewNotifications = notifications.slice(0, 5);
 
@@ -68,9 +68,6 @@ const Navbar: React.FC = () => {
 
   const handleBellClick = () => {
     setOpenNotifyDropdown(!openNotifyDropdown);
-    if (!openNotifyDropdown) {
-      dispatch(clearUnreadBadge());
-    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,9 +102,6 @@ const Navbar: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
   const totalItems = cartItems?.length;
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated,
-  );
 
   const isActive = (path: string, searchParam: string = "") => {
     if (searchParam) {
@@ -241,7 +235,7 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {isAuthenticated ? (
+        {isAuthentication ? (
           <>
             <div className="flex items-center gap-3 lg:gap-4 text-black">
               <button
@@ -264,7 +258,7 @@ const Navbar: React.FC = () => {
                 )}
               </button>
 
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   data-test="click-notifications"
                   className="relative cursor-pointer p-1 block"
@@ -294,9 +288,16 @@ const Navbar: React.FC = () => {
                         previewNotifications.map((item) => (
                           <div
                             key={item.id}
-                            className="flex gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer"
+                            className={`flex gap-3 p-4 border-b border-gray-50 transition-colors cursor-pointer ${
+                              !item.isRead
+                                ? "bg-[#EBF2FE] hover:bg-[#e2ecfc]"
+                                : "bg-white hover:bg-gray-50"
+                            }`}
                             onClick={() => {
                               setOpenNotifyDropdown(false);
+                              if (!item.isRead) {
+                                dispatch(markAsReadInStore(item.id));
+                              }
                               navigate("/notification");
                             }}
                           >
@@ -312,10 +313,14 @@ const Navbar: React.FC = () => {
                             </div>
 
                             <div className="flex flex-col flex-1 min-w-0">
-                              <span className="text-sm font-semibold text-gray-800 truncate">
+                              <span
+                                className={`text-sm truncate ${!item.isRead ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`}
+                              >
                                 {item.title}
                               </span>
-                              <span className="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">
+                              <span
+                                className={`text-xs mt-0.5 line-clamp-2 leading-relaxed ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
+                              >
                                 {item.message}
                               </span>
                               <span className="text-[11px] text-gray-400 mt-1">
@@ -382,7 +387,7 @@ const Navbar: React.FC = () => {
       {/* MOBILE MENU DROPDOWN */}
       {openMenu && (
         <div className="absolute top-[60px] right-4 w-[280px] sm:w-[320px] bg-white shadow-xl z-50 lg:hidden rounded-lg overflow-hidden border border-gray-100 animate-in fade-in zoom-in origin-top-right">
-          {isAuthenticated ? (
+          {isAuthentication ? (
             <UserProfile
               variant="mobile"
               onCloseMenu={() => setOpenMenu(false)}

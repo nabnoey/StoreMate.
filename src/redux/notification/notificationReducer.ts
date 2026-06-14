@@ -60,30 +60,81 @@ const initialState: NotificationState = {
   currentPage: 0,
 };
 
+const getSafeReadIds = (): number[] => {
+  try {
+    return JSON.parse(localStorage.getItem("read_notifications") || "[]");
+  } catch (e) {
+    console.error("Failed to parse read_notifications from localStorage", e);
+    return [];
+  }
+};
+
 const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
+    // รับข้อมูลจาก WebSocket
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
       const exists = state.items.some((item) => item.id === action.payload.id);
       if (!exists) {
-        // ดันขึ้นบนสุด สภาพพร้อมใช้งาน Realtime
-        state.items.unshift({ ...action.payload, isNew: true, isRead: false });
+        // ดึงจาก local มาเช็กซ้ำ
+        const readIds = getSafeReadIds();
+        state.items.unshift({
+          ...action.payload,
+          isNew: true,
+          isRead: readIds.includes(action.payload.id),
+        });
       }
     },
+
+    // กดเปิดกระดิ่งแล้วให้เคลียร์ตัวเลข Badge ทั้งหมดทันที
     clearUnreadBadge: (state) => {
-      state.items = state.items.map((item) => ({
-        ...item,
-        isNew: false,
-      }));
+      const readIds = getSafeReadIds();
+
+      state.items = state.items.map((item) => {
+        if (!item.isRead && !readIds.includes(item.id)) {
+          readIds.push(item.id);
+        }
+        return {
+          ...item,
+          isNew: false,
+          isRead: true, // ปรับเป็นอ่านแล้วเพื่อลดจำนวน unreadCount ใน Navbar
+        };
+      });
+
+      // บันทึกก้อน ID ทั้งหมดกลับลงฐานข้อมูลจำลอง (localStorage)
+      try {
+        localStorage.setItem("read_notifications", JSON.stringify(readIds));
+      } catch (e) {
+        console.error(
+          "Failed to update clearUnreadBadge inside localStorage",
+          e,
+        );
+      }
     },
-    markAsReadInStore: (state, action: PayloadAction<number>) => {
-      const target = state.items.find((item) => item.id === action.payload);
-      if (target) {
-        target.isRead = true;
+
+    markAsReadInStore: (state, action: PayloadAction<number | string>) => {
+      const targetId = String(action.payload);
+      state.items = state.items.map((item) => {
+        if (String(item.id) === targetId) {
+          return { ...item, isRead: true, isNew: false };
+        }
+        return item;
+      });
+
+      // บันทึกลง LocalStorage
+      try {
+        const readIds = getSafeReadIds().map(String); // แปลงของเก่าในเครื่องเป็น String ให้หมด
+        if (!readIds.includes(targetId)) {
+          readIds.push(targetId);
+          localStorage.setItem("read_notifications", JSON.stringify(readIds));
+        }
+      } catch (e) {
+        console.error("Failed to save read status", e);
       }
     },
   },
+
   extraReducers: (builder) => {
     builder
       // --- Fetch Owner Notify ---
@@ -92,11 +143,13 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchOwnerNotify.fulfilled, (state, action) => {
         state.isLoading = false;
+        const readIds = getSafeReadIds();
+
         state.items = (action.payload.content || []).map(
           (item: Notification) => ({
             ...item,
             isNew: false,
-            isRead: false, // หมายเหตุ: หาก Backend มีฟิลด์สถานะการอ่าน ให้เปลี่ยนเป็น item.isRead แทนข้อมูล Hardcode
+            isRead: readIds.includes(item.id),
           }),
         );
         state.totalPages = action.payload.totalPages || 0;
@@ -107,12 +160,21 @@ const notificationSlice = createSlice({
       })
 
       // --- Fetch User Notify ---
+      .addCase(fetchUserNotify.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(fetchUserNotify.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const readIds = getSafeReadIds().map(String);
+
         state.items = (action.payload || []).map((item: Notification) => ({
           ...item,
           isNew: false,
-          isRead: false,
+          isRead: readIds.includes(String(item.id)),
         }));
+      })
+      .addCase(fetchUserNotify.rejected, (state) => {
+        state.isLoading = false;
       })
 
       // --- Create Notify ---
@@ -143,7 +205,6 @@ const notificationSlice = createSlice({
       })
       .addCase(deleteNotify.fulfilled, (state, action) => {
         state.isSubmitting = false;
-        // ลบข้อมูลออกจากตารางในสเตตทันทีตาม postcondition ของ UC-43
         state.items = state.items.filter((item) => item.id !== action.payload);
       })
       .addCase(deleteNotify.rejected, (state) => {

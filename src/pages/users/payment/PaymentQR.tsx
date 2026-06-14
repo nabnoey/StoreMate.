@@ -130,7 +130,7 @@ const PaymentQRInner = () => {
           data.status === "COMPLETED" ||
           data.paymentStatus === "PAYMENT_SUCCESS"
         ) {
-          toast.success("ชำระเงินสำเร็จ");
+          toast.success("สั่งซื้อสำเร็จ");
           dispatch(
             setPaymentStatus({
               status: "PAYMENT_SUCCESS",
@@ -255,7 +255,7 @@ const PaymentQRInner = () => {
         }
       } catch (err) {
         console.error(err);
-        toast.error("ไม่สามารถเชื่อมต่อระบบชำระเงินได้");
+        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้");
       } finally {
         setIsGenerating(false);
       }
@@ -275,6 +275,7 @@ const PaymentQRInner = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
+        toast.error("QR Code หมดอายุการใช้งาน");
         clearPaymentSession();
 
         navigate(`/orders`);
@@ -289,6 +290,7 @@ const PaymentQRInner = () => {
           );
           if (remaining <= 0) {
             clearInterval(timerId);
+            toast.error("QR Code หมดอายุการใช้งาน");
             clearPaymentSession();
             navigate(`/orders`);
           } else {
@@ -298,6 +300,7 @@ const PaymentQRInner = () => {
           setTimeLeft((prev) => {
             if (prev <= 1) {
               clearInterval(timerId);
+              toast.error("QR Code หมดอายุการใช้งาน");
               clearPaymentSession();
               navigate(`/orders`);
               return 0;
@@ -308,7 +311,7 @@ const PaymentQRInner = () => {
       }, 1000);
       return () => clearInterval(timerId);
     }
-  }, [navigate, id, totalPrice, showQR, clientSecret, timeLeft <= 0]);
+  }, [navigate, id, totalPrice, showQR, clientSecret, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)
@@ -330,6 +333,7 @@ const PaymentQRInner = () => {
   } else if (qrImage) {
     qrContent = (
       <img
+        data-test="promptpay-qr-image"
         src={qrImage}
         alt="PromptPay QR Code"
         className="w-full h-full object-contain"
@@ -386,6 +390,7 @@ const PaymentQRInner = () => {
       {/* --- MOBILE HEADER --- */}
       <div className="lg:hidden w-full flex items-center bg-white p-4 pt-10 shadow-sm sticky top-0 z-30 mb-2">
         <Icon
+          data-test="btn-back-payment"
           icon="lucide:arrow-left"
           className="w-6 h-6 mr-3 text-black cursor-pointer"
           onClick={() => {
@@ -416,7 +421,10 @@ const PaymentQRInner = () => {
             <span className="text-black font-bold text-[15px] sm:text-base">
               ยอดชำระเงินทั้งหมด
             </span>
-            <span className="text-blue-500 font-bold text-lg sm:text-xl">
+            <span
+              data-test="payment-total-price-mobile"
+              className="text-blue-500 font-bold text-lg sm:text-xl"
+            >
               ฿ {totalPrice.toLocaleString()}
             </span>
           </div>
@@ -424,7 +432,10 @@ const PaymentQRInner = () => {
             <span className="text-black font-medium text-[15px] sm:text-base">
               กรุณาชำระภายใน
             </span>
-            <span className="text-blue-500 font-bold text-lg sm:text-xl">
+            <span
+              data-test="payment-countdown"
+              className="text-blue-500 font-bold text-lg sm:text-xl"
+            >
               {formatTime(timeLeft)}
             </span>
           </div>
@@ -439,11 +450,17 @@ const PaymentQRInner = () => {
                 </span>
               </div>
               <div className="p-6 flex flex-col items-center bg-white">
-                <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] bg-white flex items-center justify-center border-2 border-[#113566] mb-5 p-2 rounded-xl shadow-sm relative">
+                <div
+                  data-test="promptpay-qr-container"
+                  className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] bg-white flex items-center justify-center border-2 border-[#113566] mb-5 p-2 rounded-xl shadow-sm relative"
+                >
                   {/* แสดงผลตัวแปร qrContent ที่เราดึงออกมาจาก Ternary */}
                   {qrContent}
                 </div>
-                <span className="text-blue-500 font-bold text-xl mb-3">
+                <span
+                  data-test="payment-total-price-desktop"
+                  className="text-blue-500 font-bold text-xl mb-3"
+                >
                   ฿ {totalPrice.toLocaleString()}
                 </span>
                 <span className="text-[13px] sm:text-md font-bold text-black mb-1">
@@ -453,7 +470,10 @@ const PaymentQRInner = () => {
                   STOREMATE CO.,LTD.
                 </span>
                 <div className="px-2 py-0.5 rounded-md w-full text-center">
-                  <span className="text-[11px] sm:text-md text-[#94A3B8] font-bold">
+                  <span
+                    data-test="payment-reference-id"
+                    className="text-[11px] sm:text-md text-[#94A3B8] font-bold"
+                  >
                     รหัสอ้างอิง: {refId || "กำลังโหลด..."}
                   </span>
                 </div>
