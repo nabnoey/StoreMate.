@@ -176,7 +176,13 @@ const ProfilePage = () => {
 
   const openModal = (type: string) => setActiveModal(type);
 
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
   const processFile = (file: File) => {
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG");
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
       return;
@@ -266,15 +272,18 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
-    const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
-
     try {
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
-          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { id: toastId });
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง");
           return;
         }
+      }
+
+      if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
+        toast.error("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+        return;
       }
 
       const userData = {
@@ -293,7 +302,7 @@ const ProfilePage = () => {
       await dispatch(updateProfile(formData) as any).unwrap();
       await dispatch(getProfile() as any).unwrap();
 
-      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
@@ -303,9 +312,7 @@ const ProfilePage = () => {
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
 
-      toast.error(errorMessage, {
-        id: toastId,
-      });
+      toast.error(errorMessage);
     }
   };
 

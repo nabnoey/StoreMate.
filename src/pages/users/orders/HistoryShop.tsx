@@ -602,7 +602,7 @@ const HistoryPage = () => {
                                 e.stopPropagation();
                                 handleBuyAgain(order);
                               }}
-                              className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
+                              className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                             >
                               ซื้ออีกครั้ง
                             </button>
@@ -628,7 +628,7 @@ const HistoryPage = () => {
                                     setIsSelectModalOpen(true);
                                   }
                                 }}
-                                className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                               >
                                 เขียนรีวิว
                               </button>
@@ -654,7 +654,7 @@ const HistoryPage = () => {
                                     setIsSelectModalOpen(true);
                                   }
                                 }}
-                                className="flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                               >
                                 ดูรีวิว
                               </button>
@@ -678,39 +678,40 @@ const HistoryPage = () => {
                               </p>
                             )}
                           </div>
-                        ) : order.status === "PENDING" || order.status === "PROCESSING" ? (
+                        ) : order.status === "PENDING" ||
+                          order.status === "PROCESSING" ? (
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
-                         {order.status === "PENDING" && (
-  <button
-    type="button"
-    data-test="btn-retry-payment"
-    onClick={(e) =>
-      handleRetryPayment(e, order, orderTotal)
-    }
-    className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium"
-  >
-    ชำระเงิน
-  </button>
-)}
-                          <button
-  data-test="btn-cancel-order"
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    navigate(
-      `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-      {
-        state: {
-          status: order.status,
-          paymentMethod: order.checkoutType,
-        },
-      },
-    );
-  }}
-  className="w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium"
->
-  ยกเลิกคำสั่งซื้อ
-</button>
+                            {order.status === "PENDING" && (
+                              <button
+                                type="button"
+                                data-test="btn-retry-payment"
+                                onClick={(e) =>
+                                  handleRetryPayment(e, order, orderTotal)
+                                }
+                                className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium"
+                              >
+                                ชำระเงิน
+                              </button>
+                            )}
+                            <button
+                              data-test="btn-cancel-order"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(
+                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
+                                  {
+                                    state: {
+                                      status: order.status,
+                                      paymentMethod: order.checkoutType,
+                                    },
+                                  },
+                                );
+                              }}
+                              className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium"
+                            >
+                              ยกเลิกคำสั่งซื้อ
+                            </button>
                           </div>
                         ) : null}
                       </div>
@@ -786,7 +787,7 @@ const HistoryPage = () => {
                 data-test="btn-open-model-review"
                 type="button"
                 onClick={handleConfirmProductSelection}
-                className="px-5 py-2 bg-[#1E40AF] text-white rounded-lg font-medium text-[14px] transition cursor-pointer shadow-xs min-w-[80px] text-center"
+                className="cursor-pointer px-5 py-2 bg-[#1E40AF] text-white rounded-lg font-medium text-[14px] transition cursor-pointer shadow-xs min-w-[80px] text-center"
               >
                 เลือก
               </button>
@@ -794,7 +795,7 @@ const HistoryPage = () => {
                 data-test="btn-cancel-model-review"
                 type="button"
                 onClick={() => setIsSelectModalOpen(false)}
-                className="px-5 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium text-[14px] transition cursor-pointer min-w-[80px] text-center"
+                className="cursor-pointer px-5 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium text-[14px] transition cursor-pointer min-w-[80px] text-center"
               >
                 ยกเลิก
               </button>
@@ -893,7 +894,7 @@ const HistoryPage = () => {
                 type="button"
                 data-test="btn-submit-write-review"
                 onClick={handleReviewSubmit}
-                className="flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
+                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
               >
                 ส่ง
               </button>
@@ -901,7 +902,7 @@ const HistoryPage = () => {
                 type="button"
                 data-test="btn-cancel-write-review"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
+                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
               >
                 ยกเลิก
               </button>
@@ -946,7 +947,7 @@ const HistoryPage = () => {
                       type="button"
                       data-test="btn-delete-review-desktop"
                       onClick={handleDeleteReview}
-                      className="px-4 py-1.5 border border-red-500 text-red-500 rounded-md text-[13px] font-medium hover:bg-red-50 transition"
+                      className="cursor-pointer px-4 py-1.5 border border-red-500 text-red-500 rounded-md text-[13px] font-medium hover:bg-red-50 transition"
                     >
                       ลบ
                     </button>
@@ -954,7 +955,7 @@ const HistoryPage = () => {
                       type="button"
                       data-test="btn-edit-review-desktop"
                       onClick={handleSwitchToEditReview}
-                      className="px-4 py-1.5 border border-[#2A4494] text-[#2A4494] rounded-md text-[13px] font-medium hover:bg-blue-50 transition"
+                      className="cursor-pointer px-4 py-1.5 border border-[#2A4494] text-[#2A4494] rounded-md text-[13px] font-medium hover:bg-blue-50 transition"
                     >
                       แก้ไข
                     </button>
@@ -1001,7 +1002,7 @@ const HistoryPage = () => {
                   type="button"
                   data-test="btn-edit-review-mobile"
                   onClick={handleSwitchToEditReview}
-                  className="flex-1 py-2.5 border border-[#2A4494] text-[#2A4494] font-medium rounded-lg text-[15px] hover:bg-blue-50 transition"
+                  className="cursor-pointer flex-1 py-2.5 border border-[#2A4494] text-[#2A4494] font-medium rounded-lg text-[15px] hover:bg-blue-50 transition"
                 >
                   แก้ไข
                 </button>
@@ -1009,7 +1010,7 @@ const HistoryPage = () => {
                   type="button"
                   data-test="btn-delete-review-mobile"
                   onClick={handleDeleteReview}
-                  className="flex-1 py-2.5 border border-red-500 text-red-500 font-medium rounded-lg text-[15px] hover:bg-red-50 transition"
+                  className="cursor-pointer flex-1 py-2.5 border border-red-500 text-red-500 font-medium rounded-lg text-[15px] hover:bg-red-50 transition"
                 >
                   ลบ
                 </button>
@@ -1018,7 +1019,7 @@ const HistoryPage = () => {
                 type="button"
                 data-test="btn-close-view-review-desktop"
                 onClick={() => setIsViewReviewModalOpen(false)}
-                className="hidden sm:block px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition"
+                className="cursor-pointer hidden sm:block px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition"
               >
                 ปิด
               </button>
@@ -1136,7 +1137,7 @@ const HistoryPage = () => {
                 type="button"
                 data-test="btn-submit-edit-review"
                 onClick={handleEditReviewSubmit}
-                className="flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
+                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
               >
                 ส่ง
               </button>
@@ -1144,7 +1145,7 @@ const HistoryPage = () => {
                 type="button"
                 data-test="btn-cancel-edit-review"
                 onClick={() => setIsEditReviewModalOpen(false)}
-                className="flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
+                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
               >
                 ยกเลิก
               </button>
