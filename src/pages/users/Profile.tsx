@@ -282,7 +282,7 @@ const ProfilePage = () => {
       }
 
       if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
-        toast.error("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก");
         return;
       }
 
@@ -459,7 +459,7 @@ const ProfilePage = () => {
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
                         {tempData.email.replace(
-                          /(.{3})([^@]*)(@.*)/,
+                          /(.)([^@]*)(@.*)/,
                           "$1******$3",
                         )}
                       </div>
