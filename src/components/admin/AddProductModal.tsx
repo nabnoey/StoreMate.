@@ -9,6 +9,9 @@ import type { ProductMod } from "../../types/moderator/productMod";
 import { toast } from "react-hot-toast";
 import { ProductService } from "../../services/product.service";
 
+// ==========================================
+// 1. TYPES & CONSTANTS
+// ==========================================
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,15 +19,31 @@ interface AddProductModalProps {
   product?: ProductMod | null;
 }
 
-const ProductSchema = Yup.object().shape({
-  productName: Yup.string().required("กรุณากรอกชื่อสินค้า"),
-  categoryName: Yup.string().required("กรุณาเลือกหมวดหมู่"),
-  price: Yup.number().typeError("ราคาต้องเป็นตัวเลข").min(0, "ราคาต้องไม่ต่ำกว่า 0").required("กรุณากรอกราคา"),
-  stockQuantity: Yup.number().typeError("จำนวนต้องเป็นตัวเลข").min(0, "จำนวนต้องไม่ต่ำกว่า 0").required("กรุณากรอกจำนวนสินค้า"),
-  status: Yup.string().required("กรุณาเลือกสถานะ"),
-  description: Yup.string().required("กรุณากรอกรายละเอียดสินค้า"),
-});
+interface FormValues {
+  productName: string;
+  categoryName: string;
+  price: number | "";
+  stockQuantity: number | "";
+  status: "ACTIVE" | "CHECKED_OUT";
+  description: string;
+  files: File | null;
+}
 
+const CATEGORY_MAP: Record<string, number> = {
+  "โปรโมชั่น": 1,
+  "สบู่": 2,
+  "เครื่องดื่ม": 3,
+  "ผลิตภัณฑ์ดูแลผม": 4,
+};
+
+const STATUS_MAP: Record<string, number> = {
+  "ACTIVE": 1,
+  "CHECKED_OUT": 2,
+};
+
+// ==========================================
+// 2. HELPER FUNCTIONS (Pure Functions)
+// ==========================================
 const normalizeCategory = (category: string | number | undefined): string => {
   if (!category) return "";
   const catStr = String(category).toLowerCase().trim();
@@ -37,61 +56,53 @@ const normalizeCategory = (category: string | number | undefined): string => {
   return String(category);
 };
 
+const normalizeStatus = (status: any): "ACTIVE" | "CHECKED_OUT" => {
+  if (!status) return "ACTIVE";
+  const statStr = String(typeof status === "object" ? (status.name || status.statusName || status.id) : status)
+    .toUpperCase()
+    .trim();
+
+  if (["2", "CHECKED_OUT", "INACTIVE", "ไม่พร้อมจำหน่าย", "ไม่จำหน่าย"].includes(statStr)) {
+    return "CHECKED_OUT";
+  }
+  return "ACTIVE";
+};
+
+// ==========================================
+// 3. VALIDATION SCHEMA
+// ==========================================
+const ProductSchema = Yup.object().shape({
+  productName: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+  categoryName: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+  price: Yup.number().typeError("ราคาสินค้าควรเป็นตัวเลข").min(0, "ราคาต้องไม่ต่ำกว่า 0").required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+  stockQuantity: Yup.number().typeError("จำนวนสินค้าควรเป็นตัวเลข").min(0, "จำนวนต้องไม่ต่ำกว่า 0").required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+  status: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+  description: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
+});
+
+// ==========================================
+// 4. MAIN COMPONENT
+// ==========================================
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSuccess, product }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [fullProduct, setFullProduct] = useState<any>(null);
+  
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
 
-  const handleDelete = () => {
-    if (!product) return;
-    toast(
-      (t) => (
-        <div>
-          <p className="mb-3 text-gray-800 font-medium">คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?</p>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={async () => {
-                toast.dismiss(t.id);
-                try {
-                  await dispatch(deleteProduct(product.id)).unwrap();
-                  toast.success("ลบสินค้าสำเร็จ");
-                  dispatch(getproducts({ page: 0, size: 1000 }));
-                  if (onSuccess) onSuccess();
-                  else onClose();
-                } catch (error: any) {
-                  toast.error(error.message || "เกิดข้อผิดพลาดในการลบสินค้า");
-                }
-              }}
-              className="px-4 py-1.5 bg-[#EF4444] hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors cursor-pointer"
-            >
-              ลบสินค้า
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors cursor-pointer "
-            >
-              ยกเลิก
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: Infinity, id: "delete-confirm" }
-    );
-  };
-
+  // 🌟 useEffect ถูกหลักอนามัย React ดักจับ Race Condition และใช้ Cleanup Function
   useEffect(() => {
+    let isMounted = true;
+
     const fetchDetail = async () => {
       if (isOpen && isEditMode && product?.id) {
-        try {
-          const detail = await ProductService.getProductById(product.id);
+        const detail = await ProductService.getProductById(product.id);
+        if (isMounted) {
           setFullProduct(detail);
-          if (detail.productImages && detail.productImages.length > 0) {
+          if (detail.productImages?.length > 0) {
             setPreviewImage(detail.productImages[0].imageUrl);
           }
-        } catch (err) {
-          console.error("Failed to fetch product details", err);
         }
       } else if (!isOpen) {
         setPreviewImage(null);
@@ -99,17 +110,102 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
       }
     };
     fetchDetail();
-  }, [isOpen, isEditMode, product]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, isEditMode, product?.id]);
 
   if (!isOpen) return null;
 
-  // 📌 เตรียม Initial Values แบบปลอดภัย (Type-Safe) ไม่พึ่งพาเครื่องหมาย ! อีกต่อไป
-  const formInitialValues = {
+  const handleCloseModal = () => {
+    if (onSuccess) onSuccess();
+    else onClose();
+  };
+
+  const refreshProductList = () => {
+    dispatch(getproducts({ page: 0, size: 1000 }));
+  };
+
+  const getRemovedImages = (hasNewFile: boolean) => {
+    if (isEditMode && hasNewFile && fullProduct?.productImages) {
+      return fullProduct.productImages.map((img: any) => img.id);
+    }
+    return [];
+  };
+
+  // 🛠️ ฟังก์ชัน Toast ยืนยันตรงกลาง: เพิ่มพารามิเตอร์ isDanger เพื่อสลับสีปุ่ม ยืนยัน
+  const showConfirmToast = (message: string, isDanger = false): Promise<boolean> => {
+    return new Promise((resolve) => {
+      toast(
+        (t) => (
+          <div className="flex flex-col items-center justify-center text-center p-1 w-full min-w-[250px]">
+            <p className="mb-4 text-gray-800 font-medium">{message}</p>
+            <div className="flex justify-center gap-3 w-full">
+              <button
+                onClick={() => { toast.dismiss(t.id); resolve(true); }}
+                // 📌 ถ้าเป็นเคสลบ (isDanger === true) จะใช้สีแดง [#EF4444] ถ้าเคสทั่วไปจะใช้สีน้ำเงิน [#003399]
+                className={`px-5 py-1.5 text-white rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                  isDanger ? "bg-[#EF4444] hover:bg-red-600" : "bg-[#003399] hover:bg-blue-800"
+                }`}
+              >
+                ยืนยัน
+              </button>
+              <button
+                onClick={() => { toast.dismiss(t.id); resolve(false); }}
+                className="px-5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors cursor-pointer"
+              >
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+        ),
+        { duration: Infinity }
+      );
+    });
+  };
+
+  // ลบสินค้า
+  const handleDelete = async () => {
+    if (!product) return;
+    // 📌 ส่งค่า true เข้าไปในพารามิเตอร์ตัวที่สอง เพื่อบอกว่าเป็นเคสอันตราย ปุ่มยืนยันจะเป็นสีแดง
+    const isConfirmed = await showConfirmToast("คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?", true);
+    if (!isConfirmed) return;
+
+    try {
+      await dispatch(deleteProduct(product.id)).unwrap();
+      toast.success("ลบสินค้าสำเร็จ");
+      refreshProductList();
+      handleCloseModal();
+    } catch (error: any) {
+      toast.error(error.message || "เกิดข้อผิดพลาดในการลบสินค้า");
+    }
+  };
+
+  // ยกเลิกการแก้ไขข้อมูลสินค้า
+  const handleCancel = async () => {
+    const isConfirmed = await showConfirmToast("คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?");
+    if (isConfirmed) onClose();
+  };
+
+  const handleFileChange = (file: File | undefined, setFieldValue: any) => {
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      toast.error("ไฟล์รูปภาพไม่รองรับ หรือขนาดใหญ่เกิน 5MB");
+      return;
+    }
+
+    setFieldValue("files", file);
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
+  const formInitialValues: FormValues = {
     productName: product?.productName || "",
     categoryName: normalizeCategory(product?.category),
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
-    status: product?.status || "ACTIVE",
+    status: normalizeStatus(fullProduct?.status || product?.status),
     description: fullProduct?.description || product?.description || "",
     files: null,
   };
@@ -117,6 +213,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
         {/* Header */}
         <div className="bg-[#003399] px-6 py-6 text-center">
           <h2 className="text-2xl font-bold text-white tracking-wide">
@@ -127,62 +224,39 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
         {/* Form Body */}
         <div className="p-6 overflow-y-auto">
           <Formik
-            enableReinitialize={true}
+            enableReinitialize
             initialValues={formInitialValues}
             validationSchema={ProductSchema}
             onSubmit={async (values, { setSubmitting }) => {
               try {
-                const formData = new FormData();
-
-                const categoryMap: Record<string, number> = {
-                  "โปรโมชั่น": 1,
-                  "สบู่": 2,
-                  "เครื่องดื่ม": 3,
-                  "ผลิตภัณฑ์ดูแลผม": 4,
-                };
-
-                const statusMap: Record<string, number> = {
-                  "ACTIVE": 1,
-                  "CHECKED_OUT": 2,
-                };
-
-// 1. สร้างก้อนข้อมูลพื้นฐาน 6 ตัว (ใช้ได้ทั้ง Add และ Edit)
-// ใส่ type : any ไว้ก่อนเพื่อที่เราจะยัดฟิลด์เพิ่มเข้าไปทีหลังได้
-const requestPayload: any = {
-  productName: values.productName,
-  categoryId: categoryMap[values.categoryName] || 2,
-  price: Number(values.price),
-  stockQuantity: Number(values.stockQuantity),
-  statusId: statusMap[values.status] || 1,
-  description: values.description,
-};
-
-if (isEditMode) {
-  requestPayload.removeImages = values.files && fullProduct?.productImages 
-    ? fullProduct.productImages.map((img: any) => img.id) 
-    : [];
-}
-                formData.append("request", JSON.stringify(requestPayload));
-
-                if (values.files) {
-                  formData.append("files", values.files);
+                if (isEditMode && !(await showConfirmToast("คุณแน่ใจหรือไม่ว่าต้องการแก้ไขสินค้านี้?"))) {
+                  return;
                 }
+
+                const formData = new FormData();
+                const requestPayload = {
+                  productName: values.productName,
+                  categoryId: CATEGORY_MAP[values.categoryName] || 2,
+                  price: Number(values.price),
+                  stockQuantity: Number(values.stockQuantity),
+                  statusId: STATUS_MAP[values.status] || 1,
+                  description: values.description,
+                  removeImages: getRemovedImages(!!values.files),
+                };
+
+                formData.append("request", JSON.stringify(requestPayload));
+                if (values.files) formData.append("files", values.files);
 
                 if (isEditMode) {
-                  await dispatch(editProduct({ id: product!.id, data: formData })).unwrap();
-                  toast.success("แก้ไขสินค้าสำเร็จ");
+                  await dispatch(editProduct({ id: product.id, data: formData })).unwrap();
+                  toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว");
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
-                  toast.success("เพิ่มสินค้าสำเร็จ");
+                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว");
                 }
-                
-                dispatch(getproducts({ page: 0, size: 1000 }));
-                
-                if (onSuccess) {
-                  onSuccess();
-                } else {
-                  onClose();
-                }
+
+                refreshProductList();
+                handleCloseModal();
               } catch (error: any) {
                 toast.error(error.message || (isEditMode ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า" : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"));
               } finally {
@@ -220,12 +294,12 @@ if (isEditMode) {
                   </div>
                 </div>
 
-                {/* Row 2: ราคา, จำนวนสินค้า */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">ราคา</label>
                     <Field
                       type="number"
+                      min={0}
                       name="price"
                       placeholder="ราคา"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
@@ -236,6 +310,7 @@ if (isEditMode) {
                     <label className="block text-sm font-medium text-gray-700 mb-1">จำนวนสินค้าในคลัง</label>
                     <Field
                       type="number"
+                      min={0}
                       name="stockQuantity"
                       placeholder="จำนวนสินค้า"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
@@ -244,7 +319,6 @@ if (isEditMode) {
                   </div>
                 </div>
 
-                {/* Row 3: สถานะสินค้า */}
                 <div className="w-1/2 pr-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">สถานะสินค้า</label>
                   <Field
@@ -258,7 +332,6 @@ if (isEditMode) {
                   <ErrorMessage name="status" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
 
-                {/* Row 4: รายละเอียดสินค้า */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">รายละเอียดสินค้า</label>
                   <Field
@@ -271,7 +344,7 @@ if (isEditMode) {
                   <ErrorMessage name="description" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
 
-                {/* Row 5: Image Upload Area */}
+                {/* Dropzone Area */}
                 <div>
                   <div
                     className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors"
@@ -279,11 +352,7 @@ if (isEditMode) {
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
-                      const file = e.dataTransfer.files[0];
-                      if (file) {
-                        setFieldValue("files", file);
-                        setPreviewImage(URL.createObjectURL(file));
-                      }
+                      handleFileChange(e.dataTransfer.files[0], setFieldValue);
                     }}
                   >
                     <input
@@ -291,13 +360,7 @@ if (isEditMode) {
                       accept="image/png, image/jpeg"
                       className="hidden"
                       ref={fileInputRef}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setFieldValue("files", file);
-                          setPreviewImage(URL.createObjectURL(file));
-                        }
-                      }}
+                      onChange={(e) => handleFileChange(e.target.files?.[0], setFieldValue)}
                     />
                     
                     {previewImage ? (
@@ -341,7 +404,7 @@ if (isEditMode) {
                   <button
                     type="button"
                     data-test="cancel-edit-product"
-                    onClick={onClose}
+                    onClick={handleCancel}
                     className="px-8 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors cursor-pointer"
                   >
                     ยกเลิก
