@@ -17,3 +17,4 @@ export interface FetchNotifyParams {
   page: number;
   size: number;
 }
+
