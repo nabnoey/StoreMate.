@@ -215,7 +215,7 @@ function HomePage() {
 
         {/* Soap Section */}
         <section
-          id="soap-section"
+          id="drinks-section"
           className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32"
         >
           {/* <ContentWrapper> */}
@@ -257,7 +257,7 @@ function HomePage() {
         </section>
 
         <section
-          id="soap-section"
+          id="shampoo-section"
           className="mb-20 max-w-360 mx-auto px-6 md:px-12 lg:px-24 xl:px-32"
         >
           <SectionHeader
