@@ -127,9 +127,9 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="stock-button"
-              className={menuClass(["/owner/stock", "/moderator/stock"])}
+              className={menuClass(["/moderator/stock"])}
               onClick={() =>
-                navigate(isOwner ? "/owner/stock" : "/moderator/stock")
+                navigate("/moderator/stock")
               }
             >
               <Package size={18} />
