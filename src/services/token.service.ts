@@ -1,5 +1,8 @@
+//Cookies คือ Class
 import { Cookies } from "react-cookie";
 
+//การสร้าง Instance (Instance Creation) หรือ การสร้าง Object จาก Class 
+//new คือการสร้าง Object ใหม่จาก Class
 const cookies = new Cookies();
 
 // ดึง token
