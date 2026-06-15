@@ -207,7 +207,10 @@ const router = createBrowserRouter([
         index: true,
         element: <Navigate to="dashboard" replace />,
       },
-
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
       {
         path: "stock",
         element: <Stock />,
@@ -228,7 +231,10 @@ const router = createBrowserRouter([
         path: "notification",
         element: <NotificationManagementPage />,
       },
-      
+      {
+        path: "analytic",
+        element: <Analytic />,
+      },
     ],
   },
   {
@@ -263,11 +269,10 @@ const router = createBrowserRouter([
         path: "user-management",
         element: <UserManagement />,
       },
-      //  {
-      //   path: "notification",
-      //   element: <NotificationManagementPage />,
-      // },
-      
+      {
+        path: "notification",
+        element: <NotificationManagementPage />,
+      },
     ],
   },
 ]);
