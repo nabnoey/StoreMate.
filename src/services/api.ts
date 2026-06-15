@@ -38,7 +38,7 @@ api.interceptors.response.use(
       if (!isLoginAPI && !isDeleteProductAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
-        window.location.href = "/login";
+        // window.location.href = "/login";
       }
     }
     return Promise.reject(error);

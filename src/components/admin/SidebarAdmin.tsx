@@ -102,10 +102,9 @@ function SidebarAdmin() {
               data-test="dashboard-button"
               className={menuClass([
                 "/owner/dashboard",
-                "/moderator/dashboard",
               ])}
               onClick={() =>
-                navigate(isOwner ? "/owner/dashboard" : "/moderator/dashboard")
+                navigate("/owner/dashboard" )
               }
             >
               <LayoutDashboard size={18} />
@@ -115,9 +114,9 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="report-button"
-              className={menuClass(["/owner/analytic", "/moderator/analytic"])}
+              className={menuClass(["/owner/analytic"])}
               onClick={() =>
-                navigate(isOwner ? "/owner/analytic" : "/moderator/analytic")
+                navigate("/owner/analytic")
               }
             >
               <TrendingUp size={18} />
@@ -139,9 +138,9 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="orders-button"
-              className={menuClass(["/owner/orders", "/moderator/orders"])}
+              className={menuClass(["/moderator/orders"])}
               onClick={() =>
-                navigate(isOwner ? "/owner/orders" : "/moderator/orders")
+                navigate("/moderator/orders")
               }
             >
               <Truck size={18} />
@@ -151,9 +150,9 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="refund-button"
-              className={menuClass(["/owner/refund", "/moderator/refund"])}
+              className={menuClass(["/owner/refund"])}
               onClick={() =>
-                navigate(isOwner ? "/owner/refund" : "/moderator/refund")
+                navigate("/owner/refund" )
               }
             >
               <CircleDollarSign size={18} />
@@ -166,14 +165,13 @@ function SidebarAdmin() {
                 <button
                   data-test="user-edit-button"
                   className={menuClass([
-                    "/owner/user-management",
-                    "/moderator/user-management",
+                    "/owner/user-management"
+                    
                   ])}
                   onClick={() =>
                     navigate(
-                      isOwner
-                        ? "/owner/user-management"
-                        : "/moderator/user-management",
+                     "/owner/user-management"
+                       
                     )
                   }
                 >
@@ -198,12 +196,12 @@ function SidebarAdmin() {
             <button
               data-test="notification-button"
               className={menuClass([
-                "/owner/notification",
-                "/moderator/notification",
+               
+                "/moderator/notification"
               ])}
               onClick={() =>
                 navigate(
-                  isOwner ? "/owner/notification" : "/moderator/notification",
+                   "/moderator/notification"
                 )
               }
             >
