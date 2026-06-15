@@ -21,7 +21,8 @@ const SectionHeader = ({
   return (
     <div className="flex justify-between pr-5  items-center mb-5 mt-20 ">
       <div>
-        <h2 className="text-[24px] md:text-[32px] -ml-4 font-bold text-gray-900">
+        <h2 className="text-[24px] md:text-[32px] -ml-4 font-bold text-gray-900"
+        data-test={`section-title-${category}`}>
           {title}
         </h2>
 
