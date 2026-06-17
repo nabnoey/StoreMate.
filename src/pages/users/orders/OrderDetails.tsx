@@ -135,7 +135,7 @@ console.log("order", order)
 
   const fallbackAddress: OrderAddress = {
     id: 0,
-    streetAddress: authUser?.address ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
+    streetAddress: authUser?.address?.streetAddress ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
     subdistrict: "",
     district: "",
     province: "",

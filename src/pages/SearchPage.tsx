@@ -263,7 +263,7 @@ const SearchPage = () => {
             />
           </div>
           <div className="flex gap-2 mt-4 max-w-[275px]">
-            <button
+            {/* <button
               data-test="cancel-price-filter"
               onClick={() => {
 
@@ -278,13 +278,13 @@ const SearchPage = () => {
               className="flex-1 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
             >
               ยกเลิก
-            </button>
+            </button> */}
             <button
               data-test="apply-price-filter"
               onClick={() => handleApplyPrice()}
               className="flex-1 py-1.5 rounded text-white bg-[#0f3d8c] hover:bg-[#0b2f6b] transition-colors cursor-pointer"
             >
-              ค้นหา
+              ตกลง
             </button>
           </div>
 
