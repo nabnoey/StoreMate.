@@ -154,16 +154,19 @@ function SidebarAdmin() {
           </li>
 
           <>
-            <li>
-              <button
-                data-test="user-edit-button"
-                className={menuClass(["/owner/user-management"])}
-                onClick={() => navigate("/owner/user-management")}
-              >
-                <Users size={18} />
-                จัดการผู้ใช้
-              </button>
-            </li>
+            {isOwner && (
+              <li>
+                <button
+                  data-test="user-edit-button"
+                  className={menuClass(["/owner/user-management"])}
+                  onClick={() => navigate("/owner/user-management")}
+                >
+                  <Users size={18} />
+                  จัดการผู้ใช้
+                </button>
+              </li>
+            )}
+
             {isOwner && (
               <li>
                 <button
@@ -180,8 +183,8 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="notification-button"
-              className={menuClass(["/owner/notification"])}
-              onClick={() => navigate("/owner/notification")}
+              className={menuClass(["/moderator/notification"])}
+              onClick={() => navigate("/moderator/notification")}
             >
               <Bell size={18} />
               จัดการแจ้งเตือน

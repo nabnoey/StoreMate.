@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -31,9 +32,15 @@ const NotificationManagementPage: React.FC = () => {
     (state: RootState) => state.notification.totalPages,
   );
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = searchParams.get("page");
+  // const keywordParam = searchParams.get("keyword") || "";
+
+  const [page, setPage] = useState(pageParam !== null ? Number(pageParam) : 0);
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-  const [page, setPage] = useState<number>(0);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -49,14 +56,6 @@ const NotificationManagementPage: React.FC = () => {
   const isModifier = userRoles.includes("MODERATOR");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-      setPage(0);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const refreshNotificationList = () => {
     if (isOwner || isModifier) {
       dispatch(
         fetchOwnerNotify({
@@ -65,12 +64,19 @@ const NotificationManagementPage: React.FC = () => {
           size: 10,
         }),
       );
-    }
-  };
 
-  useEffect(() => {
-    refreshNotificationList();
-  }, [dispatch, page, debouncedSearch, isOwner, isModifier]);
+      const params: Record<string, string> = {
+        page: String(page),
+        size: "10",
+      };
+
+      if (debouncedSearch) {
+        params.keyword = debouncedSearch;
+      }
+
+      setSearchParams(params);
+    }
+  }, [dispatch, page, debouncedSearch, isOwner, isModifier, setSearchParams]);
 
   const getRecipientConfig = (sendTo: string) => {
     if (sendTo?.includes("MODERATOR")) {
@@ -108,7 +114,7 @@ const NotificationManagementPage: React.FC = () => {
                   toast.dismiss(t.id);
                   await dispatch(deleteNotify(id)).unwrap();
                   toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
-                  refreshNotificationList();
+                  // refreshNotificationList();
                 } catch (error) {
                   toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้");
                 }
@@ -170,7 +176,7 @@ const NotificationManagementPage: React.FC = () => {
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
       setIsModalOpen(false);
 
-      refreshNotificationList();
+      // refreshNotificationList();
     } catch (error: any) {
       toast.error(error?.message || "เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
     }
