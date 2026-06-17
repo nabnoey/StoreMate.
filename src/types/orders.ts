@@ -56,9 +56,7 @@ export interface OrderRecipient {
   phone?: string;
 }
 
-export interface Order extends Partial<
-  Pick<RefundRequest, "reason" | "description">
-> {
+export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
@@ -72,6 +70,7 @@ export interface Order extends Partial<
 
   total: number;
   createdAt: string;
+  reason: RefundRequest["reason"];
 }
 
 export interface OrdersState {

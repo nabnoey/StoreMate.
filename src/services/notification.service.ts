@@ -3,14 +3,8 @@ import type {
   NotificationRequest,
   FetchNotifyParams,
   Notification,
+  PageableNotificationResponse,
 } from "../types/notification";
-
-export interface PageableNotificationResponse {
-  content: Notification[];
-  totalPages: number;
-  number: number; // currentPage
-  totalElements: number;
-}
 
 const getNotifyUser = async (): Promise<Notification[]> => {
   const res = await api.get<Notification[]>("/notify");
