@@ -669,14 +669,6 @@ const HistoryPage = () => {
                               </span>
                               {order.reason || "ไม่ได้ระบุเหตุผล"}
                             </p>
-                            {order.description && (
-                              <p className="text-gray-400 text-[13px] sm:text-[14px]">
-                                <span className="font-medium text-gray-500">
-                                  รายละเอียดเพิ่มเติม:
-                                </span>
-                                {order.description}
-                              </p>
-                            )}
                           </div>
                         ) : order.status === "PENDING" ||
                           order.status === "PROCESSING" ? (

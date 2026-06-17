@@ -145,8 +145,8 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="refund-button"
-              className={menuClass(["/owner/refund"])}
-              onClick={() => navigate("/owner/refund")}
+              className={menuClass(["/moderator/refund"])}
+              onClick={() => navigate("/moderator/refund")}
             >
               <CircleDollarSign size={18} />
               จัดการคำขอคืนเงิน
