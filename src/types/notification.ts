@@ -18,3 +18,10 @@ export interface FetchNotifyParams {
   size: number;
 }
 
+export interface PageableNotificationResponse {
+  content: Notification[];
+  totalPages: number;
+  number: number; // currentPage
+  totalElements: number;
+}
+
