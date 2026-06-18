@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import toast, { Toaster } from "react-hot-toast";
 import { PaymentService } from "../../../services/payment.service";
+import type { OrderStatus, RefundRequest } from "../../../types/orders";
+import type { PaymentMethod } from "../../../types/payment";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
@@ -25,11 +27,19 @@ const CancelOrderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const orderStatus = location.state?.status || "PENDING";
-  const paymentMethod = location.state?.paymentMethod || "PROMPTPAY";
+  const orderStatus = (location.state?.status as OrderStatus) || "PENDING";
+  const checkoutType =
+    location.state?.checkoutType ||
+    (location.state?.paymentMethod as PaymentMethod) ||
+    "PROMPTPAY";
 
-  const isPendingPayment =
-    orderStatus === "PENDING" && paymentMethod !== "DESTINATION";
+  const isCancelAction =
+    (orderStatus === "PENDING" && checkoutType === "PROMPTPAY") ||
+    (orderStatus === "PROCESSING" && checkoutType === "DESTINATION");
+
+  const isRefundAction =
+    orderStatus === "PROCESSING" &&
+    (checkoutType === "PROMPTPAY" || checkoutType === "CARD");
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
@@ -48,7 +58,7 @@ const CancelOrderPage = () => {
       return;
     }
 
-    const payload = {
+    const payload: RefundRequest = {
       orderNo: orderNo,
       reason: selectedReason,
       description: description,
@@ -58,13 +68,13 @@ const CancelOrderPage = () => {
     try {
       await PaymentService.sendRefund(payload);
 
-      if (isPendingPayment) {
+      if (isCancelAction) {
         toast.success("ส่งคำขอคืนเงินสำเร็จ");
 
         setTimeout(() => {
           navigate("/orders?status=CANCELLED");
         }, 1500);
-      } else {
+      } else if (isRefundAction) {
         toast.success("ส่งคำขอยกเลิกสำเร็จ อยู่ระหว่างการตรวสอบ");
         setTimeout(() => {
           navigate("/orders?status=REFUNDED");
@@ -235,6 +245,7 @@ const CancelOrderPage = () => {
           {/* --- SUBMIT BUTTON --- */}
           <div className="mt-auto md:mt-8 pt-6 md:pt-0 px-4 md:px-0 flex justify-center pb-2 md:pb-0">
             <button
+              data-test="btn-submit-cancel"
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}

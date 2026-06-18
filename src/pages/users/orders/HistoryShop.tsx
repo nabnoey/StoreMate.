@@ -680,7 +680,7 @@ const HistoryPage = () => {
                                 onClick={(e) =>
                                   handleRetryPayment(e, order, orderTotal)
                                 }
-                                className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium"
+                                className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-[#152e7c] shadow-sm"
                               >
                                 ชำระเงิน
                               </button>
@@ -700,9 +700,13 @@ const HistoryPage = () => {
                                   },
                                 );
                               }}
-                              className="cursor-pointer w-full h-[29px] sm:w-[180px] rounded-lg bg-[#3B82F6] text-white font-[Anuphan]"
+                              className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-blue-600 shadow-sm"
                             >
-                              ยกเลิกคำสั่งซื้อ / ขอคืนเงิน
+                              {order.status === "PENDING"
+                                ? "ยกเลิกคำสั่งซื้อ"
+                                : order.checkoutType === "DESTINATION"
+                                  ? "ยกเลิกคำสั่งซื้อ"
+                                  : "ขอคืนเงิน"}
                             </button>
                           </div>
                         ) : null}
