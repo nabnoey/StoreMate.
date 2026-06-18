@@ -10,7 +10,6 @@ import {
   FiUser,
   FiPhone,
   FiMapPin,
-  FiPackage,
   FiArrowLeft,
 } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
