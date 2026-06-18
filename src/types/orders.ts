@@ -34,7 +34,7 @@ export const getOrderLabel = (
   status: OrderStatus,
   checkoutType?: string,
 ): string => {
-  if (status === "PROCESSING" && checkoutType === "DISTINATION") {
+  if (status === "PROCESSING" && checkoutType === "DESTINATION") {
     return "ที่ต้องจัดส่ง (COD)";
   }
 
@@ -54,11 +54,14 @@ export interface OrderItem {
 export interface OrderRecipient {
   recipientName?: string;
   phone?: string;
+    streetAddress?: string;
+  subdistrict?: string;
+  district?: string;
+  province?: string;
+  zipcode?: string;
 }
 
-export interface Order extends Partial<
-  Pick<RefundRequest, "reason" | "description">
-> {
+export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
@@ -72,6 +75,7 @@ export interface Order extends Partial<
 
   total: number;
   createdAt: string;
+  reason: RefundRequest["reason"];
 }
 
 export interface OrdersState {

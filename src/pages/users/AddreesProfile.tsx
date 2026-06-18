@@ -287,14 +287,21 @@ console.log("location.state =", location.state);
   };
 
   //ลบที่อยู่
-  const handleDeleteAddress = (addressId: number) => {
+const handleDeleteAddress = (addressId: number) => {
     setIsBlocking(true);
 
-    const confirmDelete = (toastId: string) => {
+    const confirmDelete = async (toastId: string) => {
       toast.dismiss(toastId);
-      setIsBlocking(false);
-      dispatch(deleteAddress(addressId));
-      toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
+      try {
+        await dispatch(deleteAddress(addressId)).unwrap();
+        toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
+      } catch (error: any) {
+        const errorMessage = error?.message 
+        toast.error(errorMessage, { duration: 2000 });
+        console.error("Delete address failed:", error);
+      } finally {
+        setIsBlocking(false); 
+      }
     };
 
     const cancelDelete = (toastId: string) => {
@@ -313,7 +320,7 @@ console.log("location.state =", location.state);
               onClick={() => confirmDelete(t.id)}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              ลบ
+              ยืนยัน
             </button>
             <button
               onClick={() => cancelDelete(t.id)}
@@ -347,44 +354,25 @@ return (
         </div>
 
         {/* 2. Mobile Header Bar (Sticky Top) */}
-        <div className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm">
-          <button
-            className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors"
-            // onClick={() => navigate("/profile")}
-//             onClick={() => {
-                
-              
-//   if (from === "payment") {
-//     navigate("/payment", {
-//       state: {
-//         items: location.state?.items,
-//         isBuyNow: location.state?.isBuyNow,
-        
-//       },
-      
-//     });
-  
-//   } else {
-//     navigate("/profile");
-//   }
-// }}
-onClick={() => {
-  console.log("BACK STATE", {
-    items: location.state?.items,
-    isBuyNow: location.state?.isBuyNow,
-  });
-
-  navigate("/payment", {
-    state: {
-      items: location.state?.items,
-      isBuyNow: location.state?.isBuyNow,
-    },
-  });
-}}
-          >
-            
-            <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-          </button>
+        <div className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm cursor-ponitor"
+        data-test="mobile-header-bar">
+<button
+  className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors cursor-pointer"
+  onClick={() => {
+    if (location.state?.from === "payment") {
+      navigate("/payment", {
+        state: {
+          items: location.state?.items,
+          isBuyNow: location.state?.isBuyNow,
+        },
+      });
+    } else {
+      navigate("/profile");
+    }
+  }}
+>
+  <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+</button>
           <h1 className="text-lg font-bold text-gray-900">ที่อยู่ของฉัน</h1>
         </div>
 

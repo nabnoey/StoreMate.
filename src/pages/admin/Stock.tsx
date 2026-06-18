@@ -144,7 +144,7 @@ const maxVisiblePages = 5;
             <button
               type="button"
               onClick={handleAddProduct}
-              className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium"
+              className="bg-indigo-800 transition-colors text-gray-200 px-5 py-2 rounded-md flex items-center gap-2 text-sm font-medium cursor-pointer "
             >
               <span>+</span> เพิ่มสินค้า
             </button>
@@ -157,11 +157,11 @@ const maxVisiblePages = 5;
             <thead>
               <tr className="text-[#374151] border-b border-gray-200">
                 <th className="pb-4 font-normal whitespace-nowrap">รหัสสินค้า</th>
-                <th className="pb-4 font-normal whitespace-nowrap">ชื่อสินค้า</th>
-                <th className="pb-4 font-normal whitespace-nowrap">หมวดหมู่</th>
-                <th className="pb-4 font-normal whitespace-nowrap">ราคา</th>
-                <th className="pb-4 font-normal whitespace-nowrap">จำนวนคงเหลือ</th>
-                <th className="pb-4 font-normal whitespace-nowrap">สถานะคำสั่งซื้อ</th>
+                <th className="pb-4 font-normal whitespace-nowrap pl-5">ชื่อสินค้า</th>
+                <th className="pb-4 font-normal whitespace-nowrap pr-15">หมวดหมู่</th>
+                <th className="pb-4 font-normal whitespace-nowrap pr-10">ราคา</th>
+                <th className="pb-4 font-normal whitespace-nowrap pr-18">จำนวนคงเหลือ</th>
+                <th className="pb-4 font-normal whitespace-nowrap  -translate-x-8">สถานะคำสั่งซื้อ</th>
                 <th className="pb-4 font-normal whitespace-nowrap"></th>
               </tr>
             </thead>
@@ -172,21 +172,21 @@ const maxVisiblePages = 5;
                   key={product.id}
                   className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="py-4">
+                  <td className="py-4 whitespace-nowrap">
                     <button
                       type="button"
-                      className="text-gray-500 cursor-pointer bg-transparent border-none p-0 text-left"
+                      className="text-gray-500 cursor-pointer bg-transparent border-none p-0 text-left "
                     >
                       {`PRD-${String(product.id).padStart(3, '0')}`}
                     </button>
                   </td>
-                  <td className="py-4">{product.productName}</td>
+                  <td className="py-4 pl-5 max-w-[350px] break-words line-clamp-2">{product.productName}</td>
                   <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
-                  <td className="py-4">{product.stockQuantity}</td>
-                  <td className="py-4">
+                  <td className="py-4 pl-6">{product.stockQuantity}</td>
+                  <td className="py-4  -translate-x-9">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                         product.status === "ACTIVE"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
@@ -198,8 +198,9 @@ const maxVisiblePages = 5;
                   <td className="py-4">
                     <button
                       type="button"
+                      data-test={`menagemate-product-${product.id}`}
                       onClick={() => handleEditProduct(product as ProductMod)}
-                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0"
+                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
                     >
                       จัดการ
                     </button>
@@ -268,6 +269,10 @@ const maxVisiblePages = 5;
           setIsAddModalOpen(false);
           setSelectedProduct(null);
         }}
+        onSuccess={() => {
+    setIsAddModalOpen(false);
+    setSelectedProduct(null);
+  }}
         product={selectedProduct}
       />
     </div>

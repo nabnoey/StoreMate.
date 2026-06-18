@@ -11,6 +11,8 @@ export type Product = {
   status: "ACTIVE" | "CHECKED_OUT";
   createAt: string;
   stockQuantity: number;
+  // backend เพิ่มเข้ามาให้
+  productStatus: "ACTIVE" | "CHECKED_OUT";
 };
 
 export interface CategoryGroup {

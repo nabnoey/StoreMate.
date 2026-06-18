@@ -42,12 +42,12 @@ function Orders() {
   
   const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
-  // const calendarRef = useRef<HTMLElement | null>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // 🛡️ ดึงข้อมูลจาก URL
-  const initialPage = Number(searchParams.get("page")) || 1;
+  // 🛡️ ดึงข้อมูลจาก URL (ถ้า URL เป็น 0 ให้ UI มองเป็น 1)
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
@@ -56,7 +56,7 @@ function Orders() {
 
   const PAGE_SIZE = 10;
   const TIME_FILTER_MAP: Record<string, string> = {
-    "วันนี้": "day",
+    "วันนี้": "today",
     "สัปดาห์นี้": "week",
     "เดือนนี้": "month",
   };
@@ -69,7 +69,7 @@ function Orders() {
 
     dispatch(
       fetchAllOrders({
-        page: currentPage,
+        page: currentPage - 1, 
         size: PAGE_SIZE,
         keyword: submittedSearchTerm || undefined,
         startDate: formattedStartDate,
@@ -78,7 +78,12 @@ function Orders() {
       })
     );
 
-    const params: Record<string, string> = { page: String(currentPage), size: String(PAGE_SIZE) };
+  
+    const params: Record<string, string> = { 
+      page: String(currentPage - 1), 
+      size: String(PAGE_SIZE) 
+    };
+    
     if (submittedSearchTerm) params.keyword = submittedSearchTerm;
     if (formattedStartDate) params.startDate = formattedStartDate;
     if (formattedEndDate) params.endDate = formattedEndDate;
@@ -142,7 +147,8 @@ function Orders() {
       if (selectedData.length > 0) {
         const orderIds = selectedData.map((order) => Number(order.id));
         await dispatch(shippingOrder(orderIds)).unwrap();
-        dispatch(fetchAllOrders({ page: currentPage, size: PAGE_SIZE }));
+        // 🛠️ ตอนรีเฟรชข้อมูลก็ต้อง -1 ให้ API เหมือนกัน
+        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);
       setIsPrinting(true);
@@ -188,14 +194,14 @@ function Orders() {
                   <button
                     type="button"
                     onClick={handleEnterPrintMode}
-                    className="h-[40px] px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    className="h-[40px] px-4 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                   >
                     <span>🖨️</span>
                     ปริ้นใบปะหน้า
                   </button>
                 ) : (
                   <>
-                    <div className="h-[40px] px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                    <div className="h-[40px] cursor-pointer px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                       <span>🖨️</span>
                       ปริ้นใบปะหน้าที่เลือก ({selectedOrders.length})
                     </div>
@@ -203,14 +209,14 @@ function Orders() {
                       type="button"
                       onClick={handleConfirmPrint}
                       disabled={selectedOrders.length === 0}
-                      className="h-[40px] w-[100px] bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                      className="h-[40px] w-[100px] bg-blue-700 cursor-pointer hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                     >
                       ยืนยัน
                     </button>
                     <button
                       type="button"
                       onClick={handleCancelPrintMode}
-                      className="h-[40px] w-[100px] rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
+                      className="h-[40px] w-[100px] cursor-pointer rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
                     >
                       ยกเลิก
                     </button>
@@ -234,9 +240,7 @@ function Orders() {
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
                   />
 
-                  {/* 🛠️ จุดแก้ไขหลัก: อัปเกรดให้กาง 2 เดือนคู่กัน */}
-                 {/* 🛠️ ส่วนปฏิทินสไตล์ DaisyUI + Cally */}
-<div className="relative text-sm font-['Anuphan'] w-full sm:w-72">
+                 <div className="relative text-sm font-['Anuphan'] w-full sm:w-72 cursor-pointer">
   <input
     type="text"
     readOnly
@@ -249,7 +253,9 @@ function Orders() {
           )}`
         : ""
     }
-    onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+   onClick={() => {
+     setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
+   }}
     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full text-gray-700 bg-white cursor-pointer"
   />
 
@@ -282,16 +288,20 @@ function Orders() {
           onClick={() => {
             setStartDate(null);
             setEndDate(null);
+            setCurrentPage(1); // รีเซ็ตหน้ากลับไปหน้าแรกด้วย
           }}
-          className="px-4 py-2 border rounded-lg"
+          className="px-4 py-2 border rounded-lg cursor-pointer"
         >
           ล้างค่า
         </button>
 
         <button
           type="button"
-          onClick={() => setIsDatePickerOpen(false)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          onClick={() => {
+            setIsDatePickerOpen(false);
+            setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
         >
           บันทึก
         </button>
@@ -302,13 +312,16 @@ function Orders() {
 
                 </div>
 
-                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
+                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto ">
                   {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
                     <button
                       key={tab}
                       type="button"
-                      onClick={() => setTimeFilter(tab)}
-                      className={`px-4 py-2 border-r last:border-r-0 transition-colors ${
+                      onClick={() => {
+                        setTimeFilter(tab);
+                        setCurrentPage(1); // เปลี่ยน Tab ก็ควรกลับไปหน้าแรก
+                      }}
+                      className={`px-4 py-2 border-r last:border-r-0 transition-colors cursor-pointer ${
                         timeFilter === tab
                           ? "bg-gray-100 text-black"
                           : "bg-white text-gray-500 hover:bg-gray-50"
@@ -354,6 +367,8 @@ function Orders() {
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {orders.length > 0 ? (
                     orders.map((order: OrderMod) => {
+
+                      
                       const { dateStr, timeStr } = formatDateTime(order.createdAt || "");
                       const isSelected = selectedOrders.includes(String(order.orderNo));
 
@@ -413,27 +428,28 @@ function Orders() {
                             </span>
                           </td>
                           <td className="py-4 text-right text-xs space-x-3 pr-2">
-                            {order.is_printed && (
-                              <span className="text-[#60A5FA] text-xs font-medium">printed</span>
-                            )}
-                            {isPrintMode ? (
-                              <button
-                                type="button"
-                                onClick={() => handleSelectOrder(String(order.orderNo))}
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                {isSelected ? "ยกเลิก" : "เลือก"}
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                จัดการ
-                              </button>
-                            )}
-                          </td>
+  {order.is_printed && (
+    <span className="text-[#60A5FA] text-xs font-medium">printed</span>
+  )}
+  {isPrintMode ? (
+    <button
+      type="button"
+      onClick={() => handleSelectOrder(String(order.orderNo))}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      {isSelected ? "ยกเลิก" : "เลือก"}
+    </button>
+  ) : (
+    <button
+      type="button"
+      data-test={`menagemate-order-${order.orderNo}`}
+      onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      จัดการ
+    </button>
+  )}
+</td>
                         </tr>
                       );
                     })
