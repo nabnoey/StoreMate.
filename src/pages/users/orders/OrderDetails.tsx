@@ -17,7 +17,6 @@ import { FaHistory } from "react-icons/fa";
 
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../../redux/store";
-import type { OrderAddress } from "../../../types/orders";
 import { getOrderLabel } from "../../../utils/order";
 import type { PaymentMethod } from "../../../types/payment";
 
@@ -123,24 +122,25 @@ function OrderDetails() {
     );
   }
 
-  const orderAddress = order.orderAddress?.[0];
+const recipient = order.orderRecipient;
 
-  const recipientName = order.orderRecipient?.recipientName;
+const recipientName = recipient?.recipientName || "ไม่ระบุชื่อ";
 
-  const recipientPhone = order.orderRecipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
+const recipientPhone =
+  recipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
 
-  const fallbackAddress: OrderAddress = {
-    id: 0,
-    streetAddress: authUser?.address?.streetAddress ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
-    subdistrict: "",
-    district: "",
-    province: "",
-    zipcode: "",
-  };
 
-  const deliveryAddress = orderAddress?.streetAddress
-    ? orderAddress
-    : fallbackAddress;
+const deliveryAddress = recipient
+  ? recipient
+  : {
+      streetAddress:
+        authUser?.address?.streetAddress ??
+        "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
+      subdistrict: "",
+      district: "",
+      province: "",
+      zipcode: "",
+    };
 
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString("th-TH")
@@ -163,7 +163,7 @@ function OrderDetails() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-start text-left w-full mt-0 lg:mt-10">
-      <div className="bg-white border-b border-gray-200 w-full p-6">
+      <div className="bg-white border-b border-gray-200 w-full p-3 md:p-4">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate("/orders")}
@@ -172,13 +172,14 @@ function OrderDetails() {
           >
             <FiArrowLeft className="text-xl" />
           </button>
-          <div className="flex flex-col md:flex-row w-full md:items-center items-start gap-1">
+          <div className="flex flex-col md:flex-row w-full md:items-center items-start gap-1 mt-3 md:mt-0">
             <h1 className="text-xl font-bold text-gray-900 whitespace-nowrap">
               รายละเอียดคำสั่งซื้อ
             </h1>
-            <p className="text-sm text-gray-500 md:ml-auto break-words">
-              เลขที่คำสั่งซื้อ: {order.orderNo} | {order.status}
-            </p>
+          <p className="text-sm text-gray-500 md:ml-auto break-words">
+  เลขที่คำสั่งซื้อ: {order.orderNo} |{" "}
+  {getOrderLabel(order.status, order.checkoutType)}
+</p>
           </div>
         </div>
       </div>
@@ -186,29 +187,7 @@ function OrderDetails() {
       <div className="p-6 w-full text-gray-700 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-6 ">
-            {/* ใส่เงื่อนไข ยกเลิกคำสั่งซื้อ */}
-            {/* <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative ">
-              <div className="absolute top-[3rem] left-12 right-12 h-0.5 bg-gray-200 z-0">
-                <div
-                  className="h-full bg-blue-500 transition-all duration-300"
-                  style={{
-                    width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
-                  }}
-                />
-              </div>
-
-              <div className="flex justify-between  items-center relative z-10 ">
-                {steps.map((step, index) => (
-                  <StatusStep
-                    key={step.status}
-                    icon={step.icon}
-                    label={step.label}
-                    isCompleted={index < currentStepIndex}
-                    isCurrent={index === currentStepIndex}
-                  />
-                ))}
-              </div>
-            </div> */}
+    
 
             {order.status === "CANCELLED" || order.status === "REFUNDED" ? (
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
@@ -278,33 +257,6 @@ function OrderDetails() {
                 />
               ))}
 
-              {/* code เดิม*/}
-              {/* <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-[16px] font-medium text-gray-600">
-                    ราคารวม
-                  </span>
-                   <div className="text-right">
-                    <p className="text-xl text-blue-500 font-bold">
-                      ฿ {order.total.toLocaleString()}
-                    </p>
-                    <p className="text-[10px] text-gray-400 font-bold">THB</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-gray-50">
-                  <span className="text-[16px] font-medium text-gray-600">
-                    ช่องทางชำระเงิน
-                  </span>
-                  <div className="text-right">
-                    <p className="text-[16px] font-medium text-gray-900">
-                      {PAYMENT_METHOD_LABELS[order.checkoutType] ||
-                        order.checkoutType}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div> */}
 
               <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
                 {order.status === "CANCELLED" || order.status === "REFUNDED" ? (

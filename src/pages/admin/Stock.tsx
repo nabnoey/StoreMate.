@@ -158,7 +158,7 @@ const maxVisiblePages = 5;
               <tr className="text-[#374151] border-b border-gray-200">
                 <th className="pb-4 font-normal whitespace-nowrap">รหัสสินค้า</th>
                 <th className="pb-4 font-normal whitespace-nowrap pl-5">ชื่อสินค้า</th>
-                <th className="pb-4 font-normal whitespace-nowrap pr-10">หมวดหมู่</th>
+                <th className="pb-4 font-normal whitespace-nowrap pr-15">หมวดหมู่</th>
                 <th className="pb-4 font-normal whitespace-nowrap pr-10">ราคา</th>
                 <th className="pb-4 font-normal whitespace-nowrap pr-18">จำนวนคงเหลือ</th>
                 <th className="pb-4 font-normal whitespace-nowrap  -translate-x-8">สถานะคำสั่งซื้อ</th>
@@ -180,7 +180,7 @@ const maxVisiblePages = 5;
                       {`PRD-${String(product.id).padStart(3, '0')}`}
                     </button>
                   </td>
-                  <td className="py-4 pl-5">{product.productName}</td>
+                  <td className="py-4 pl-5 max-w-[350px] break-words line-clamp-2">{product.productName}</td>
                   <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
                   <td className="py-4 pl-6">{product.stockQuantity}</td>
