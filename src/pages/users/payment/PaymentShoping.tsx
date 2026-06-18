@@ -17,7 +17,6 @@ import type {
 
 import { PaymentService } from "../../../services/payment.service";
 import { fetchAddressDefault } from "../../../redux/address/addressReducer";
-import { addSavedCard } from "../../../redux/payment/paymentReducer";
 import { fetchCartThunk } from "../../../redux/carts/CartReducer";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -31,10 +30,8 @@ const PaymentContent = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [selectedCardId, setSelectedCardId] = useState<string>("");
 
-  const savedCards = useSelector(
-    (state: RootState) => state.payment.savedCards,
-  );
   const newlyAddedCard = location.state?.newlyAddedCard;
+  const [currentCard, setCurrentCard] = useState<SavedCard | null>(null);
 
   const cartSelectedItems = useSelector(
     (state: RootState) => state.carts.selectedItems,
@@ -57,18 +54,14 @@ const PaymentContent = () => {
     if (newlyAddedCard) {
       const cardName = newlyAddedCard.billing_details?.name || "Card";
 
-      const formattedCard: SavedCard = {
+      setCurrentCard({
         id: newlyAddedCard.id,
         brand: newlyAddedCard.card?.brand ?? "unknown",
         last4: newlyAddedCard.card?.last4 ?? "0000",
-        bankName: `${cardName}`,
-      };
-
-      if (!savedCards.some((c) => c.id === formattedCard.id)) {
-        dispatch(addSavedCard(formattedCard));
-      }
+        bankName: cardName,
+      });
     }
-  }, [dispatch, newlyAddedCard, savedCards]);
+  }, [dispatch, newlyAddedCard]);
 
   const handleAddNewCard = () => {
     navigate("/add-credit-card", {
@@ -107,7 +100,6 @@ const PaymentContent = () => {
       toast.error("กรุณาเลือกบัตรเครดิต");
       return false;
     }
-
     return true;
   };
 
@@ -153,7 +145,14 @@ const PaymentContent = () => {
       }
 
       if (confirmResult.paymentIntent?.status === "succeeded") {
-        toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
+        if (!isBuyNow) {
+          await dispatch(fetchCartThunk());
+        }
+
+        toast.success("คำสั่งซื้อสำเร็จ", {
+          duration: 2000,
+        });
+
         setTimeout(() => {
           navigate("/orders", {
             state: {
@@ -165,6 +164,7 @@ const PaymentContent = () => {
           });
         }, 2000);
       }
+
       return;
     }
 
@@ -176,10 +176,16 @@ const PaymentContent = () => {
     }
 
     if (checkoutType === "DESTINATION") {
-      toast.success("ชำระเงินสำเร็จ", { duration: 2000 });
+      toast.success("คำสั่งซื้อสำเร็จ", {
+        duration: 2000,
+      });
+
       setTimeout(() => {
         navigate("/orders", {
-          state: { status: "success", checkoutType: "DESTINATION" },
+          state: {
+            status: "success",
+            checkoutType: "DESTINATION",
+          },
         });
       }, 2000);
     }
@@ -210,7 +216,7 @@ const PaymentContent = () => {
 
       const response = await executePaymentApi(currentCheckoutType);
 
-      if (!isBuyNow) dispatch(fetchCartThunk());
+      // if (!isBuyNow) dispatch(fetchCartThunk());
 
       await handlePaymentSuccess(currentCheckoutType, response.clientSecret);
     } catch (error: any) {
@@ -270,7 +276,10 @@ const PaymentContent = () => {
             <h2 className="font-anuphan text-[16px] font-semibold text-black leading-[32px] break-words mb-2">
               ที่อยู่ในการจัดส่ง
             </h2>
-            <div className="flex justify-between items-center py-3 border-b border-gray-200">
+            <div
+              data-test="shipping-address"
+              className="flex justify-between items-center py-3 border-b border-gray-200"
+            >
               <div className="font-anuphan text-[16px] font-normal text-[#7E7E7E] leading-[24px] break-words">
                 {defaultAddress ? (
                   <span className="flex items-center gap-2">
@@ -284,17 +293,17 @@ const PaymentContent = () => {
                 )}
               </div>
               <button
-                data-test="btn-change-address-mobile"
+                data-test="btn-change-address"
                 // onClick={() => navigate("/address-profile")}
                 onClick={() =>
-  navigate("/address-profile", {
-    state: {
-      from: "payment",
-      items: selectedItems,
-      isBuyNow,
-    },
-  })
-}
+                  navigate("/address-profile", {
+                    state: {
+                      from: "payment",
+                      items: selectedItems,
+                      isBuyNow,
+                    },
+                  })
+                }
                 className="cursor-pointer font-anuphan text-[16px] font-normal text-[#3B82F6] leading-[24px] break-words border border-blue-500 px-4 py-1 rounded-[3px] hover:bg-blue-50"
               >
                 เปลี่ยน
@@ -305,6 +314,7 @@ const PaymentContent = () => {
           <div className="max-h-[250px] overflow-y-auto mb-10 pr-2">
             {selectedItems.map((item: any) => (
               <div
+                data-test="order-item"
                 key={item.productId}
                 className="flex items-center gap-6 py-3 border-b border-[#D1D5DB] last:border-0"
               >
@@ -403,22 +413,24 @@ const PaymentContent = () => {
                   </button>
 
                   {paymentMethod === "CARD" && (
-                    <div className="ml-0 sm:ml-12 mt-3 space-y-3">
-                      {savedCards.map((card: any) => (
+                    <div
+                      data-test="saved-card-list"
+                      className="ml-0 sm:ml-12 mt-3 space-y-3"
+                    >
+                      {currentCard && (
                         <button
-                          key={card.id}
                           data-test="btn-select-card-method-desktop"
-                          onClick={() => setSelectedCardId(card.id)}
+                          onClick={() => setSelectedCardId(currentCard.id)}
                           className="flex items-center gap-3 cursor-pointer"
                         >
                           <div
                             className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                              selectedCardId === card.id
+                              selectedCardId === currentCard.id
                                 ? "border-blue-500"
                                 : "border-gray-400"
                             }`}
                           >
-                            {selectedCardId === card.id && (
+                            {selectedCardId === currentCard.id && (
                               <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                             )}
                           </div>
@@ -426,7 +438,7 @@ const PaymentContent = () => {
                           <div className="w-12 h-8 border border-gray-300 rounded flex items-center justify-center bg-white">
                             <Icon
                               icon={
-                                card.brand === "mastercard"
+                                currentCard.brand === "mastercard"
                                   ? "logos:mastercard"
                                   : "logos:visa"
                               }
@@ -435,13 +447,13 @@ const PaymentContent = () => {
                           </div>
 
                           <span className="text-sm text-black">
-                            {card.bankName}
+                            {currentCard.bankName}
                           </span>
                           <span className="text-sm text-black font-mono ml-2">
-                            **** {card.last4}
+                            **** {currentCard.last4}
                           </span>
                         </button>
-                      ))}
+                      )}
 
                       <button
                         data-test="btn-add-credit-card-desktop"
@@ -499,7 +511,10 @@ const PaymentContent = () => {
                   <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">
                     ยอดชำระทั้งหมด
                   </span>
-                  <span className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right">
+                  <span
+                    data-test="order-total-price-desktop"
+                    className="font-anuphan text-[16px] font-normal text-black leading-[24px] break-words text-right"
+                  >
                     ฿ {subtotal.toLocaleString()}
                   </span>
                   <div className="col-start-2 flex justify-end mt-2 lg:mt-0">
@@ -647,21 +662,20 @@ const PaymentContent = () => {
 
                   {paymentMethod === "CARD" && (
                     <div className="ml-11 mt-3 space-y-3">
-                      {savedCards.map((card: any) => (
+                      {currentCard && (
                         <button
-                          key={card.id}
-                          data-test="select-credit-mobile"
-                          onClick={() => setSelectedCardId(card.id)}
+                          data-test="btn-select-card-method-mobile"
+                          onClick={() => setSelectedCardId(currentCard.id)}
                           className="flex items-center gap-3 cursor-pointer w-full text-left"
                         >
                           <div
                             className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                              selectedCardId === card.id
+                              selectedCardId === currentCard.id
                                 ? "border-blue-500"
                                 : "border-gray-400"
                             }`}
                           >
-                            {selectedCardId === card.id && (
+                            {selectedCardId === currentCard.id && (
                               <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                             )}
                           </div>
@@ -669,7 +683,7 @@ const PaymentContent = () => {
                           <div className="w-10 h-6 border border-gray-200 rounded flex items-center justify-center bg-white">
                             <Icon
                               icon={
-                                card.brand === "mastercard"
+                                currentCard.brand === "mastercard"
                                   ? "logos:mastercard"
                                   : "logos:visa"
                               }
@@ -678,10 +692,10 @@ const PaymentContent = () => {
                           </div>
 
                           <span className="text-[13px] text-black">
-                            {card.bankName} **** {card.last4}
+                            {currentCard.bankName} **** {currentCard.last4}
                           </span>
                         </button>
-                      ))}
+                      )}
 
                       <button
                         data-test="btn-add-credit-card-mobile"
@@ -731,7 +745,10 @@ const PaymentContent = () => {
           <div className="space-y-3 mb-4">
             <div className="flex justify-between text-[16px] text-black">
               <span>ยอดชำระทั้งหมด</span>
-              <span className="font-semibold text-[16px]">
+              <span
+                data-test="order-total-price-mobile"
+                className="font-semibold text-[16px]"
+              >
                 ฿ {subtotal.toLocaleString()}
               </span>
             </div>

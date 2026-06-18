@@ -39,7 +39,7 @@ const CancelOrderPage = lazy(
 const NotificationPage = lazy(() => import("./../pages/users/Notification"));
 import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
-import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
+import RefundPage from "../pages/admin/RefundPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import StoreEdit from "../pages/admin/StoreEdit";
@@ -216,10 +216,6 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-        path: "analytic",
-        element: <Analytic />,
-      },
-      {
         path: "orders",
         element: <Order />,
       },
@@ -229,13 +225,16 @@ const router = createBrowserRouter([
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
+        element: <RefundPage />,
       },
       {
         path: "notification",
         element: <NotificationManagementPage />,
       },
-      
+      {
+        path: "analytic",
+        element: <Analytic />,
+      },
     ],
   },
   {
@@ -255,10 +254,6 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "stock",
-        element: <Stock />,
-      },
-      {
         path: "analytic",
         element: <Analytic />,
       },
@@ -273,20 +268,20 @@ const router = createBrowserRouter([
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
+        element: <RefundPage />,
       },
       {
         path: "store-edit",
         element: <StoreEdit />,
       },
       {
+        path: "user-management",
+        element: <UserManagement />,
+      },
+      {
         path: "notification",
         element: <NotificationManagementPage />,
       },
-      {
-        path: "user-management",
-        element: <UserManagement />,
-      }
     ],
   },
 ]);
