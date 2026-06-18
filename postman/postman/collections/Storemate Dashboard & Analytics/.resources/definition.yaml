@@ -1,6 +1,0 @@
-$kind: collection
-description: Collection for testing Owner Dashboard, Sales Analytics, and Report
-  Import APIs.
-variables:
-  baseUrl: https://api.store-mate-api.me/api/v1
-  token: ""

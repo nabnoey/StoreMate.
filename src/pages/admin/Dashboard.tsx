@@ -48,7 +48,16 @@ const REGION_COORDINATES: { [key: string]: [number, number] } = {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 const REGION_COLORS = ['bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-purple-400', 'bg-pink-400'];
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "รอดำเนินการ",
+  PROCESSING: "ที่ต้องจัดส่ง",
+  RECEIVED: "ที่ต้องได้รับ",
+  COMPLETED: "คำสั่งซื้อสำเร็จ",
+  CANCELLED: "ยกเลิกแล้ว",
+  REFUNDED: "คืนเงินแล้ว",
+};
 
 const getStatusColor = (status: string) => {
   if (!status) return 'bg-gray-100 text-gray-700';
@@ -110,7 +119,7 @@ function Dashboard() {
     };
     
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   if (loading || !dashData || !salesData) {
     return <Loading />;
@@ -140,16 +149,24 @@ function Dashboard() {
     id: item.orderNo,
     name: item.name,
     status: item.status,
+    statusText: STATUS_LABELS[item.status] || item.status,
     statusColor: getStatusColor(item.status)
   })) || [];
 
-  // 4. Regional Revenue
-  const revenueByArea = salesData.regionalRevenue?.map((item: any, idx: number) => ({
-    name: item.geography,
-    value: `${item.totalRevenuePercent || 0}%`,
-    percent: item.totalRevenuePercent || 0,
-    color: REGION_COLORS[idx % REGION_COLORS.length]
-  })) || [];
+  // 4. Regional Revenue (Calculate revenue percentage dynamically from salesData.regionalOrders)
+  const totalRevenueSum = salesData.regionalOrders?.reduce((sum: number, r: any) => sum + Number(r.totalRevenue ?? 0), 0) || 0;
+
+  const revenueByArea = salesData.regionalOrders?.map((item: any, idx: number) => {
+    const revenue = Number(item.totalRevenue ?? 0);
+    const percent = totalRevenueSum > 0 ? (revenue / totalRevenueSum) * 100 : 0;
+    return {
+      name: item.geography,
+      revenue: revenue,
+      value: `฿${revenue.toLocaleString()} (${percent.toFixed(2)}%)`,
+      percent: percent,
+      color: REGION_COLORS[idx % REGION_COLORS.length]
+    };
+  }) || [];
 
   // 5. Products
   const productsInStock = dashData.products?.map((item: any) => ({
@@ -255,8 +272,8 @@ function Dashboard() {
               <XAxis dataKey="name" tick={{fill: '#9ca3af', fontSize: 12}} axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} tick={{fill: '#d1d5db', fontSize: 12}} />
               <Tooltip cursor={{stroke: '#f3f4f6', strokeWidth: 2}} />
-              <Line type="monotone" dataKey="thisWeek" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="lastWeek" stroke="#fb923c" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="thisWeek" name="สัปดาห์นี้" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="lastWeek" name="สัปดาห์ที่แล้ว" stroke="#fb923c" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -269,7 +286,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">คำสั่งซื้อล่าสุด</h3>
-            <button onClick={() => navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
+            <button onClick={() => navigate(isAdmin ? "/owner/orders" : "/moderator/orders")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-700">
@@ -287,7 +304,7 @@ function Dashboard() {
                     <td className="py-4 text-gray-600">{order.name}</td>
                     <td className="py-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${order.statusColor}`}>
-                        {order.status}
+                        {order.statusText}
                       </span>
                     </td>
                   </tr>
@@ -306,7 +323,7 @@ function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Source */}
           <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100 flex flex-col items-center">
-            <h3 className="font-semibold text-gray-800 mb-4 w-full text-center">แหล่งที่มา</h3>
+            <h3 className="font-semibold text-gray-800 mb-4 w-full text-center">แหล่งที่ซื้อ</h3>
             <div className="h-40 w-full relative mb-6">
               {pieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -363,7 +380,7 @@ function Dashboard() {
                       <Popup>
                         <div className="text-xs">
                           <p className="font-semibold">{area.name}</p>
-                          <p>สัดส่วนรายได้: {area.value}</p>
+                          <p>รายได้ในพื้นที่ {area.value}</p>
                         </div>
                       </Popup>
                     </Marker>

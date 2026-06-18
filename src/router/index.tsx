@@ -264,11 +264,11 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "ordersMod",
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {
