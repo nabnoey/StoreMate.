@@ -30,9 +30,12 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
+
   useEffect(() => {
+  if (location.pathname !== "/search") {
     setInputValue(keyword);
-  }, [keyword]);
+  }
+}, [keyword, location.pathname]);
 
   const notifications = useSelector(
     (state: RootState) => state.notification.items,
