@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { FiUpload } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../redux/store";
 import { addProduct, editProduct, getproducts, deleteProduct } from "../../redux/moderator/ModeratorReducer";
@@ -26,7 +25,6 @@ interface FormValues {
   stockQuantity: number | "";
   status: "ACTIVE" | "CHECKED_OUT";
   description: string;
-  files: File | null;
 }
 
 const CATEGORY_MAP: Record<string, number> = {
@@ -42,7 +40,7 @@ const STATUS_MAP: Record<string, number> = {
 };
 
 // ==========================================
-// 2. HELPER FUNCTIONS (Pure Functions)
+// 2. HELPER FUNCTIONS
 // ==========================================
 const normalizeCategory = (category: string | number | undefined): string => {
   if (!category) return "";
@@ -80,15 +78,17 @@ const ProductSchema = Yup.object().shape({
   description: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
 });
 
-
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSuccess, product }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [fullProduct, setFullProduct] = useState<any>(null);
   
+  // State สำหรับจัดการรูปภาพหลายรูป
+  const [existingImages, setExistingImages] = useState<{ id: number; url: string }[]>([]);
+  const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>([]);
+  const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
+  
+  const [fullProduct, setFullProduct] = useState<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
-
 
   useEffect(() => {
     let isMounted = true;
@@ -99,11 +99,20 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
         if (isMounted) {
           setFullProduct(detail);
           if (detail.productImages?.length > 0) {
-            setPreviewImage(detail.productImages[0].imageUrl);
+            // โหลดรูปภาพเดิมจาก Database
+            setExistingImages(
+              detail.productImages.map((img: any) => ({
+                id: img.id,
+                url: img.imageUrl,
+              }))
+            );
           }
         }
       } else if (!isOpen) {
-        setPreviewImage(null);
+        // เคลียร์ค่าเมื่อปิด Modal
+        setExistingImages([]);
+        setNewImages([]);
+        setRemovedImageIds([]);
         setFullProduct(null);
       }
     };
@@ -125,14 +134,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     dispatch(getproducts({ page: 0, size: 1000 }));
   };
 
-  const getRemovedImages = (hasNewFile: boolean) => {
-    if (isEditMode && hasNewFile && fullProduct?.productImages) {
-      return fullProduct.productImages.map((img: any) => img.id);
-    }
-    return [];
-  };
-
- 
   const showConfirmToast = (message: string, isDanger = false): Promise<boolean> => {
     return new Promise((resolve) => {
       toast(
@@ -162,7 +163,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     });
   };
 
-  // ลบสินค้า
+  // จัดการลบสินค้า
   const handleDelete = async () => {
     if (!product) return;
     const isConfirmed = await showConfirmToast("คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?", true);
@@ -174,32 +175,58 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
       refreshProductList();
       handleCloseModal();
     } catch (error: any) {
-      toast.error(error.message || "ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้",{duration:1000});
-      onClose()
+      toast.error(error.message || "ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้", { duration: 1000 });
+      onClose();
     }
   };
+
+  const isImagesDirty = newImages.length > 0 || removedImageIds.length > 0;
 
   // ยกเลิกการแก้ไขข้อมูลสินค้า
- const handleCancel = async (isDirty: boolean) => {
-  if (!isDirty) {
-    onClose(); 
-    return;
-  }
-
-  const isConfirmed = await showConfirmToast("คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?");
-  if (isConfirmed) onClose();
-};
-  const handleFileChange = (file: File | undefined, setFieldValue: any) => {
-    if (!file) return;
-
-    if (!["image/png", "image/jpeg"].includes(file.type) || file.size > 5 * 1024 * 1024) {
-      toast.error("ไฟล์รูปภาพไม่รองรับ หรือขนาดใหญ่เกิน 5MB");
+  const handleCancel = async (isDirty: boolean) => {
+    if (!isDirty && !isImagesDirty) {
+      onClose();
       return;
     }
-
-    setFieldValue("files", file);
-    setPreviewImage(URL.createObjectURL(file));
+    const isConfirmed = await showConfirmToast("คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?");
+    if (isConfirmed) onClose();
   };
+
+  // จัดการเลือกไฟล์รูปภาพ (หลายรูป)
+  const handleFileChange = (files: FileList | null) => {
+    if (!files) return;
+    const validFiles: { file: File; preview: string }[] = [];
+    
+    Array.from(files).forEach((file) => {
+      if (["image/png", "image/jpeg", "image/jpg"].includes(file.type) && file.size <= 5 * 1024 * 1024) {
+        validFiles.push({ file, preview: URL.createObjectURL(file) });
+      } else {
+        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
+      }
+    });
+
+    setNewImages((prev) => [...prev, ...validFiles]);
+  };
+
+  // จัดการลบรูปภาพ (ทั้งรูปเก่าและรูปใหม่)
+  const handleRemoveImage = (index: number) => {
+    if (index < existingImages.length) {
+      // ลบรูปภาพที่มีอยู่ในระบบ
+      const imgToRemove = existingImages[index];
+      setRemovedImageIds((prev) => [...prev, imgToRemove.id]);
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      // ลบรูปภาพที่เพิ่งเลือกมาใหม่
+      const newIndex = index - existingImages.length;
+      setNewImages((prev) => prev.filter((_, i) => i !== newIndex));
+    }
+  };
+
+  // รวมรูปภาพทั้งหมดเพื่อแสดงผลใน UI
+  const displayImages = [
+    ...existingImages.map((img) => img.url),
+    ...newImages.map((img) => img.preview)
+  ];
 
   const formInitialValues: FormValues = {
     productName: product?.productName || "",
@@ -208,16 +235,15 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(fullProduct?.status || product?.status),
     description: fullProduct?.description || product?.description || "",
-    files: null,
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-[600px] overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="bg-[#003399] px-6 py-6 text-center">
-          <h2 className="text-2xl font-bold text-white tracking-wide">
+        <div className="bg-[#1e3a8a] px-6 py-5 text-center shrink-0">
+          <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide">
             {isEditMode ? "แก้ไขข้อมูลสินค้า" : "จัดการสินค้าในคลัง"}
           </h2>
         </div>
@@ -234,6 +260,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   return;
                 }
 
+                // ป้องกันกรณีที่ไม่ได้ใส่รูปเลย (ถ้า Business logic บังคับให้มีรูป)
+                if (displayImages.length === 0) {
+                  toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป");
+                  return;
+                }
+
                 const formData = new FormData();
                 const requestPayload = {
                   productName: values.productName,
@@ -242,11 +274,15 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   stockQuantity: Number(values.stockQuantity),
                   statusId: STATUS_MAP[values.status] || 1,
                   description: values.description,
-                  removeImages: getRemovedImages(!!values.files),
+                  removeImages: removedImageIds, // ส่ง Array ของ ID รูปที่ต้องการลบ
                 };
 
                 formData.append("request", JSON.stringify(requestPayload));
-                if (values.files) formData.append("files", values.files);
+                
+                // Append ไฟล์ใหม่ทั้งหมดเข้าไป (ชื่อ Key "files" ใช้สำหรับรับแบบ List/Array ในฝั่ง Backend)
+                newImages.forEach((img) => {
+                  formData.append("files", img.file);
+                });
 
                 if (isEditMode) {
                   await dispatch(editProduct({ id: product.id, data: formData })).unwrap();
@@ -265,10 +301,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
               }
             }}
           >
-            {({ setFieldValue, isSubmitting, dirty }) => (
-              <Form className="space-y-5">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2">
+            {({ isSubmitting, dirty }) => (
+              <Form className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อสินค้า</label>
                     <Field
                       type="text"
@@ -278,7 +314,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                     />
                     <ErrorMessage name="productName" component="div" className="text-red-500 text-xs mt-1" />
                   </div>
-                  <div className="col-span-1">
+                  <div className="md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">หมวดหมู่</label>
                     <Field
                       as="select"
@@ -339,57 +375,99 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                     as="textarea"
                     name="description"
                     placeholder="รายละเอียดสินค้า"
-                    rows={4}
+                    rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-700 placeholder-gray-400"
                   />
                   <ErrorMessage name="description" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
 
-                {/* Dropzone Area */}
-                <div>
-                  <div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                {/* ==============================================
+                    ส่วนแสดงและอัปโหลดรูปภาพ (UI ตาม Figma) 
+                    ============================================== */}
+                <div className="flex flex-col gap-4 mt-2 w-full">
+                  {/* รูปภาพหลัก (รูปแรก) */}
+                  {displayImages.length > 0 && (
+                    <div className="relative w-full max-w-[220px] h-[220px] mx-auto border border-gray-200 rounded-xl p-2 bg-white shadow-sm">
+                      <img
+                        src={displayImages[0]}
+                        alt="Main Product"
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                      <button 
+                        type="button"
+                        className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 w-7 h-7 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-colors"
+                        onClick={() => handleRemoveImage(0)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  {/* รูปภาพย่อย (Thumbnail) */}
+                  {displayImages.length > 1 && (
+                    <div className="flex flex-wrap gap-4 justify-center mt-2">
+                      {displayImages.slice(1, 4).map((img, index) => (
+                        <div key={index + 1} className="relative w-24 h-24 border border-gray-200 rounded-lg p-1 bg-white shadow-sm">
+                          <img
+                            src={img}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-contain rounded-md"
+                          />
+                          <button 
+                            type="button"
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600 transition-colors"
+                            onClick={() => handleRemoveImage(index + 1)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      
+                      {/* กล่องแสดงจำนวนรูปที่เหลือ (ถ้ามีมากกว่า 4 รูป) */}
+                      {displayImages.length > 4 && (
+                        <div className="w-24 h-24 bg-gray-200 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 font-bold text-lg">
+                          +{displayImages.length - 4}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* พื้นที่อัปโหลดรูปภาพ (Drag & Drop Zone) */}
+                  <div 
+                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors mt-2"
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
-                      handleFileChange(e.dataTransfer.files[0], setFieldValue);
+                      handleFileChange(e.dataTransfer.files);
                     }}
                   >
-                    <input
-                      type="file"
-                      accept="image/png, image/jpeg"
-                      className="hidden"
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/png, image/jpeg, image/jpg" 
+                      className="hidden" 
                       ref={fileInputRef}
-                      onChange={(e) => handleFileChange(e.target.files?.[0], setFieldValue)}
+                      onChange={(e) => handleFileChange(e.target.files)} 
                     />
-                    
-                    {previewImage ? (
-                      <div className="relative w-full h-32 flex justify-center">
-                        <img src={previewImage} alt="Preview" className="h-full object-contain rounded-md" />
-                      </div>
-                    ) : (
-                      <>
-                        <FiUpload className="text-gray-400 text-3xl mb-2" />
-                        <p className="text-sm text-gray-700 font-medium">
-                          {isEditMode ? "คลิกเพื่ออัพโหลดหรือลากวางรูปใหม่" : "คลิกเพื่ออัพโหลดหรือลากวาง"}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5 MB</p>
-                        {isEditMode && <p className="text-xs text-blue-500 mt-2">(หากไม่ต้องการเปลี่ยนรูป ให้ปล่อยว่างไว้)</p>}
-                      </>
-                    )}
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 mb-2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span className="text-gray-700 font-medium mb-1">คลิกเพื่ออัพโหลดหรือลากวาง</span>
+                    <span className="text-gray-400 text-xs">PNG, JPG up to 5 MB</span>
                   </div>
-                  <ErrorMessage name="files" component="div" className="text-red-500 text-xs mt-1 text-center" />
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex justify-center gap-4 pt-4 border-t border-gray-100 mt-4">
+                <div className="flex justify-center gap-4 pt-4 mt-6">
                   {isEditMode && (
                     <button
                       type="button"
                       data-test={`delete-product-${product?.id}`}
                       onClick={handleDelete}
-                      className="px-8 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors cursor-pointer"
+                      className="px-6 py-2 bg-[#EF4444] hover:bg-red-600 text-white rounded-md font-medium transition-colors cursor-pointer"
                     >
                       ลบสินค้า
                     </button>
@@ -397,16 +475,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   <button
                     type="submit"
                     data-test={isEditMode ? `submit-product-${product?.id}` : "submit-product-add"}
-                     disabled={isSubmitting || (isEditMode && !dirty)}
-                    className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400 cursor-pointer"
+                    disabled={isSubmitting || (isEditMode && !dirty && !isImagesDirty)}
+                    className="px-8 py-2 bg-[#1e3a8a] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400 cursor-pointer"
                   >
                     {isEditMode ? "แก้ไขสินค้า" : "บันทึก"}
                   </button>
                   <button
                     type="button"
                     data-test="cancel-edit-product"
-                   onClick={() => handleCancel(dirty)}
-                    className="px-8 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors cursor-pointer"
+                    onClick={() => handleCancel(dirty)}
+                    className="px-6 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors cursor-pointer"
                   >
                     ยกเลิก
                   </button>
