@@ -287,14 +287,21 @@ console.log("location.state =", location.state);
   };
 
   //ลบที่อยู่
-  const handleDeleteAddress = (addressId: number) => {
+const handleDeleteAddress = (addressId: number) => {
     setIsBlocking(true);
 
-    const confirmDelete = (toastId: string) => {
+    const confirmDelete = async (toastId: string) => {
       toast.dismiss(toastId);
-      setIsBlocking(false);
-      dispatch(deleteAddress(addressId));
-      toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
+      try {
+        await dispatch(deleteAddress(addressId)).unwrap();
+        toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
+      } catch (error: any) {
+        const errorMessage = error?.message 
+        toast.error(errorMessage, { duration: 2000 });
+        console.error("Delete address failed:", error);
+      } finally {
+        setIsBlocking(false); 
+      }
     };
 
     const cancelDelete = (toastId: string) => {

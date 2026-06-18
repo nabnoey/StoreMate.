@@ -80,9 +80,7 @@ const ProductSchema = Yup.object().shape({
   description: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
 });
 
-// ==========================================
-// 4. MAIN COMPONENT
-// ==========================================
+
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSuccess, product }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -91,7 +89,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
 
-  // 🌟 useEffect ถูกหลักอนามัย React ดักจับ Race Condition และใช้ Cleanup Function
+
   useEffect(() => {
     let isMounted = true;
 
@@ -134,7 +132,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     return [];
   };
 
-  // 🛠️ ฟังก์ชัน Toast ยืนยันตรงกลาง: เพิ่มพารามิเตอร์ isDanger เพื่อสลับสีปุ่ม ยืนยัน
+ 
   const showConfirmToast = (message: string, isDanger = false): Promise<boolean> => {
     return new Promise((resolve) => {
       toast(
@@ -144,7 +142,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             <div className="flex justify-center gap-3 w-full">
               <button
                 onClick={() => { toast.dismiss(t.id); resolve(true); }}
-                // 📌 ถ้าเป็นเคสลบ (isDanger === true) จะใช้สีแดง [#EF4444] ถ้าเคสทั่วไปจะใช้สีน้ำเงิน [#003399]
                 className={`px-5 py-1.5 text-white rounded-md text-sm font-medium transition-colors cursor-pointer ${
                   isDanger ? "bg-[#EF4444] hover:bg-red-600" : "bg-[#003399] hover:bg-blue-800"
                 }`}
@@ -168,7 +165,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
   // ลบสินค้า
   const handleDelete = async () => {
     if (!product) return;
-    // 📌 ส่งค่า true เข้าไปในพารามิเตอร์ตัวที่สอง เพื่อบอกว่าเป็นเคสอันตราย ปุ่มยืนยันจะเป็นสีแดง
     const isConfirmed = await showConfirmToast("คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้?", true);
     if (!isConfirmed) return;
 
@@ -178,16 +174,21 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
       refreshProductList();
       handleCloseModal();
     } catch (error: any) {
-      toast.error(error.message || "เกิดข้อผิดพลาดในการลบสินค้า");
+      toast.error(error.message || "ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้",{duration:1000});
+      onClose()
     }
   };
 
   // ยกเลิกการแก้ไขข้อมูลสินค้า
-  const handleCancel = async () => {
-    const isConfirmed = await showConfirmToast("คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?");
-    if (isConfirmed) onClose();
-  };
+ const handleCancel = async (isDirty: boolean) => {
+  if (!isDirty) {
+    onClose(); 
+    return;
+  }
 
+  const isConfirmed = await showConfirmToast("คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?");
+  if (isConfirmed) onClose();
+};
   const handleFileChange = (file: File | undefined, setFieldValue: any) => {
     if (!file) return;
 
@@ -264,7 +265,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
               }
             }}
           >
-            {({ setFieldValue, isSubmitting }) => (
+            {({ setFieldValue, isSubmitting, dirty }) => (
               <Form className="space-y-5">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
@@ -396,15 +397,15 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                   <button
                     type="submit"
                     data-test={isEditMode ? `submit-product-${product?.id}` : "submit-product-add"}
-                    disabled={isSubmitting}
+                     disabled={isSubmitting || (isEditMode && !dirty)}
                     className="px-8 py-2 bg-[#003399] hover:bg-blue-800 text-white rounded-md font-medium transition-colors disabled:bg-gray-400 cursor-pointer"
                   >
-                    {isSubmitting ? "กำลังบันทึก..." : (isEditMode ? "แก้ไขสินค้า" : "บันทึก")}
+                    {isEditMode ? "แก้ไขสินค้า" : "บันทึก"}
                   </button>
                   <button
                     type="button"
                     data-test="cancel-edit-product"
-                    onClick={handleCancel}
+                   onClick={() => handleCancel(dirty)}
                     className="px-8 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md font-medium transition-colors cursor-pointer"
                   >
                     ยกเลิก
