@@ -700,9 +700,9 @@ const HistoryPage = () => {
                                   },
                                 );
                               }}
-                              className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium"
+                              className="cursor-pointer w-full h-[29px] sm:w-[180px] rounded-lg bg-[#3B82F6] text-white font-[Anuphan]"
                             >
-                              ยกเลิกคำสั่งซื้อ
+                              ยกเลิกคำสั่งซื้อ / ขอคืนเงิน
                             </button>
                           </div>
                         ) : null}
