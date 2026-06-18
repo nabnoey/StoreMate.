@@ -91,6 +91,7 @@ const SearchPage = () => {
   const sortedProducts = [...filteredProducts].sort((p1, p2) => p1.price - p2.price);
 
   return (
+  
     <div className="max-w-[1440px] mx-auto mt-6 md:mt-10 px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-10">
       <div className="w-full lg:w-[320px] pt-6 lg:pt-16 ">
         {/* <div className="flex items-center gap-10 justify-between w-full lg:w-full"> */}
@@ -264,27 +265,11 @@ const SearchPage = () => {
           </div>
           <div className="flex gap-2 mt-4 max-w-[275px]">
             <button
-              data-test="cancel-price-filter"
-              onClick={() => {
-
-                setMinPriceInput("");
-                setMaxPriceInput("");
-                const params: any = {};
-                if (keyword !== "") params.keyword = keyword;
-                if (category !== "") params.category = category;
-                setSearchParams(params);
-              }}
-
-              className="flex-1 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              ยกเลิก
-            </button>
-            <button
               data-test="apply-price-filter"
               onClick={() => handleApplyPrice()}
               className="flex-1 py-1.5 rounded text-white bg-[#0f3d8c] hover:bg-[#0b2f6b] transition-colors cursor-pointer"
             >
-              ค้นหา
+              ตกลง
             </button>
           </div>
 
@@ -292,13 +277,9 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-16 md:py-8 -mt-12.5 lg:mt-7">
-        <div className="flex justify-between items-center w-full border h-[48px] border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
+      <div className="flex-1 px-5 py-16 md:py-8 -mt-20 lg:mt-7">
+        <div className="flex justify-between items-center border h-10 w-full md:w-full border-gray-200 rounded-xl px-4 py-3 bg-white  mb-6">
           <p className="text-black">พบสินค้า {filteredProducts.length} รายการ</p>
-
-          {/* <div className="bg-gray-200 w-full md:w-[162px] h-[36px] px-4 py-1 rounded-lg text-gray-700 ">
-            เรียงโดย
-          </div> */}
         </div>
 
         {filteredProducts.length === 0 ? (
@@ -315,6 +296,7 @@ const SearchPage = () => {
         )}
       </div>
     </div>
+   
   );
 };
 
