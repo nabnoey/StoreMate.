@@ -401,7 +401,7 @@ const ProductDetailPage: React.FC = () => {
                   รายละเอียดสินค้า
                 </h3>
                 <div
-                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left transition-all duration-300 ${
+                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left break-words w-full overflow-hidden transition-all duration-300 ${
                     !isDescriptionExpanded
                       ? "line-clamp-3 md:line-clamp-none"
                       : ""

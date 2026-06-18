@@ -59,7 +59,6 @@ const AddCreditCardFormInner = () => {
       if (error) {
         toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
       } else {
-        toast.success("เพิ่มบัตรสำเร็จ");
 
         navigate("/payment", {
           state: {
