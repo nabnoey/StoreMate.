@@ -1,5 +1,4 @@
 export type UserRole =
-  | "OWNER"
   | "ADMIN"
   | "MODERATOR"
   | "USER"
@@ -38,8 +37,6 @@ export interface OwnerState {
   loading: boolean;
   error: string | null;
   store: Store | null;
-  dashData: any | null;
-  salesData: any | null;
 }
 
 export interface GetUserManagementParams {
