@@ -165,7 +165,7 @@ const PaymentContent = () => {
         }, 2000);
       }
 
-      return; // CARD จบตรงนี้
+      return;
     }
 
     if (checkoutType === "PROMPTPAY") {
