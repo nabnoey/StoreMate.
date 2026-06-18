@@ -175,7 +175,7 @@ const SearchPage = () => {
             </p>
           ) : (
             
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3 lg:gap-[24px]">
+            <div className="grid grid-cols-2  md:grid-cols-3 xl:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3 lg:gap-[24px]">
               {sortedProducts.map((product) => {
                 return <ProductCard key={product.id} product={product} />;
               })}
