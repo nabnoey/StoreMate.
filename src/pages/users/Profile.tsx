@@ -513,7 +513,6 @@ const ProfilePage = () => {
                     >
                       <div
                         className="text-[14px] sm:text-[16px] text-black truncate"
-                        data-test="profile-created-at"
                       >
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
