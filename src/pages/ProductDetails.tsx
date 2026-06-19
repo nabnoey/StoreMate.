@@ -14,7 +14,7 @@ import type { ProductDetail } from "../types/product";
 import { TokenService } from "../services/token.service";
 
 import Pagination from "../components/user/Pagination";
-import Loading from "../components/loading/Loading";
+// import Loading from "../components/loading/Loading";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
@@ -34,7 +34,7 @@ const ProductDetailPage: React.FC = () => {
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(
     null,
   );
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,7 +92,7 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         if (id) {
           const data = await ProductService.getProductById(Number(id));
           if (!data) {
@@ -117,8 +117,6 @@ const ProductDetailPage: React.FC = () => {
         setTimeout(() => {
           navigate("/");
         }, 1000);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -268,7 +266,7 @@ const ProductDetailPage: React.FC = () => {
     setCurrentPage(page);
   };
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
   if (!productDetail)
     return (
       <div className="min-h-screen flex items-center justify-center">
