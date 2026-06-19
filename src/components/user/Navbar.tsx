@@ -82,18 +82,7 @@ const Navbar: React.FC = () => {
     const value = e.target.value;
     setInputValue(value);
 
-    // if (value.trim() !== "") {
-    //   dispatch(
-    //     search({
-    //       keyword: value,
-    //       categoryId: 0,
-    //       minPrice: 0,
-    //       maxPrice: 0,
-    //       page: 1,
-    //       size: 1000,
-    //     }),
-    //   );
-    // }
+  
   };
 
   const handleSubmitSearch = () => {
