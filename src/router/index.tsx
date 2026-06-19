@@ -10,6 +10,7 @@ const Home = lazy(() => import("../pages/HomePage"));
 const ShoppingCartPage = lazy(
   () => import("../pages/users/carts/ShoppingCart"),
 );
+
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
