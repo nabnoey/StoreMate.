@@ -3,7 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import { getProfile, updateProfile } from "../../redux/auth/authReducer";
+import {
+  getProfile,
+  updateProfile,
+  logout,
+} from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
@@ -300,6 +304,18 @@ const ProfilePage = () => {
       }
 
       await dispatch(updateProfile(formData) as any).unwrap();
+
+      if (tempData.email !== user.email) {
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
+        setActiveModal(null);
+
+        setTimeout(() => {
+          dispatch(logout());
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
       await dispatch(getProfile() as any).unwrap();
 
       toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
