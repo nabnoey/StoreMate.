@@ -344,7 +344,8 @@ const ShoppingCart = () => {
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
                         </button>
-                        <span className="w-8 text-center text-sm font-bold text-black">
+                        <span className="w-8 text-center text-sm font-bold text-black"
+                        data-test="item-quantity">
                           {item.quantity}
                         </span>
                         <button

@@ -136,10 +136,8 @@ const moderatorSlice = createSlice({
   
 .addCase(addProduct.fulfilled, (state, action) => {
     if (Array.isArray(state.products)) {
-        const newProduct = action.payload?.data || action.payload;
-        if (newProduct && newProduct.id) {
-            state.products.unshift(newProduct);
-        }
+       state.products.push(action.payload.data);
+       
     }
 })
 .addCase(editProduct.fulfilled, (state, action) => {
