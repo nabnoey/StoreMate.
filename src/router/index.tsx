@@ -21,7 +21,6 @@ const PaymentShoping = lazy(
   () => import("../pages/users/payment/PaymentShoping"),
 );
 const SearchPage = lazy(() => import("../pages/SearchPage"));
-const CategoryPage = lazy(() => import("../pages/CategoryPage"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
 const AboutUs = lazy(() => import("../pages/AboutAs"));
 const Contact = lazy(() => import("../pages/Contact"));
@@ -128,10 +127,6 @@ const router = createBrowserRouter([
       {
         path: "search",
         element: <SearchPage />,
-      },
-      {
-        path: "category/:category",
-        element: <CategoryPage />,
       },
       {
         path: "address-profile",

@@ -17,7 +17,7 @@ interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  product?: ProductMod | null;
+  product?: ProductMod ;
 }
 
 interface FormValues {
@@ -56,20 +56,18 @@ const normalizeCategory = (category: string | number | undefined): string => {
   return String(category);
 };
 
-const normalizeStatus = (status: any): "ACTIVE" | "INACTIVE" => {
-  if (!status) return "ACTIVE";
-  const statStr = String(
-    typeof status === "object"
-      ? status.name || status.statusName || status.id
-      : status,
-  )
-    .toUpperCase()
-    .trim();
 
-  if (["2", "INACTIVE", "ไม่พร้อมจำหน่าย", "ไม่จำหน่าย"].includes(statStr)) {
-    return "INACTIVE";
-  }
-  return "ACTIVE";
+const normalizeStatus = (
+  status?: string 
+): "ACTIVE" | "INACTIVE" => {
+
+  const inactive = [
+    "INACTIVE",
+  ];
+
+  return inactive.includes(status ?? "")
+    ? "INACTIVE"
+    : "ACTIVE";
 };
 
 
@@ -106,7 +104,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
   const [brokenImageIds, setBrokenImageIds] = useState<number[]>([]); 
 
-  const [fullProduct, setFullProduct] = useState<any>(null);
+  const [fullProduct, setFullProduct] = useState(null);
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
 
@@ -203,18 +201,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
     try {
       await dispatch(deleteProduct(product.id)).unwrap();
-      toast.success("ลบสินค้าสำเร็จ");
+      toast.success("ลบสินค้าเรียบร้อยแล้ว");
       refreshProductList();
       handleCloseModal();
-    } catch (error: any) {
-      toast.error("DELETE ERROR", error);
+    } catch{
+      toast.error("ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้",{duration:2000});
 
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "ไม่สามารถลบสินค้าได้",
-        { duration: 2000 },
-      );
+      
     }
   };
 
@@ -273,9 +266,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(
-      fullProduct?.productStatus ??
-        fullProduct?.status ??
-        (product as any)?.productStatus ??
+      // fullProduct?.productStatus ??
+      //   fullProduct?.status ??
+        (product )?.productStatus ??
         product?.status,
     ),
     description: fullProduct?.description || product?.description || "",

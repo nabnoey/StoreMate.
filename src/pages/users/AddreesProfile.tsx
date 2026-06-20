@@ -17,8 +17,6 @@ import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
 
 const AddressProfile = () => {
-  console.log("Address Profile Render");
-
 
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -33,9 +31,7 @@ const AddressProfile = () => {
   const [targetAddressId, setTargetAddressId] = useState<string | null>(null);
   const [isBlocking, setIsBlocking] = useState(false);
   const location = useLocation();
-// const from = location.state?.from;
 
-console.log("location.state =", location.state);
 
   const [formData, setFormData] = useState({
     streetAddress: "",
