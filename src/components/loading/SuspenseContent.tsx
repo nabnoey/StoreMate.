@@ -1,12 +1,8 @@
 import React, { Suspense } from "react";
-import Loading from "./Loading";
+// import Loading from "./Loading";
 
 const SuspenseContent = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Suspense fallback={<Loading />}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={null}>{children}</Suspense>;
 };
 
 export default SuspenseContent;

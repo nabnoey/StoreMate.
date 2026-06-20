@@ -10,6 +10,7 @@ const Home = lazy(() => import("../pages/HomePage"));
 const ShoppingCartPage = lazy(
   () => import("../pages/users/carts/ShoppingCart"),
 );
+
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
@@ -38,7 +39,7 @@ const CancelOrderPage = lazy(
 const NotificationPage = lazy(() => import("./../pages/users/Notification"));
 import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
-import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
+import RefundPage from "../pages/admin/RefundPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
 import StoreEdit from "../pages/admin/StoreEdit";
@@ -220,7 +221,7 @@ const router = createBrowserRouter([
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
+        element: <RefundPage />,
       },
       {
         path: "notification",
@@ -254,7 +255,7 @@ const router = createBrowserRouter([
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
+        element: <RefundPage />,
       },
       {
         path: "store-edit",

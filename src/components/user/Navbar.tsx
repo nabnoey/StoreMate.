@@ -70,7 +70,12 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleBellClick = () => {
-    setOpenNotifyDropdown(!openNotifyDropdown);
+    // เช็คความกว้างหน้าจอว่าต่ำกว่าขนาด lg (1024px) หรือไม่
+    if (window.innerWidth < 1024) {
+      navigate("/notification");
+    } else {
+      setOpenNotifyDropdown(!openNotifyDropdown);
+    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,69 +275,76 @@ const Navbar: React.FC = () => {
                 </button>
 
                 {openNotifyDropdown && (
-                  <div className="absolute right-0 mt-3 w-[320px] sm:w-[360px] bg-white rounded-lg shadow-xl border border-gray-100 z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="max-h-[360px] overflow-y-auto font-Anuphan">
-                      {previewNotifications.length === 0 ? (
-                        <div className="p-6 text-center text-gray-400 text-sm">
-                          ไม่มีการแจ้งเตือนในขณะนี้
-                        </div>
-                      ) : (
-                        previewNotifications.map((item) => (
-                          <div
-                            key={item.id}
-                            className={`flex gap-3 p-4 border-b border-gray-50 transition-colors cursor-pointer ${
-                              !item.isRead
-                                ? "bg-[#EBF2FE] hover:bg-[#e2ecfc]"
-                                : "bg-white hover:bg-gray-50"
-                            }`}
-                            onClick={() => {
-                              setOpenNotifyDropdown(false);
-                              if (!item.isRead) {
-                                dispatch(markAsReadInStore(item.id));
-                              }
-                              navigate("/notification");
-                            }}
-                          >
-                            <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
-                              <img
-                                src={logo}
-                                className="w-full h-full object-cover"
-                                alt="notify-img"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = logo;
-                                }}
-                              />
-                            </div>
-
-                            <div className="flex flex-col flex-1 min-w-0">
-                              <span
-                                className={`text-sm truncate ${!item.isRead ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`}
-                              >
-                                {item.title}
-                              </span>
-                              <span
-                                className={`text-xs mt-0.5 line-clamp-2 leading-relaxed ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
-                              >
-                                {item.message}
-                              </span>
-                              <span className="text-[11px] text-gray-400 mt-1">
-                                {item.createdAt}
-                              </span>
-                            </div>
+                  // เพิ่ม hidden lg:block เข้าไปตรงนี้ เพื่อให้ไม่แสดงผลบน mobile แน่นอน
+                  <div className="relative hidden lg:block">
+                    <ul className="absolute -right-2 top-[28px] p-0 shadow-xl bg-white rounded-lg w-[340px] border border-gray-100 z-[9999] overflow-hidden list-none animate-in fade-in slide-in-from-top-1 duration-150">
+                      {/* ส่วนเนื้อหาแจ้งเตือน (Scrollable Content) */}
+                      <div className="max-h-[300px] overflow-y-auto font-Anuphan">
+                        {previewNotifications.length === 0 ? (
+                          <div className="p-5 text-center text-gray-400 text-sm">
+                            ไม่มีการแจ้งเตือนในขณะนี้
                           </div>
-                        ))
-                      )}
-                    </div>
+                        ) : (
+                          previewNotifications.map((item) => (
+                            <li key={item.id} className="block">
+                              <button
+                                type="button"
+                                className={`flex w-full items-start gap-3 p-3 text-left transition-colors border-b border-gray-50 hover:bg-gray-50 ${
+                                  !item.isRead ? "bg-[#FFF9F9]" : "bg-white"
+                                }`}
+                                onClick={() => {
+                                  setOpenNotifyDropdown(false);
+                                  if (!item.isRead) {
+                                    dispatch(markAsReadInStore(item.id));
+                                  }
+                                  navigate("/notification");
+                                }}
+                              >
+                                {/* รูปภาพสินค้า */}
+                                <div className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded border border-gray-50 overflow-hidden">
+                                  <img
+                                    src={logo}
+                                    className="w-full h-full object-cover"
+                                    alt="notify-img"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = logo;
+                                    }}
+                                  />
+                                </div>
 
-                    <button
-                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 text-center text-sm font-semibold transition-colors font-Anuphan block"
-                      onClick={() => {
-                        setOpenNotifyDropdown(false);
-                        navigate("/notification");
-                      }}
-                    >
-                      ดูทั้งหมด
-                    </button>
+                                {/* กล่องข้อความ */}
+                                <div className="flex flex-col flex-1 min-w-0 gap-0.5">
+                                  <span
+                                    className={`text-xs truncate text-gray-900 ${!item.isRead ? "font-bold" : "font-semibold"}`}
+                                  >
+                                    {item.title}
+                                  </span>
+                                  <span className="text-[11px] text-gray-500 line-clamp-1 leading-normal">
+                                    {item.message}
+                                  </span>
+                                  <span className="text-[9px] text-gray-400 mt-0.5">
+                                    {item.createdAt}
+                                  </span>
+                                </div>
+                              </button>
+                            </li>
+                          ))
+                        )}
+                      </div>
+
+                      <li className="block">
+                        <button
+                          type="button"
+                          className="cursor-pointer w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-2.5 text-center text-xs font-bold font-Anuphan transition-colors block border-t border-gray-100"
+                          onClick={() => {
+                            setOpenNotifyDropdown(false);
+                            navigate("/notification");
+                          }}
+                        >
+                          ดูทั้งหมด
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 )}
               </div>

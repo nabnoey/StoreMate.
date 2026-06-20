@@ -3,7 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import { getProfile, updateProfile } from "../../redux/auth/authReducer";
+import {
+  getProfile,
+  updateProfile,
+  logout,
+} from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
@@ -300,6 +304,18 @@ const ProfilePage = () => {
       }
 
       await dispatch(updateProfile(formData) as any).unwrap();
+
+      if (tempData.email !== user.email) {
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
+        setActiveModal(null);
+
+        setTimeout(() => {
+          dispatch(logout());
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
       await dispatch(getProfile() as any).unwrap();
 
       toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
@@ -383,7 +399,13 @@ const ProfilePage = () => {
           <ProfileSidebar />
 
           <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
-         
+            <div className="hidden sm:block w-full mb-6 md:mb-8">
+              <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
+              <p className="text-[14px] mt-1 text-black">
+                จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
+              </p>
+              <div className="w-full border-t border-black mt-5" />
+            </div>
             <div className="flex flex-col sm:flex-col lg:flex-row lg:justify-between items-center lg:items-start w-full gap-6 lg:gap-0">
               <div className="flex flex-col items-center justify-start w-full sm:w-56 lg:w-64 shrink-0 order-1 lg:order-3 mb-4 lg:mb-0 mt-2 lg:mt-0">
                 <div className="w-[150px] h-[150px] sm:w-[160px] sm:h-[160px] lg:w-32 lg:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
@@ -511,9 +533,7 @@ const ProfilePage = () => {
                       data-test="profile-created-at"
                       className="flex-1 flex items-center justify-between gap-2 overflow-hidden"
                     >
-                      <div
-                        className="text-[14px] sm:text-[16px] text-black truncate"
-                      >
+                      <div className="text-[14px] sm:text-[16px] text-black truncate">
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
                           : "-"}

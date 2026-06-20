@@ -1,20 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-export interface SavedCard {
-  id: string;
-  brand: string;
-  last4: string;
-  bankName: string;
-}
-
 interface PaymentState {
-  savedCards: SavedCard[];
   status: "IDLE" | "PENDING" | "PAYMENT_SUCCESS" | "PAYMENT_FAILS";
   orderId: string | null;
 }
 
 const initialState: PaymentState = {
-  savedCards: [],
   status: "IDLE",
   orderId: null,
 };
@@ -23,15 +14,6 @@ const paymentSlice = createSlice({
   name: "payment",
   initialState,
   reducers: {
-    addSavedCard: (state, action: PayloadAction<SavedCard>) => {
-      const isExist = state.savedCards.find(
-        (card) => card.id === action.payload.id,
-      );
-      if (!isExist) {
-        state.savedCards.push(action.payload);
-      }
-    },
-
     setPaymentStatus: (
       state,
       action: PayloadAction<{
@@ -52,6 +34,5 @@ const paymentSlice = createSlice({
   },
 });
 
-export const { addSavedCard, setPaymentStatus, resetPaymentStatus } =
-  paymentSlice.actions;
+export const { setPaymentStatus, resetPaymentStatus } = paymentSlice.actions;
 export default paymentSlice.reducer;

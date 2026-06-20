@@ -59,7 +59,6 @@ const AddCreditCardFormInner = () => {
       if (error) {
         toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
       } else {
-        toast.success("เพิ่มบัตรสำเร็จ!");
 
         navigate("/payment", {
           state: {
@@ -147,7 +146,9 @@ const AddCreditCardFormInner = () => {
             />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-black">เพิ่มบัตรใหม่</h1>
+            <h1 className="text-xl font-bold text-black">
+              กรอกข้อมูลบัตรเครดิต/เดบิต
+            </h1>
             <p className="text-sm text-gray-500">
               เพิ่มบัตรเครดิตหรือเดบิตสำหรับการชำระเงิน
             </p>

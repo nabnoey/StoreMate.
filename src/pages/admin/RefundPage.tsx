@@ -15,7 +15,7 @@ import { toast } from "react-hot-toast";
 
 type ModalType = "ALL" | "PENDING" | "APPROVED" | "REJECTED" | null;
 
-const RefundModeratorPage = () => {
+const RefundPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -625,4 +625,4 @@ const RefundModeratorPage = () => {
   );
 };
 
-export default RefundModeratorPage;
+export default RefundPage;

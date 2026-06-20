@@ -3,18 +3,15 @@ import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-// import { jwtDecode } from "jwt-decode";
 import { Icon } from "@iconify/react";
 
 import type { RootState, AppDispatch } from "../redux/store";
 import { addToCartThunk } from "../redux/carts/CartReducer";
-
-import { ProductService } from "../services/product.service";
-import type { ProductDetail } from "../types/product";
+import { fetchProductById } from "../redux/products/productReducer";
 import { TokenService } from "../services/token.service";
 
 import Pagination from "../components/user/Pagination";
-import Loading from "../components/loading/Loading";
+// import Loading from "../components/loading/Loading";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
@@ -31,30 +28,20 @@ const ProductDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [productDetail, setProductDetail] = useState<ProductDetail | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   // const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const productDetail = useSelector(
+    (state: RootState) => state.products.selectedProduct,
+  );
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
-  // แก้ไข และ ลบรีวิว
-  // const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  // const [selectedReview, setSelectedReview] = useState<any>(null);
-  // const [editScore, setEditScore] = useState<number>(0);
-  // const [editMessage, setEditMessage] = useState<string>("");
-
   // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-
-  // จำกัดสิทธิ์
-  // const token = TokenService.getAccessToken();
-  // const isLoggedIn = !!token;
   const categoryName = location.state?.categoryName || "สินค้า";
 
   // Pagination
@@ -68,20 +55,6 @@ const ProductDetailPage: React.FC = () => {
     indexOfLastReview,
   );
 
-  // type JwtPayload = {
-  //   userId: number;
-  // };
-
-  // const currentUserId = useMemo(() => {
-  //   if (!token) return null;
-  //   try {
-  //     const decoded = jwtDecode<JwtPayload>(token);
-  //     return decoded.userId;
-  //   } catch {
-  //     return null;
-  //   }
-  // }, [token]);
-
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
     return cartItems.find((items) => items.productId === Number(id));
@@ -90,41 +63,16 @@ const ProductDetailPage: React.FC = () => {
   const quantityInCart = itemInCart?.quantity || 0;
 
   useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        setLoading(true);
-        if (id) {
-          const data = await ProductService.getProductById(Number(id));
-          if (!data) {
-            toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
-            setTimeout(() => {
-              navigate("/");
-            }, 1000);
-            return;
-          }
+    if (id) {
+      dispatch(fetchProductById(Number(id)));
+    }
+  }, [id, dispatch]);
 
-          setProductDetail(data);
-
-          if (data.productImages && data.productImages.length > 0) {
-            setActiveImage(data.productImages[0].imageUrl);
-          }
-        }
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error);
-
-        toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
-
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDetail();
-    window.scrollTo(0, 0);
-  }, [id, navigate]);
+  useEffect(() => {
+    if (productDetail?.productImages?.length) {
+      setActiveImage(productDetail.productImages[0].imageUrl);
+    }
+  }, [productDetail]);
 
   const handleIncrease = () => {
     if (buyQuantity < currentStock) {
@@ -268,7 +216,7 @@ const ProductDetailPage: React.FC = () => {
     setCurrentPage(page);
   };
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
   if (!productDetail)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -401,7 +349,7 @@ const ProductDetailPage: React.FC = () => {
                   รายละเอียดสินค้า
                 </h3>
                 <div
-                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left transition-all duration-300 ${
+                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left break-words w-full overflow-hidden transition-all duration-300 ${
                     !isDescriptionExpanded
                       ? "line-clamp-3 md:line-clamp-none"
                       : ""

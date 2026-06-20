@@ -12,7 +12,7 @@ import {
 
 import { Icon } from "@iconify/react";
 import { type Toast, toast } from "react-hot-toast";
-import Loading from "../../../components/loading/Loading";
+// import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
 
 interface ConfirmToastProps {
@@ -215,11 +215,11 @@ const ShoppingCart = () => {
   };
 
   if (cartStatus === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading />
-      </div>
-    );
+    // return (
+    //   <div className="min-h-screen flex items-center justify-center">
+    //     <Loading />
+    //   </div>
+    // );
   }
 
   return (
@@ -344,8 +344,10 @@ const ShoppingCart = () => {
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
                         </button>
-                        <span className="w-8 text-center text-sm font-bold text-black"
-                        data-test="item-quantity">
+                        <span
+                          className="w-8 text-center text-sm font-bold text-black"
+                          data-test="item-quantity"
+                        >
                           {item.quantity}
                         </span>
                         <button
