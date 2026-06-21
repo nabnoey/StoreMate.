@@ -12,6 +12,7 @@ import {
 } from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 import { toast } from "react-hot-toast";
+import { CiCalendar } from "react-icons/ci";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "cally";
@@ -240,9 +241,15 @@ function Orders() {
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
                   />
 
-                 <div className="relative text-sm font-['Anuphan'] w-full sm:w-72 cursor-pointer">
+                 <div 
+  className={`
+    relative text-sm font-['Anuphan'] cursor-pointer
+    ${startDate && endDate ? "w-full" : "w-[140px]"}
+  `}
+>
   <input
     type="text"
+    data-test="select-date"
     readOnly
     placeholder="เลือกช่วงเวลา"
     value={
@@ -256,7 +263,26 @@ function Orders() {
    onClick={() => {
      setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
    }}
-    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full text-gray-700 bg-white cursor-pointer"
+    className={`
+    relative border border-gray-300 rounded px-3 py-2 text-sm 
+    focus:outline-none focus:ring-1 focus:ring-blue-500 
+    ${startDate && endDate ? "w-full" : "w-[140px]"}
+    text-gray-700 bg-white cursor-pointer
+  `}
+    
+    
+  />
+
+    <CiCalendar 
+    className="
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-gray-500
+      pointer-events-none
+    "
+    size={18}
   />
 
   {isDatePickerOpen && (
@@ -280,6 +306,7 @@ function Orders() {
         selectsRange
         inline
         monthsShown={2}
+        minDate={startDate || undefined}
       />
 
       <div className="flex justify-end gap-3 mt-4">

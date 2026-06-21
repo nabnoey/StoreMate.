@@ -11,7 +11,6 @@ export type Product = {
   status: "ACTIVE" | "INACTIVE";
   createAt: string;
   stockQuantity: number;
-  // backend เพิ่มเข้ามาให้
   productStatus: "ACTIVE" | "CHECKED_OUT";
 };
 

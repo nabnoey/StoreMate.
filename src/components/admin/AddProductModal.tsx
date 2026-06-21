@@ -9,9 +9,10 @@ import {
   getproducts,
   deleteProduct,
 } from "../../redux/moderator/ModeratorReducer";
+import {fetchProductById} from "../../redux/products/productReducer"
 import type { ProductMod } from "../../types/moderator/productMod";
+import type { Product } from "../../types/product";
 import { toast } from "react-hot-toast";
-import { ProductService } from "../../services/product.service";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ const CATEGORY_MAP: Record<string, number> = {
   โปรโมชั่น: 1,
   สบู่: 2,
   เครื่องดื่ม: 3,
-  ผลิตภัณฑ์ดูแลผม: 4,
+  แชมพู: 4,
 };
 
 const STATUS_MAP: Record<string, number> = {
@@ -45,13 +46,13 @@ const normalizeCategory = (category: string | number | undefined): string => {
   if (!category) return "";
   const catStr = String(category).toLowerCase().trim();
 
-  if (["1", "promotion", "โปรโมชั่น", "โปรโมชัน"].includes(catStr))
+  if (["1", "promotion", "โปรโมชั่น"].includes(catStr))
     return "โปรโมชั่น";
   if (["2", "soap", "สบู่"].includes(catStr)) return "สบู่";
-  if (["3", "drink", "drinks", "เครื่องดื่ม"].includes(catStr))
+  if (["3", "drinks", "เครื่องดื่ม"].includes(catStr))
     return "เครื่องดื่ม";
-  if (["4", "hair", "shampoo", "แชมพู", "ผลิตภัณฑ์ดูแลผม"].includes(catStr))
-    return "ผลิตภัณฑ์ดูแลผม";
+  if (["4","shampoo", "แชมพูสมุนไพร"].includes(catStr))
+    return "แชมพูสมุนไพร";
 
   return String(category);
 };
@@ -111,19 +112,24 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   useEffect(() => {
     let isMounted = true;
 
-    const fetchDetail = async () => {
-      if (isOpen && isEditMode && product?.id) {
-        const detail = await ProductService.getProductById(product.id);
-        if (isMounted) {
-          setFullProduct(detail);
-          if (detail.productImages?.length > 0) {
-            setExistingImages(
-              detail.productImages.map((img: any) => ({
-                id: img.id,
-                url: img.imageUrl,
-              })),
-            );
-          }
+   const fetchDetail = async () => {
+  if (isOpen && isEditMode && product?.id) {
+
+    const detail = await dispatch(
+      fetchProductById(product.id)
+    ).unwrap();
+
+    if (isMounted) {
+      setFullProduct(detail);
+
+      if (detail.productImages?.length > 0) {
+        setExistingImages(
+          detail.productImages.map((img:Product ) => ({
+            url: img.imageUrl,
+          })),
+        );
+      }
+  
         }
       } else if (!isOpen) {
         setExistingImages([]);
@@ -266,8 +272,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(
-      // fullProduct?.productStatus ??
-      //   fullProduct?.status ??
         (product )?.productStatus ??
         product?.status,
     ),
@@ -302,7 +306,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 }
 
                 if (isEditMode && displayImages.length === 0) {
-                  toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป");
+                  toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป",{duration:1500});
                   return;
                 }
 
@@ -332,17 +336,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   await dispatch(
                     editProduct({ id: product.id, data: formData }),
                   ).unwrap();
-                  toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว");
+                  toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว",{duration:1500});
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
-                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว");
+                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว",{duration:1500});
                 }
 
                 refreshProductList();
                 handleCloseModal();
-              } catch (error: any) {
+              } catch {
                 toast.error(
-                  error.message ||
                     (isEditMode
                       ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า"
                       : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),
@@ -386,7 +389,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                       <option value="โปรโมชั่น">โปรโมชั่น</option>
                       <option value="เครื่องดื่ม">เครื่องดื่ม</option>
                       <option value="สบู่">สบู่</option>
-                      <option value="ผลิตภัณฑ์ดูแลผม">แชมพู</option>
+                      <option value="แชมพู">แชมพู</option>
                     </Field>
                     <ErrorMessage
                       name="categoryName"

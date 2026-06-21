@@ -13,7 +13,7 @@ const categoryMap: Record<string | number, string> = {
   "Promotion": "โปรโมชั่น",
   "Drinks": "เครื่องดื่ม",
   "Soap": "สบู่",
-  "Shampoo": "ผลิตภัณฑ์ดูแลผม"
+  "Shampoo": "แชมพู"
 };
 
 function Stock() {
@@ -185,7 +185,7 @@ const maxVisiblePages = 5;
                     </button>
                   </td>
                   <td className="py-4 pl-5 max-w-[350px] break-words line-clamp-2">{product.productName}</td>
-                  <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
+                  <td className="py-4">{categoryMap[String(product.category)] || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
                   <td className="py-4 pl-6">{product.stockQuantity}</td>
                   <td className="py-4  -translate-x-9">

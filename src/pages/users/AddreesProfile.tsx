@@ -67,21 +67,7 @@ const AddressProfile = () => {
     }));
   };
 
-  const openEditModal = (address: Address) => {
-    setIsEditMode(true);
-    setTargetAddressId(String(address.id));
-
-    setIsModalOpen(true);
-
-    fillAddressData(address);
-  };
-
-  const parseDropdownResponse = (response: any) => {
-    if (Array.isArray(response)) return response;
-    return response?.data || [];
-  };
-
-  const fillAddressData = async (address: Address) => {
+    const fillAddressData = async (address: Address) => {
     const streetAddress = address.streetAddress;
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
@@ -160,6 +146,21 @@ const AddressProfile = () => {
       zipcodeId,
     }));
   };
+
+  const openEditModal = (address: Address) => {
+    setIsEditMode(true);
+    setTargetAddressId(String(address.id));
+
+    setIsModalOpen(true);
+
+    fillAddressData(address);
+  };
+
+  const parseDropdownResponse = (response: any) => {
+    if (Array.isArray(response)) return response;
+    return response?.data || [];
+  };
+
 
   const openAddModal = () => {
     setIsEditMode(false);
