@@ -29,7 +29,7 @@ const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get(
 
   const dispatch = useDispatch<AppDispatch>();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ProductMod | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductMod | undefined>(undefined);
 
 
 useEffect(() => {
@@ -102,7 +102,7 @@ const maxVisiblePages = 5;
   const visiblePages = getVisiblePages();
 
   const handleAddProduct = () => {
-    setSelectedProduct(null);
+    setSelectedProduct(undefined);
     setIsAddModalOpen(true);
   };
 
