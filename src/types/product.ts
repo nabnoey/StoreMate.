@@ -8,10 +8,9 @@ export type Product = {
   categoryName: string;
   sammary: string;
   description: string;
-  status: "ACTIVE" | "CHECKED_OUT";
+  status: "ACTIVE" | "INACTIVE";
   createAt: string;
   stockQuantity: number;
-  // backend เพิ่มเข้ามาให้
   productStatus: "ACTIVE" | "CHECKED_OUT";
 };
 

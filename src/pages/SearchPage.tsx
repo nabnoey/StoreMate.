@@ -43,16 +43,6 @@ const SearchPage = () => {
     );
   }, [keyword, dispatch]);
 
-  // const handleApplyPrice = () => {
-  //   const params: Record<string, string> = {};
-  //   if (keyword !== "") params.keyword = keyword;
-  //   if (category !== "") params.category = category;
-
-  //   if (minPriceInput !== "") params.minPrice = minPriceInput;
-  //   if (maxPriceInput !== "") params.maxPrice = maxPriceInput;
-
-  //   setSearchParams(params);
-  // };
 
   const handleApplyPrice = () => {
     const params: Record<string, string> = {};

@@ -13,7 +13,7 @@ const categoryMap: Record<string | number, string> = {
   "Promotion": "โปรโมชั่น",
   "Drinks": "เครื่องดื่ม",
   "Soap": "สบู่",
-  "Shampoo": "ผลิตภัณฑ์ดูแลผม"
+  "Shampoo": "แชมพู"
 };
 
 function Stock() {
@@ -38,7 +38,7 @@ useEffect(() => {
 
 const filteredProducts = products.filter(p => {
   // กรองสินค้าที่ถูกลบออก (DELETED) จากหน้ารายการสินค้า
-  const currentStatus = (p as any).productStatus || p.status;
+  const currentStatus = (p).productStatus || p.status;
   if (currentStatus === "DELETED") return false;
 
   if (!submittedSearchTerm) return true;
@@ -185,18 +185,18 @@ const maxVisiblePages = 5;
                     </button>
                   </td>
                   <td className="py-4 pl-5 max-w-[350px] break-words line-clamp-2">{product.productName}</td>
-                  <td className="py-4">{categoryMap[String(product.category)] || product.category || "-"}</td>
+                  <td className="py-4">{categoryMap[String(product.category)] || "-"}</td>
                   <td className="py-4">฿ {product.price}</td>
                   <td className="py-4 pl-6">{product.stockQuantity}</td>
                   <td className="py-4  -translate-x-9">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        ((product as any).productStatus || product.status) === "ACTIVE"
+                        ((product).productStatus || product.status) === "ACTIVE"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-600"
                       }`}
                     >
-                      {((product as any).productStatus || product.status) === "ACTIVE" ? "พร้อมจำหน่าย" : "ไม่พร้อมจำหน่าย"}
+                      {((product).productStatus || product.status) === "ACTIVE" ? "พร้อมจำหน่าย" : "ไม่พร้อมจำหน่าย"}
                     </span>
                   </td>
                   <td className="py-4">
