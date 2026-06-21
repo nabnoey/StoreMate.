@@ -18,7 +18,7 @@ interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  product?: ProductMod ;
+  product?: ProductMod | null ;
 }
 
 interface FormValues {
