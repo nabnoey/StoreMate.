@@ -105,7 +105,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
   const [brokenImageIds, setBrokenImageIds] = useState<number[]>([]); 
 
-  const [fullProduct, setFullProduct] = useState(null);
+  const [fullProduct, setFullProduct] = useState<Product | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const isEditMode = !!product;
 

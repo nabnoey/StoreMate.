@@ -271,11 +271,11 @@ const maxVisiblePages = 5;
         isOpen={isAddModalOpen} 
         onClose={() => {
           setIsAddModalOpen(false);
-          setSelectedProduct(null);
+          setSelectedProduct(undefined);
         }}
         onSuccess={() => {
     setIsAddModalOpen(false);
-    setSelectedProduct(null);
+    setSelectedProduct(undefined);
   }}
         product={selectedProduct}
       />
