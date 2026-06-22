@@ -35,4 +35,5 @@ export interface ProductDetail {
   RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
+  productStatus: "ACTIVE" | "INACTIVE" | "DELETED";
 }
