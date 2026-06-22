@@ -37,7 +37,9 @@ const AddCreditCardFormInner = () => {
 
     const cardNumberElement = elements.getElement(CardNumberElement);
     if (!cardNumberElement) {
-      toast.error("ข้อมูลฟอร์มไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง");
+      toast.error("ข้อมูลฟอร์มไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง", {
+        duration: 1500,
+      });
       return;
     }
 
@@ -57,20 +59,24 @@ const AddCreditCardFormInner = () => {
       });
 
       if (error) {
-        toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
+        toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร", {
+          duration: 1500,
+        });
       } else {
-
+        const isBuyNow = location.state?.isBuyNow;
         navigate("/payment", {
           state: {
             items: cartItems,
-            isBuyNow: true,
+            isBuyNow,
             newlyAddedCard: paymentMethod,
           },
         });
       }
     } catch (err) {
       console.error(err);
-      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้");
+      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้", {
+        duration: 1500,
+      });
     } finally {
       setIsProcessing(false);
     }

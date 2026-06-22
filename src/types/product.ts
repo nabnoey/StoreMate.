@@ -11,7 +11,8 @@ export type Product = {
   status: "ACTIVE" | "INACTIVE";
   createAt: string;
   stockQuantity: number;
-  productStatus: "ACTIVE" | "CHECKED_OUT";
+  productStatus: "ACTIVE" | "INACTIVE" | "DELETED";
+  is_deleted: boolean;
 };
 
 export interface CategoryGroup {

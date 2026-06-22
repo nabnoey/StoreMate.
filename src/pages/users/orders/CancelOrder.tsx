@@ -48,12 +48,12 @@ const CancelOrderPage = () => {
 
   const handleSubmit = async () => {
     if (!selectedReason) {
-      toast.error("กรุณาระบุเหตุผลในการทำรายการ");
+      toast.error("กรุณาเลือกเหตุผลในการยกเลิกคำสั่งซื้อ", { duration: 1500 });
       return;
     }
 
     if (!orderNo) {
-      toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
+      toast.error("ไม่พบข้อมูลคำสั่งซื้อ", { duration: 1500 });
 
       return;
     }
@@ -69,16 +69,18 @@ const CancelOrderPage = () => {
       await PaymentService.sendRefund(payload);
 
       if (isCancelAction) {
-        toast.success("ส่งคำขอคืนเงินสำเร็จ");
+        toast.success("ส่งคำขอยกเลิกสำเร็จ", { duration: 1500 });
 
         setTimeout(() => {
           navigate("/orders?status=CANCELLED");
-        }, 1500);
+        });
       } else if (isRefundAction) {
-        toast.success("ส่งคำขอยกเลิกสำเร็จ อยู่ระหว่างการตรวสอบ");
+        toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ", {
+          duration: 1500,
+        });
         setTimeout(() => {
           navigate("/orders?status=REFUNDED");
-        }, 1500);
+        });
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message;
@@ -90,7 +92,9 @@ const CancelOrderPage = () => {
       ) {
         toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
       } else if (errorMessage === "Refund exist") {
-        toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว");
+        toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว", {
+          duration: 1500,
+        });
       } else if (errorMessage === "Can't refund this order") {
         toast.error(
           "หลังบ้านยังไม่ได้ปรับสิทธิ์: ออเดอร์ PENDING ไม่ต้องวิ่งเข้าฟังก์ชัน Refund",
@@ -141,7 +145,11 @@ const CancelOrderPage = () => {
         <div className="flex flex-col flex-1 md:bg-white md:rounded-xl md:shadow-md md:border border-gray-100 md:p-8 lg:p-12">
           {/* --- HEADER --- */}
           <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-8 px-4 md:px-0 md:border-b border-[#D1D5DB] pb-4 pt-2 md:pt-0">
-            <button type="button" onClick={() => navigate(-1)}>
+            <button
+              data-test="btn-back"
+              type="button"
+              onClick={() => navigate(-1)}
+            >
               <Icon
                 icon="lucide:arrow-left"
                 className="w-6 h-6 mt-1 cursor-pointer text-black hover:text-[#4285F4] transition-colors"
@@ -182,6 +190,7 @@ const CancelOrderPage = () => {
               </label>
               <div className="relative w-full md:w-1/2">
                 <div
+                  data-test="dropdown-reason"
                   onClick={() => setIsOpen(!isOpen)}
                   className="w-full flex justify-between items-center bg-[#F3F4F6] hover:bg-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700 transition-colors cursor-pointer"
                 >
@@ -208,6 +217,8 @@ const CancelOrderPage = () => {
                   <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto py-1">
                     {reasonOptions.map((option) => (
                       <li
+                        // test flow เลือกเหตุผลแต่ละ option
+                        data-test={`reason-option-${option.value}`}
                         key={option.label}
                         onClick={() => {
                           setSelectedReason(option.label);
@@ -233,6 +244,7 @@ const CancelOrderPage = () => {
                 รายละเอียดเพิ่มเติม
               </label>
               <textarea
+                data-test="input-description"
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
 import {
@@ -183,12 +183,14 @@ const ProfilePage = () => {
   const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
   const processFile = (file: File) => {
     if (!allowedTypes.includes(file.type)) {
-      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG");
+      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG", { duration: 1500 });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 5 MB", {
+        duration: 1500,
+      });
       return;
     }
     const reader = new FileReader();
@@ -253,7 +255,7 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
@@ -280,13 +282,15 @@ const ProfilePage = () => {
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
-          toast.error("กรุณากรอกอีเมลให้ถูกต้อง");
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { duration: 1500 });
           return;
         }
       }
 
       if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
-        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก");
+        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก", {
+          duration: 1500,
+        });
         return;
       }
 
@@ -306,7 +310,7 @@ const ProfilePage = () => {
       await dispatch(updateProfile(formData) as any).unwrap();
 
       if (tempData.email !== user.email) {
-        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
         setActiveModal(null);
 
         setTimeout(() => {
@@ -318,7 +322,7 @@ const ProfilePage = () => {
 
       await dispatch(getProfile() as any).unwrap();
 
-      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
@@ -328,7 +332,7 @@ const ProfilePage = () => {
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
 
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 1500 });
     }
   };
 
@@ -353,7 +357,7 @@ const ProfilePage = () => {
   };
 
   if (loading) return <Loading />;
-  if (!user) return <Link to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
@@ -562,7 +566,7 @@ const ProfilePage = () => {
             }}
           >
             <div
-              data-test="stop-Propagation"
+              data-test="image-modal-content"
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
@@ -596,6 +600,7 @@ const ProfilePage = () => {
                     </span>
 
                     <button
+                      data-test="btn-select-file"
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="cursor-pointer bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium px-6 py-2.5 rounded-lg transition shadow-sm"

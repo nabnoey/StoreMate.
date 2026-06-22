@@ -110,7 +110,7 @@ const RefundPage = () => {
       }
 
       toast.dismiss();
-      toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว");
+      toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว", { duration: 1500 });
       handleCloseModal();
 
       dispatch(
@@ -124,7 +124,7 @@ const RefundPage = () => {
     } catch (err: any) {
       const errorMessage = err || "เกิดข้อผิดพลาดในการส่งข้อมูลระบบ";
       setAlertError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 1500 });
     }
   };
 
