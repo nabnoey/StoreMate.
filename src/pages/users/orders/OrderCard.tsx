@@ -40,7 +40,8 @@ const OrderCard = ({ order }: { order: Order }) => {
             <p className="text-sm font-medium text-gray-900 line-clamp-2">
               {item.productName}
             </p>
-            <p className="text-xs text-gray-500 mt-1">จำนวน x{item.quantity}</p>
+             <p className="text-xs text-gray-500 mt-1">ราคาต่อหน่วย ฿ {item.price}</p>
+            <p className="text-xs text-gray-500 mt-1">จำนวน x {item.quantity}</p>
           </div>
           <div className="text-right">
             <p className="text-sm font-bold text-gray-900">

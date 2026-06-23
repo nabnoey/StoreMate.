@@ -30,9 +30,12 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
+
   useEffect(() => {
+  if (location.pathname !== "/search") {
     setInputValue(keyword);
-  }, [keyword]);
+  }
+}, [keyword, location.pathname]);
 
   const notifications = useSelector(
     (state: RootState) => state.notification.items,
@@ -79,18 +82,7 @@ const Navbar: React.FC = () => {
     const value = e.target.value;
     setInputValue(value);
 
-    // if (value.trim() !== "") {
-    //   dispatch(
-    //     search({
-    //       keyword: value,
-    //       categoryId: 0,
-    //       minPrice: 0,
-    //       maxPrice: 0,
-    //       page: 1,
-    //       size: 1000,
-    //     }),
-    //   );
-    // }
+  
   };
 
   const handleSubmitSearch = () => {

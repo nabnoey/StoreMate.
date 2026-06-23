@@ -10,14 +10,13 @@ import {
   FiUser,
   FiPhone,
   FiMapPin,
-  FiPackage,
   FiArrowLeft,
 } from "react-icons/fi";
 import { FaHistory } from "react-icons/fa";
 
 import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../../redux/store";
-import { getOrderLabel } from "../../../utils/order";
+import { statusConfig, getOrderLabel } from "../../../utils/order";
 import type { PaymentMethod } from "../../../types/payment";
 
 function StatusStep({
@@ -77,12 +76,12 @@ function OrderItemRow({
         />
         <div>
           <p className="font-bold text-gray-800 text-sm">{name}</p>
-          <p className="text-xs text-gray-500 mt-1">จำนวน: {quantity}</p>
+          <p className="text-xs text-gray-500 mt-1">ราคาต่อหน่วย ฿ {price}</p>
+          <p className="text-xs text-gray-500 mt-1">จำนวน x {quantity}</p>
         </div>
       </div>
       <div className="text-right">
-        <p className="font-bold text-gray-800">฿ {price.toLocaleString()}</p>
-        <p className="text-[10px] text-gray-400 font-medium">UNIT PRICE</p>
+        <p className="font-bold text-blue-500">฿ {price.toLocaleString()}</p>
       </div>
     </div>
   );
@@ -104,8 +103,6 @@ function OrderDetails() {
     }
   }, [orderNo, dispatch]);
 
-  console.log("order", order);
-
   if (!order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -122,35 +119,30 @@ function OrderDetails() {
     );
   }
 
-const recipient = order.orderRecipient;
+  const recipient = order.orderRecipient;
+  const recipientName = recipient?.recipientName || "ไม่ระบุชื่อ";
+  const recipientPhone = recipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
 
-const recipientName = recipient?.recipientName || "ไม่ระบุชื่อ";
-
-const recipientPhone =
-  recipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
-
-
-const deliveryAddress = recipient
-  ? recipient
-  : {
-      streetAddress:
-        authUser?.address?.streetAddress ??
-        "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
-      subdistrict: "",
-      district: "",
-      province: "",
-      zipcode: "",
-    };
+  const deliveryAddress = recipient
+    ? recipient
+    : {
+        streetAddress:
+          authUser?.address?.streetAddress ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
+        subdistrict: "",
+        district: "",
+        province: "",
+        zipcode: "",
+      };
 
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString("th-TH")
     : new Date().toLocaleDateString("th-TH");
 
   const steps = [
-    { icon: <FiClock />, label: "รอชำระเงิน", status: "PENDING" },
-    { icon: <FiClipboard />, label: "กำลังเตรียมสินค้า", status: "PROCESSING" },
-    { icon: <FiTruck />, label: "จัดส่งแล้ว", status: "RECEIVE" },
-    { icon: <FiCheckCircle />, label: "สำเร็จแล้ว", status: "COMPLETED" },
+    { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
+    { icon: <FiClipboard />, label: "ที่ต้องจัดส่ง", status: "PROCESSING" },
+    { icon: <FiTruck />, label: "ที่ต้องได้รับ", status: "RECEIVE" },
+    { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
@@ -160,6 +152,9 @@ const deliveryAddress = recipient
     PROMPTPAY: "พร้อมเพย์ (PromptPay)",
     CARD: "บัตรเครดิต / เดบิต",
   };
+
+  // ดึงค่าสีจาก statusConfig
+  const statusColor = statusConfig[order?.status]?.color || "text-black";
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-start text-left w-full mt-0 lg:mt-10">
@@ -176,10 +171,13 @@ const deliveryAddress = recipient
             <h1 className="text-xl font-bold text-gray-900 whitespace-nowrap">
               รายละเอียดคำสั่งซื้อ
             </h1>
-          <p className="text-sm text-gray-500 md:ml-auto break-words">
-  เลขที่คำสั่งซื้อ: {order.orderNo} |{" "}
-  {getOrderLabel(order.status, order.checkoutType)}
-</p>
+            <div className="text-sm md:ml-auto break-words flex flex-wrap items-center gap-1">
+              <span className="text-gray-500">เลขที่คำสั่งซื้อ: {order.orderNo} |</span>
+              {/* นำ statusColor มาแสดงผลสีข้อความให้ตรงกับ History */}
+              <span className={`font-semibold ${statusColor}`}>
+                {getOrderLabel(order.status, order.checkoutType)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -187,8 +185,6 @@ const deliveryAddress = recipient
       <div className="p-6 w-full text-gray-700 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-6 ">
-    
-
             {order.status === "CANCELLED" || order.status === "REFUNDED" ? (
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
                 {order.status === "CANCELLED" && (
@@ -243,7 +239,7 @@ const deliveryAddress = recipient
 
             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
-                <FiPackage className="text-lg" /> รายการสินค้า (
+                <div className="text-lg" /> รายการสินค้า (
                 {order.orderItems.length})
               </h3>
 
@@ -256,7 +252,6 @@ const deliveryAddress = recipient
                   price={item.price}
                 />
               ))}
-
 
               <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
                 {order.status === "CANCELLED" || order.status === "REFUNDED" ? (
@@ -288,14 +283,11 @@ const deliveryAddress = recipient
                   <>
                     <div className="flex justify-between items-center">
                       <span className="text-[16px] font-medium text-gray-600">
-                        ราคารวม
+                        ยอดรวมสุทธิ
                       </span>
                       <div className="text-right">
                         <p className="text-xl text-blue-500 font-bold">
                           ฿ {order.total.toLocaleString()}
-                        </p>
-                        <p className="text-[10px] text-gray-400 font-bold">
-                          THB
                         </p>
                       </div>
                     </div>
@@ -317,7 +309,6 @@ const deliveryAddress = recipient
             </div>
 
             {/* History */}
-
             {authUser?.role === "MODERATOR" && (
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                 <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
@@ -329,7 +320,10 @@ const deliveryAddress = recipient
                     <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100"></div>
                     <p className="font-bold text-sm text-gray-800">
                       สถานะปัจจุบัน:{" "}
-                      {getOrderLabel(order.status, order.checkoutType)}
+                      {/* อัปเดตสีตรงส่วนนี้ให้เป็นสีเดียวกับด้านบน */}
+                      <span className={`${statusColor}`}>
+                        {getOrderLabel(order.status, order.checkoutType)}
+                      </span>
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                       วันที่สั่งซื้อ: {orderDate}

@@ -43,11 +43,17 @@ const SearchPage = () => {
     );
   }, [keyword, dispatch]);
 
+
   const handleApplyPrice = () => {
     const params: Record<string, string> = {};
-    if (keyword !== "") params.keyword = keyword;
+    
+    // 📌 ดึงจาก inputValue (ช่องพิมพ์ปัจจุบัน) แทนที่จะใช้ keyword เก่าจาก URL
+    const currentKeyword = inputValue.trim();
+    if (currentKeyword !== "") params.keyword = currentKeyword;
+    
     if (category !== "") params.category = category;
 
+    // ดึงค่าราคาล่าสุดจาก Input State
     if (minPriceInput !== "") params.minPrice = minPriceInput;
     if (maxPriceInput !== "") params.maxPrice = maxPriceInput;
 
@@ -59,6 +65,8 @@ const SearchPage = () => {
     setInputValue(keyword);
   }, [keyword]);
 
+
+
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       const value = inputValue.trim();
@@ -66,10 +74,13 @@ const SearchPage = () => {
       
       if (value) params.keyword = value;
       if (category) params.category = category;
-      if (minPriceParam) params.minPrice = minPriceParam;
-      if (maxPriceParam) params.maxPrice = maxPriceParam;
+      
+      // 📌 ต้องเปลี่ยนไปใช้ค่าจาก Input State (ตัวล่าสุดที่เนยกรอก) ไม่ใช่ค่า Param ตัวเดิมบน URL
+      if (minPriceInput) params.minPrice = minPriceInput;
+      if (maxPriceInput) params.maxPrice = maxPriceInput;
 
       setSearchParams(params);
+      setOpenFilter(false); // (แถม) ปิด Filter Dropdown บน Mobile ให้ด้วยเมื่อกดค้นหาสำเร็จ
     }
   };
 
@@ -118,7 +129,7 @@ const SearchPage = () => {
               onKeyDown={handleSearch}
             />
 
-            <button onClick={() => setOpenFilter(!openFilter)} className="ml-2 text-black lg:hidden shrink-0">
+            <button onClick={() => setOpenFilter(!openFilter)} className="ml-2 text-black lg:hidden shrink-0" data-test="openFilter">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
               </svg>
@@ -165,7 +176,8 @@ const SearchPage = () => {
 
         <div className="flex-1 w-full">
           
-          <div className="flex justify-center items-center border w-full border-gray-200 rounded-lg px-4 py-3 bg-white mb-6 mt-2 lg:mt-0">
+          <div className="flex justify-center items-center border w-full border-gray-200 rounded-lg px-4 py-3 bg-white mb-6 mt-2 lg:mt-0"
+          data-test="filteredProduct">
             <p className="text-gray-800 text-sm font-medium">พบสินค้า {filteredProducts.length} รายการ</p>
           </div>
 

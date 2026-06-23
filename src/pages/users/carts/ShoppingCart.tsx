@@ -12,7 +12,7 @@ import {
 
 import { Icon } from "@iconify/react";
 import { type Toast, toast } from "react-hot-toast";
-import Loading from "../../../components/loading/Loading";
+// import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
 
 interface ConfirmToastProps {
@@ -215,11 +215,11 @@ const ShoppingCart = () => {
   };
 
   if (cartStatus === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading />
-      </div>
-    );
+    // return (
+    //   <div className="min-h-screen flex items-center justify-center">
+    //     <Loading />
+    //   </div>
+    // );
   }
 
   return (
@@ -344,7 +344,10 @@ const ShoppingCart = () => {
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
                         </button>
-                        <span className="w-8 text-center text-sm font-bold text-black">
+                        <span
+                          className="w-8 text-center text-sm font-bold text-black"
+                          data-test="item-quantity"
+                        >
                           {item.quantity}
                         </span>
                         <button
@@ -366,7 +369,8 @@ const ShoppingCart = () => {
                         </button>
                       </div>
 
-                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
+                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center"
+                      data-test="subtotal-product">
                         ฿{(item.product.price * item.quantity).toLocaleString()}
                       </div>
 
@@ -403,7 +407,8 @@ const ShoppingCart = () => {
                     <span className="text-md text-gray-700 font-medium text-lg sm:text-base">
                       รวม ( {selectedItems.length} ) สินค้า
                     </span>
-                    <span className="text-blue-500 font-md text-xl sm:text-lg">
+                    <span className="text-blue-500 font-md text-xl sm:text-lg"
+                    data-test="total-price">
                       ฿ {subtotal.toLocaleString()}
                     </span>
                   </div>
