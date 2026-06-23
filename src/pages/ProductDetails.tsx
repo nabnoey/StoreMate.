@@ -15,7 +15,7 @@ import Pagination from "../components/user/Pagination";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
-const catagoryTranslator: Record<string, string> = {
+const categoryTranslator: Record<string, string> = {
   Promotion: "โปรโมชัน",
   Soap: "สบู่",
   Drinks: "เครื่องดื่ม",
@@ -62,6 +62,9 @@ const ProductDetailPage: React.FC = () => {
 
   const quantityInCart = itemInCart?.quantity || 0;
 
+  const isUnavailable =
+    productDetail?.productStatus !== "ACTIVE" || currentStock <= 0;
+
   useEffect(() => {
     if (id) {
       dispatch(fetchProductById(Number(id)));
@@ -78,7 +81,7 @@ const ProductDetailPage: React.FC = () => {
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
-      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
     }
   };
 
@@ -94,14 +97,16 @@ const ProductDetailPage: React.FC = () => {
     if (isAddingToCart) return;
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
+      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น", {
+        duration: 1500,
+      });
       navigate("/login");
       return;
     }
     if (!productDetail) return;
 
-    if (currentStock <= 0) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
+    if (isUnavailable) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
       return;
     }
 
@@ -111,10 +116,12 @@ const ProductDetailPage: React.FC = () => {
       if (quantityInCart > 0) {
         toast.error(
           `ไม่สามารถเพิ่มจำนวนสินค้าได้ เนื่องจากคุณเพิ่มสินค้านี้ไว้ในรถเข็นเเล้ว ${quantityInCart} ชิ้น`,
+          { duration: 1500 },
         );
       } else {
         toast.error(
           `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+          { duration: 1500 },
         );
       }
       return;
@@ -129,7 +136,7 @@ const ProductDetailPage: React.FC = () => {
 
     try {
       await dispatch(addToCartThunk(cartItemPayload)).unwrap();
-      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
+      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว", { duration: 1500 });
       setBuyQuantity(1);
 
       if (shouldRedirect) {
@@ -141,7 +148,7 @@ const ProductDetailPage: React.FC = () => {
         backendMessage = error.response?.data?.message || error.message;
       }
       if (backendMessage === "There is insufficient stock.") {
-        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
       } else {
         toast.error(backendMessage);
       }
@@ -155,21 +162,22 @@ const ProductDetailPage: React.FC = () => {
     const token = TokenService.getAccessToken();
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ", { duration: 1500 });
       navigate("/login");
       return;
     }
 
     if (!productDetail) return;
 
-    if (currentStock <= 0) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
+    if (isUnavailable) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
       return;
     }
 
     if (buyQuantity > currentStock) {
       toast.error(
         `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+        { duration: 1500 },
       );
       return;
     }
@@ -247,7 +255,7 @@ const ProductDetailPage: React.FC = () => {
               to={`/search?category=${categoryName}`}
               className="transition-colors cursor-pointer"
             >
-              {catagoryTranslator[categoryName] || categoryName}
+              {categoryTranslator[categoryName] || categoryName}
             </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
@@ -389,6 +397,8 @@ const ProductDetailPage: React.FC = () => {
                     >
                       <button
                         type="button"
+                        data-test="btn-decrease"
+                        disabled={isUnavailable}
                         onClick={handleDecrease}
                         className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                       >
@@ -400,6 +410,7 @@ const ProductDetailPage: React.FC = () => {
                       <button
                         type="button"
                         data-test="btn-increase"
+                        disabled={isUnavailable}
                         onClick={handleIncrease}
                         className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                       >
@@ -419,8 +430,13 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     data-test="btn-add-to-cart"
+                    disabled={isUnavailable}
                     onClick={() => handleAddToCart(false)}
-                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
+                    className={`w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] rounded font-semibold text-[15px] transition-colors shadow-sm ${
+                      isUnavailable
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-[#3B82F6] hover:bg-blue-600 text-white cursor-pointer"
+                    }`}
                   >
                     เพิ่มลงรถเข็น
                   </button>
@@ -428,8 +444,13 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     data-test="btn-buy-cart"
+                    disabled={isUnavailable}
                     onClick={handleBuyNow}
-                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
+                    className={`w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] rounded font-semibold text-[15px] transition-colors shadow-sm ${
+                      isUnavailable
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer"
+                    }`}
                   >
                     สั่งซื้อสินค้า
                   </button>
