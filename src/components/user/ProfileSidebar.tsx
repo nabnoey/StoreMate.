@@ -88,8 +88,8 @@ const ProfileSidebar = () => {
 
       <Link
         data-test="btn-profile-menu-notify"
-        to={`/notification`}
-        className={getMainMenuClass("/notification")}
+        to={`/notify`}
+        className={getMainMenuClass("/notify")}
       >
         การแจ้งเตือน
       </Link>

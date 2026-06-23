@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 
 import type { RootState, AppDispatch } from "../redux/store";
 import { addNotificationFromSocket } from "../redux/notification/notificationReducer";
@@ -57,7 +57,7 @@ const useNotificationSocket = () => {
           if (!message.body) return;
           const data = JSON.parse(message.body);
 
-          toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
+          // toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
 
           const formattedData = {
             ...data,

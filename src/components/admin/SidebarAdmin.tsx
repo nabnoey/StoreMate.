@@ -183,8 +183,8 @@ function SidebarAdmin() {
           <li>
             <button
               data-test="notification-button"
-              className={menuClass(["/moderator/notification"])}
-              onClick={() => navigate("/moderator/notification")}
+              className={menuClass(["/moderator/notify"])}
+              onClick={() => navigate("/moderator/notify")}
             >
               <Bell size={18} />
               จัดการแจ้งเตือน
