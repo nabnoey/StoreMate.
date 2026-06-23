@@ -14,12 +14,11 @@ import {
   Cell
 } from 'recharts';
 import ReactGA from 'react-ga4';
-import { DashboardService } from "../../services/dashboard.service";
 import Loading from "../../components/loading/Loading";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../redux/store';
-import { getStore } from '../../redux/owner/ownerReducer';
+import { getStore, getOwnerDashboard, getSalesAnalytics } from '../../redux/owner/ownerReducer';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -89,14 +88,12 @@ function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { store } = useSelector((state: RootState) => state.owner);
+  const { store, dashData, salesData } = useSelector((state: RootState) => state.owner);
   const isAdmin = Array.isArray(user?.roles)
     ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
     : false;
 
   const [loading, setLoading] = useState(true);
-  const [dashData, setDashData] = useState<any>(null);
-  const [salesData, setSalesData] = useState<any>(null);
 
   useEffect(() => {
     ReactGA.send({ hitType: "pageview", page: window.location.pathname, title: "Admin Dashboard" });
@@ -105,12 +102,10 @@ function Dashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [dashRes, salesRes] = await Promise.all([
-          DashboardService.getOwnerDashboard(),
-          DashboardService.getSalesAnalytics()
+        await Promise.all([
+          dispatch(getOwnerDashboard()).unwrap(),
+          dispatch(getSalesAnalytics()).unwrap()
         ]);
-        setDashData(dashRes?.data || dashRes);
-        setSalesData(salesRes?.data || salesRes);
       } catch (error) {
         console.error("Error fetching dashboard data", error);
       } finally {

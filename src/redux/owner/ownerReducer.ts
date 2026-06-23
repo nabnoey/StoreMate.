@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ownerService } from "../../services/owner.service";
+import { DashboardService } from "../../services/dashboard.service";
 import type {
 
   UserRole,
@@ -25,6 +26,8 @@ const initialState: OwnerState = {
   loading: false,
   error: null,
   store: null,
+  dashData: null,
+  salesData: null,
 };
 export const getUserManagement = createAsyncThunk<
   UserManagementResponse,
@@ -41,6 +44,22 @@ export const getStore = createAsyncThunk("owner/getStore", async () => {
   const res = await ownerService.getStore();
   return res;
 });
+
+export const getOwnerDashboard = createAsyncThunk(
+  "owner/getOwnerDashboard",
+  async () => {
+    const res = await DashboardService.getOwnerDashboard();
+    return res?.data || res;
+  }
+);
+
+export const getSalesAnalytics = createAsyncThunk(
+  "owner/getSalesAnalytics",
+  async () => {
+    const res = await DashboardService.getSalesAnalytics();
+    return res?.data || res;
+  }
+);
 
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
@@ -212,6 +231,12 @@ const ownerSlice = createSlice({
         if (updatedStore && updatedStore.storeName) {
           state.store = updatedStore;
         }
+      })
+      .addCase(getOwnerDashboard.fulfilled, (state, action) => {
+        state.dashData = action.payload;
+      })
+      .addCase(getSalesAnalytics.fulfilled, (state, action) => {
+        state.salesData = action.payload;
       })
 
   },
