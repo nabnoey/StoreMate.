@@ -355,7 +355,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               }
             }}
           >
-            {({ isSubmitting, dirty }) => (
+            {({ isSubmitting, dirty,values, setFieldValue }) => (
               <Form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
@@ -418,22 +418,32 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      จำนวนสินค้าในคลัง
-                    </label>
-                    <Field
-                      type="number"
-                      min={0}
-                      name="stockQuantity"
-                      placeholder="จำนวนสินค้า"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-                    />
-                    <ErrorMessage
-                      name="stockQuantity"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    จำนวนสินค้าในคลัง
+  </label>
+  <Field
+    type="number"
+    min={0}
+    name="stockQuantity"
+    placeholder="จำนวนสินค้า"
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      // 1. อัปเดตค่าจำนวนสินค้าตามปกติ
+      setFieldValue("stockQuantity", val);
+      
+      // 2. เช็คว่าถ้าค่าเป็น 0 ให้บังคับเปลี่ยนสถานะเป็น INACTIVE (ไม่พร้อมจำหน่าย)
+      if (Number(val) === 0 && val !== "") {
+        setFieldValue("status", "INACTIVE");
+      } 
+      // 3. (เสริม) ถ้ามีการเติมสต๊อก (มากกว่า 0) ให้กลับมาเป็น ACTIVE (พร้อมจำหน่าย) อัตโนมัติ
+      else if (Number(val) > 0 && values.status === "INACTIVE") {
+        setFieldValue("status", "ACTIVE");
+      }
+    }}
+  />
+  <ErrorMessage name="stockQuantity" component="div" className="text-red-500 text-xs mt-1" />
+</div>
                 </div>
 
                 <div className="w-1/2 pr-2">
