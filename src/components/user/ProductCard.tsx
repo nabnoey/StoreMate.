@@ -4,11 +4,15 @@ import type { Product } from "../../types/product";
 type Props = { product: Product };
 
 function ProductCard({ product }: Readonly<Props>) {
+  const isOutOfStock  = product.stockQuantity === 0;
+
   return (
     <Link
       to={`/product/${product.id}`}
       state={{ categoryName: product.categoryName }}
-      className="block group"
+      className={`block group h-full ${
+        isOutOfStock ? "cursor-not-allowed  opacity-50 grayscale" : ""
+      }`}
       data-test="product-card"
     >
    

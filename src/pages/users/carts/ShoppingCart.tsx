@@ -369,7 +369,8 @@ const ShoppingCart = () => {
                         </button>
                       </div>
 
-                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
+                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center"
+                      data-test="subtotal-product">
                         ฿{(item.product.price * item.quantity).toLocaleString()}
                       </div>
 
@@ -406,7 +407,8 @@ const ShoppingCart = () => {
                     <span className="text-md text-gray-700 font-medium text-lg sm:text-base">
                       รวม ( {selectedItems.length} ) สินค้า
                     </span>
-                    <span className="text-blue-500 font-md text-xl sm:text-lg">
+                    <span className="text-blue-500 font-md text-xl sm:text-lg"
+                    data-test="total-price">
                       ฿ {subtotal.toLocaleString()}
                     </span>
                   </div>
