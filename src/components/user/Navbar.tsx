@@ -32,10 +32,10 @@ const Navbar: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-  if (location.pathname !== "/search") {
-    setInputValue(keyword);
-  }
-}, [keyword, location.pathname]);
+    if (location.pathname !== "/search") {
+      setInputValue(keyword);
+    }
+  }, [keyword, location.pathname]);
 
   const notifications = useSelector(
     (state: RootState) => state.notification.items,
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
   const handleBellClick = () => {
     // เช็คความกว้างหน้าจอว่าต่ำกว่าขนาด lg (1024px) หรือไม่
     if (window.innerWidth < 1024) {
-      navigate("/notification");
+      navigate("/notify");
     } else {
       setOpenNotifyDropdown(!openNotifyDropdown);
     }
@@ -81,8 +81,6 @@ const Navbar: React.FC = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-
-  
   };
 
   const handleSubmitSearch = () => {
@@ -297,7 +295,7 @@ const Navbar: React.FC = () => {
                                   if (!item.isRead) {
                                     dispatch(markAsReadInStore(item.id));
                                   }
-                                  navigate("/notification");
+                                  navigate("/notify");
                                 }}
                               >
                                 {/* รูปภาพสินค้า */}
@@ -338,7 +336,7 @@ const Navbar: React.FC = () => {
                           className="cursor-pointer w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-2.5 text-center text-xs font-bold font-Anuphan transition-colors block border-t border-gray-100"
                           onClick={() => {
                             setOpenNotifyDropdown(false);
-                            navigate("/notification");
+                            navigate("/notify");
                           }}
                         >
                           ดูทั้งหมด

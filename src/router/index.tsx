@@ -182,7 +182,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "notification",
+        path: "notify",
         element: (
           <ProtectedRout>
             <NotificationPage />
@@ -224,7 +224,7 @@ const router = createBrowserRouter([
         element: <RefundPage />,
       },
       {
-        path: "notification",
+        path: "notify",
         element: <NotificationManagementPage />,
       },
       {
@@ -266,7 +266,7 @@ const router = createBrowserRouter([
         element: <UserManagement />,
       },
       {
-        path: "notification",
+        path: "notify",
         element: <NotificationManagementPage />,
       },
     ],
