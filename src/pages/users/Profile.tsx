@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
-import { getProfile, updateProfile } from "../../redux/auth/authReducer";
+import {
+  getProfile,
+  updateProfile,
+  logout,
+} from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
 import Loading from "../../components/loading/Loading";
@@ -179,12 +183,14 @@ const ProfilePage = () => {
   const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
   const processFile = (file: File) => {
     if (!allowedTypes.includes(file.type)) {
-      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG");
+      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG", { duration: 1500 });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 5 MB", {
+        duration: 1500,
+      });
       return;
     }
     const reader = new FileReader();
@@ -249,7 +255,7 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { id: toastId });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
@@ -276,13 +282,15 @@ const ProfilePage = () => {
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
-          toast.error("กรุณากรอกอีเมลให้ถูกต้อง");
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { duration: 1500 });
           return;
         }
       }
 
       if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
-        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก");
+        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก", {
+          duration: 1500,
+        });
         return;
       }
 
@@ -300,9 +308,21 @@ const ProfilePage = () => {
       }
 
       await dispatch(updateProfile(formData) as any).unwrap();
+
+      if (tempData.email !== user.email) {
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
+        setActiveModal(null);
+
+        setTimeout(() => {
+          dispatch(logout());
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
       await dispatch(getProfile() as any).unwrap();
 
-      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
@@ -312,7 +332,7 @@ const ProfilePage = () => {
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
 
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 1500 });
     }
   };
 
@@ -337,7 +357,7 @@ const ProfilePage = () => {
   };
 
   if (loading) return <Loading />;
-  if (!user) return <Link to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
@@ -383,7 +403,13 @@ const ProfilePage = () => {
           <ProfileSidebar />
 
           <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
-         
+            <div className="hidden sm:block w-full mb-6 md:mb-8">
+              <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
+              <p className="text-[14px] mt-1 text-black">
+                จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
+              </p>
+              <div className="w-full border-t border-black mt-5" />
+            </div>
             <div className="flex flex-col sm:flex-col lg:flex-row lg:justify-between items-center lg:items-start w-full gap-6 lg:gap-0">
               <div className="flex flex-col items-center justify-start w-full sm:w-56 lg:w-64 shrink-0 order-1 lg:order-3 mb-4 lg:mb-0 mt-2 lg:mt-0">
                 <div className="w-[150px] h-[150px] sm:w-[160px] sm:h-[160px] lg:w-32 lg:h-32 bg-gray-50 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm mb-4">
@@ -511,10 +537,7 @@ const ProfilePage = () => {
                       data-test="profile-created-at"
                       className="flex-1 flex items-center justify-between gap-2 overflow-hidden"
                     >
-                      <div
-                        className="text-[14px] sm:text-[16px] text-black truncate"
-                        data-test="profile-created-at"
-                      >
+                      <div className="text-[14px] sm:text-[16px] text-black truncate">
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
                           : "-"}
@@ -543,7 +566,7 @@ const ProfilePage = () => {
             }}
           >
             <div
-              data-test="stop-Propagation"
+              data-test="image-modal-content"
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
@@ -577,6 +600,7 @@ const ProfilePage = () => {
                     </span>
 
                     <button
+                      data-test="btn-select-file"
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="cursor-pointer bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium px-6 py-2.5 rounded-lg transition shadow-sm"

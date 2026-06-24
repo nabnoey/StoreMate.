@@ -76,6 +76,7 @@ export const editProduct = createAsyncThunk(
     async (id: number) =>{
         const res = await ModeratorService.deleteProduct(id);
         return res;
+        
     }
   )
 
@@ -135,7 +136,8 @@ const moderatorSlice = createSlice({
   
 .addCase(addProduct.fulfilled, (state, action) => {
     if (Array.isArray(state.products)) {
-        state.products.push(action.payload.data);
+       state.products.push(action.payload.data);
+       
     }
 })
 .addCase(editProduct.fulfilled, (state, action) => {
@@ -143,7 +145,7 @@ const moderatorSlice = createSlice({
         const updatedProduct = action.payload?.data || action.payload;
         if (updatedProduct && updatedProduct.id) {
             state.products = state.products.map(p => 
-                p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
+                String(p.id) === String(updatedProduct.id) ? { ...p, ...updatedProduct } : p
             );
         }
     }
@@ -151,8 +153,10 @@ const moderatorSlice = createSlice({
 .addCase(deleteProduct.fulfilled, (state, action) => {
     if (Array.isArray(state.products)) {
         // action.meta.arg contains the id passed to deleteProduct
-        state.products = state.products.filter(p => p.id !== action.meta.arg);
+        state.products = state.products.filter(p => String(p.id) !== String(action.meta.arg));
+        
     }
+    
 })
 
             .addCase(getproducts.fulfilled, (state, action) => {
