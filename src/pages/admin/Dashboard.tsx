@@ -18,7 +18,7 @@ import Loading from "../../components/loading/Loading";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '../../redux/store';
-import { getStore, getOwnerDashboard, getSalesAnalytics } from '../../redux/owner/ownerReducer';
+import { getOwnerDashboard } from '../../redux/owner/ownerReducer';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -88,7 +88,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { store, dashData, salesData } = useSelector((state: RootState) => state.owner);
+  const { store, dashData } = useSelector((state: RootState) => state.owner);
   const isAdmin = Array.isArray(user?.roles)
     ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
     : false;
@@ -97,17 +97,14 @@ function Dashboard() {
 
   useEffect(() => {
     ReactGA.send({ hitType: "pageview", page: window.location.pathname, title: "Admin Dashboard" });
-    dispatch(getStore());
+   
     
     const fetchData = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          dispatch(getOwnerDashboard()).unwrap(),
-          dispatch(getSalesAnalytics()).unwrap()
-        ]);
+        await dispatch(getOwnerDashboard()).unwrap();
       } catch (error) {
-        console.error("Error fetching dashboard data", error);
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -116,7 +113,7 @@ function Dashboard() {
     fetchData();
   }, [dispatch]);
 
-  if (loading || !dashData || !salesData) {
+  if (loading || !dashData) {
     return <Loading />;
   }
 
@@ -148,10 +145,11 @@ function Dashboard() {
     statusColor: getStatusColor(item.status)
   })) || [];
 
-  // 4. Regional Revenue (Calculate revenue percentage dynamically from salesData.regionalOrders)
-  const totalRevenueSum = salesData.regionalOrders?.reduce((sum: number, r: any) => sum + Number(r.totalRevenue ?? 0), 0) || 0;
+  // 4. Regional Revenue (Calculate revenue percentage dynamically from dashData.regionalOrders)
+  const regionalOrders = dashData.regionalOrders || [];
+  const totalRevenueSum = regionalOrders.reduce((sum: number, r: any) => sum + Number(r.totalRevenue ?? 0), 0) || 0;
 
-  const revenueByArea = salesData.regionalOrders?.map((item: any, idx: number) => {
+  const revenueByArea = regionalOrders.map((item: any, idx: number) => {
     const revenue = Number(item.totalRevenue ?? 0);
     const percent = totalRevenueSum > 0 ? (revenue / totalRevenueSum) * 100 : 0;
     return {
