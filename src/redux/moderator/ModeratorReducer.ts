@@ -150,13 +150,26 @@ const moderatorSlice = createSlice({
         }
     }
 })
-.addCase(deleteProduct.fulfilled, (state, action) => {
-    if (Array.isArray(state.products)) {
-        // action.meta.arg contains the id passed to deleteProduct
-        state.products = state.products.filter(p => String(p.id) !== String(action.meta.arg));
+// .addCase(deleteProduct.fulfilled, (state, action) => {
+//     if (Array.isArray(state.products)) {
+//         state.products = state.products.filter(p => String(p.id) !== String(action.meta.arg));
         
-    }
+//     }
     
+// })
+
+.addCase(deleteProduct.fulfilled, (state, action) => {
+  const deletedId = action.meta.arg;
+
+  state.products = state.products.map(product =>
+    product.id === deletedId
+      ? {
+          ...product,
+          status: "DELETED",
+          productStatus: "DELETED"
+        }
+      : product
+  );
 })
 
             .addCase(getproducts.fulfilled, (state, action) => {

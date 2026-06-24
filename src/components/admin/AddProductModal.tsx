@@ -207,7 +207,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
     try {
       await dispatch(deleteProduct(product.id)).unwrap();
-      toast.success("ลบสินค้าเรียบร้อยแล้ว");
+      toast.success("ลบสินค้าเรียบร้อยแล้ว",{duration:1500});
       refreshProductList();
       handleCloseModal();
     } catch{
@@ -241,7 +241,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       ) {
         validFiles.push({ file, preview: URL.createObjectURL(file) });
       } else {
-        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
+        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`,{duration:1500});
       }
     });
 
@@ -272,7 +272,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(
-        (product )?.productStatus ??
+        
         product?.status,
     ),
     description: fullProduct?.description || product?.description || "",
@@ -299,13 +299,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 if (
                   isEditMode &&
                   !(await showConfirmToast(
-                    "คุณแน่ใจหรือไม่ว่าต้องการแก้ไขสินค้านี้?",
+                    "คุณแน่ใจหรือไม่ว่าต้องการแก้ไขสินค้านี้?", 
                   ))
                 ) {
                   return;
                 }
 
-                if (isEditMode && displayImages.length === 0) {
+                if ( displayImages.length === 0) {
                   toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป",{duration:1500});
                   return;
                 }
@@ -348,7 +348,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 toast.error(
                     (isEditMode
                       ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า"
-                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),
+                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),{duration:1500}
                 );
               } finally {
                 setSubmitting(false);
