@@ -8,6 +8,6 @@ export interface ProductMod {
     status: Product["status"]
     description: string;
     stockQuantity: number;
-    productStatus:string
+    // productStatus:string
 
 }

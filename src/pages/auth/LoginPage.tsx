@@ -72,9 +72,9 @@ function LoginPage() {
           );
 
           if (roles.includes("ADMIN")) {
-            navigate("/owner/dashboard");
+            navigate("/dashboard");
           } else if (roles.includes("MODERATOR")) {
-            navigate("/moderator/dashboard");
+            navigate("/dashboard");
           } else {
             navigate("/");
           }

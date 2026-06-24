@@ -8,7 +8,7 @@ export type Product = {
   categoryName: string;
   sammary: string;
   description: string;
-  status: "ACTIVE" | "INACTIVE";
+  status: "ACTIVE" | "INACTIVE"| "DELETED";
   createAt: string;
   stockQuantity: number;
   productStatus: "ACTIVE" | "INACTIVE" | "DELETED";

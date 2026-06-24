@@ -272,7 +272,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(
-        (product )?.productStatus ??
+        
         product?.status,
     ),
     description: fullProduct?.description || product?.description || "",
