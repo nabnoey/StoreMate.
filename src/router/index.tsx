@@ -192,7 +192,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/moderator",
+    path: "/",
     element: (
       <ModeratorRoute>
         <AdminLayout />
@@ -212,7 +212,7 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-        path: "orders",
+        path: "orders-management",
         element: <Order />,
       },
       {
@@ -224,7 +224,7 @@ const router = createBrowserRouter([
         element: <RefundPage />,
       },
       {
-        path: "notify",
+        path: "notify-management",
         element: <NotificationManagementPage />,
       },
       {
@@ -234,7 +234,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/owner",
+    path: "/",
     element: (
       <AdminRoute>
         <AdminLayout />
@@ -266,7 +266,7 @@ const router = createBrowserRouter([
         element: <UserManagement />,
       },
       {
-        path: "notify",
+        path: "notify-management",
         element: <NotificationManagementPage />,
       },
     ],

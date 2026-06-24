@@ -9,7 +9,6 @@ import type {
 } from "../../types/owner";
 import { parseThaiAddress } from "../../utils/address";
 
-
 const ROLE_PRIORITY: Record<string, number> = {
   OWNER: 0,
   ADMIN: 0,
@@ -28,13 +27,12 @@ const initialState: OwnerState = {
   store: null,
 };
 
-
-export const getUserManagement = createAsyncThunk<UserManagementResponse, GetUserManagementParams>(
-  "owner/getUserManagement",
-  async ({ page, size, search }) => {
-    return await ownerService.getUserManagement(page, size, search);
-  }
-);
+export const getUserManagement = createAsyncThunk<
+  UserManagementResponse,
+  GetUserManagementParams
+>("owner/getUserManagement", async ({ page, size, search }) => {
+  return await ownerService.getUserManagement(page, size, search);
+});
 
 export const getStore = createAsyncThunk("owner/getStore", async () => {
   return await ownerService.getStore();
@@ -45,7 +43,7 @@ export const updateUserRole = createAsyncThunk(
   async ({ userId, roleName }: { userId: number; roleName: UserRole }) => {
     await ownerService.updateUserRole(userId, roleName);
     return { userId, roleName };
-  }
+  },
 );
 
 export const suspendUser = createAsyncThunk(
@@ -53,7 +51,7 @@ export const suspendUser = createAsyncThunk(
   async (userId: number) => {
     const res = await ownerService.suspendUser(userId);
     return { userId, response: res };
-  }
+  },
 );
 
 export const activeUser = createAsyncThunk(
@@ -61,16 +59,15 @@ export const activeUser = createAsyncThunk(
   async (userId: number) => {
     const res = await ownerService.activeUser(userId);
     return { userId, response: res };
-  }
+  },
 );
 
 export const updateStore = createAsyncThunk(
   "owner/updateStore",
-  async (data: Store) =>{
+  async (data: Store) => {
     return await ownerService.updateStore(data);
-  }
+  },
 );
-
 
 const ownerSlice = createSlice({
   name: "owner",
@@ -88,22 +85,24 @@ const ownerSlice = createSlice({
 
         // จัดเรียงลำดับ Role ลื่นขึ้นด้วยโครงสร้างที่คลีน
         state.users = [...(action.payload.data ?? [])].sort((a, b) => {
-          const normA = (a.role || "").toUpperCase().replace("ROLE_", "").trim();
-          const normB = (b.role || "").toUpperCase().replace("ROLE_", "").trim();
+          const normA = (a.role || "")
+            .toUpperCase()
+            .replace("ROLE_", "")
+            .trim();
+          const normB = (b.role || "")
+            .toUpperCase()
+            .replace("ROLE_", "")
+            .trim();
           return (ROLE_PRIORITY[normA] ?? 99) - (ROLE_PRIORITY[normB] ?? 99);
         });
 
         state.page = action.payload.page;
-        state.size = action.payload.size;
-        state.total = action.payload.total ?? 0;
-        
         const total = action.payload.total ?? 0;
         const size = action.payload.size || 5;
-        state.totalPages = (action.payload).totalPages ?? Math.ceil(total / size);
-      })
-      .addCase(getUserManagement.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้";
+
+        state.total = total;
+        state.totalPages = action.payload.totalPages ?? Math.ceil(total / size);
+        state.totalPages = action.payload.totalPages ?? Math.ceil(total / size);
       })
 
       // GET STORE
@@ -117,9 +116,10 @@ const ownerSlice = createSlice({
         const user = state.users.find((u) => u.id === userId);
         if (user) {
           const updatedData = response?.data || response;
-          user.suspended = updatedData && typeof updatedData.suspended === 'boolean' 
-            ? updatedData.suspended 
-            : true;
+          user.suspended =
+            updatedData && typeof updatedData.suspended === "boolean"
+              ? updatedData.suspended
+              : true;
         }
       })
 
@@ -129,9 +129,10 @@ const ownerSlice = createSlice({
         const user = state.users.find((u) => u.id === userId);
         if (user) {
           const updatedData = response?.data || response;
-          user.suspended = updatedData && typeof updatedData.suspended === 'boolean' 
-            ? updatedData.suspended 
-            : false;
+          user.suspended =
+            updatedData && typeof updatedData.suspended === "boolean"
+              ? updatedData.suspended
+              : false;
         }
       })
 

@@ -75,16 +75,16 @@ const SearchPage = () => {
       if (value) params.keyword = value;
       if (category) params.category = category;
       
-      // 📌 ต้องเปลี่ยนไปใช้ค่าจาก Input State (ตัวล่าสุดที่เนยกรอก) ไม่ใช่ค่า Param ตัวเดิมบน URL
+
       if (minPriceInput) params.minPrice = minPriceInput;
       if (maxPriceInput) params.maxPrice = maxPriceInput;
 
       setSearchParams(params);
-      setOpenFilter(false); // (แถม) ปิด Filter Dropdown บน Mobile ให้ด้วยเมื่อกดค้นหาสำเร็จ
+      setOpenFilter(false); 
     }
   };
 
-  const filteredProducts = searchResult.filter((product) => {
+  const filteredProducts = searchResult.filter((product:any) => {
     const min = minPriceParam ? Number(minPriceParam) : 0;
     const max = maxPriceParam ? Number(maxPriceParam) : Infinity;
     const matchPrice = product.price >= min && product.price <= max;
