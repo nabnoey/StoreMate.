@@ -31,12 +31,12 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
     closeMenu();
 
     if (isAdmin) {
-      navigate("/owner/dashboard");
+      navigate("/dashboard");
       return;
     }
 
     if (isModerator) {
-      navigate("/moderator/dashboard");
+      navigate("/dashboard");
       return;
     }
   };
