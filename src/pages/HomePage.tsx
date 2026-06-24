@@ -3,9 +3,9 @@ import type { AppDispatch, RootState } from "../redux/store";
 import { Icon } from "@iconify/react";
 import { fetchProducts } from "../redux/products/productReducer";
 import { useEffect } from "react";
-import banner from "../assets/banner2.webp";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../components/user/ProductCard";
+import {getStore} from "../redux/owner/ownerReducer"
 
 const SectionHeader = ({
   title,
@@ -17,6 +17,8 @@ const SectionHeader = ({
   category: string;
 }) => {
   const navigate = useNavigate();
+
+
 
   return (
     <div className="flex justify-between pr-5  items-center mb-5 mt-20 ">
@@ -61,8 +63,11 @@ function HomePage() {
     );
   };
 
+    const storeImg = useSelector((state: RootState) => state.owner.store);
+
   useEffect(() => {
     dispatch(fetchProducts());
+    dispatch(getStore());
   }, [dispatch]);
 
   return (
@@ -116,14 +121,14 @@ function HomePage() {
           {/* Right: Image Showcase */}
           <div
             id="hero-image-container"
-            className="w-full md:w-[37%] bg-white rounded-2xl shadow-2xl p-6"
+            className="w-full h-full md:w-[37%] bg-white rounded-2xl shadow-2xl p-6"
           >
-            <img
-              id="hero-image"
-              src={banner}
-              alt="Promotion Banner"
-              className="w-full h-auto object-contain"
-            />
+           <img
+  src={
+    storeImg?.promotionImage
+
+  }
+/>
           </div>
         </div>
       </section>
