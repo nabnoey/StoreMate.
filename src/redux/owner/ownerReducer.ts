@@ -163,6 +163,20 @@ const ownerSlice = createSlice({
         }
       })
 
+      // GET OWNER DASHBOARD
+      .addCase(getOwnerDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOwnerDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashData = action.payload;
+      })
+      .addCase(getOwnerDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูลแดชบอร์ด";
+      })
+
       // UPDATE STORE
       .addCase(updateStore.fulfilled, (state, action) => {
         const updatedStore = action.payload?.data || action.payload;

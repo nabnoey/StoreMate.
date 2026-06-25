@@ -43,6 +43,7 @@ const REGION_COORDINATES: { [key: string]: [number, number] } = {
   "ภาคเหนือ": [18.7883, 98.9853],
   "ภาคตะวันออกเฉียงเหนือ": [16.4322, 102.8236],
   "ภาคอีสาน": [16.4322, 102.8236],
+  "ภาคตะวันตก": [14.0208, 99.5326],
 };
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
@@ -139,27 +140,29 @@ function Dashboard() {
   // 3. Orders
   const recentOrders = dashData.latestOrder?.map((item: any) => ({
     id: item.orderNo,
-    name: item.name,
+    name: item.recipientName || item.orderRecipient?.recipientName || item.name || "ไม่ระบุชื่อ",
     status: item.status,
     statusText: STATUS_LABELS[item.status] || item.status,
     statusColor: getStatusColor(item.status)
   })) || [];
 
-  // 4. Regional Revenue (Calculate revenue percentage dynamically from dashData.regionalOrders)
-  const regionalOrders = dashData.regionalOrders || [];
-  const totalRevenueSum = regionalOrders.reduce((sum: number, r: any) => sum + Number(r.totalRevenue ?? 0), 0) || 0;
+  // 4. Regional Revenue (Calculate order percentage dynamically from dashData.regionalRevenue)
+  const regionalRevenue = dashData.regionalRevenue || [];
+  const totalOrdersSum = regionalRevenue.reduce((sum: number, r: any) => sum + Number(r.totalOrders ?? 0), 0) || 0;
 
-  const revenueByArea = regionalOrders.map((item: any, idx: number) => {
-    const revenue = Number(item.totalRevenue ?? 0);
-    const percent = totalRevenueSum > 0 ? (revenue / totalRevenueSum) * 100 : 0;
-    return {
-      name: item.geography,
-      revenue: revenue,
-      value: `฿${revenue.toLocaleString()} (${percent.toFixed(2)}%)`,
-      percent: percent,
-      color: REGION_COLORS[idx % REGION_COLORS.length]
-    };
-  }) || [];
+  const revenueByArea = regionalRevenue
+    .filter((item: any) => item.geography)
+    .map((item: any, idx: number) => {
+      const orders = Number(item.totalOrders ?? 0);
+      const percent = totalOrdersSum > 0 ? (orders / totalOrdersSum) * 100 : 0;
+      return {
+        name: item.geography,
+        revenue: orders,
+        value: `${orders.toLocaleString()} ออเดอร์ (${percent.toFixed(2)}%)`,
+        percent: percent,
+        color: REGION_COLORS[idx % REGION_COLORS.length]
+      };
+    }) || [];
 
   // 5. Products
   const productsInStock = dashData.products?.map((item: any) => ({
@@ -353,7 +356,7 @@ function Dashboard() {
 
           {/* Revenue by area */}
           <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
-            <h3 className="font-semibold text-gray-800 mb-4 text-center">รายได้ในพื้นที่</h3>
+            <h3 className="font-semibold text-gray-800 mb-4 text-center">สัดส่วนคำสั่งซื้อในพื้นที่</h3>
             <div className="w-full h-48 rounded-lg mb-6 overflow-hidden border border-gray-200 z-0 relative">
               <MapContainer
                 center={[13.7563, 100.5018]}
@@ -373,7 +376,7 @@ function Dashboard() {
                       <Popup>
                         <div className="text-xs">
                           <p className="font-semibold">{area.name}</p>
-                          <p>รายได้ในพื้นที่ {area.value}</p>
+                          <p>จำนวน: {area.value}</p>
                         </div>
                       </Popup>
                     </Marker>
