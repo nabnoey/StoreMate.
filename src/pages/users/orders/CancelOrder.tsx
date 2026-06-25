@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import toast, { Toaster } from "react-hot-toast";
-import { PaymentService } from "../../../services/payment.service";
 import type { OrderStatus, RefundRequest } from "../../../types/orders";
 import type { PaymentMethod } from "../../../types/payment";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../redux/store";
+
+import { sendRefundThunk } from "../../../redux/payment/paymentReducer";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
@@ -26,7 +29,7 @@ const CancelOrderPage = () => {
   const { orderNo } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const dispatch = useDispatch<AppDispatch>();
   const orderStatus = (location.state?.status as OrderStatus) || "PENDING";
   const checkoutType =
     location.state?.checkoutType ||
@@ -66,7 +69,7 @@ const CancelOrderPage = () => {
 
     setIsSubmitting(true);
     try {
-      await PaymentService.sendRefund(payload);
+      await dispatch(sendRefundThunk(payload)).unwrap();
 
       if (isCancelAction) {
         toast.success("ส่งคำขอยกเลิกสำเร็จ", { duration: 1500 });
