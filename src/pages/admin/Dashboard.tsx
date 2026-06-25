@@ -88,11 +88,7 @@ const getReviewColor = (score: number) => {
 function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
   const { store, dashData } = useSelector((state: RootState) => state.owner);
-  const isAdmin = Array.isArray(user?.roles)
-    ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
-    : false;
 
   const [loading, setLoading] = useState(true);
 
