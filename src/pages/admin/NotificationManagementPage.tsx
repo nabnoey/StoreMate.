@@ -9,7 +9,6 @@ import {
   createNotify,
   deleteNotify,
 } from "../../redux/notification/notificationReducer";
-import type { Notification } from "../../types/notification";
 
 interface NotificationFormData {
   subject: string;
@@ -20,27 +19,17 @@ interface NotificationFormData {
 const NotificationManagementPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const notifications = useSelector(
-    (state: RootState) => state.notification.items,
-  ) as Notification[];
-
-  const isLoading = useSelector(
-    (state: RootState) => state.notification.isLoading,
-  );
-
-  const totalPages = useSelector(
-    (state: RootState) => state.notification.totalPages,
-  );
-
+  const {
+    items: notifications,
+    isLoading,
+    totalPages,
+  } = useSelector((state: RootState) => state.notification);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const pageParam = searchParams.get("page");
-  // const keywordParam = searchParams.get("keyword") || "";
-
-  const [page, setPage] = useState(pageParam !== null ? Number(pageParam) : 0);
-
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const keywordParam = searchParams.get("keyword") || "";
+  const page = Number(searchParams.get("page") ?? 0);
+  const [searchInput, setSearchInput] = useState(keywordParam);
+  const [searchKeyword, setSearchKeyword] = useState(keywordParam);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -59,7 +48,7 @@ const NotificationManagementPage: React.FC = () => {
     if (isOwner || isModifier) {
       dispatch(
         fetchOwnerNotify({
-          keyword: debouncedSearch,
+          keyword: searchKeyword,
           page,
           size: 10,
         }),
@@ -70,13 +59,13 @@ const NotificationManagementPage: React.FC = () => {
         size: "10",
       };
 
-      if (debouncedSearch) {
-        params.keyword = debouncedSearch;
+      if (searchKeyword) {
+        params.keyword = searchKeyword;
       }
 
       setSearchParams(params);
     }
-  }, [dispatch, page, debouncedSearch, isOwner, isModifier, setSearchParams]);
+  }, [dispatch, page, searchKeyword, isOwner, isModifier, setSearchParams]);
 
   const getRecipientConfig = (sendTo: string) => {
     if (sendTo?.includes("MODERATOR")) {
@@ -113,6 +102,14 @@ const NotificationManagementPage: React.FC = () => {
                 try {
                   toast.dismiss(t.id);
                   await dispatch(deleteNotify(id)).unwrap();
+
+                  dispatch(
+                    fetchOwnerNotify({
+                      keyword: searchKeyword,
+                      page,
+                      size: 10,
+                    }),
+                  );
                   toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว", {
                     duration: 1500,
                   });
@@ -175,6 +172,14 @@ const NotificationManagementPage: React.FC = () => {
         }),
       ).unwrap();
 
+      await dispatch(
+        fetchOwnerNotify({
+          keyword: searchKeyword,
+          page,
+          size: 10,
+        }),
+      );
+
       toast.success("ส่งการแจ้งเตือนสำเร็จ", { duration: 1500 });
 
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
@@ -209,8 +214,19 @@ const NotificationManagementPage: React.FC = () => {
   };
 
   const handleSearch = () => {
-    setPage(0);
-    setDebouncedSearch(searchTerm);
+    setSearchKeyword(searchInput.trim());
+  };
+
+  const updatePage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams);
+
+    params.set("page", String(newPage));
+
+    if (searchKeyword) {
+      params.set("keyword", searchKeyword);
+    }
+
+    setSearchParams(params);
   };
 
   if (!isOwner && !isModifier) {
@@ -264,8 +280,8 @@ const NotificationManagementPage: React.FC = () => {
                   type="text"
                   placeholder="ค้นหาหัวข้อการแจ้งเตือน"
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSearch();
@@ -372,7 +388,7 @@ const NotificationManagementPage: React.FC = () => {
                         colSpan={isOwner ? 4 : 3}
                         className="py-20 text-center text-gray-400 text-sm"
                       >
-                        {searchTerm
+                        {searchKeyword
                           ? "ไม่พบหัวข้อการแจ้งเตือน"
                           : "ไม่พบรายการแจ้งเตือนในระบบ"}
                       </td>
@@ -390,7 +406,7 @@ const NotificationManagementPage: React.FC = () => {
                     <button
                       data-test="btn-prev-page"
                       type="button"
-                      onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                      onClick={() => updatePage(page - 1)}
                       disabled={page === 0}
                       className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
                     >
@@ -402,9 +418,7 @@ const NotificationManagementPage: React.FC = () => {
                     <button
                       data-test="btn-next-page"
                       type="button"
-                      onClick={() =>
-                        setPage((prev) => Math.min(prev + 1, totalPages - 1))
-                      }
+                      onClick={() => updatePage(page + 1)}
                       disabled={page >= totalPages - 1}
                       className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
                     >

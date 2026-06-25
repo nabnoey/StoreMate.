@@ -207,7 +207,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
     try {
       await dispatch(deleteProduct(product.id)).unwrap();
-      toast.success("ลบสินค้าเรียบร้อยแล้ว");
+      toast.success("ลบสินค้าเรียบร้อยแล้ว",{duration:1500});
       refreshProductList();
       handleCloseModal();
     } catch{
@@ -241,7 +241,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       ) {
         validFiles.push({ file, preview: URL.createObjectURL(file) });
       } else {
-        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
+        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`,{duration:1500});
       }
     });
 
@@ -272,7 +272,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     price: product?.price ?? "",
     stockQuantity: product?.stockQuantity ?? "",
     status: normalizeStatus(
-        (product )?.productStatus ??
+        
         product?.status,
     ),
     description: fullProduct?.description || product?.description || "",
@@ -299,13 +299,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 if (
                   isEditMode &&
                   !(await showConfirmToast(
-                    "คุณแน่ใจหรือไม่ว่าต้องการแก้ไขสินค้านี้?",
+                    "คุณแน่ใจหรือไม่ว่าต้องการแก้ไขสินค้านี้?", 
                   ))
                 ) {
                   return;
                 }
 
-                if (isEditMode && displayImages.length === 0) {
+                if ( displayImages.length === 0) {
                   toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป",{duration:1500});
                   return;
                 }
@@ -348,14 +348,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 toast.error(
                     (isEditMode
                       ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า"
-                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),
+                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),{duration:1500}
                 );
               } finally {
                 setSubmitting(false);
               }
             }}
           >
-            {({ isSubmitting, dirty }) => (
+            {({ isSubmitting, dirty,values, setFieldValue }) => (
               <Form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="md:col-span-2">
@@ -418,22 +418,32 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      จำนวนสินค้าในคลัง
-                    </label>
-                    <Field
-                      type="number"
-                      min={0}
-                      name="stockQuantity"
-                      placeholder="จำนวนสินค้า"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-                    />
-                    <ErrorMessage
-                      name="stockQuantity"
-                      component="div"
-                      className="text-red-500 text-xs mt-1"
-                    />
-                  </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    จำนวนสินค้าในคลัง
+  </label>
+  <Field
+    type="number"
+    min={0}
+    name="stockQuantity"
+    placeholder="จำนวนสินค้า"
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-400"
+    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      // 1. อัปเดตค่าจำนวนสินค้าตามปกติ
+      setFieldValue("stockQuantity", val);
+      
+      // 2. เช็คว่าถ้าค่าเป็น 0 ให้บังคับเปลี่ยนสถานะเป็น INACTIVE (ไม่พร้อมจำหน่าย)
+      if (Number(val) === 0 && val !== "") {
+        setFieldValue("status", "INACTIVE");
+      } 
+      // 3. (เสริม) ถ้ามีการเติมสต๊อก (มากกว่า 0) ให้กลับมาเป็น ACTIVE (พร้อมจำหน่าย) อัตโนมัติ
+      else if (Number(val) > 0 && values.status === "INACTIVE") {
+        setFieldValue("status", "ACTIVE");
+      }
+    }}
+  />
+  <ErrorMessage name="stockQuantity" component="div" className="text-red-500 text-xs mt-1" />
+</div>
                 </div>
 
                 <div className="w-1/2 pr-2">

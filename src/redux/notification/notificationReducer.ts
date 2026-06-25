@@ -181,19 +181,8 @@ const notificationSlice = createSlice({
       .addCase(createNotify.pending, (state) => {
         state.isSubmitting = true;
       })
-      .addCase(createNotify.fulfilled, (state, action) => {
+      .addCase(createNotify.fulfilled, (state) => {
         state.isSubmitting = false;
-        if (!action.payload) return;
-        const exists = state.items.some(
-          (item) => item.id === action.payload.id,
-        );
-        if (!exists) {
-          state.items.unshift({
-            ...action.payload,
-            isNew: false,
-            isRead: false,
-          });
-        }
       })
       .addCase(createNotify.rejected, (state) => {
         state.isSubmitting = false;

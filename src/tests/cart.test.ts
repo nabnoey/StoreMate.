@@ -24,7 +24,7 @@ it('should add item to cart', () => {
   quantity: 1,
   subTotal: 50,
   stockQuantity: 100,
-  productStatus: 'ACTIVE' as const,
+  status: 'ACTIVE' as const,
 
     }
 

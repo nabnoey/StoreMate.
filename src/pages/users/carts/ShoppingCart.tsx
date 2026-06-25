@@ -185,7 +185,7 @@ const ShoppingCart = () => {
     stockQuantity: number,
   ) => {
     if (currentQuantity >= stockQuantity) {
-      toast.error("จำนวนสินค้าในสต๊อกไม่เพียงพอ");
+      toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้",{duration:1500});
       return;
     }
     dispatch(incrementCartItemThunk(productId));
@@ -350,23 +350,20 @@ const ShoppingCart = () => {
                         >
                           {item.quantity}
                         </span>
-                        <button
-                          data-test="increase-product"
-                          onClick={() =>
-                            handleIncreaseQuantity(
-                              item.productId,
-                              item.quantity,
-                              item.product.stockQuantity,
-                            )
-                          }
-                          disabled={
-                            !item.isAvailable ||
-                            item.quantity >= item.product.stockQuantity
-                          }
-                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
-                        >
-                          <Icon icon="lucide:plus" width="14" height="14" />
-                        </button>
+                       <button
+  data-test="increase-product"
+  onClick={() =>
+    handleIncreaseQuantity(
+      item.productId,
+      item.quantity,
+      item.product.stockQuantity,
+    )
+  }
+  disabled={!item.isAvailable}
+  className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed"
+>
+  <Icon icon="lucide:plus" width="14" height="14" />
+</button>
                       </div>
 
                       <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center"
