@@ -11,11 +11,12 @@ import {
 } from "../../redux/notification/notificationReducer";
 import { Icon } from "@iconify/react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
+import type { NotificationType } from "../../types/notification";
 
 const NotificationPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState<NotificationType>("ALL");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
@@ -37,10 +38,10 @@ const NotificationPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchUserNotify());
+      dispatch(fetchUserNotify(activeFilter));
       dispatch(clearUnreadBadge());
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, activeFilter]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,50 +57,23 @@ const NotificationPage = () => {
   }, []);
 
   const notifications = useMemo(() => {
-    const processed = rawNotifications.map((item) => {
-      let simulatedType = "shop";
-      const titleText = item.title || "";
-
-      if (
-        titleText.includes("คำสั่งซื้อ") ||
-        titleText.toLowerCase().includes("order")
-      ) {
-        simulatedType = "orders";
-      } else if (
-        titleText.includes("คืนเงิน") ||
-        titleText.toLowerCase().includes("refund")
-      ) {
-        simulatedType = "refunds";
-      }
-
-      return {
-        ...item,
-        type: simulatedType,
-      };
-    });
-
-    return processed.sort((a, b) => {
+    return [...rawNotifications].sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
       return dateB - dateA;
     });
   }, [rawNotifications]);
 
-  const filteredNotifications = useMemo(() => {
-    if (activeFilter === "all") return notifications;
-    return notifications.filter((item) => item.type === activeFilter);
-  }, [notifications, activeFilter]);
-
-  const getCount = (type: string) => {
-    if (type === "all") return notifications.filter((n) => !n.isRead).length;
-    return notifications.filter((n) => n.type === type && !n.isRead).length;
-  };
-
-  const filters = [
-    { id: "all", label: "ทั้งหมด", count: getCount("all") },
-    { id: "orders", label: "คำสั่งซื้อ", count: getCount("orders") },
-    { id: "refunds", label: "คำขอคืนเงิน", count: getCount("refunds") },
-    { id: "shop", label: "ร้านค้า", count: getCount("shop") },
+  const filters: {
+    id: NotificationType;
+    label: string;
+  }[] = [
+    { id: "ALL", label: "ทั้งหมด" },
+    { id: "ORDERED", label: "คำสั่งซื้อ" },
+    { id: "REFUNDED", label: "คำขอคืนเงิน" },
+    { id: "STORE", label: "ร้านค้า" },
   ];
 
   const activeFilterData =
@@ -185,11 +159,7 @@ const NotificationPage = () => {
                     }`}
                   >
                     <span>{filter.label}</span>
-                    {filter.count > 0 && (
-                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
-                        {filter.count}
-                      </span>
-                    )}
+                    <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center"></span>
                   </button>
                 ))}
               </div>
@@ -208,11 +178,8 @@ const NotificationPage = () => {
                     <span className="text-blue-600 font-bold text-[15px]">
                       {activeFilterData.label}
                     </span>
-                    {activeFilterData.count > 0 && (
-                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
-                        {activeFilterData.count}
-                      </span>
-                    )}
+
+                    <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                   </div>
                   <Icon
                     icon="ic:baseline-menu"
@@ -237,11 +204,8 @@ const NotificationPage = () => {
                         }`}
                       >
                         <span>{filter.label}</span>
-                        {filter.count > 0 && (
-                          <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
-                            {filter.count}
-                          </span>
-                        )}
+
+                        <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
                       </button>
                     ))}
                   </div>
@@ -257,12 +221,12 @@ const NotificationPage = () => {
                   >
                     กำลังโหลดข้อมูลการแจ้งเตือน...
                   </div>
-                ) : filteredNotifications.length > 0 ? (
-                  filteredNotifications.map((item) => (
+                ) : notifications.length > 0 ? (
+                  notifications.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleNotificationClick(item)}
-                      data-test={`notification-item-${item.id}`}
+                      data-test="notification-item"
                       className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
                         !item.isRead
                           ? "bg-[#EBF2FE] border-blue-100"

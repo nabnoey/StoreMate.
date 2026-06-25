@@ -82,7 +82,7 @@ const NotificationManagementPage: React.FC = () => {
     }
     return {
       label: "ทั้งหมด",
-      className: "bg-gray-100 text-gray-600",
+      className: "bg-white border border-gray-300 text-black",
     };
   };
 
@@ -247,7 +247,7 @@ const NotificationManagementPage: React.FC = () => {
         <button
           data-test="btn-back-to-store"
           onClick={() => (window.location.href = "/store")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
+          className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
         >
           กลับหน้าหลัก (Store Page)
         </button>
@@ -256,7 +256,7 @@ const NotificationManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 font-prompt">
+    <div className="flex h-screen bg-white font-anuphan">
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white border-b border-gray-200 px-8 py-6">
           <h1 className="text-2xl font-bold text-gray-800">จัดการแจ้งเตือน</h1>
@@ -294,10 +294,10 @@ const NotificationManagementPage: React.FC = () => {
                 <button
                   data-test="btn-open-create-modal"
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
+                  className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
                 >
                   <Icon
-                    icon="lucide:plus"
+                    icon="mdi:bell"
                     width="18"
                     height="18"
                     className="mr-2"
@@ -310,7 +310,7 @@ const NotificationManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="text-left text-sm font-semibold text-gray-500 border-b border-gray-100">
+                  <tr className="text-left text-sm font-semibold text-black border-b border-gray-100">
                     <th className="pb-4 font-medium pl-2">หัวข้อ (Subject)</th>
                     <th className="pb-4 font-medium text-center">
                       ผู้รับ (Recipients)
@@ -355,7 +355,7 @@ const NotificationManagementPage: React.FC = () => {
                               {recipient.label}
                             </span>
                           </td>
-                          <td className="py-4 text-center text-sm text-gray-500">
+                          <td className="py-4 text-center text-sm text-black">
                             {noti.createdAt
                               ? new Date(noti.createdAt).toLocaleDateString(
                                   "th-TH",
@@ -368,14 +368,10 @@ const NotificationManagementPage: React.FC = () => {
                               <button
                                 data-test={`btn-open-delete-${noti.id}`}
                                 onClick={() => handleDelete(noti.id)}
-                                className="text-gray-300 hover:text-red-500 p-2 transition-colors"
                                 title="ลบการแจ้งเตือน"
+                                className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors"
                               >
-                                <Icon
-                                  icon="lucide:trash-2"
-                                  width="16"
-                                  height="16"
-                                />
+                                ลบ
                               </button>
                             </td>
                           )}
@@ -493,14 +489,14 @@ const NotificationManagementPage: React.FC = () => {
                     data-test="btn-cancel-create"
                     type="button"
                     onClick={handleCancel}
-                    className="px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                    className="cursor-pointer px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     ยกเลิก
                   </button>
                   <button
                     data-test="btn-submit-create"
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
+                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
                   >
                     ส่งการแจ้งเตือน
                   </button>

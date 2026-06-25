@@ -8,6 +8,7 @@ import type {
   Notification,
   NotificationRequest,
   FetchNotifyParams,
+  NotificationType,
 } from "../../types/notification";
 
 export const fetchOwnerNotify = createAsyncThunk(
@@ -19,8 +20,8 @@ export const fetchOwnerNotify = createAsyncThunk(
 
 export const fetchUserNotify = createAsyncThunk(
   "notification/fetchUser",
-  async () => {
-    return await NotificationService.getNotifyUser();
+  async (type: NotificationType = "ALL") => {
+    return await NotificationService.getNotifyUser(type);
   },
 );
 

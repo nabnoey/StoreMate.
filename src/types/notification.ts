@@ -25,3 +25,4 @@ export interface PageableNotificationResponse {
   totalElements: number;
 }
 
+export type NotificationType = "ALL" | "STORE" | "ORDERED" | "REFUNDED";

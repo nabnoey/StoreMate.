@@ -19,10 +19,12 @@ import {
   deleteProductReview,
 } from "../../../redux/reviews/reviewsReducer";
 import { toast } from "react-hot-toast";
-
-import { PaymentService } from "../../../services/payment.service";
 import type { Order } from "../../../types/orders";
 
+import {
+  reOrderPaymentThunk,
+  retryPaymentThunk,
+} from "../../../redux/payment/paymentReducer";
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -117,42 +119,23 @@ const HistoryPage = () => {
     }
   };
 
-  const handleBuyAgain = (order: any) => {
-    const firstItem = order.orderItems?.[0];
+  const handleBuyAgain = async (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation();
 
-    if (!firstItem) {
-      toast.error("ไม่พบข้อมูลสินค้าในคำสั่งซื้อนี้");
-      return;
+    try {
+      const response = await dispatch(
+        reOrderPaymentThunk({
+          orderNo: order.orderNo,
+          checkoutType: order.checkoutType,
+        }),
+      ).unwrap();
+
+      navigate("/payment", {
+        state: response,
+      });
+    } catch (error) {
+      toast.error("ไม่สามารถสั่งซื้อสินค้าอีกครั้งได้");
     }
-
-    const checkoutData = {
-      isBuyNow: true,
-      items: [
-        {
-          productId: firstItem.productId || firstItem.id,
-          cartItemId: null,
-          quantity: firstItem.quantity || 1,
-          price: firstItem.price,
-          totalPrice: firstItem.price * (firstItem.quantity || 1),
-          productName: firstItem.productName || firstItem.product?.productName,
-          imageUrl:
-            firstItem.imageUrl ||
-            firstItem.product?.productImages?.[0]?.imageUrl,
-          product: {
-            id: firstItem.productId || firstItem.id,
-            productName:
-              firstItem.productName || firstItem.product?.productName,
-            price: firstItem.price,
-            imageUrl:
-              firstItem.imageUrl ||
-              firstItem.product?.productImages?.[0]?.imageUrl,
-          },
-        },
-      ],
-      total: firstItem.price * (firstItem.quantity || 1),
-    };
-
-    navigate("/payment", { state: checkoutData });
   };
 
   const launchReviewModalForItem = async (order: any, itemFromList: any) => {
@@ -381,9 +364,11 @@ const HistoryPage = () => {
     e.stopPropagation();
 
     try {
-      const response = await PaymentService.retryPayment({
-        orderNo: order.orderNo,
-      });
+      const response = await dispatch(
+        retryPaymentThunk({
+          orderNo: order.orderNo,
+        }),
+      ).unwrap();
 
       navigate("/payment-qr", {
         state: {
@@ -599,8 +584,7 @@ const HistoryPage = () => {
                               type="button"
                               data-test="btn-retry-orders"
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleBuyAgain(order);
+                                handleBuyAgain(e, order);
                               }}
                               className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                             >

@@ -116,7 +116,7 @@ export const updateProfile = createAsyncThunk(
       const response = await UserService.updateProfile(data);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
+        return rejectWithValue(
         error.response?.data?.message || "ไม่สามารถอัปเดตโปรไฟล์ได้",
       );
     }

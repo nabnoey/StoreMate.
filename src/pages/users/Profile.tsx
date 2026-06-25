@@ -10,7 +10,7 @@ import {
 } from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
-import Loading from "../../components/loading/Loading";
+// import Loading from "../../components/loading/Loading";
 import { Icon } from "@iconify/react";
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -145,7 +145,7 @@ const ProfilePage = () => {
     phone: "",
     image: "",
   });
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageUploadStep, setImageUploadStep] = useState<"upload" | "crop">(
     "upload",
@@ -162,7 +162,7 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     if (user) {
       setTempData({
         name: user.name,
@@ -171,7 +171,7 @@ const ProfilePage = () => {
         image: user.image_url || user.image || "",
       });
     }
-    setLoading(false);
+    // setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const ProfilePage = () => {
   );
 
   const handleSaveCrop = async () => {
-    const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
+    // const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
 
     try {
       if (rawImageSrc && croppedAreaPixels) {
@@ -262,11 +262,23 @@ const ProfilePage = () => {
         setImageUploadStep("upload");
         setZoom(1);
       }
-    } catch (e: any) {
-      console.error(e);
-      const errorMessage =
-        typeof e === "string" ? e : "เกิดข้อผิดพลาดในการบันทึกรูปภาพ";
-      toast.error(errorMessage, { id: toastId });
+    } catch (error: any) {
+      console.error(error);
+
+      let errorMessage =
+        typeof error === "string"
+          ? error
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
+
+      if (errorMessage === "อีเมลนี้มีผู้อื่นใช้งานแล้ว") {
+        errorMessage = "อีเมลนี้ถูกใช้งานแล้ว";
+      }
+
+      if (errorMessage === "เบอร์โทรศัพท์นี้มีผู้อื่นใช้งานแล้ว") {
+        errorMessage = "เบอร์โทรศัพท์นี้มีผู้ใช้แล้ว";
+      }
+
+      toast.error(errorMessage, { duration: 1500 });
     }
   };
 
@@ -356,7 +368,7 @@ const ProfilePage = () => {
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
   if (!user) return <Navigate to="/login" replace />;
 
   return (

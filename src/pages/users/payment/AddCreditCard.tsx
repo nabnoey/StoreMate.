@@ -69,6 +69,10 @@ const AddCreditCardFormInner = () => {
             items: cartItems,
             isBuyNow,
             newlyAddedCard: paymentMethod,
+
+            orderNo: location.state?.orderNo,
+            paymentIntentId: location.state?.paymentIntentId,
+            clientSecret: location.state?.clientSecret,
           },
         });
       }
