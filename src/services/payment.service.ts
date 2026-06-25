@@ -3,6 +3,7 @@ import type {
   PaymentIntentPayload,
   PaymentNowPayload,
   RetryPaymentRequest,
+  ReOrderPayment,
 } from "../types/payment";
 import type { RefundRequest } from "../types/orders";
 
@@ -35,9 +36,15 @@ const retryPayment = async (data: RetryPaymentRequest) => {
   return res.data;
 };
 
+const reOrderPayment = async (data: ReOrderPayment) => {
+  const res = await api.post(`/payment/reorder`, data);
+  return res.data;
+};
+
 export const PaymentService = {
   createPaymentIntent,
   paymentNow,
   sendRefund,
   retryPayment,
+  reOrderPayment,
 };

@@ -24,3 +24,8 @@ export type PaymentNowPayload = {
 export interface RetryPaymentRequest {
   orderNo: Order["orderNo"];
 }
+
+export interface ReOrderPayment {
+  orderNo: Order["orderNo"];
+  checkoutType: PaymentMethod;
+}

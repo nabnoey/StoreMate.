@@ -3,10 +3,15 @@ import type {
   NotificationRequest,
   Notification,
   FetchNotifyParams,
+  NotificationType,
 } from "../types/notification";
 
-const getNotifyUser = async (): Promise<Notification[]> => {
-  const res = await api.get<Notification[]>("/notify");
+const getNotifyUser = async (
+  type: NotificationType = "ALL",
+): Promise<Notification[]> => {
+  const res = await api.get<Notification[]>("/notify", {
+    params: { type },
+  });
   return res.data;
 };
 

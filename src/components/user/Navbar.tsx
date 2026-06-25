@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
     if (isAuthentication) {
       dispatch(fetchCartThunk());
       dispatch(getProfile());
-      dispatch(fetchUserNotify());
+      dispatch(fetchUserNotify("ALL"));
     }
   }, [dispatch, isAuthentication]);
 
