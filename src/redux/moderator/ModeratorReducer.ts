@@ -166,7 +166,7 @@ const moderatorSlice = createSlice({
       ? {
           ...product,
           status: "DELETED",
-          productStatus: "DELETED"
+          // productStatus: "DELETED"
         }
       : product
   );

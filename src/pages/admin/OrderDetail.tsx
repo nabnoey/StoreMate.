@@ -127,7 +127,7 @@ function OrderDetail() {
         <div className="text-center">
           <p className="text-gray-600 mb-4">ไม่พบข้อมูลคำสั่งซื้อ</p>
           <button
-            onClick={() => navigate("/moderator/orders")}
+            onClick={() => navigate("/orders-management")}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
           >
             กลับไปที่จัดการคำสั่งซื้อ
@@ -156,7 +156,7 @@ const handleUpdateStatus = async () => {
       toast.success("อัปเดตสถานะเรียบร้อยแล้ว");
 
       setTimeout(() => {
-        navigate("/moderator/orders");
+        navigate("/orders-management");
       }, 1500);
     } catch {
       toast.error("ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
@@ -212,7 +212,7 @@ const handleUpdateStatus = async () => {
       <div className="bg-white border-b border-gray-200 w-full p-4 sm:p-6">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <button
-            onClick={() => navigate("/moderator/orders")}
+            onClick={() => navigate("/orders-management")}
             className="hover:opacity-70 transition-opacity text-gray-700"
             type="button"
           >
