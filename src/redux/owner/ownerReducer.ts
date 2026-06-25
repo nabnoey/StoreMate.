@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ownerService } from "../../services/owner.service";
+import { DashboardService } from "../../services/dashboard.service";
 import type {
   Store,
   UserRole,
@@ -25,6 +26,8 @@ const initialState: OwnerState = {
   loading: false,
   error: null,
   store: null,
+  dashData: null,
+  salesData: null,
 };
 
 export const getUserManagement = createAsyncThunk<
@@ -37,6 +40,22 @@ export const getUserManagement = createAsyncThunk<
 export const getStore = createAsyncThunk("owner/getStore", async () => {
   return await ownerService.getStore();
 });
+
+export const getOwnerDashboard = createAsyncThunk(
+  "owner/getOwnerDashboard",
+  async () => {
+    const res = await DashboardService.getOwnerDashboard();
+    return res?.data || res;
+  }
+);
+
+export const getSalesAnalytics = createAsyncThunk(
+  "owner/getSalesAnalytics",
+  async () => {
+    const res = await DashboardService.getSalesAnalytics();
+    return res?.data || res;
+  }
+);
 
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
@@ -143,6 +162,20 @@ const ownerSlice = createSlice({
         if (user) {
           user.role = roleName;
         }
+      })
+
+      // GET OWNER DASHBOARD
+      .addCase(getOwnerDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOwnerDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dashData = action.payload;
+      })
+      .addCase(getOwnerDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูลแดชบอร์ด";
       })
 
       // UPDATE STORE

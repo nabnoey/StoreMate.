@@ -253,6 +253,15 @@ const router = createBrowserRouter([
         path: "analytic",
         element: <Analytic />,
       },
+
+      {
+        path: "orders",
+        element: <Order />,
+      },
+      {
+        path: "orders/:orderNo",
+        element: <OrderDetail />,
+      },
       {
         path: "refund",
         element: <RefundPage />,
