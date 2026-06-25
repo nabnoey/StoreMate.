@@ -216,7 +216,7 @@ const router = createBrowserRouter([
         element: <Order />,
       },
       {
-        path: "orders/:orderNo",
+        path: "orders-management/:orderNo",
         element: <OrderDetail />,
       },
       {

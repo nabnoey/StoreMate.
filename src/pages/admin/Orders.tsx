@@ -470,7 +470,7 @@ function Orders() {
     <button
       type="button"
       data-test={`menagemate-order-${order.orderNo}`}
-      onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
+      onClick={() => navigate(`/orders-management/${order.orderNo}`)}
       className="text-blue-600 hover:underline font-medium cursor-pointer"
     >
       จัดการ
