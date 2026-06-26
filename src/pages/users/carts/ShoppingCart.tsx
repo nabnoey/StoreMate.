@@ -12,7 +12,6 @@ import {
 
 import { Icon } from "@iconify/react";
 import { type Toast, toast } from "react-hot-toast";
-// import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
 
 interface ConfirmToastProps {

@@ -17,7 +17,6 @@ import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
 
 const AddressProfile = () => {
-
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const addresses = useSelector((state: RootState) => state.address.addresses);
@@ -32,7 +31,6 @@ const AddressProfile = () => {
   const [isBlocking, setIsBlocking] = useState(false);
   const location = useLocation();
 
-
   const [formData, setFormData] = useState({
     streetAddress: "",
     subDistrict: 0,
@@ -43,13 +41,9 @@ const AddressProfile = () => {
   });
 
   const loadProvinces = async () => {
-    try {
-      await dispatch(
-        addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }),
-      ).unwrap();
-    } catch (error) {
-      console.error("Failed to load provinces:", error);
-    }
+    await dispatch(
+      addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }),
+    );
   };
 
   useEffect(() => {
@@ -67,7 +61,7 @@ const AddressProfile = () => {
     }));
   };
 
-    const fillAddressData = async (address: Address) => {
+  const fillAddressData = async (address: Address) => {
     const streetAddress = address.streetAddress;
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
@@ -161,7 +155,6 @@ const AddressProfile = () => {
     return response?.data || [];
   };
 
-
   const openAddModal = () => {
     setIsEditMode(false);
     setFormData({
@@ -201,7 +194,6 @@ const AddressProfile = () => {
   };
 
   const handleSaveAddress = async () => {
-    console.log("Current Form Data:", formData);
     const {
       streetAddress,
       subDistrict,
@@ -245,7 +237,7 @@ const AddressProfile = () => {
       !province ||
       !finalZipcodeId
     ) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { duration: 1500 });
       return;
     }
 
@@ -267,7 +259,7 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("แก้ไขที่อยู่สำเร็จ" , {duration:1700});
+      toast.success("แก้ไขที่อยู่สำเร็จ", { duration: 1700 });
     } else {
       await dispatch(
         addAddress({
@@ -277,28 +269,31 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("เพิ่มที่อยู่สำเร็จ", {duration: 1700});
+      toast.success("เพิ่มที่อยู่สำเร็จ", { duration: 1500 });
     }
     dispatch(fetchAllAddresses());
     setIsModalOpen(false);
   };
 
   //ลบที่อยู่
-const handleDeleteAddress = (addressId: number) => {
+  const handleDeleteAddress = (addressId: number) => {
+    if (addresses.length === 1) {
+      toast.error(
+        "ไม่สามารถลบได้ เนื่องจากต้องมีที่อยู่เริ่มต้นอย่างน้อย 1 รายการ",
+        { duration: 2000 },
+      );
+      return;
+    }
+
     setIsBlocking(true);
 
     const confirmDelete = async (toastId: string) => {
       toast.dismiss(toastId);
-      try {
-        await dispatch(deleteAddress(addressId)).unwrap();
-        toast.success("ลบที่อยู่สำเร็จ", { duration: 1700 });
-      } catch (error: any) {
-        const errorMessage = error?.message 
-        toast.error(errorMessage, { duration: 2000 });
-        console.error("Delete address failed:", error);
-      } finally {
-        setIsBlocking(false); 
-      }
+      await dispatch(deleteAddress(addressId));
+
+      toast.success("ลบที่อยู่สำเร็จ", {duration:1500});
+
+      setIsBlocking(false);
     };
 
     const cancelDelete = (toastId: string) => {
@@ -331,51 +326,65 @@ const handleDeleteAddress = (addressId: number) => {
       { duration: Infinity, position: "top-center" },
     );
   };
-return (
+  return (
     <div className="min-h-screen bg-gray-50 md:bg-white font-anuphan text-gray-950 pt-0 md:pt-10 pb-24 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-0 md:px-4">
-        
         {/* 1. Breadcrumbs Nav (Desktop Only) */}
         <div className="hidden md:block">
           <nav className="flex flex-wrap items-center text-sm text-black mb-6 font-medium">
-            <Link data-test="click-home" to="/" className="transition-colors cursor-pointer hover:text-blue-600">
+            <Link
+              data-test="click-home"
+              to="/"
+              className="transition-colors cursor-pointer hover:text-blue-600"
+            >
               หน้าหลัก
             </Link>
-            <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-gray-400" />
-            <Link to="/profile" data-test="click-profile" className="transition-colors cursor-pointer hover:text-blue-600">
+            <Icon
+              icon="material-symbols:chevron-right-rounded"
+              className="w-5 h-5 mx-1 text-gray-400"
+            />
+            <Link
+              to="/profile"
+              data-test="click-profile"
+              className="transition-colors cursor-pointer hover:text-blue-600"
+            >
               โปรไฟล์
             </Link>
-            <Icon icon="material-symbols:chevron-right-rounded" className="w-5 h-5 mx-1 text-gray-400" />
+            <Icon
+              icon="material-symbols:chevron-right-rounded"
+              className="w-5 h-5 mx-1 text-gray-400"
+            />
             <span className="text-gray-500">จัดการที่อยู่</span>
           </nav>
         </div>
 
         {/* 2. Mobile Header Bar (Sticky Top) */}
-        <div className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm cursor-ponitor"
-        data-test="mobile-header-bar">
-<button
-  className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors cursor-pointer"
-  onClick={() => {
-    if (location.state?.from === "payment") {
-      navigate("/payment", {
-        state: {
-          items: location.state?.items,
-          isBuyNow: location.state?.isBuyNow,
-        },
-      });
-    } else {
-      navigate("/profile");
-    }
-  }}
->
-  <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-</button>
+        <div
+          className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm cursor-ponitor"
+          data-test="mobile-header-bar"
+        >
+          <button
+            className="text-black p-1 flex-shrink-0 -ml-1 rounded-full active:bg-gray-100 transition-colors cursor-pointer"
+            onClick={() => {
+              if (location.state?.from === "payment") {
+                navigate("/payment", {
+                  state: {
+                    items: location.state?.items,
+                    isBuyNow: location.state?.isBuyNow,
+                  },
+                });
+              } else {
+                navigate("/profile");
+              }
+            }}
+          >
+            <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+          </button>
           <h1 className="text-lg font-bold text-gray-900">ที่อยู่ของฉัน</h1>
         </div>
 
         {/* Main Content Layout */}
         <div className="flex flex-col md:flex-row gap-6 items-start px-4 md:px-0 mt-4 md:mt-0">
-          
           {/* Sidebar (Desktop Only) */}
           <div className="hidden md:block shrink-0">
             <ProfileSidebar />
@@ -397,8 +406,13 @@ return (
             <div className="flex flex-col flex-1 divide-y divide-gray-100">
               {addresses.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[350px]">
-                  <Icon icon="basil:location-outline" className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300 mb-4" />
-                  <p className="text-lg sm:text-xl font-medium text-gray-500">ไม่มีข้อมูลที่อยู่ของคุณ</p>
+                  <Icon
+                    icon="basil:location-outline"
+                    className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300 mb-4"
+                  />
+                  <p className="text-lg sm:text-xl font-medium text-gray-500">
+                    ไม่มีข้อมูลที่อยู่ของคุณ
+                  </p>
                 </div>
               ) : (
                 addresses.map((address: Address) => (
@@ -409,13 +423,19 @@ return (
                     {/* แถวที่ 1: ข้อมูลผู้รับ & ปุ่มควบคุมหลัก */}
                     <div className="flex justify-between items-center w-full">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-base">
-                        <span className="font-bold text-gray-900">{address.receiverName}</span>
-                        <span className="text-gray-300 hidden sm:inline">|</span>
-                        <span className="text-gray-500 font-medium">{address.receiverPhone}</span>
+                        <span className="font-bold text-gray-900">
+                          {address.receiverName}
+                        </span>
+                        <span className="text-gray-300 hidden sm:inline">
+                          |
+                        </span>
+                        <span className="text-gray-500 font-medium">
+                          {address.receiverPhone}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3 text-sm shrink-0">
                         <button
-                         data-test={`btn-edit-address-${address.id}`}
+                          data-test={`btn-edit-address-${address.id}`}
                           onClick={() => openEditModal(address)}
                           className="text-[#4285F4] hover:underline font-medium cursor-pointer"
                         >
@@ -423,7 +443,7 @@ return (
                         </button>
                         <span className="text-gray-200">|</span>
                         <button
-                          data-test= {`btn-delete-address-${address.id}`}
+                          data-test={`btn-delete-address-${address.id}`}
                           onClick={() => handleDeleteAddress(address.id)}
                           className="text-red-500 hover:underline font-medium cursor-pointer"
                         >
@@ -434,7 +454,8 @@ return (
 
                     {/* แถวที่ 2: รายละเอียดที่อยู่ตัวเต็ม */}
                     <div className="text-sm text-gray-600 leading-relaxed max-w-3xl">
-                      {address.streetAddress} ต.{address.subdistrict} อ.{address.district} จ.{address.province} {address.zipcode}
+                      {address.streetAddress} ต.{address.subdistrict} อ.
+                      {address.district} จ.{address.province} {address.zipcode}
                     </div>
 
                     {/* แถวที่ 3: ป้ายบอกสถานะ และ ปุ่มตั้งเป็นค่าเริ่มต้น */}
@@ -449,7 +470,7 @@ return (
                           ที่อยู่ในการรับสินค้า
                         </span>
                       </div>
-                      
+
                       <button
                         data-test="btn-set-default"
                         disabled={address.isDefault}
@@ -477,26 +498,28 @@ return (
             onClick={openAddModal}
             className="w-full bg-[#4285F4] active:bg-blue-600 text-white py-3 rounded-xl text-base font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md"
           >
-            <span className="text-xl leading-none mt-[-2px]">+</span> เพิ่มที่อยู่ใหม่
+            <span className="text-xl leading-none mt-[-2px]">+</span>{" "}
+            เพิ่มที่อยู่ใหม่
           </button>
         </div>
 
         {/* 4. Overlay & Form Modal (Responsive Style matching the Image) */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-100/80 md:bg-black/60 backdrop-blur-[1px] p-4 overflow-y-auto">
-            
             {/* Backdrop ปิด Modal เมื่อคลิกด้านนอก (ทำงานบนจอใหญ่) */}
             <div
               className="hidden md:block absolute inset-0 transition-opacity cursor-pointer"
               onClick={() => setIsModalOpen(false)}
             />
-            
+
             {/* กล่องเนื้อหา Modal ที่ปรับแต่งตามภาพ */}
             <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl flex flex-col overflow-hidden transition-all duration-300 border border-gray-100 p-5">
-              
               {/* ส่วนหัวแสดงหมุดตำแหน่งตรงกลางตามภาพ */}
               <div className="flex flex-col items-center justify-center pt-2 pb-4">
-                <Icon icon="material-symbols:location-on-outline-rounded" className="w-14 h-14 text-gray-400" />
+                <Icon
+                  icon="material-symbols:location-on-outline-rounded"
+                  className="w-14 h-14 text-gray-400"
+                />
               </div>
 
               {/* หัวข้อฟอร์ม */}
@@ -508,7 +531,6 @@ return (
 
               {/* ส่วนฟอร์มข้อมูลภายใน */}
               <div className="flex-1 space-y-4">
-                
                 {/* Input รายละเอียดที่อยู่ */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-700">
@@ -528,7 +550,9 @@ return (
                 {/* แถวที่ 1: จังหวัด & อำเภอ (คงรูปเป็น 2 คอลัมน์บนโมบายล์ตามรูปภาพตัวอย่าง) */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-semibold text-gray-700">จังหวัด</label>
+                    <label className="text-sm font-semibold text-gray-700">
+                      จังหวัด
+                    </label>
                     <div className="relative">
                       <select
                         name="province"
@@ -536,23 +560,34 @@ return (
                         onChange={handleProvinceChange}
                         className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value={0} hidden>จังหวัด</option>
+                        <option value={0} hidden>
+                          จังหวัด
+                        </option>
                         {provinces.map((p: { id: number; name: string }) => (
-                          <option key={p.id} value={p.id}>{p.name}</option>
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
                         ))}
                       </select>
-                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
+                      <Icon
+                        icon="material-symbols:keyboard-arrow-down-rounded"
+                        className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none"
+                      />
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-semibold text-gray-700">อำเภอ</label>
+                    <label className="text-sm font-semibold text-gray-700">
+                      อำเภอ
+                    </label>
                     <div className="relative">
                       <select
                         name="district"
                         value={formData.district}
                         disabled={!formData.province}
-                        onChange={async (e: React.ChangeEvent<HTMLSelectElement>) => {
+                        onChange={async (
+                          e: React.ChangeEvent<HTMLSelectElement>,
+                        ) => {
                           const dId = Number(e.target.value);
                           setFormData((prev) => ({
                             ...prev,
@@ -572,12 +607,19 @@ return (
                         }}
                         className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>อำเภอ</option>
+                        <option value="" hidden>
+                          อำเภอ
+                        </option>
                         {districts.map((d: { id: number; name: string }) => (
-                          <option key={d.id} value={d.id}>{d.name}</option>
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
                         ))}
                       </select>
-                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
+                      <Icon
+                        icon="material-symbols:keyboard-arrow-down-rounded"
+                        className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none"
+                      />
                     </div>
                   </div>
                 </div>
@@ -585,13 +627,17 @@ return (
                 {/* แถวที่ 2: ตำบล & รหัสไปรษณีย์ (คงรูปเป็น 2 คอลัมน์บนโมบายล์ตามรูปภาพตัวอย่าง) */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-semibold text-gray-700">ตำบล</label>
+                    <label className="text-sm font-semibold text-gray-700">
+                      ตำบล
+                    </label>
                     <div className="relative">
                       <select
                         name="subDistrict"
                         value={formData.subDistrict}
                         disabled={!formData.district}
-                        onChange={async (e: React.ChangeEvent<HTMLSelectElement>) => {
+                        onChange={async (
+                          e: React.ChangeEvent<HTMLSelectElement>,
+                        ) => {
                           const sId = Number(e.target.value);
                           setFormData((prev) => ({
                             ...prev,
@@ -619,17 +665,26 @@ return (
                         }}
                         className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>ตำบล</option>
+                        <option value="" hidden>
+                          ตำบล
+                        </option>
                         {subdistricts.map((s: { id: number; name: string }) => (
-                          <option key={s.id} value={s.id}>{s.name}</option>
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
                         ))}
                       </select>
-                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
+                      <Icon
+                        icon="material-symbols:keyboard-arrow-down-rounded"
+                        className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none"
+                      />
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-semibold text-gray-700">รหัสไปรษณีย์</label>
+                    <label className="text-sm font-semibold text-gray-700">
+                      รหัสไปรษณีย์
+                    </label>
                     <div className="relative">
                       <select
                         value={formData.zipcodeId}
@@ -646,12 +701,19 @@ return (
                         }}
                         className="w-full h-11 rounded-lg px-3 pr-8 text-sm bg-gray-50 border border-gray-200 focus:bg-white focus:border-gray-400 outline-none disabled:bg-gray-100 disabled:text-gray-400 appearance-none cursor-pointer transition-all text-gray-800"
                       >
-                        <option value="" hidden>รหัสไปรษณีย์</option>
+                        <option value="" hidden>
+                          รหัสไปรษณีย์
+                        </option>
                         {zipcodes.map((z) => (
-                          <option key={z.id} value={z.id}>{z.name}</option>
+                          <option key={z.id} value={z.id}>
+                            {z.name}
+                          </option>
                         ))}
                       </select>
-                      <Icon icon="material-symbols:keyboard-arrow-down-rounded" className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none" />
+                      <Icon
+                        icon="material-symbols:keyboard-arrow-down-rounded"
+                        className="absolute right-2 top-3 w-5 h-5 text-gray-500 pointer-events-none"
+                      />
                     </div>
                   </div>
                 </div>
@@ -674,7 +736,6 @@ return (
                   ยกเลิก
                 </button>
               </div>
-
             </div>
           </div>
         )}
