@@ -49,13 +49,9 @@ export const setDefaultAddressThunk = createAsyncThunk(
 
 export const deleteAddress = createAsyncThunk(
   "address/deleteAddress",
-  async (id: number, { rejectWithValue }) => {
-    try {
-      const response = await UserService.deleteAddress(id);
-      return response; 
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data);
-    }
+  async (id: number) => {
+    const response = await UserService.deleteAddress(id);
+    return response;
   },
 );
 
