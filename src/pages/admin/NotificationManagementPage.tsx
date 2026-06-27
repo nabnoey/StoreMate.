@@ -29,8 +29,8 @@ const NotificationManagementPage: React.FC = () => {
 
   const keywordParam = searchParams.get("keyword") || "";
   const page = Number(searchParams.get("page") ?? 0);
-  // const [searchInput, setSearchInput] = useState(keywordParam);
-  //const [searchKeyword, setSearchKeyword] = useState(keywordParam);
+  const [searchInput, setSearchInput] = useState(keywordParam);
+  const [searchKeyword, setSearchKeyword] = useState(keywordParam);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -214,9 +214,9 @@ const NotificationManagementPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // const handleSearch = () => {
-  //   setSearchKeyword(searchInput.trim());
-  // };
+  const handleSearch = () => {
+    setSearchKeyword(searchInput.trim());
+  };
 
   const updatePage = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
