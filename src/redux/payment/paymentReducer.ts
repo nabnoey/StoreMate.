@@ -21,6 +21,7 @@ interface PaymentState {
   error: string | null;
 }
 
+// ค่าเริ่มต้น redux
 const initialState: PaymentState = {
   status: "PENDING",
   orderId: null,
@@ -30,6 +31,7 @@ const initialState: PaymentState = {
 };
 
 export const createPaymentIntentThunk = createAsyncThunk(
+  // เรียกว่า Action type prefix เอาไว้เรียกอัตโนมัติใน extra reducer
   "payment/createIntent",
   async (data: PaymentIntentPayload, thunkAPI) => {
     try {

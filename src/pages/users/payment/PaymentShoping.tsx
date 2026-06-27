@@ -17,6 +17,7 @@ import type {
 import {
   createPaymentIntentThunk,
   paymentNowThunk,
+  reOrderPaymentThunk,
 } from "../../../redux/payment/paymentReducer";
 import { fetchAddressDefault } from "../../../redux/address/addressReducer";
 import {
@@ -46,7 +47,7 @@ const PaymentContent = () => {
 
   const isBuyNow = location.state?.isBuyNow || false;
 
-  const isReOrder = !!location.state?.orderNo;
+  const isReOrder = location.state?.isReOrder === true;
   const orderDetail = useSelector(
     (state: RootState) => state.orders.orderDetail,
   );
@@ -93,8 +94,7 @@ const PaymentContent = () => {
         isBuyNow: isBuyNow,
         // เพิ่มมาจาก reOrder
         orderNo: location.state?.orderNo,
-        paymentIntentId: location.state?.paymentIntentId,
-        clientSecret: location.state?.clientSecret,
+        isReOrder,
       },
     });
   };
@@ -132,11 +132,12 @@ const PaymentContent = () => {
 
   const executePaymentApi = async (checkoutType: PaymentMethod) => {
     if (isReOrder) {
-      return {
-        clientSecret: location.state.clientSecret,
-        paymentIntentId: location.state.paymentIntentId,
-        orderNo: location.state.orderNo,
-      };
+      return await dispatch(
+        reOrderPaymentThunk({
+          orderNo: location.state.orderNo,
+          checkoutType,
+        }),
+      ).unwrap();
     }
 
     if (isBuyNow) {

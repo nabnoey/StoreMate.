@@ -21,10 +21,7 @@ import {
 import { toast } from "react-hot-toast";
 import type { Order } from "../../../types/orders";
 
-import {
-  reOrderPaymentThunk,
-  retryPaymentThunk,
-} from "../../../redux/payment/paymentReducer";
+import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,9 +33,9 @@ const HistoryPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
 
-  useEffect(() => {
-    console.log("ORDERS FROM REDUX", orders);
-  }, [orders]);
+  // useEffect(() => {
+  //   console.log("ORDERS FROM REDUX", orders);
+  // }, [orders]);
 
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
@@ -123,15 +120,11 @@ const HistoryPage = () => {
     e.stopPropagation();
 
     try {
-      const response = await dispatch(
-        reOrderPaymentThunk({
-          orderNo: order.orderNo,
-          checkoutType: order.checkoutType,
-        }),
-      ).unwrap();
-
       navigate("/payment", {
-        state: response,
+        state: {
+          orderNo: order.orderNo,
+          isReOrder: true,
+        },
       });
     } catch (error) {
       toast.error("ไม่สามารถสั่งซื้อสินค้าอีกครั้งได้");
@@ -674,15 +667,12 @@ const HistoryPage = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(
-                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-                                  {
-                                    state: {
-                                      status: order.status,
-                                      paymentMethod: order.checkoutType,
-                                    },
+                                navigate(`/cancel-orders/${order.orderNo}`, {
+                                  state: {
+                                    status: order.status,
+                                    paymentMethod: order.checkoutType,
                                   },
-                                );
+                                });
                               }}
                               className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-blue-600 shadow-sm"
                             >

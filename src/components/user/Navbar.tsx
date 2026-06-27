@@ -15,7 +15,7 @@ import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
-  markAsReadInStore,
+  clearNewNotifications,
 } from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
-
+  const newCount = notifications.filter((n) => n.isNew).length;
   const previewNotifications = notifications.slice(0, 5);
 
   useEffect(() => {
@@ -70,11 +70,11 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleBellClick = () => {
-    // เช็คความกว้างหน้าจอว่าต่ำกว่าขนาด lg (1024px) หรือไม่
-    if (window.innerWidth < 1024) {
-      navigate("/notify");
-    } else {
+    if (window.innerWidth >= 1024) {
+      dispatch(clearNewNotifications());
       setOpenNotifyDropdown(!openNotifyDropdown);
+    } else {
+      navigate("/notify");
     }
   };
 
@@ -270,6 +270,12 @@ const Navbar: React.FC = () => {
                       {unreadCount}
                     </span>
                   )}
+
+                  {newCount > 0 && (
+                    <span className="absolute top-0 left-0 bg-blue-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+                      {newCount}
+                    </span>
+                  )}
                 </button>
 
                 {openNotifyDropdown && (
@@ -283,45 +289,31 @@ const Navbar: React.FC = () => {
                             ไม่มีการแจ้งเตือนในขณะนี้
                           </div>
                         ) : (
-                          previewNotifications.map((item) => (
+                          previewNotifications.slice(0, 3).map((item) => (
                             <li key={item.id} className="block">
                               <button
                                 type="button"
-                                className={`flex w-full items-start gap-3 p-3 text-left transition-colors border-b border-gray-50 hover:bg-gray-50 ${
-                                  !item.isRead ? "bg-[#FFF9F9]" : "bg-white"
-                                }`}
+                                className="flex w-full items-start gap-3 p-3 text-left transition-colors border-b border-gray-50 hover:bg-gray-50 bg-white"
                                 onClick={() => {
+                                  dispatch(clearNewNotifications());
                                   setOpenNotifyDropdown(false);
-                                  if (!item.isRead) {
-                                    dispatch(markAsReadInStore(item.id));
-                                  }
                                   navigate("/notify");
                                 }}
                               >
-                                {/* รูปภาพสินค้า */}
-                                <div className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded border border-gray-50 overflow-hidden">
-                                  <img
-                                    src={logo}
-                                    className="w-full h-full object-cover"
-                                    alt="notify-img"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = logo;
-                                    }}
-                                  />
-                                </div>
-
                                 {/* กล่องข้อความ */}
                                 <div className="flex flex-col flex-1 min-w-0 gap-0.5">
-                                  <span
-                                    className={`text-xs truncate text-gray-900 ${!item.isRead ? "font-bold" : "font-semibold"}`}
-                                  >
+                                  <span className="text-xs truncate text-gray-900 font-semibold">
                                     {item.title}
                                   </span>
-                                  <span className="text-[11px] text-gray-500 line-clamp-1 leading-normal">
+                                  <span className="text-[11px] text-black line-clamp-1 leading-normal">
                                     {item.message}
                                   </span>
-                                  <span className="text-[9px] text-gray-400 mt-0.5">
-                                    {item.createdAt}
+                                  <span className="text-[9px] text-black font-medium mt-0.5">
+                                    {item.createdAt
+                                      ? new Date(
+                                          item.createdAt,
+                                        ).toLocaleDateString("th-TH")
+                                      : "-"}
                                   </span>
                                 </div>
                               </button>
@@ -333,7 +325,7 @@ const Navbar: React.FC = () => {
                       <li className="block">
                         <button
                           type="button"
-                          className="cursor-pointer w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-2.5 text-center text-xs font-bold font-Anuphan transition-colors block border-t border-gray-100"
+                          className="cursor-pointer w-full bg-gray-200 text-black py-2.5 text-center text-xs font-bold font-Anuphan transition-colors block border-t border-gray-100"
                           onClick={() => {
                             setOpenNotifyDropdown(false);
                             navigate("/notify");

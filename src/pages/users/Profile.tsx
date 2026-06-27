@@ -263,22 +263,14 @@ const ProfilePage = () => {
         setZoom(1);
       }
     } catch (error: any) {
-      console.error(error);
-
-      let errorMessage =
+      toast.error(
         typeof error === "string"
           ? error
-          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
-
-      if (errorMessage === "อีเมลนี้มีผู้อื่นใช้งานแล้ว") {
-        errorMessage = "อีเมลนี้ถูกใช้งานแล้ว";
-      }
-
-      if (errorMessage === "เบอร์โทรศัพท์นี้มีผู้อื่นใช้งานแล้ว") {
-        errorMessage = "เบอร์โทรศัพท์นี้มีผู้ใช้แล้ว";
-      }
-
-      toast.error(errorMessage, { duration: 1500 });
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        {
+          duration: 1500,
+        },
+      );
     }
   };
 
