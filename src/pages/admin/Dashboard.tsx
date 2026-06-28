@@ -205,16 +205,10 @@ function Dashboard() {
   });
 
   return (
-    <div className="flex flex-col h-full bg-white p-6 min-h-screen">
-      <div className="mb-6 hidden">
-        <HeaderAdmin title="Dashboard" subtitle="" />
-      </div>
-      <div className="mb-6">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">แดชบอร์ด</h1>
-        {store?.storeName && (
-          <p className="text-sm font-medium text-gray-500 mt-1">{store.storeName}</p>
-        )}
-      </div>
+    <div className="flex flex-col h-full bg-[#F9FAFB] min-h-screen">
+      <HeaderAdmin title="แดชบอร์ด" />
+      
+      <div className="p-4 sm:p-6 text-[#374151]">
 
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -468,6 +462,7 @@ function Dashboard() {
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   );
