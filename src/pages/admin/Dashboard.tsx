@@ -88,7 +88,7 @@ const getReviewColor = (score: number) => {
 function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { store, dashData } = useSelector((state: RootState) => state.owner);
+  const { dashData } = useSelector((state: RootState) => state.owner);
 
   const [loading, setLoading] = useState(true);
 
