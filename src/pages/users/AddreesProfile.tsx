@@ -291,7 +291,7 @@ const AddressProfile = () => {
       toast.dismiss(toastId);
       await dispatch(deleteAddress(addressId));
 
-      toast.success("ลบที่อยู่สำเร็จ", {duration:1500});
+      toast.success("ลบที่อยู่สำเร็จ", { duration: 1500 });
 
       setIsBlocking(false);
     };
@@ -341,7 +341,7 @@ const AddressProfile = () => {
             </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-gray-400"
+              className="w-5 h-5 mx-1 text-black"
             />
             <Link
               to="/profile"
@@ -352,9 +352,9 @@ const AddressProfile = () => {
             </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-gray-400"
+              className="w-5 h-5 mx-1 text-black"
             />
-            <span className="text-gray-500">จัดการที่อยู่</span>
+            <span className="text-black">จัดการที่อยู่</span>
           </nav>
         </div>
 

@@ -98,7 +98,6 @@ const NotificationPage = () => {
     filters.find((f) => f.id === activeFilter) || filters[0];
 
   const handleNotificationClick = (item: ClientNotification) => {
-    if (!item.isRead) return;
     dispatch(markAsReadInStore(item.id));
     dispatch(fetchNotificationCounts());
   };
@@ -106,7 +105,7 @@ const NotificationPage = () => {
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
       <div className="max-w-[1280px] mx-auto px-4">
-        <nav className="hidden md:flex items-center text-sm text-gray-600 mb-6 font-medium">
+        <nav className="hidden md:flex items-center text-sm text-black mb-6 font-medium">
           <Link
             to="/"
             className="hover:text-black transition-colors cursor-pointer"
