@@ -40,19 +40,13 @@ const AddressProfile = () => {
     zipcodeId: 0,
   });
 
-  const loadProvinces = async () => {
-    await dispatch(
-      addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }),
-    );
-  };
 
   useEffect(() => {
     dispatch(fetchAllAddresses());
-    loadProvinces(); // โหลดครั้งเดียว
   }, [dispatch]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -63,9 +57,10 @@ const AddressProfile = () => {
 
   const fillAddressData = async (address: Address) => {
     const streetAddress = address.streetAddress;
+      const provinceName = address.province;
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
-    const provinceName = address.province;
+  
 
     // จังหวัด
     const provinceRes = await dispatch(
@@ -203,13 +198,17 @@ const AddressProfile = () => {
       zipcodeId,
     } = formData;
 
-    const fetchZipcodeInfo = async (zip: string, zipId: number) => {
-      if (zip && zipId) {
+   
+      const fetchZipcodeInfo = async (zip: string, zipId: number) => {
+   
+        if (zip && zipId) {
+        
         return { zipcode: zip, zipcodeId: zipId };
       }
-      if (!province || !district || !subDistrict) {
-        return { zipcode: "", zipcodeId: 0 };
-      }
+      // if (!province || !district || !subDistrict) {
+      
+      //   return { zipcode: "", zipcodeId: 0 };
+      // }
 
       const zipResRaw = await dispatch(
         addressDropdown({

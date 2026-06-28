@@ -22,7 +22,7 @@ type AddressState = {
   provinces: DropdownItem[];
   districts: DropdownItem[];
   subdistricts: DropdownItem[];
-  zipcodeId: DropdownItem[];
+  // zipcodeId: DropdownItem[];
 };
 
 export type { Address, DropdownItem, AddressState };
