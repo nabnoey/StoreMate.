@@ -5,7 +5,10 @@ import SockJS from "sockjs-client";
 // import { toast } from "react-hot-toast";
 
 import type { RootState, AppDispatch } from "../redux/store";
-import { addNotificationFromSocket } from "../redux/notification/notificationReducer";
+import {
+  addNotificationFromSocket,
+  fetchNotificationCounts,
+} from "../redux/notification/notificationReducer";
 
 let globalNotifyClient: Client | null = null;
 let currentNotifyToken: string | null = null;
@@ -65,9 +68,12 @@ const useNotificationSocket = () => {
           };
 
           dispatch(addNotificationFromSocket(formattedData));
+          dispatch(fetchNotificationCounts());
         };
 
         client.subscribe("/topic/all", handleIncomingNotification);
+
+        client.subscribe("/queue/notify", handleIncomingNotification);
 
         // เช็กทั้งคำว่า CUSTOMER และ USER เพื่อผิด
         if (userRoles.includes("CUSTOMER") || userRoles.includes("USER")) {

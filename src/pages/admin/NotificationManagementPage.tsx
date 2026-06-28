@@ -9,6 +9,7 @@ import {
   createNotify,
   deleteNotify,
 } from "../../redux/notification/notificationReducer";
+import HeaderAdmin from "../../components/admin/HeaderAdmin";
 
 interface NotificationFormData {
   subject: string;
@@ -28,8 +29,7 @@ const NotificationManagementPage: React.FC = () => {
 
   const keywordParam = searchParams.get("keyword") || "";
   const page = Number(searchParams.get("page") ?? 0);
-  const [searchInput, setSearchInput] = useState(keywordParam);
-  const [searchKeyword, setSearchKeyword] = useState(keywordParam);
+  const [searchKeyword] = useState(keywordParam);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -82,7 +82,7 @@ const NotificationManagementPage: React.FC = () => {
     }
     return {
       label: "ทั้งหมด",
-      className: "bg-gray-100 text-gray-600",
+      className: "bg-white border border-gray-300 text-black",
     };
   };
 
@@ -213,10 +213,6 @@ const NotificationManagementPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = () => {
-    setSearchKeyword(searchInput.trim());
-  };
-
   const updatePage = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
 
@@ -247,7 +243,7 @@ const NotificationManagementPage: React.FC = () => {
         <button
           data-test="btn-back-to-store"
           onClick={() => (window.location.href = "/store")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
+          className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
         >
           กลับหน้าหลัก (Store Page)
         </button>
@@ -256,48 +252,24 @@ const NotificationManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 font-prompt">
+    <div className="flex h-screen bg-white font-anuphan">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-2xl font-bold text-gray-800">จัดการแจ้งเตือน</h1>
-          <p className="text-sm text-gray-500">
-            การแจ้งเตือนไปยังผู้ใช้งาน และลบการแจ้งเตือนที่ไม่ต้องการ
-          </p>
-        </header>
+        <HeaderAdmin
+          title="จัดการแจ้งเตือน"
+          subtitle="การแจ้งเตือนไปยังผู้ใช้งาน และลบการแจ้งเตือนที่ไม่ต้องการ"
+        />
 
         <div className="p-8 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div className="relative w-80">
-                <Icon
-                  icon="lucide:search"
-                  width="18"
-                  height="18"
-                  className="absolute left-3 top-2.5 text-gray-400"
-                />
-                <input
-                  data-test="input-search-notification"
-                  type="text"
-                  placeholder="ค้นหาหัวข้อการแจ้งเตือน"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSearch();
-                    }
-                  }}
-                />
-              </div>
-
+            <div className="flex justify-end items-end mb-6">
               {isOwner && (
                 <button
                   data-test="btn-open-create-modal"
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
+                  className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
                 >
                   <Icon
-                    icon="lucide:plus"
+                    icon="mdi:bell"
                     width="18"
                     height="18"
                     className="mr-2"
@@ -310,7 +282,7 @@ const NotificationManagementPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="text-left text-sm font-semibold text-gray-500 border-b border-gray-100">
+                  <tr className="text-left text-sm font-semibold text-black border-b border-gray-100">
                     <th className="pb-4 font-medium pl-2">หัวข้อ (Subject)</th>
                     <th className="pb-4 font-medium text-center">
                       ผู้รับ (Recipients)
@@ -355,7 +327,7 @@ const NotificationManagementPage: React.FC = () => {
                               {recipient.label}
                             </span>
                           </td>
-                          <td className="py-4 text-center text-sm text-gray-500">
+                          <td className="py-4 text-center text-sm text-black">
                             {noti.createdAt
                               ? new Date(noti.createdAt).toLocaleDateString(
                                   "th-TH",
@@ -368,14 +340,10 @@ const NotificationManagementPage: React.FC = () => {
                               <button
                                 data-test={`btn-open-delete-${noti.id}`}
                                 onClick={() => handleDelete(noti.id)}
-                                className="text-gray-300 hover:text-red-500 p-2 transition-colors"
                                 title="ลบการแจ้งเตือน"
+                                className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors"
                               >
-                                <Icon
-                                  icon="lucide:trash-2"
-                                  width="16"
-                                  height="16"
-                                />
+                                ลบ
                               </button>
                             </td>
                           )}
@@ -493,14 +461,14 @@ const NotificationManagementPage: React.FC = () => {
                     data-test="btn-cancel-create"
                     type="button"
                     onClick={handleCancel}
-                    className="px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                    className="cursor-pointer px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     ยกเลิก
                   </button>
                   <button
                     data-test="btn-submit-create"
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
+                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
                   >
                     ส่งการแจ้งเตือน
                   </button>

@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import toast, { Toaster } from "react-hot-toast";
-import { PaymentService } from "../../../services/payment.service";
 import type { OrderStatus, RefundRequest } from "../../../types/orders";
 import type { PaymentMethod } from "../../../types/payment";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../redux/store";
+
+import { sendRefundThunk } from "../../../redux/payment/paymentReducer";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
@@ -26,7 +29,7 @@ const CancelOrderPage = () => {
   const { orderNo } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const dispatch = useDispatch<AppDispatch>();
   const orderStatus = (location.state?.status as OrderStatus) || "PENDING";
   const checkoutType =
     location.state?.checkoutType ||
@@ -66,7 +69,7 @@ const CancelOrderPage = () => {
 
     setIsSubmitting(true);
     try {
-      await PaymentService.sendRefund(payload);
+      await dispatch(sendRefundThunk(payload)).unwrap();
 
       if (isCancelAction) {
         toast.success("ส่งคำขอยกเลิกสำเร็จ", { duration: 1500 });
@@ -176,9 +179,7 @@ const CancelOrderPage = () => {
                   เงื่อนไขการทำรายการ
                 </h3>
                 <p className="text-[13px] md:text-[14px] leading-relaxed text-[#B45309]">
-                  การยกเลิกสินค้าสามารถทำได้เฉพาะรายการที่สถานะเป็น
-                  "รอดำเนินการ" เท่านั้น <br className="hidden sm:block" />
-                  สำหรับการคืนสินค้าสาารถทำได้ภายใน 7 วันหลังจากได้รับสินค้า
+                  การยกเลิกคำสั่งซื้อและการขอคืนเงินสามารถดำเนินการได้เฉพาะคำสั่งซื้อที่มีสถานะ “ที่ต้องชำระ” และ “ที่ต้องจัดส่ง” เท่านั้น <br className="hidden sm:block" />เมื่อคำสั่งซื้อเปลี่ยนเป็นสถานะอื่น จะไม่สามารถยกเลิกหรือขอคืนเงินผ่านระบบได้
                 </p>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,16 +6,17 @@ import type { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchUserNotify,
   markAsReadInStore,
-  clearUnreadBadge,
   type ClientNotification,
+  fetchNotificationCounts,
 } from "../../redux/notification/notificationReducer";
 import { Icon } from "@iconify/react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
+import type { NotificationType } from "../../types/notification";
 
 const NotificationPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState<NotificationType>("ALL");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +30,8 @@ const NotificationPage = () => {
     (state: RootState) => state.notification.isLoading,
   );
 
+  const counts = useSelector((state: RootState) => state.notification.counts);
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -36,11 +39,12 @@ const NotificationPage = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchUserNotify());
-      dispatch(clearUnreadBadge());
-    }
-  }, [dispatch, isAuthenticated]);
+    dispatch(fetchNotificationCounts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchUserNotify(activeFilter));
+  }, [dispatch, activeFilter]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,66 +59,53 @@ const NotificationPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const notifications = useMemo(() => {
-    const processed = rawNotifications.map((item) => {
-      let simulatedType = "shop";
-      const titleText = item.title || "";
+  const notifications = [...rawNotifications].sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
 
-      if (
-        titleText.includes("คำสั่งซื้อ") ||
-        titleText.toLowerCase().includes("order")
-      ) {
-        simulatedType = "orders";
-      } else if (
-        titleText.includes("คืนเงิน") ||
-        titleText.toLowerCase().includes("refund")
-      ) {
-        simulatedType = "refunds";
-      }
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
 
-      return {
-        ...item,
-        type: simulatedType,
-      };
-    });
+    return dateB - dateA;
+  });
 
-    return processed.sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return dateB - dateA;
-    });
-  }, [rawNotifications]);
-
-  const filteredNotifications = useMemo(() => {
-    if (activeFilter === "all") return notifications;
-    return notifications.filter((item) => item.type === activeFilter);
-  }, [notifications, activeFilter]);
-
-  const getCount = (type: string) => {
-    if (type === "all") return notifications.filter((n) => !n.isRead).length;
-    return notifications.filter((n) => n.type === type && !n.isRead).length;
-  };
-
-  const filters = [
-    { id: "all", label: "ทั้งหมด", count: getCount("all") },
-    { id: "orders", label: "คำสั่งซื้อ", count: getCount("orders") },
-    { id: "refunds", label: "คำขอคืนเงิน", count: getCount("refunds") },
-    { id: "shop", label: "ร้านค้า", count: getCount("shop") },
+  const filters: {
+    id: NotificationType;
+    label: string;
+    count: number;
+  }[] = [
+    {
+      id: "ALL",
+      label: "ทั้งหมด",
+      count: counts.ALL,
+    },
+    {
+      id: "ORDERED",
+      label: "คำสั่งซื้อ",
+      count: counts.ORDERED,
+    },
+    {
+      id: "REFUNDED",
+      label: "คำขอคืนเงิน",
+      count: counts.REFUNDED,
+    },
+    {
+      id: "STORE",
+      label: "ร้านค้า",
+      count: counts.STORE,
+    },
   ];
 
   const activeFilterData =
     filters.find((f) => f.id === activeFilter) || filters[0];
 
   const handleNotificationClick = (item: ClientNotification) => {
-    if (!item.isRead) {
-      dispatch(markAsReadInStore(item.id));
-    }
+    dispatch(markAsReadInStore(item.id));
+    dispatch(fetchNotificationCounts());
   };
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
       <div className="max-w-[1280px] mx-auto px-4">
-        <nav className="hidden md:flex items-center text-sm text-gray-600 mb-6 font-medium">
+        <nav className="hidden md:flex items-center text-sm text-black mb-6 font-medium">
           <Link
             to="/"
             className="hover:text-black transition-colors cursor-pointer"
@@ -208,6 +199,7 @@ const NotificationPage = () => {
                     <span className="text-blue-600 font-bold text-[15px]">
                       {activeFilterData.label}
                     </span>
+
                     {activeFilterData.count > 0 && (
                       <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
                         {activeFilterData.count}
@@ -237,8 +229,9 @@ const NotificationPage = () => {
                         }`}
                       >
                         <span>{filter.label}</span>
+
                         {filter.count > 0 && (
-                          <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                          <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
                             {filter.count}
                           </span>
                         )}
@@ -257,12 +250,12 @@ const NotificationPage = () => {
                   >
                     กำลังโหลดข้อมูลการแจ้งเตือน...
                   </div>
-                ) : filteredNotifications.length > 0 ? (
-                  filteredNotifications.map((item) => (
+                ) : notifications.length > 0 ? (
+                  notifications.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => handleNotificationClick(item)}
-                      data-test={`notification-item-${item.id}`}
+                      data-test="notification-item"
                       className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
                         !item.isRead
                           ? "bg-[#EBF2FE] border-blue-100"
@@ -288,10 +281,17 @@ const NotificationPage = () => {
                   ))
                 ) : (
                   <div
-                    className="text-center py-12 text-gray-500 text-[15px] bg-gray-50 rounded-lg border border-gray-100"
+                    className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-100"
                     data-test="empty-state"
                   >
-                    ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                    <Icon
+                      icon="solar:bell-broken"
+                      className="w-16 h-16 text-black mb-4"
+                    />
+
+                    <p className="text-xl font-bold text-gray-800">
+                      ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                    </p>
                   </div>
                 )}
               </div>

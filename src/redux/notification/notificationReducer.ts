@@ -8,6 +8,7 @@ import type {
   Notification,
   NotificationRequest,
   FetchNotifyParams,
+  NotificationType,
 } from "../../types/notification";
 
 export const fetchOwnerNotify = createAsyncThunk(
@@ -19,8 +20,8 @@ export const fetchOwnerNotify = createAsyncThunk(
 
 export const fetchUserNotify = createAsyncThunk(
   "notification/fetchUser",
-  async () => {
-    return await NotificationService.getNotifyUser();
+  async (type: NotificationType = "ALL") => {
+    return await NotificationService.getNotifyUser(type);
   },
 );
 
@@ -39,13 +40,42 @@ export const deleteNotify = createAsyncThunk(
   },
 );
 
+export const fetchNotificationCounts = createAsyncThunk(
+  "notification/counts",
+  async () => {
+    const [all, ordered, refunded, store] = await Promise.all([
+      NotificationService.getNotifyUser("ALL"),
+      NotificationService.getNotifyUser("ORDERED"),
+      NotificationService.getNotifyUser("REFUNDED"),
+      NotificationService.getNotifyUser("STORE"),
+    ]);
+
+    return {
+      all,
+      ordered,
+      refunded,
+      store,
+    };
+  },
+);
+
 export interface ClientNotification extends Notification {
   isNew?: boolean;
   isRead?: boolean;
 }
 
+interface NotificationCount {
+  ALL: number;
+  ORDERED: number;
+  REFUNDED: number;
+  STORE: number;
+}
+
 interface NotificationState {
   items: ClientNotification[];
+
+  counts: NotificationCount; // <-- เพิ่ม
+
   isLoading: boolean;
   isSubmitting: boolean;
   totalPages: number;
@@ -54,6 +84,14 @@ interface NotificationState {
 
 const initialState: NotificationState = {
   items: [],
+
+  counts: {
+    ALL: 0,
+    ORDERED: 0,
+    REFUNDED: 0,
+    STORE: 0,
+  },
+
   isLoading: false,
   isSubmitting: false,
   totalPages: 0,
@@ -73,6 +111,12 @@ const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
+    clearNewNotifications: (state) => {
+      state.items = state.items.map((item) => ({
+        ...item,
+        isNew: false,
+      }));
+    },
     // รับข้อมูลจาก WebSocket
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
       const exists = state.items.some((item) => item.id === action.payload.id);
@@ -84,32 +128,6 @@ const notificationSlice = createSlice({
           isNew: true,
           isRead: readIds.includes(action.payload.id),
         });
-      }
-    },
-
-    // กดเปิดกระดิ่งแล้วให้เคลียร์ตัวเลข Badge ทั้งหมดทันที
-    clearUnreadBadge: (state) => {
-      const readIds = getSafeReadIds();
-
-      state.items = state.items.map((item) => {
-        if (!item.isRead && !readIds.includes(item.id)) {
-          readIds.push(item.id);
-        }
-        return {
-          ...item,
-          isNew: false,
-          isRead: true, // ปรับเป็นอ่านแล้วเพื่อลดจำนวน unreadCount ใน Navbar
-        };
-      });
-
-      // บันทึกก้อน ID ทั้งหมดกลับลงฐานข้อมูลจำลอง (localStorage)
-      try {
-        localStorage.setItem("read_notifications", JSON.stringify(readIds));
-      } catch (e) {
-        console.error(
-          "Failed to update clearUnreadBadge inside localStorage",
-          e,
-        );
       }
     },
 
@@ -137,6 +155,24 @@ const notificationSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+
+      .addCase(fetchNotificationCounts.fulfilled, (state, action) => {
+        const readIds = getSafeReadIds().map(String);
+
+        const countUnread = (list: Notification[]) =>
+          list.filter((item) => !readIds.includes(String(item.id))).length;
+
+        state.counts = {
+          ALL: countUnread(action.payload.all),
+
+          ORDERED: countUnread(action.payload.ordered),
+
+          REFUNDED: countUnread(action.payload.refunded),
+
+          STORE: countUnread(action.payload.store),
+        };
+      })
+
       // --- Fetch Owner Notify ---
       .addCase(fetchOwnerNotify.pending, (state) => {
         state.isLoading = true;
@@ -204,7 +240,7 @@ const notificationSlice = createSlice({
 
 export const {
   addNotificationFromSocket,
-  clearUnreadBadge,
+  clearNewNotifications,
   markAsReadInStore,
 } = notificationSlice.actions;
 export default notificationSlice.reducer;

@@ -10,7 +10,7 @@ import {
 } from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
-import Loading from "../../components/loading/Loading";
+// import Loading from "../../components/loading/Loading";
 import { Icon } from "@iconify/react";
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -145,7 +145,7 @@ const ProfilePage = () => {
     phone: "",
     image: "",
   });
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageUploadStep, setImageUploadStep] = useState<"upload" | "crop">(
     "upload",
@@ -162,7 +162,7 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     if (user) {
       setTempData({
         name: user.name,
@@ -171,7 +171,7 @@ const ProfilePage = () => {
         image: user.image_url || user.image || "",
       });
     }
-    setLoading(false);
+    // setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const ProfilePage = () => {
   );
 
   const handleSaveCrop = async () => {
-    const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
+    // const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
 
     try {
       if (rawImageSrc && croppedAreaPixels) {
@@ -262,11 +262,15 @@ const ProfilePage = () => {
         setImageUploadStep("upload");
         setZoom(1);
       }
-    } catch (e: any) {
-      console.error(e);
-      const errorMessage =
-        typeof e === "string" ? e : "เกิดข้อผิดพลาดในการบันทึกรูปภาพ";
-      toast.error(errorMessage, { id: toastId });
+    } catch (error: any) {
+      toast.error(
+        typeof error === "string"
+          ? error
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        {
+          duration: 1500,
+        },
+      );
     }
   };
 
@@ -356,7 +360,7 @@ const ProfilePage = () => {
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
   if (!user) return <Navigate to="/login" replace />;
 
   return (
@@ -403,7 +407,7 @@ const ProfilePage = () => {
           <ProfileSidebar />
 
           <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
-            <div className="hidden sm:block w-full mb-6 md:mb-8">
+            <div className="hidden sm:hidden md:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้

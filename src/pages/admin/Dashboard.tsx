@@ -88,11 +88,7 @@ const getReviewColor = (score: number) => {
 function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { store, dashData } = useSelector((state: RootState) => state.owner);
-  const isAdmin = Array.isArray(user?.roles)
-    ? user.roles.some((role: any) => role === "ADMIN" || role?.roleName === "ADMIN")
-    : false;
+  const { dashData } = useSelector((state: RootState) => state.owner);
 
   const [loading, setLoading] = useState(true);
 
@@ -117,6 +113,8 @@ function Dashboard() {
   if (loading || !dashData) {
     return <Loading />;
   }
+
+  console.log("DEBUG_DASH_DATA:", JSON.stringify(dashData));
 
   // --- Process Data ---
   
@@ -146,23 +144,30 @@ function Dashboard() {
     statusColor: getStatusColor(item.status)
   })) || [];
 
-  // 4. Regional Revenue (Calculate order percentage dynamically from dashData.regionalRevenue)
+  // 4. Regional Revenue
   const regionalRevenue = dashData.regionalRevenue || [];
-  const totalOrdersSum = regionalRevenue.reduce((sum: number, r: any) => sum + Number(r.totalOrders ?? 0), 0) || 0;
+  const totalRevenueSum = regionalRevenue.reduce((sum: number, r: any) => sum + Number(r.totalOrders ?? 0), 0) || 0;
+
+  const formatK = (val: number) => {
+    if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (val >= 1000) return (val / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return val.toLocaleString();
+  };
 
   const revenueByArea = regionalRevenue
     .filter((item: any) => item.geography)
     .map((item: any, idx: number) => {
-      const orders = Number(item.totalOrders ?? 0);
-      const percent = totalOrdersSum > 0 ? (orders / totalOrdersSum) * 100 : 0;
+      const revenueVal = Number(item.totalOrders ?? 0);
+      const percent = totalRevenueSum > 0 ? (revenueVal / totalRevenueSum) * 100 : 0;
       return {
         name: item.geography,
-        revenue: orders,
-        value: `${orders.toLocaleString()} ออเดอร์ (${percent.toFixed(2)}%)`,
+        revenue: revenueVal,
+        value: `฿${formatK(revenueVal)} (${percent.toFixed(2)}%)`,
         percent: percent,
         color: REGION_COLORS[idx % REGION_COLORS.length]
       };
-    }) || [];
+    })
+    .sort((a: any, b: any) => b.revenue - a.revenue) || [];
 
   // 5. Products
   const productsInStock = dashData.products?.map((item: any) => ({
@@ -200,16 +205,10 @@ function Dashboard() {
   });
 
   return (
-    <div className="flex flex-col h-full bg-white p-6 min-h-screen">
-      <div className="mb-6 hidden">
-        <HeaderAdmin title="Dashboard" subtitle="" />
-      </div>
-      <div className="mb-6">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">แดชบอร์ด</h1>
-        {store?.storeName && (
-          <p className="text-sm font-medium text-gray-500 mt-1">{store.storeName}</p>
-        )}
-      </div>
+    <div className="flex flex-col h-full bg-[#F9FAFB] min-h-screen">
+      <HeaderAdmin title="แดชบอร์ด" />
+      
+      <div className="p-4 sm:p-6 text-[#374151]">
 
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -282,7 +281,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">คำสั่งซื้อล่าสุด</h3>
-            <button onClick={() => navigate(isAdmin ? "/owner/orders" : "/moderator/orders")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
+            <button onClick={() => navigate("/orders-management")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-gray-700">
@@ -356,7 +355,7 @@ function Dashboard() {
 
           {/* Revenue by area */}
           <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100">
-            <h3 className="font-semibold text-gray-800 mb-4 text-center">สัดส่วนคำสั่งซื้อในพื้นที่</h3>
+            <h3 className="font-semibold text-gray-800 mb-4 text-center">รายได้ในแต่ละพื้นที่</h3>
             <div className="w-full h-48 rounded-lg mb-6 overflow-hidden border border-gray-200 z-0 relative">
               <MapContainer
                 center={[13.7563, 100.5018]}
@@ -411,7 +410,7 @@ function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-gray-100 lg:col-span-7">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-gray-800">สินค้าในสต็อก</h3>
-            <button onClick={() => navigate(isAdmin ? "/owner/stock" : "/moderator/stock")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
+            <button onClick={() => navigate("/stock")} className="text-sm text-gray-500 flex items-center hover:text-gray-700 transition-colors cursor-pointer border-none bg-transparent">ดูทั้งหมด <ChevronRight className="w-4 h-4 ml-1" /></button>
           </div>
           <table className="w-full text-left text-sm text-gray-700">
             <thead>
@@ -463,6 +462,7 @@ function Dashboard() {
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   );

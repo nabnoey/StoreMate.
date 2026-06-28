@@ -19,9 +19,13 @@ import {
   deleteProductReview,
 } from "../../../redux/reviews/reviewsReducer";
 import { toast } from "react-hot-toast";
-
-import { PaymentService } from "../../../services/payment.service";
 import type { Order } from "../../../types/orders";
+
+import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
+
+import WriteReviewModal from "../../../components/user/review/WriteReviewModal";
+import ViewReviewModal from "../../../components/user/review/ViewReviewModal";
+import EditReviewModal from "../../../components/user/review/EditReviewModal";
 
 const HistoryPage = () => {
   const navigate = useNavigate();
@@ -34,9 +38,9 @@ const HistoryPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
 
-  useEffect(() => {
-    console.log("ORDERS FROM REDUX", orders);
-  }, [orders]);
+  // useEffect(() => {
+  //   console.log("ORDERS FROM REDUX", orders);
+  // }, [orders]);
 
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
@@ -117,42 +121,19 @@ const HistoryPage = () => {
     }
   };
 
-  const handleBuyAgain = (order: any) => {
-    const firstItem = order.orderItems?.[0];
+  const handleBuyAgain = async (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation();
 
-    if (!firstItem) {
-      toast.error("ไม่พบข้อมูลสินค้าในคำสั่งซื้อนี้");
-      return;
-    }
-
-    const checkoutData = {
-      isBuyNow: true,
-      items: [
-        {
-          productId: firstItem.productId || firstItem.id,
-          cartItemId: null,
-          quantity: firstItem.quantity || 1,
-          price: firstItem.price,
-          totalPrice: firstItem.price * (firstItem.quantity || 1),
-          productName: firstItem.productName || firstItem.product?.productName,
-          imageUrl:
-            firstItem.imageUrl ||
-            firstItem.product?.productImages?.[0]?.imageUrl,
-          product: {
-            id: firstItem.productId || firstItem.id,
-            productName:
-              firstItem.productName || firstItem.product?.productName,
-            price: firstItem.price,
-            imageUrl:
-              firstItem.imageUrl ||
-              firstItem.product?.productImages?.[0]?.imageUrl,
-          },
+    try {
+      navigate("/payment", {
+        state: {
+          orderNo: order.orderNo,
+          isReOrder: true,
         },
-      ],
-      total: firstItem.price * (firstItem.quantity || 1),
-    };
-
-    navigate("/payment", { state: checkoutData });
+      });
+    } catch (error) {
+      toast.error("ไม่สามารถสั่งซื้อสินค้าอีกครั้งได้");
+    }
   };
 
   const launchReviewModalForItem = async (order: any, itemFromList: any) => {
@@ -381,9 +362,11 @@ const HistoryPage = () => {
     e.stopPropagation();
 
     try {
-      const response = await PaymentService.retryPayment({
-        orderNo: order.orderNo,
-      });
+      const response = await dispatch(
+        retryPaymentThunk({
+          orderNo: order.orderNo,
+        }),
+      ).unwrap();
 
       navigate("/payment-qr", {
         state: {
@@ -599,8 +582,7 @@ const HistoryPage = () => {
                               type="button"
                               data-test="btn-retry-orders"
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleBuyAgain(order);
+                                handleBuyAgain(e, order);
                               }}
                               className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                             >
@@ -690,15 +672,12 @@ const HistoryPage = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(
-                                  `/cancel-orders/${order.orderNo || `ORD-${order.id}`}`,
-                                  {
-                                    state: {
-                                      status: order.status,
-                                      paymentMethod: order.checkoutType,
-                                    },
+                                navigate(`/cancel-orders/${order.orderNo}`, {
+                                  state: {
+                                    status: order.status,
+                                    paymentMethod: order.checkoutType,
                                   },
-                                );
+                                });
                               }}
                               className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-blue-600 shadow-sm"
                             >
@@ -800,355 +779,35 @@ const HistoryPage = () => {
         </div>
       )}
 
-      {isReviewModalOpen && selectedItem && (
-        <div
-          data-test="modal-write-review"
-          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
-        >
-          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
-            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
-              <button
-                type="button"
-                data-test="btn-close-write-review-mobile"
-                onClick={() => setIsReviewModalOpen(false)}
-                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
-              >
-                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-              </button>
-              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
-                <span className="hidden sm:inline">รีวิว</span>
-                <span className="sm:hidden">เขียนรีวิว</span>
-              </h2>
-            </div>
+      <WriteReviewModal
+        open={isReviewModalOpen}
+        selectedItem={selectedItem}
+        reviewScore={reviewScore}
+        message={message}
+        onScoreChange={setReviewScore}
+        onMessageChange={setMessage}
+        onSubmit={handleReviewSubmit}
+        onClose={() => setIsReviewModalOpen(false)}
+      />
 
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-5 sm:gap-6 bg-white">
-              <div className="flex items-start gap-4">
-                <img
-                  src={selectedItem.imageUrl || ""}
-                  alt=""
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
-                />
-                <div className="flex flex-col">
-                  <p className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug">
-                    {selectedItem.productName}
-                  </p>
-                  <p className="text-[13px] text-gray-500 mt-1">
-                    จำนวน x {selectedItem.quantity}
-                  </p>
-                </div>
-              </div>
+      <ViewReviewModal
+        open={isViewReviewModalOpen}
+        review={activeReviewData}
+        onClose={() => setIsViewReviewModalOpen(false)}
+        onEdit={handleSwitchToEditReview}
+        onDelete={handleDeleteReview}
+      />
 
-              <hr className="hidden sm:block border-gray-100" />
-
-              <div className="bg-gray-50 sm:bg-transparent p-4 sm:p-0 rounded-xl sm:rounded-none flex flex-col gap-5 border border-gray-100 sm:border-none">
-                <h3 className="font-bold text-[15px] sm:hidden text-gray-900 -mb-2">
-                  รีวิว
-                </h3>
-                <div>
-                  <p className="text-[14px] font-medium text-gray-800 mb-2">
-                    คะแนนความพึงพอใจ
-                  </p>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        data-test={`btn-star-write-${star}`}
-                        onClick={() => setReviewScore(star)}
-                        className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
-                      >
-                        <Icon
-                          icon="material-symbols:star-rounded"
-                          className={`w-10 h-10 transition-colors ${
-                            star <= reviewScore
-                              ? "text-[#facc15]"
-                              : "text-gray-200"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-[14px] font-medium text-gray-800 mb-2">
-                    รายละเอียด
-                  </p>
-                  <textarea
-                    rows={4}
-                    value={message}
-                    data-test="input-write-review-message"
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg p-3 text-[14px] outline-none focus:border-[#2A4494] bg-white resize-none shadow-sm transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 sm:justify-end bg-white flex-shrink-0">
-              <button
-                type="button"
-                data-test="btn-submit-write-review"
-                onClick={handleReviewSubmit}
-                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
-              >
-                ส่ง
-              </button>
-              <button
-                type="button"
-                data-test="btn-cancel-write-review"
-                onClick={() => setIsReviewModalOpen(false)}
-                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isViewReviewModalOpen && activeReviewData && (
-        <div
-          data-test="modal-view-review"
-          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
-        >
-          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
-            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
-              <button
-                type="button"
-                data-test="btn-close-view-review-mobile"
-                onClick={() => setIsViewReviewModalOpen(false)}
-                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
-              >
-                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-              </button>
-              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
-                รีวิว
-              </h2>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col bg-white">
-              <div className="flex items-start gap-4 mb-6">
-                <img
-                  src={activeReviewData.imageUrl || ""}
-                  alt=""
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
-                />
-                <div className="flex-1 flex justify-between items-start">
-                  <h3 className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug pr-2">
-                    {activeReviewData.productName}
-                  </h3>
-                  <div className="hidden sm:flex gap-2 flex-shrink-0">
-                    <button
-                      type="button"
-                      data-test="btn-delete-review-desktop"
-                      onClick={handleDeleteReview}
-                      className="cursor-pointer px-4 py-1.5 border border-red-500 text-red-500 rounded-md text-[13px] font-medium hover:bg-red-50 transition"
-                    >
-                      ลบ
-                    </button>
-                    <button
-                      type="button"
-                      data-test="btn-edit-review-desktop"
-                      onClick={handleSwitchToEditReview}
-                      className="cursor-pointer px-4 py-1.5 border border-[#2A4494] text-[#2A4494] rounded-md text-[13px] font-medium hover:bg-blue-50 transition"
-                    >
-                      แก้ไข
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <p className="font-medium text-[14px] sm:text-[15px] text-gray-900">
-                      {activeReviewData.reviewerName}
-                    </p>
-                    <p className="text-[12px] sm:text-[13px] text-gray-500 mt-0.5">
-                      {activeReviewData.createdAt}
-                    </p>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Icon
-                        key={star}
-                        icon="material-symbols:star-rounded"
-                        className={`w-5 h-5 ${
-                          star <= activeReviewData.reviewScore
-                            ? "text-[#facc15]"
-                            : "text-gray-200"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p
-                  data-test="text-view-review-message"
-                  className="text-gray-800 text-[14px] leading-relaxed break-words bg-white sm:bg-transparent"
-                >
-                  {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 justify-end bg-white flex-shrink-0">
-              <div className="flex gap-3 w-full sm:hidden">
-                <button
-                  type="button"
-                  data-test="btn-edit-review-mobile"
-                  onClick={handleSwitchToEditReview}
-                  className="cursor-pointer flex-1 py-2.5 border border-[#2A4494] text-[#2A4494] font-medium rounded-lg text-[15px] hover:bg-blue-50 transition"
-                >
-                  แก้ไข
-                </button>
-                <button
-                  type="button"
-                  data-test="btn-delete-review-mobile"
-                  onClick={handleDeleteReview}
-                  className="cursor-pointer flex-1 py-2.5 border border-red-500 text-red-500 font-medium rounded-lg text-[15px] hover:bg-red-50 transition"
-                >
-                  ลบ
-                </button>
-              </div>
-              <button
-                type="button"
-                data-test="btn-close-view-review-desktop"
-                onClick={() => setIsViewReviewModalOpen(false)}
-                className="cursor-pointer hidden sm:block px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition"
-              >
-                ปิด
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isEditReviewModalOpen && activeReviewData && (
-        <div
-          data-test="modal-edit-review"
-          className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh] p-4 backdrop-blur-sm"
-        >
-          <div className="w-full max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col sm:max-w-xl overflow-hidden relative">
-            <div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b border-gray-100 flex-shrink-0 bg-white">
-              <button
-                type="button"
-                data-test="btn-close-edit-review-mobile"
-                onClick={() => setIsEditReviewModalOpen(false)}
-                className="sm:hidden text-gray-700 p-1 -ml-1 hover:bg-gray-100 rounded-full transition"
-              >
-                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
-              </button>
-              <h2 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
-                แก้ไขรีวิว
-              </h2>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-6 bg-white">
-              <div>
-                <div className="flex items-start gap-4 mb-4">
-                  <img
-                    src={activeReviewData.imageUrl || ""}
-                    alt=""
-                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-100"
-                  />
-                  <h3 className="font-semibold text-[14px] sm:text-[15px] text-gray-900 leading-snug">
-                    {activeReviewData.productName}
-                  </h3>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="font-medium text-gray-900 text-[14px] sm:text-[15px]">
-                        {activeReviewData.reviewerName}
-                      </p>
-                      <p className="text-[12px] sm:text-[13px] text-gray-500 mt-0.5">
-                        {activeReviewData.createdAt}
-                      </p>
-                    </div>
-                    <div className="flex gap-0.5 mt-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Icon
-                          key={star}
-                          icon="material-symbols:star-rounded"
-                          className={`w-5 h-5 ${
-                            star <= activeReviewData.reviewScore
-                              ? "text-[#facc15]"
-                              : "text-gray-200"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-gray-800 text-[14px] leading-relaxed break-words">
-                    {activeReviewData.message || "ไม่มีรายละเอียดความคิดเห็น"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-4 sm:p-5 rounded-xl flex flex-col gap-5 border border-gray-100">
-                <div>
-                  <p className="text-[14px] font-medium text-gray-800 mb-2">
-                    คะแนนความพึงพอใจ
-                  </p>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        data-test={`btn-star-edit-${star}`}
-                        onClick={() => setReviewScore(star)}
-                        className="focus:outline-none cursor-pointer transform active:scale-90 transition-transform"
-                      >
-                        <Icon
-                          icon="material-symbols:star-rounded"
-                          className={`w-10 h-10 transition-colors ${
-                            star <= reviewScore
-                              ? "text-[#facc15]"
-                              : "text-gray-200"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-[14px] font-medium text-gray-800 mb-2">
-                    รายละเอียด
-                  </p>
-                  <textarea
-                    rows={4}
-                    value={message}
-                    data-test="input-edit-review-message"
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg p-3 text-[14px] outline-none focus:border-[#2A4494] bg-white resize-none shadow-sm transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 sm:px-6 sm:py-4 border-t border-gray-100 flex gap-3 sm:justify-end bg-white flex-shrink-0">
-              <button
-                type="button"
-                data-test="btn-submit-edit-review"
-                onClick={handleEditReviewSubmit}
-                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 bg-[#2A4494] hover:bg-blue-800 text-white font-medium rounded-lg text-[15px] transition"
-              >
-                ส่ง
-              </button>
-              <button
-                type="button"
-                data-test="btn-cancel-edit-review"
-                onClick={() => setIsEditReviewModalOpen(false)}
-                className="cursor-pointer flex-1 sm:flex-none px-8 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-lg text-[15px] transition bg-white"
-              >
-                ยกเลิก
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditReviewModal
+        open={isEditReviewModalOpen}
+        review={activeReviewData}
+        reviewScore={reviewScore}
+        message={message}
+        onScoreChange={setReviewScore}
+        onMessageChange={setMessage}
+        onSubmit={handleEditReviewSubmit}
+        onClose={() => setIsEditReviewModalOpen(false)}
+      />
     </div>
   );
 };

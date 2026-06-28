@@ -14,13 +14,18 @@ import type {
   SavedCard,
   PaymentMethod,
 } from "../../../types/payment";
-
-import { PaymentService } from "../../../services/payment.service";
+import {
+  createPaymentIntentThunk,
+  paymentNowThunk,
+  reOrderPaymentThunk,
+} from "../../../redux/payment/paymentReducer";
 import { fetchAddressDefault } from "../../../redux/address/addressReducer";
 import {
   fetchCartThunk,
   setSelectedItems,
 } from "../../../redux/carts/CartReducer";
+
+import { fetchOrderDetails } from "../../../redux/orders/orderReducer";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -42,15 +47,31 @@ const PaymentContent = () => {
 
   const isBuyNow = location.state?.isBuyNow || false;
 
+  const isReOrder = location.state?.isReOrder === true;
+  const orderDetail = useSelector(
+    (state: RootState) => state.orders.orderDetail,
+  );
+
   const selectedItems = isBuyNow
     ? location.state?.items || []
-    : cartSelectedItems;
+    : isReOrder
+      ? orderDetail?.orderItems || []
+      : cartSelectedItems;
 
   const defaultAddress = useSelector(
     (state: RootState) =>
       state.address.defaultAddress || state.address.addresses[0],
   );
 
+  useEffect(() => {
+    const orderNo = location.state?.orderNo;
+
+    if (orderNo && !isBuyNow) {
+      dispatch(fetchOrderDetails(orderNo));
+    }
+  }, [dispatch, location.state, isBuyNow]);
+
+  // ที่อยู่
   useEffect(() => {
     dispatch(fetchAddressDefault());
 
@@ -71,6 +92,9 @@ const PaymentContent = () => {
       state: {
         cartItems: selectedItems,
         isBuyNow: isBuyNow,
+        // เพิ่มมาจาก reOrder
+        orderNo: location.state?.orderNo,
+        isReOrder,
       },
     });
   };
@@ -107,6 +131,15 @@ const PaymentContent = () => {
   };
 
   const executePaymentApi = async (checkoutType: PaymentMethod) => {
+    if (isReOrder) {
+      return await dispatch(
+        reOrderPaymentThunk({
+          orderNo: location.state.orderNo,
+          checkoutType,
+        }),
+      ).unwrap();
+    }
+
     if (isBuyNow) {
       const buyNowItem = selectedItems[0];
       const payload: PaymentNowPayload = {
@@ -115,7 +148,7 @@ const PaymentContent = () => {
         checkoutType,
         ...(checkoutType === "CARD" && { cardId: selectedCardId }),
       };
-      return await PaymentService.paymentNow(payload);
+      return await dispatch(paymentNowThunk(payload)).unwrap();
     }
 
     // กรณีไม่ได้กด Buy Now (ตะกร้าสินค้า)
@@ -125,12 +158,13 @@ const PaymentContent = () => {
       checkoutType,
       ...(checkoutType === "CARD" && { cardId: selectedCardId }),
     };
-    return await PaymentService.createPaymentIntent(payload);
+    return await dispatch(createPaymentIntentThunk(payload)).unwrap();
   };
 
   const handlePaymentSuccess = async (
     checkoutType: PaymentMethod,
     clientSecret: string,
+    response: any,
   ) => {
     if (checkoutType === "CARD") {
       if (!stripe) {
@@ -178,7 +212,11 @@ const PaymentContent = () => {
 
     if (checkoutType === "PROMPTPAY") {
       navigate("/payment-qr", {
-        state: { clientSecret, totalPrice: subtotal },
+        state: {
+          clientSecret,
+          totalPrice: subtotal,
+          orderNo: response.orderNo,
+        },
       });
       return;
     }
@@ -226,13 +264,18 @@ const PaymentContent = () => {
 
       // if (!isBuyNow) dispatch(fetchCartThunk());
 
-      await handlePaymentSuccess(currentCheckoutType, response.clientSecret);
+      await handlePaymentSuccess(
+        currentCheckoutType,
+        response.clientSecret,
+        response,
+      );
     } catch (error: any) {
       handlePaymentError(error);
     } finally {
       if (loadingToastId) toast.dismiss(loadingToastId);
     }
   };
+
   return (
     <div className="min-h-screen bg-white md:bg-white lg:bg-white pb-4 md:pb-0 font-anuphan flex flex-col items-center">
       {/* --- DESKTOP & TABLET BREADCRUMB --- */}
