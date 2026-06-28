@@ -263,22 +263,14 @@ const ProfilePage = () => {
         setZoom(1);
       }
     } catch (error: any) {
-      console.error(error);
-
-      let errorMessage =
+      toast.error(
         typeof error === "string"
           ? error
-          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
-
-      if (errorMessage === "อีเมลนี้มีผู้อื่นใช้งานแล้ว") {
-        errorMessage = "อีเมลนี้ถูกใช้งานแล้ว";
-      }
-
-      if (errorMessage === "เบอร์โทรศัพท์นี้มีผู้อื่นใช้งานแล้ว") {
-        errorMessage = "เบอร์โทรศัพท์นี้มีผู้ใช้แล้ว";
-      }
-
-      toast.error(errorMessage, { duration: 1500 });
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        {
+          duration: 1500,
+        },
+      );
     }
   };
 
@@ -415,7 +407,7 @@ const ProfilePage = () => {
           <ProfileSidebar />
 
           <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
-            <div className="hidden sm:block w-full mb-6 md:mb-8">
+            <div className="hidden sm:hidden md:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้

@@ -9,6 +9,7 @@ import {
   createNotify,
   deleteNotify,
 } from "../../redux/notification/notificationReducer";
+import HeaderAdmin from "../../components/admin/HeaderAdmin";
 
 interface NotificationFormData {
   subject: string;
@@ -28,8 +29,7 @@ const NotificationManagementPage: React.FC = () => {
 
   const keywordParam = searchParams.get("keyword") || "";
   const page = Number(searchParams.get("page") ?? 0);
-  const [searchInput, setSearchInput] = useState(keywordParam);
-  const [searchKeyword, setSearchKeyword] = useState(keywordParam);
+  const [searchKeyword] = useState(keywordParam);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<NotificationFormData>({
@@ -213,10 +213,6 @@ const NotificationManagementPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = () => {
-    setSearchKeyword(searchInput.trim());
-  };
-
   const updatePage = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
 
@@ -258,38 +254,14 @@ const NotificationManagementPage: React.FC = () => {
   return (
     <div className="flex h-screen bg-white font-anuphan">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
-          <h1 className="text-2xl font-bold text-gray-800">จัดการแจ้งเตือน</h1>
-          <p className="text-sm text-gray-500">
-            การแจ้งเตือนไปยังผู้ใช้งาน และลบการแจ้งเตือนที่ไม่ต้องการ
-          </p>
-        </header>
+        <HeaderAdmin
+          title="จัดการแจ้งเตือน"
+          subtitle="การแจ้งเตือนไปยังผู้ใช้งาน และลบการแจ้งเตือนที่ไม่ต้องการ"
+        />
 
         <div className="p-8 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div className="relative w-80">
-                <Icon
-                  icon="lucide:search"
-                  width="18"
-                  height="18"
-                  className="absolute left-3 top-2.5 text-gray-400"
-                />
-                <input
-                  data-test="input-search-notification"
-                  type="text"
-                  placeholder="ค้นหาหัวข้อการแจ้งเตือน"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSearch();
-                    }
-                  }}
-                />
-              </div>
-
+            <div className="flex justify-end items-end mb-6">
               {isOwner && (
                 <button
                   data-test="btn-open-create-modal"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -6,8 +6,8 @@ import type { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchUserNotify,
   markAsReadInStore,
-  clearUnreadBadge,
   type ClientNotification,
+  fetchNotificationCounts,
 } from "../../redux/notification/notificationReducer";
 import { Icon } from "@iconify/react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
@@ -30,6 +30,8 @@ const NotificationPage = () => {
     (state: RootState) => state.notification.isLoading,
   );
 
+  const counts = useSelector((state: RootState) => state.notification.counts);
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -37,11 +39,12 @@ const NotificationPage = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchUserNotify(activeFilter));
-      dispatch(clearUnreadBadge());
-    }
-  }, [dispatch, isAuthenticated, activeFilter]);
+    dispatch(fetchNotificationCounts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchUserNotify(activeFilter));
+  }, [dispatch, activeFilter]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,39 +59,53 @@ const NotificationPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const notifications = useMemo(() => {
-    return [...rawNotifications].sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+  const notifications = [...rawNotifications].sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
 
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
 
-      return dateB - dateA;
-    });
-  }, [rawNotifications]);
+    return dateB - dateA;
+  });
 
   const filters: {
     id: NotificationType;
     label: string;
+    count: number;
   }[] = [
-    { id: "ALL", label: "ทั้งหมด" },
-    { id: "ORDERED", label: "คำสั่งซื้อ" },
-    { id: "REFUNDED", label: "คำขอคืนเงิน" },
-    { id: "STORE", label: "ร้านค้า" },
+    {
+      id: "ALL",
+      label: "ทั้งหมด",
+      count: counts.ALL,
+    },
+    {
+      id: "ORDERED",
+      label: "คำสั่งซื้อ",
+      count: counts.ORDERED,
+    },
+    {
+      id: "REFUNDED",
+      label: "คำขอคืนเงิน",
+      count: counts.REFUNDED,
+    },
+    {
+      id: "STORE",
+      label: "ร้านค้า",
+      count: counts.STORE,
+    },
   ];
 
   const activeFilterData =
     filters.find((f) => f.id === activeFilter) || filters[0];
 
   const handleNotificationClick = (item: ClientNotification) => {
-    if (!item.isRead) {
-      dispatch(markAsReadInStore(item.id));
-    }
+    dispatch(markAsReadInStore(item.id));
+    dispatch(fetchNotificationCounts());
   };
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
       <div className="max-w-[1280px] mx-auto px-4">
-        <nav className="hidden md:flex items-center text-sm text-gray-600 mb-6 font-medium">
+        <nav className="hidden md:flex items-center text-sm text-black mb-6 font-medium">
           <Link
             to="/"
             className="hover:text-black transition-colors cursor-pointer"
@@ -159,7 +176,11 @@ const NotificationPage = () => {
                     }`}
                   >
                     <span>{filter.label}</span>
-                    <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center"></span>
+                    {filter.count > 0 && (
+                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
+                        {filter.count}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -179,7 +200,11 @@ const NotificationPage = () => {
                       {activeFilterData.label}
                     </span>
 
-                    <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                    {activeFilterData.count > 0 && (
+                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                        {activeFilterData.count}
+                      </span>
+                    )}
                   </div>
                   <Icon
                     icon="ic:baseline-menu"
@@ -205,7 +230,11 @@ const NotificationPage = () => {
                       >
                         <span>{filter.label}</span>
 
-                        <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full"></span>
+                        {filter.count > 0 && (
+                          <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
+                            {filter.count}
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -252,10 +281,17 @@ const NotificationPage = () => {
                   ))
                 ) : (
                   <div
-                    className="text-center py-12 text-gray-500 text-[15px] bg-gray-50 rounded-lg border border-gray-100"
+                    className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-100"
                     data-test="empty-state"
                   >
-                    ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                    <Icon
+                      icon="solar:bell-broken"
+                      className="w-16 h-16 text-black mb-4"
+                    />
+
+                    <p className="text-xl font-bold text-gray-800">
+                      ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                    </p>
                   </div>
                 )}
               </div>

@@ -71,8 +71,7 @@ const AddCreditCardFormInner = () => {
             newlyAddedCard: paymentMethod,
 
             orderNo: location.state?.orderNo,
-            paymentIntentId: location.state?.paymentIntentId,
-            clientSecret: location.state?.clientSecret,
+            isReOrder: location.state?.isReOrder,
           },
         });
       }

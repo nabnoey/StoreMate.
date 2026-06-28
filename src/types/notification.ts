@@ -4,6 +4,8 @@ export interface Notification {
   message: string;
   sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
   createdAt: string;
+
+  type: NotificationType;
 }
 
 export interface NotificationRequest {
