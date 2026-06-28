@@ -9,7 +9,7 @@ interface ModeratorState {
   orderToPrint: OrderMod[];
   products: ProductMod[];
   loading: boolean;
-  error: string | null;
+  // error: string | null;
   totalPages: number;
 }
 
@@ -18,7 +18,7 @@ const initialState: ModeratorState = {
   orderToPrint: [],
   products: [],
   loading: false,
-  error: null,
+  // error: null,
   totalPages: 0,
 };
 
@@ -39,10 +39,10 @@ export const shippingOrder = createAsyncThunk<OrderMod[], number[]>(
 );
 
 
-export const getoOrderByOrderNo = createAsyncThunk(
-  "moderator/getoOrderByOrderNo",
+export const getOrderByOrderNo = createAsyncThunk(
+  "moderator/getOrderByOrderNo",
   async (orderNo: string) => {
-    const res = await ModeratorService.getoOrderByOrderNo(orderNo);
+    const res = await ModeratorService.getOrderByOrderNo(orderNo);
     return res;
   },
 );
@@ -97,41 +97,41 @@ const moderatorSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchAllOrders.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
+            // .addCase(fetchAllOrders.pending, (state) => {
+            //     state.loading = true;
+            //     state.error = null;
+            // })
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
                 state.orders = action.payload.content;
                 state.totalPages = action.payload?.totalPages 
                 
             })
-            .addCase(fetchAllOrders.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-            })
+            // .addCase(fetchAllOrders.rejected, (state, action) => {
+            //     state.loading = false;
+            //     state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+            // })
           
             .addCase(shippingOrder.fulfilled, (state, action) => {
                 state.orders = state.orders.map(order => 
         action.payload.find(o => o.id === order.id) ?? order
     );
-                state.loading = false;
+                // state.loading = false;
             })
 
-            .addCase(shippingOrder.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
-            })
+            // .addCase(shippingOrder.rejected, (state, action) => {
+            //     state.loading = false;
+            //     state.error = action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
+            // })
 
-            .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
+            .addCase(getOrderByOrderNo.fulfilled, (state, action) => {
                 state.orderToPrint = [action.payload];
             })
             .addCase(changeStatus.fulfilled, (state, action) => {
                 state.orders = state.orders.map(order =>
                     order.orderNo === action.payload.orderNo ? { ...order, ...action.payload } : order
                 );
-                state.loading = false;
+                // state.loading = false;
             })
   
 .addCase(addProduct.fulfilled, (state, action) => {

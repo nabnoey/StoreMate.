@@ -5,15 +5,15 @@ import type { Order, OrderStatus } from "../../types/orders";
 interface OrdersState {
   orders: Order[];
   orderDetail: Order | null;
-  loading: boolean;
-  error: string | null;
+  // loading: boolean;
+  // error: string | null;
 }
 
 const initialState: OrdersState = {
   orders: [],
   orderDetail: null,
-  loading: false,
-  error: null,
+  // loading: false,
+  // error: null,
 };
 
 export const fetchOrders = createAsyncThunk(
@@ -39,34 +39,15 @@ const ordersSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      .addCase(fetchOrders.pending, (state) => {
-        state.loading = true;
-        state.orders = [];
-        state.error = null;
-      })
+  
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.orders = action.payload;
-        state.loading = false;
       })
-      .addCase(fetchOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "เกิดข้อผิดพลาด";
-      })
+     
 
-      .addCase(fetchOrderDetails.pending, (state) => {
-        state.loading = true;
-        state.orderDetail = null;
-        state.error = null;
-      })
       .addCase(fetchOrderDetails.fulfilled, (state, action) => {
         state.orderDetail = action.payload;
-        state.loading = false;
       })
-      .addCase(fetchOrderDetails.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.error.message || "เกิดข้อผิดพลาดในการโหลดรายละเอียด";
-      });
   },
 });
 

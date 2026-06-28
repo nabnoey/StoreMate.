@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { changeStatus, getoOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
+import { changeStatus, getOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -99,17 +99,12 @@ function OrderDetail() {
 
   useEffect(() => {
     if (orderNo && orderNo !== "undefined") {
-      dispatch(getoOrderByOrderNo(orderNo));
+      dispatch(getOrderByOrderNo(orderNo));
     } else {
       console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
     }
   }, [orderNo, dispatch]);
 
-  // useEffect(() => {
-  //   if (order?.status) {
-  //     setSelectedStatus(order.status);
-  //   }
-  // }, [order?.status]);
 
   if (loading) {
     return (
