@@ -133,13 +133,6 @@ const CancelOrderPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/orders" className="transition-colors hover:text-blue-500">
-            สถานะคำสั่งซื้อ
-          </Link>
-          <Icon
-            icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1 text-black"
-          />
           <span className="transition-colors">ขอคืนเงิน/ยกเลิกสินค้า</span>
         </nav>
       </div>
@@ -155,12 +148,12 @@ const CancelOrderPage = () => {
             >
               <Icon
                 icon="lucide:arrow-left"
-                className="w-6 h-6 mt-1 cursor-pointer text-black hover:text-[#4285F4] transition-colors"
+                className="w-6 h-6 mt-1 cursor-pointer text-black transition-colors"
               />
             </button>
             <div>
               <h1 className="text-[18px] md:text-[20px] font-bold text-[#0F172A]">
-                ยกเลิกคำสั่งซื้อ
+                ยกเลิกคำสั่งซื้อ / ขอคืนเงิน
               </h1>
               <p className="text-[13px] md:text-sm text-[#64748B]">
                 ระบุรายละเอียดเพื่อแจ้งความประสงค์
