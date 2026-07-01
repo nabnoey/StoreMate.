@@ -141,12 +141,6 @@ function UserManagement() {
     },
   });
 
-  // ─── Derived values ───
-  // totalDisplayPages will be computed after filtering
-
-  // ─── Stable ref สำหรับ setSearchParams ───
-  // const setSearchParamsRef = useRef(setSearchParams);
-  // setSearchParamsRef.current = setSearchParams;
 
   const setSearchParamsRef = useRef(setSearchParams);
 
@@ -316,7 +310,7 @@ useEffect(() => {
             <div className="flex gap-4 w-full md:w-auto">
               <div className="w-1/2 md:w-40">
                 <label className="block text-xs text-gray-500 mb-1.5">
-                  กรองโดยบทบาท
+                  ทั้งหมด
                 </label>
                 <select
                   data-test="role-filter"
@@ -336,7 +330,7 @@ useEffect(() => {
 
               <div className="w-1/2 md:w-40">
                 <label className="block text-xs text-gray-500 mb-1.5">
-                  กรองโดยสถานะ
+                  ทั้งหมด
                 </label>
                 <select
                   data-test="status-filter"

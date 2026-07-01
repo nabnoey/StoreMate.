@@ -172,14 +172,24 @@ const moderatorSlice = createSlice({
   );
 })
 
+            // .addCase(getproducts.fulfilled, (state, action) => {
+            //     const items = action.payload?.data?.data 
+            //     console.log("payload:", action.payload);
+            //     if (Array.isArray(items)) {
+            //       state.products = items;
+            //       state.totalPages = action.payload.data.totalPages;
+            //     }
+            // })
+
             .addCase(getproducts.fulfilled, (state, action) => {
-                const items = action.payload?.data?.data 
-                console.log("payload:", action.payload);
-                if (Array.isArray(items)) {
-                  state.products = items;
-                  state.totalPages = action.payload.data.totalPages;
-                }
-            })
+        // ตรวจสอบโครงสร้างข้อมูลที่ส่งกลับมาจาก API (สมมติว่าเป็น action.payload.data.data)
+        const items = action.payload?.data?.data; 
+        if (Array.isArray(items)) {
+          state.products = items;
+          // ตรวจสอบพาธของ totalPages ให้ตรงกับโครงสร้าง Backend (เช่น data.totalPages หรือ data.meta.totalPages)
+          state.totalPages = action.payload?.data?.total || 0; 
+        }
+      });
             }
 
             

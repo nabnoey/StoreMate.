@@ -100,8 +100,6 @@ function OrderDetail() {
   useEffect(() => {
     if (orderNo && orderNo !== "undefined") {
       dispatch(getOrderByOrderNo(orderNo));
-    } else {
-      console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
     }
   }, [orderNo, dispatch]);
 
@@ -171,9 +169,6 @@ const handleUpdateStatus = async () => {
     zipcode: recipient.zipcode || "",
   };
 
-  const orderTime = order.createdAt
-    ? new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' }) + " น."
-    : "";
 
   const steps = [
     { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
@@ -337,25 +332,64 @@ const handleUpdateStatus = async () => {
               </div>
             </div>
 
-            {/* History */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
-                <FaHistory className="text-lg" /> ประวัติการเปลี่ยนแปลง
-              </h3>
 
-              <div className="relative border-l-2 border-gray-100 ml-3 space-y-6">
-                <div className="relative pl-6">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100"></div>
-                  <p className="font-bold text-sm text-gray-800">
-                    สถานะปัจจุบัน: {STATUS_LABELS[order.status] || order.status}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    อัพเดท วันนี้ , {orderTime} โดย ระบบ
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* History */}
+<div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+<h3 className="flex items-center gap-2 font-bold text-gray-800 mb-6">
+
+<FaHistory className="text-lg" /> ประวัติการเปลี่ยนแปลง
+
+</h3>
+
+<div className="relative border-l-2 border-gray-100 ml-3 space-y-6">
+
+{order.orderStatusHistory?.length ? (
+
+order.orderStatusHistory.map((history, index) => (
+
+<div key={index} className="relative pl-6">
+
+<div className="absolute -left-[5px] top-1.5 w-2 h-2 bg-green-500 rounded-full ring-4 ring-green-100" />
+
+<p className="font-bold text-sm text-gray-800">
+
+{STATUS_LABELS[history.status] || history.status}
+
+</p>
+
+<p className="text-xs text-gray-400 mt-1">
+
+{new Date(history.updatedAt).toLocaleString("th-TH", {
+
+dateStyle: "short",
+
+timeStyle: "short"
+
+})}
+
+{" "}โดย {history.updatedBy}
+
+</p>
+
+</div>
+
+))
+
+) : (
+
+<p className="text-sm text-gray-400">
+
+ไม่มีประวัติการเปลี่ยนแปลง
+
+</p>
+
+)}
+
+</div>
+
+</div>
+</div>
 
           {/* Sidebar / ข้อมูลผู้รับ */}
           <div className="lg:col-span-1">

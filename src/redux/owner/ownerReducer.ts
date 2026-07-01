@@ -8,7 +8,6 @@ import type {
   GetUserManagementParams,
   UserManagementResponse,
 } from "../../types/owner";
-import { parseThaiAddress } from "../../utils/address";
 
 const ROLE_PRIORITY: Record<string, number> = {
   OWNER: 0,
@@ -126,7 +125,7 @@ const ownerSlice = createSlice({
 
       // GET STORE
       .addCase(getStore.fulfilled, (state, action) => {
-        state.store = parseThaiAddress(action.payload);
+        state.store = action.payload;
       })
 
       // SUSPEND USER

@@ -18,6 +18,9 @@ const categoryMap: Record<string | number, string> = {
 
 function Stock() {
 const products = useSelector((state: RootState) => state.moderator.products);
+const totalPages = useSelector(
+  (state: RootState) => state.moderator.totalPages
+);
 const [searchParams, setSearchParams] = useSearchParams();
 const [searchTerm, setSearchTerm] = useState(searchParams.get("keyword") || "");
 const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get("keyword") || "");
@@ -32,27 +35,19 @@ const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get(
   const [selectedProduct, setSelectedProduct] = useState<ProductMod | null>(null);
 
 
+// useEffect(() => {
+//   dispatch(getproducts({ page: 0 , size: 1000 }));
+// }, [dispatch]);
+
 useEffect(() => {
-  dispatch(getproducts({ page: 0 , size: 1000 }));
-}, [dispatch]);
-
-const filteredProducts = products.filter(p => {
-  // กรองสินค้าที่ถูกลบออก (DELETED) จากหน้ารายการสินค้า
-  const currentStatus =  p.status;
-  if (currentStatus === "DELETED") return false;
-
-  if (!submittedSearchTerm) return true;
-  const term = submittedSearchTerm.toLowerCase();
-  const idStr = String(p.id);
-  const prdStr = `prd-${String(p.id).padStart(3, '0')}`;
-  return (
-    p.productName.toLowerCase().includes(term) ||
-    idStr.includes(term) ||
-    prdStr.includes(term)
+  dispatch(
+    getproducts({
+      page: currentPage - 1,
+      size: PAGE_SIZE,
+      keyword: submittedSearchTerm,
+    })
   );
-});
-
-const localTotalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+}, [dispatch, currentPage, submittedSearchTerm]);
 
 useEffect(() => {
   const params: Record<string, string> = {
@@ -66,15 +61,15 @@ useEffect(() => {
 }, [currentPage, setSearchParams, submittedSearchTerm]);
 
 useEffect(() => {
-  if (currentPage > localTotalPages && localTotalPages > 0) {
+  if (currentPage > totalPages && totalPages > 0) {
     // setCurrentPage(localTotalPages);
   }
-}, [currentPage, localTotalPages]);
+}, [currentPage, totalPages]);
 
-const currentItems = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+const currentItems = products;
 
 const handlePageChange = (pageNumber: number) => {
-  if (pageNumber >= 1 && pageNumber <= localTotalPages) {
+  if (pageNumber >= 1 && pageNumber <= totalPages) {
     setCurrentPage(pageNumber);
   }
 };
@@ -86,8 +81,8 @@ const maxVisiblePages = 5;
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
 
-    if (end > localTotalPages) {
-      end = localTotalPages;
+    if (end > totalPages) {
+      end = totalPages;
       start = Math.max(1, end - maxVisiblePages + 1);
     }
 
@@ -181,7 +176,7 @@ const maxVisiblePages = 5;
                       type="button"
                       className="text-gray-500 cursor-pointer bg-transparent border-none p-0 text-left "
                     >
-                      {`PRD-${String(product.id).padStart(3, '0')}`}
+                      {product.productNo}
                     </button>
                   </td>
                   <td className="py-4 pl-5 max-w-[350px] break-words line-clamp-2">{product.productName}</td>
@@ -252,10 +247,10 @@ const maxVisiblePages = 5;
 
               <button
                 type="button"
-                disabled={currentPage === localTotalPages || localTotalPages === 0}
+                disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
-                  currentPage === localTotalPages || localTotalPages === 0
+                  currentPage === totalPages || totalPages === 0
                     ? "text-gray-300 cursor-not-allowed border-gray-200"
                     : "text-gray-600 hover:bg-gray-50"
                 }`}

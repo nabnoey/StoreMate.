@@ -53,7 +53,7 @@ function Orders() {
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
-  const totalPages = useSelector((state: RootState) => state.moderator.totalPages);
+  const totalPages = useSelector((state: RootState) => state.moderator.totalPages) || 0;
 
   const PAGE_SIZE = 10;
   const TIME_FILTER_MAP: Record<string, string> = {
@@ -79,7 +79,6 @@ function Orders() {
       })
     );
 
-  
     const params: Record<string, string> = { 
       page: String(currentPage - 1), 
       size: String(PAGE_SIZE) 
@@ -158,25 +157,19 @@ function Orders() {
     }
   };
 
+  // ✨ สร้าง Logic คำนวณ visiblePages สำหรับ Pagination (แสดงสูงสุด 5 หน้า)
   const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-  const getVisiblePages = () => {
-    let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let end = start + maxVisiblePages - 1;
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
 
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, end - maxVisiblePages + 1);
-    }
-
-    const pages = [];
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
-
-  const visiblePages = getVisiblePages();
+  const visiblePages = Array.from(
+    { length: Math.max(0, endPage - startPage + 1) },
+    (_, i) => startPage + i
+  );
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full">
@@ -242,100 +235,98 @@ function Orders() {
                   />
 
                  <div 
-  className={`
-    relative text-sm font-['Anuphan'] cursor-pointer
-    ${startDate && endDate ? "w-full" : "w-[140px]"}
-  `}
->
-  <input
-    type="text"
-    data-test="select-date"
-    readOnly
-    placeholder="เลือกช่วงเวลา"
-    value={
-      startDate && endDate
-        ? `${format(startDate, "dd/MM/yyyy")} - ${format(
-            endDate,
-            "dd/MM/yyyy"
-          )}`
-        : ""
-    }
-   onClick={() => {
-     setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
-   }}
-    className={`
-    relative border border-gray-300 rounded px-3 py-2 text-sm 
-    focus:outline-none focus:ring-1 focus:ring-blue-500 
-    ${startDate && endDate ? "w-full" : "w-[140px]"}
-    text-gray-700 bg-white cursor-pointer
-  `}
-    
-    
-  />
+                  className={`
+                    relative text-sm font-['Anuphan'] cursor-pointer
+                    ${startDate && endDate ? "w-full" : "w-[140px]"}
+                  `}
+                >
+                  <input
+                    type="text"
+                    data-test="select-date"
+                    readOnly
+                    placeholder="เลือกช่วงเวลา"
+                    value={
+                      startDate && endDate
+                        ? `${format(startDate, "dd/MM/yyyy")} - ${format(
+                            endDate,
+                            "dd/MM/yyyy"
+                          )}`
+                        : ""
+                    }
+                   onClick={() => {
+                     setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
+                   }}
+                    className={`
+                    relative border border-gray-300 rounded px-3 py-2 text-sm 
+                    focus:outline-none focus:ring-1 focus:ring-blue-500 
+                    ${startDate && endDate ? "w-full" : "w-[140px]"}
+                    text-gray-700 bg-white cursor-pointer
+                  `}
+                  />
 
-    <CiCalendar 
-    className="
-      absolute
-      right-3
-      top-1/2
-      -translate-y-1/2
-      text-gray-500
-      pointer-events-none
-    "
-    size={18}
-  />
+                    <CiCalendar 
+                    className="
+                      absolute
+                      right-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-gray-500
+                      pointer-events-none
+                    "
+                    size={18}
+                  />
 
-  {isDatePickerOpen && (
-    <div
-      className="
-        absolute left-0 mt-2 z-50
-        bg-white border border-gray-200
-        shadow-xl rounded-2xl p-4
-      "
-    >
-      <DatePicker
-        selected={startDate}
-        onChange={(dates) => {
-          const [start, end] = dates as [Date | null, Date | null];
+                  {isDatePickerOpen && (
+                    <div
+                      className="
+                        absolute left-0 mt-2 z-50
+                        bg-white border border-gray-200
+                        shadow-xl rounded-2xl p-4
+                      "
+                    >
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(dates) => {
+                          const [start, end] = dates as [Date | null, Date | null];
 
-          setStartDate(start);
-          setEndDate(end);
-        }}
-        startDate={startDate}
-        endDate={endDate}
-        selectsRange
-        inline
-        monthsShown={2}
-        minDate={startDate || undefined}
-      />
+                          setStartDate(start);
+                          setEndDate(end);
+                        }}
+                        startDate={startDate}
+                        endDate={endDate}
+                        selectsRange
+                        inline
+                        monthsShown={2}
+                        minDate={startDate || undefined}
+                      />
 
-      <div className="flex justify-end gap-3 mt-4">
-        <button
-          type="button"
-          onClick={() => {
-            setStartDate(null);
-            setEndDate(null);
-            setCurrentPage(1); // รีเซ็ตหน้ากลับไปหน้าแรกด้วย
-          }}
-          className="px-4 py-2 border rounded-lg cursor-pointer"
-        >
-          ล้างค่า
-        </button>
+                      <div className="flex justify-end gap-3 mt-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartDate(null);
+                            setEndDate(null);
+                            setCurrentPage(1); // รีเซ็ตหน้ากลับไปหน้าแรกด้วย
+                          }}
+                          className="px-4 py-2 border rounded-lg cursor-pointer"
+                        >
+                          ล้างค่า
+                        </button>
 
-        <button
-          type="button"
-          onClick={() => {
-            setIsDatePickerOpen(false);
-            setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
-        >
-          บันทึก
-        </button>
-      </div>
-    </div>
-  )}
-</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDatePickerOpen(false);
+                            setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
+                        >
+                          บันทึก
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 </div>
 
