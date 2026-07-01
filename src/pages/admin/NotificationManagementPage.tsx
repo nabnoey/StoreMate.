@@ -338,10 +338,10 @@ const NotificationManagementPage: React.FC = () => {
                           {isOwner && (
                             <td className="py-4 text-right">
                               <button
-                                data-test={`btn-open-delete-${noti.id}`}
+                                data-test="btn-open-delete"
                                 onClick={() => handleDelete(noti.id)}
                                 title="ลบการแจ้งเตือน"
-                                className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-500 hover:bg-red-50 hover:border-red-200 transition-colors"
+                                className="cursor-pointer flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-50 transition-colors"
                               >
                                 ลบ
                               </button>
