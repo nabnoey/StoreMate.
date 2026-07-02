@@ -121,6 +121,7 @@ const HistoryPage = () => {
     }
   };
 
+  // ซื้ออีกครั้ง
   const handleBuyAgain = async (e: React.MouseEvent, order: Order) => {
     e.stopPropagation();
 
@@ -416,7 +417,6 @@ const HistoryPage = () => {
 
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           <div className="hidden lg:block w-full lg:w-64 flex-shrink-0">
-            {" "}
             <ProfileSidebar />
           </div>
 
@@ -457,6 +457,12 @@ const HistoryPage = () => {
                         sum + (item?.price || 0) * (item?.quantity || 0),
                       0,
                     );
+
+                  const isRefundRequested =
+                    order.status === "PROCESSING" &&
+                    (order.checkoutType === "PROMPTPAY" ||
+                      order.checkoutType === "CARD") &&
+                    !!order.reason;
 
                   const reviewedItems =
                     order.orderItems?.filter((item: any) => item.is_review) ||
@@ -643,7 +649,8 @@ const HistoryPage = () => {
                             )}
                           </div>
                         ) : order.status === "CANCELLED" ||
-                          order.status === "REFUNDED" ? (
+                          order.status === "REFUNDED" ||
+                          isRefundRequested ? (
                           <div className="mt-3 flex flex-col items-start w-full px-1">
                             <p className="text-gray-600 text-[14px] sm:text-[16px]">
                               <span className="font-medium text-black">
@@ -653,7 +660,8 @@ const HistoryPage = () => {
                             </p>
                           </div>
                         ) : order.status === "PENDING" ||
-                          order.status === "PROCESSING" ? (
+                          (order.status === "PROCESSING" &&
+                            !isRefundRequested) ? (
                           <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
                             {order.status === "PENDING" && (
                               <button
