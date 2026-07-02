@@ -57,6 +57,14 @@ export const getSalesAnalytics = createAsyncThunk(
   }
 );
 
+export const importSalesData = createAsyncThunk(
+  "owner/importSalesData",
+  async (file: File) => {
+    const res = await DashboardService.importSalesData(file);
+    return res?.data || res;
+  }
+);
+
 export const updateUserRole = createAsyncThunk(
   "owner/updateUserRole",
   async ({ userId, roleName }: { userId: number; roleName: UserRole }) => {
