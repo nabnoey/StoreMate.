@@ -43,6 +43,7 @@ const AddressProfile = () => {
 
   useEffect(() => {
     dispatch(fetchAllAddresses());
+
   }, [dispatch]);
 
   const handleInputChange = (
@@ -64,7 +65,7 @@ const AddressProfile = () => {
 
     // จังหวัด
     const provinceRes = await dispatch(
-      addressDropdown({ provinceId: 0, districtId: 0, subdistrictId: 0 }),
+      addressDropdown({ }),
     ).unwrap();
 
     const province =
@@ -150,8 +151,9 @@ const AddressProfile = () => {
     return response?.data || [];
   };
 
-  const openAddModal = () => {
+const openAddModal = async () => {
     setIsEditMode(false);
+
     setFormData({
       streetAddress: "",
       subDistrict: 0,
@@ -160,8 +162,20 @@ const AddressProfile = () => {
       zipcode: "",
       zipcodeId: 0,
     });
+
+    // ดึงข้อมูลจังหวัดตอนกดปุ่ม
+    await dispatch(
+      addressDropdown({
+        provinceId: 0,
+        districtId: 0,
+        subdistrictId: 0,
+      })
+    );
+
     setIsModalOpen(true);
   };
+
+
 
   const handleProvinceChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -205,10 +219,7 @@ const AddressProfile = () => {
         
         return { zipcode: zip, zipcodeId: zipId };
       }
-      // if (!province || !district || !subDistrict) {
-      
-      //   return { zipcode: "", zipcodeId: 0 };
-      // }
+    
 
       const zipResRaw = await dispatch(
         addressDropdown({

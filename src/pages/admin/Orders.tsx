@@ -455,7 +455,7 @@ function Orders() {
       onClick={() => handleSelectOrder(String(order.orderNo))}
       className="text-blue-600 hover:underline font-medium cursor-pointer"
     >
-      {isSelected ? "ยกเลิก" : "เลือก"}
+      {/* {isSelected ? "ยกเลิก" : "เลือก"} */}
     </button>
   ) : (
     <button

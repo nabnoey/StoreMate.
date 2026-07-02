@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { AddressState, Address, CreateAddressRequest } from "../../types/address";
+import type { AddressState, Address } from "../../types/address";
 
 const initialState: AddressState = {
   addresses: [],
@@ -8,15 +8,19 @@ const initialState: AddressState = {
   provinces: [],
   districts: [],
   subdistricts: [],
-  // zipcodeId: [],
+  zipcodeId: [],
 };
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
-  async (data: CreateAddressRequest ) => {
+  async (data: Partial<Address> ) => {
     const response = await UserService.addAddress(data);
     return response;
+
+    
   },
+
+  
 );
 
 export const fetchAllAddresses = createAsyncThunk(
@@ -76,9 +80,9 @@ export const addressDropdown = createAsyncThunk(
     districtId,
     subdistrictId,
   }: {
-    provinceId: number;
-    districtId: number;
-    subdistrictId: number;
+    provinceId?: number;
+    districtId?: number;
+    subdistrictId?: number;
   }) => {
     const response = await UserService.addressDropdown(
       provinceId,
@@ -86,7 +90,9 @@ export const addressDropdown = createAsyncThunk(
       subdistrictId,
     );
     return response;
+    
   },
+  
 );
 
 const addressSlice = createSlice({
@@ -149,32 +155,34 @@ const addressSlice = createSlice({
       state.defaultAddress = action.payload;
     });
 
-    builder.addCase(addressDropdown.fulfilled, (state, action) => {
-      const raw = action.payload;
-      const data = Array.isArray(raw) ? raw : raw.data;
+   builder.addCase(addressDropdown.fulfilled, (state, action) => {
+    
+  const raw = action.payload;
+  console.log("API Response:", raw);
+  const data = Array.isArray(raw) ? raw : raw.data;
 
-      const { provinceId, districtId, subdistrictId } = action.meta.arg;
+  const { provinceId, districtId, subdistrictId } = action.meta.arg;
 
-      if (Array.isArray(data)) {
-        if (!provinceId || provinceId === 0) {
-          state.provinces = data;
-          state.districts = [];
-          state.subdistricts = [];
-          // state.zipcodeId = [];
-        } else if (provinceId > 0 && (!districtId || districtId === 0)) {
-          state.districts = data;
-          state.subdistricts = [];
-          // state.zipcodeId = [];
-        } else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
-          state.subdistricts = data;
-        }
-        // state.zipcodeId = [];
-        //     }  else if (provinceId > 0 && districtId > 0 && subdistrictId > 0) {
-        //   state.zipcodeId = data;
-        // }
-      }
-    });
+  if (!Array.isArray(data)) return;
+
+if (!provinceId) {
+  state.provinces = data;
+  state.districts = [];
+  state.subdistricts = [];
+  state.zipcodeId = [];
+} else if (provinceId && !districtId) {
+  state.districts = data;
+  state.subdistricts = [];
+  state.zipcodeId = [];
+} else if (provinceId && districtId && !subdistrictId) {
+  state.subdistricts = data;
+  state.zipcodeId = [];
+} else if (provinceId && districtId && subdistrictId) {
+  state.zipcodeId = data;
+}
+});
   },
 });
+
 
 export default addressSlice.reducer;

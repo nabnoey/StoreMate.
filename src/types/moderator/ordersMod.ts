@@ -47,7 +47,7 @@ export interface OrderMod {
 }
 
 export const STATUS_LABELS: Record<string, string> = {
-  PENDING: "รอดำเนินการ, รอชำระเงิน",
+  PENDING: "รอชำระเงิน",
   PROCESSING: "ที่ต้องจัดส่ง",
   RECEIVED: "ที่ต้องได้รับ",
   COMPLETED: "คำสั่งซื้อสำเร็จ",
