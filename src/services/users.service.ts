@@ -1,6 +1,6 @@
 import api from "./api";
 import type { User } from "../types/user";
-import type { Address } from "../types/address";
+import type { CreateAddressRequest  } from "../types/address";
 
 //ดูหน้าโปรไฟล์ผู้ใช้
 const getProfile = async () => {
@@ -54,7 +54,7 @@ const fetchAllAddresses = async () => {
 };
 
 //เพิ่มที่อยู่ใหม่
-const addAddress = async (data: Partial<Address>) => {
+const addAddress = async (data: CreateAddressRequest ) => {
   const res = await api.post(
     `${import.meta.env.VITE_USERS_API}/addresses`,
     data,
@@ -78,9 +78,9 @@ const addressDropdown = async (
   const res = await api.get(
     `${import.meta.env.VITE_USERS_API}/address-dropdown`, {
       params: {
-        provinceId: provinceId || null, 
-        districtId: districtId || null,
-        subdistrictId: subdistrictId || null
+        provinceId: provinceId,
+        districtId: districtId,
+        subdistrictId: subdistrictId 
       }
     });
   return res.data;

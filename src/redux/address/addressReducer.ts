@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { AddressState, Address } from "../../types/address";
+import type { AddressState, Address, CreateAddressRequest } from "../../types/address";
 
 const initialState: AddressState = {
   addresses: [],
@@ -8,12 +8,12 @@ const initialState: AddressState = {
   provinces: [],
   districts: [],
   subdistricts: [],
-  zipcodeId: [],
+  // zipcodeId: [],
 };
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
-  async (data: Partial<Address>) => {
+  async (data: CreateAddressRequest ) => {
     const response = await UserService.addAddress(data);
     return response;
   },
@@ -44,8 +44,6 @@ export const setDefaultAddressThunk = createAsyncThunk(
     return id;
   },
 );
-
-
 
 export const deleteAddress = createAsyncThunk(
   "address/deleteAddress",
@@ -99,20 +97,21 @@ const addressSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchAllAddresses.fulfilled, (state, action) => {
       state.addresses = action.payload;
-      state.defaultAddress =
-        action.payload.find((addr: Address) => addr.isDefault);
+      state.defaultAddress = action.payload.find(
+        (addr: Address) => addr.isDefault,
+      );
     });
 
 
-
     builder.addCase(updateAddress.fulfilled, (state, action) => {
-      const updatedAddress = action.payload;
-      const index = state.addresses.findIndex((addr) => addr.id === updatedAddress.id);
-      if (index !== -1) {
-        state.addresses[index] = updatedAddress;
-        if (updatedAddress.isDefault) {
-          state.defaultAddress = updatedAddress;
-        }
+      const updated = action.payload;
+
+      state.addresses = state.addresses.map((addr) =>
+        addr.id === updated.id ? updated : addr,
+      );
+
+      if (updated.isDefault) {
+        state.defaultAddress = updated;
       }
     });
 
@@ -128,7 +127,11 @@ const addressSlice = createSlice({
         (addr) => addr.id !== action.meta.arg,
       );
       if (state.defaultAddress?.id === action.meta.arg) {
-        state.defaultAddress = null;
+        state.defaultAddress = state.addresses[0] 
+
+        if (state.defaultAddress){
+          state.defaultAddress.isDefault = true;
+        }
       }
     });
 
@@ -157,17 +160,18 @@ const addressSlice = createSlice({
           state.provinces = data;
           state.districts = [];
           state.subdistricts = [];
-          state.zipcodeId = [];
+          // state.zipcodeId = [];
         } else if (provinceId > 0 && (!districtId || districtId === 0)) {
           state.districts = data;
           state.subdistricts = [];
-          state.zipcodeId = [];
+          // state.zipcodeId = [];
         } else if (provinceId > 0 && districtId > 0 && subdistrictId === 0) {
           state.subdistricts = data;
-          state.zipcodeId = [];
-        }  else if (provinceId > 0 && districtId > 0 && subdistrictId > 0) {
-      state.zipcodeId = data; 
-    }
+        }
+        // state.zipcodeId = [];
+        //     }  else if (provinceId > 0 && districtId > 0 && subdistrictId > 0) {
+        //   state.zipcodeId = data;
+        // }
       }
     });
   },

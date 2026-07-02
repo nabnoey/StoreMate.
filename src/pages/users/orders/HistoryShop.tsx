@@ -30,11 +30,12 @@ import EditReviewModal from "../../../components/user/review/EditReviewModal";
 const HistoryPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [error] = useState<string | null>(null);
 
   const rawStatus = searchParams.get("status") as OrderStatus | null;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
-  const { orders, error } = useSelector((state: RootState) => state.orders);
+  const { orders } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
 
@@ -132,7 +133,7 @@ const HistoryPage = () => {
           isReOrder: true,
         },
       });
-    } catch (error) {
+    } catch {
       toast.error("ไม่สามารถสั่งซื้อสินค้าอีกครั้งได้");
     }
   };

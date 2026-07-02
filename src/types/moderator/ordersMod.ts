@@ -4,7 +4,17 @@ export interface OrderItem {
   imageUrl?: string;
   quantity: number;
   price: number;
-  subTotal?: number; // แอบเห็นใน swagger มี subTotal ด้วย เติมเผื่อไว้ครับ
+  subTotal?: number; 
+}
+
+export interface OrderStatusHistory {
+
+status: string;
+
+updatedBy: string;
+
+updatedAt: string;
+
 }
 
 export interface OrderMod {
@@ -16,9 +26,13 @@ export interface OrderMod {
   total: number;
   shippingFrom?: string;
   is_printed?: boolean;
-  createdAt?: string;
   checkoutType?: string;
   orderItems?: OrderItem[];
+  orderStatusHistory?: OrderStatusHistory[];
+    updatedAt: string;
+    'createdAt': string;
+
+    
 
   // ปรับโครงสร้างตรงนี้ให้ตรงกับ Backend
   orderRecipient?: {
