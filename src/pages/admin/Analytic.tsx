@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Download, Upload, Trash2, FileText, X } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { DashboardService } from "../../services/dashboard.service";
 import Loading from "../../components/loading/Loading";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../redux/store";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../../redux/store";
+import { getSalesAnalytics, importSalesData } from "../../redux/owner/ownerReducer";
 
 interface RegionTableRow {
   region: string;
@@ -25,9 +25,10 @@ export default function Analytic() {
       )
     : false;
 
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { salesData, loading } = useSelector((state: RootState) => state.owner);
+  
   const [filter, setFilter] = useState<"today" | "week" | "month">("today");
-  const [salesData, setSalesData] = useState<any>(null);
 
   // Import Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,21 +38,9 @@ export default function Analytic() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await DashboardService.getSalesAnalytics();
-      setSalesData(res?.data || res);
-    } catch (error) {
-      console.error("Error loading sales analytics from API:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    dispatch(getSalesAnalytics());
+  }, [dispatch]);
 
   if (loading) {
     return <Loading />;
@@ -129,11 +118,11 @@ export default function Analytic() {
     const toastId = toast.loading("กำลังนำเข้าข้อมูล...");
     setIsUploading(true);
     try {
-      await DashboardService.importSalesData(selectedFile);
+      await dispatch(importSalesData(selectedFile)).unwrap();
       toast.success("นำเข้าข้อมูลสำเร็จ", { id: toastId });
       setIsModalOpen(false);
       handleRemoveFile();
-      await fetchData();
+      dispatch(getSalesAnalytics());
     } catch (error: any) {
       console.error("Error importing sales data:", error);
       const errorMessage =
@@ -152,11 +141,16 @@ export default function Analytic() {
 
   // --- Parse API Response ---
   const channelIncomeList = salesData?.orderChannelIncome || [];
-  const channels = channelIncomeList.map((item: any, idx: number) => ({
-    name: item.orderChannel || "ไม่ระบุช่องทาง",
-    value: Number(item.percentage ?? 0),
-    color: idx === 0 ? "#3b82f6" : "#10b981",
-  }));
+  const channels = [...channelIncomeList]
+    .sort((a: any, b: any) => Number(b.percentage ?? 0) - Number(a.percentage ?? 0))
+    .map((item: any, idx: number) => {
+      const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899"];
+      return {
+        name: item.orderChannel || "ไม่ระบุช่องทาง",
+        value: Number(item.percentage ?? 0),
+        color: colors[idx % colors.length],
+      };
+    });
 
   const apiRegionalOrders = salesData?.regionalOrders || [];
   const apiRegionalRevenue = salesData?.regionalRevenue || [];
@@ -198,18 +192,8 @@ export default function Analytic() {
     };
   });
 
-  const orderedRegions = [...parsedRegions].sort((a, b) => {
-    const order = [
-      "กรุงเทพและปริมณฑล",
-      "ภาคเหนือ",
-      "ภาคตะวันออกเฉียงเหนือ",
-      "ภาคกลาง",
-      "ภาคใต้",
-      "ภาคตะวันออก",
-      "ภาคตะวันตก",
-    ];
-    return order.indexOf(a.region) - order.indexOf(b.region);
-  });
+  // Table defaults to sorting by revenue descending
+  const orderedRegions = [...parsedRegions].sort((a, b) => b.revenue - a.revenue);
 
   const getRegionColor = (regionName: string) => {
     const mapping: { [key: string]: string } = {
@@ -224,36 +208,32 @@ export default function Analytic() {
     return mapping[regionName] || "#cbd5e1";
   };
 
-  const ordersPieData = orderedRegions.map((r) => ({
-    name: r.region,
-    value: r.orderPercent,
-    color: getRegionColor(r.region),
-  }));
+  const ordersPieData = [...orderedRegions]
+    .sort((a, b) => b.orderPercent - a.orderPercent)
+    .map((r) => ({
+      name: r.region,
+      value: r.orderPercent,
+      color: getRegionColor(r.region),
+    }));
 
-  const revenuePieData = orderedRegions.map((r) => ({
-    name: r.region,
-    value: r.revenuePercent,
-    color: getRegionColor(r.region),
-  }));
+  const revenuePieData = [...orderedRegions]
+    .sort((a, b) => b.revenuePercent - a.revenuePercent)
+    .map((r) => ({
+      name: r.region,
+      value: r.revenuePercent,
+      color: getRegionColor(r.region),
+    }));
 
-  const customersPieData = orderedRegions.map((r) => ({
-    name: r.region,
-    value: r.customerPercent,
-    color: getRegionColor(r.region),
-  }));
+  const customersPieData = [...orderedRegions]
+    .sort((a, b) => b.customerPercent - a.customerPercent)
+    .map((r) => ({
+      name: r.region,
+      value: r.customerPercent,
+      color: getRegionColor(r.region),
+    }));
 
   const totalPriceVal = Number(salesData?.totalPrice ?? 0);
   const totalOrderVal = Number(salesData?.totalOrder ?? 0);
-
-  const legendOrder = [
-    "ภาคตะวันออก",
-    "กรุงเทพและปริมณฑล",
-    "ภาคใต้",
-    "ภาคเหนือ",
-    "ภาคตะวันตก",
-    "ภาคตะวันออกเฉียงเหนือ",
-    "ภาคกลาง",
-  ];
 
   return (
     <div className="flex flex-col bg-white min-h-screen text-black relative">
@@ -447,16 +427,14 @@ export default function Analytic() {
               )}
             </div>
             <div className="w-full space-y-2.5 text-xs text-gray-600 px-2 mt-2">
-              {legendOrder.map((name) => {
-                const item = orderedRegions.find((r) => r.region === name);
-                if (!item) return null;
+              {ordersPieData.map((item) => {
                 return (
-                  <div key={name} className="flex justify-between items-center">
+                  <div key={item.name} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getRegionColor(name) }} />
-                      <span className="font-medium text-gray-600">{name}</span>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="font-medium text-gray-600">{item.name}</span>
                     </div>
-                    <span className="font-bold text-gray-800">{item.orderPercent.toFixed(1)}%</span>
+                    <span className="font-bold text-gray-800">{item.value.toFixed(1)}%</span>
                   </div>
                 );
               })}
@@ -492,16 +470,14 @@ export default function Analytic() {
               )}
             </div>
             <div className="w-full space-y-2.5 text-xs text-gray-600 px-2 mt-2">
-              {legendOrder.map((name) => {
-                const item = orderedRegions.find((r) => r.region === name);
-                if (!item) return null;
+              {revenuePieData.map((item) => {
                 return (
-                  <div key={name} className="flex justify-between items-center">
+                  <div key={item.name} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getRegionColor(name) }} />
-                      <span className="font-medium text-gray-600">{name}</span>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="font-medium text-gray-600">{item.name}</span>
                     </div>
-                    <span className="font-bold text-gray-800">{item.revenuePercent.toFixed(1)}%</span>
+                    <span className="font-bold text-gray-800">{item.value.toFixed(1)}%</span>
                   </div>
                 );
               })}
@@ -537,16 +513,14 @@ export default function Analytic() {
               )}
             </div>
             <div className="w-full space-y-2.5 text-xs text-gray-600 px-2 mt-2">
-              {legendOrder.map((name) => {
-                const item = orderedRegions.find((r) => r.region === name);
-                if (!item) return null;
+              {customersPieData.map((item) => {
                 return (
-                  <div key={name} className="flex justify-between items-center">
+                  <div key={item.name} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getRegionColor(name) }} />
-                      <span className="font-medium text-gray-600">{name}</span>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="font-medium text-gray-600">{item.name}</span>
                     </div>
-                    <span className="font-bold text-gray-800">{item.customerPercent.toFixed(1)}%</span>
+                    <span className="font-bold text-gray-800">{item.value.toFixed(1)}%</span>
                   </div>
                 );
               })}
