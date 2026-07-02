@@ -35,10 +35,6 @@ const [submittedSearchTerm, setSubmittedSearchTerm] = useState(searchParams.get(
   const [selectedProduct, setSelectedProduct] = useState<ProductMod | null>(null);
 
 
-// useEffect(() => {
-//   dispatch(getproducts({ page: 0 , size: 1000 }));
-// }, [dispatch]);
-
 useEffect(() => {
   dispatch(
     getproducts({
