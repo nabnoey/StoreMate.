@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { UserService } from "../../services/users.service";
-import type { AddressState, Address } from "../../types/address";
+import type { AddressState, Address, CreateAddressRequest } from "../../types/address";
 
 const initialState: AddressState = {
   addresses: [],
@@ -13,7 +13,7 @@ const initialState: AddressState = {
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
-  async (data: Partial<Address>) => {
+  async (data: CreateAddressRequest ) => {
     const response = await UserService.addAddress(data);
     return response;
   },

@@ -30,6 +30,7 @@ export interface OrderMod {
   orderItems?: OrderItem[];
   orderStatusHistory?: OrderStatusHistory[];
     updatedAt: string;
+    'createdAt': string;
 
     
 
