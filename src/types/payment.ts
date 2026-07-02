@@ -1,3 +1,4 @@
+import type { Order } from "./orders";
 export type PaymentMethod = "CARD" | "PROMPTPAY" | "DESTINATION";
 
 export type SavedCard = {
@@ -8,7 +9,7 @@ export type SavedCard = {
 };
 
 export type PaymentIntentPayload = {
-  ids: number[];
+  ids: number;
   checkoutType: PaymentMethod;
   cardId?: string; // จะมีเฉพาะถ้า checkoutType เป็น "CARD"
 };
@@ -19,3 +20,12 @@ export type PaymentNowPayload = {
   checkoutType: PaymentMethod;
   cardId?: string; // จะมีเฉพาะถ้า checkoutType เป็น "CARD"
 };
+
+export interface RetryPaymentRequest {
+  orderNo: Order["orderNo"];
+}
+
+export interface ReOrderPayment {
+  orderNo: Order["orderNo"];
+  checkoutType: PaymentMethod;
+}

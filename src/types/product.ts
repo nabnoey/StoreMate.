@@ -8,9 +8,11 @@ export type Product = {
   categoryName: string;
   sammary: string;
   description: string;
-  status: "ACTIVE" | "CHECKED_OUT";
+  status: "ACTIVE" | "INACTIVE"| "DELETED";
   createAt: string;
   stockQuantity: number;
+  productStatus: "ACTIVE" | "INACTIVE" | "DELETED";
+  is_deleted: boolean;
 };
 
 export interface CategoryGroup {
@@ -33,4 +35,5 @@ export interface ProductDetail {
   RatingScore: number;
   productImages: ProductImage[];
   reviews: Review[];
+  productStatus: "ACTIVE" | "INACTIVE" | "DELETED";
 }

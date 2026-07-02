@@ -30,10 +30,10 @@ export const fetchAllOrders = createAsyncThunk(
   },
 );
 
-export const shippingOrder = createAsyncThunk(
+export const shippingOrder = createAsyncThunk<OrderMod[], number[]>(
   "moderator/shippingOrder",
-  async (orderNo: number) => {
-    const res = await ModeratorService.shippingOrder(orderNo);
+  async (orderIds: number[]) => {
+    const res = await ModeratorService.shippingOrder(orderIds);
     return res;
   },
 );
@@ -76,17 +76,11 @@ export const editProduct = createAsyncThunk(
     async (id: number) =>{
         const res = await ModeratorService.deleteProduct(id);
         return res;
+        
     }
   )
 
 
-export const updateOrderStatus = createAsyncThunk(
-  "moderator/updateOrderStatus",
-  async ({ orderNo, status }: { orderNo: string; status: string }) => {
-    const res = await ModeratorService.updateOrderStatus(orderNo, status);
-    return res;
-  },
-);
 
 export const changeStatus = createAsyncThunk(
   "moderator/changeStatus",
@@ -95,6 +89,7 @@ export const changeStatus = createAsyncThunk(
     return res;
   },
 );
+
 
 const moderatorSlice = createSlice({
     name: "moderator",
@@ -108,62 +103,27 @@ const moderatorSlice = createSlice({
             })
             .addCase(fetchAllOrders.fulfilled, (state, action) => {
                 state.loading = false;
-                if (action.payload?.content && Array.isArray(action.payload.content)) {
-                    state.orders = action.payload.content;
-                } else if (action.payload?.data?.content && Array.isArray(action.payload.data.content)) {
-                    state.orders = action.payload.data.content;
-                } else if (action.payload?.data && Array.isArray(action.payload.data)) {
-                    state.orders = action.payload.data;
-                } else if (Array.isArray(action.payload)) {
-                    state.orders = action.payload;
-                } else {
-                    state.orders = [];
-                }
-                
+                state.orders = action.payload.content;
                 state.totalPages = action.payload?.totalPages 
-                    || action.payload?.data?.totalPages 
-                    || 0;
                 
-                console.log("Orders fetched successfully:", state.orders);
             })
             .addCase(fetchAllOrders.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-            });
-        builder
+            })
           
             .addCase(shippingOrder.fulfilled, (state, action) => {
-                if (Array.isArray(action.payload)) {
-                    const updatedIds = action.payload.map((o: any) => o.id);
-                    state.orders = state.orders.map(order => 
-                        updatedIds.includes(order.id) ? action.payload.find((o: any) => o.id === order.id) : order
-                    );
-                }
+                state.orders = state.orders.map(order => 
+        action.payload.find(o => o.id === order.id) ?? order
+    );
                 state.loading = false;
             })
 
             .addCase(shippingOrder.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || "เกิดข้อผิดพลาดในการอัพเดตสถานะการจัดส่ง";
-            });
-
-     
-
-        builder
-            .addCase(updateOrderStatus.fulfilled, (state, action) => {
-                const updatedOrder = action.payload;
-                state.orders = state.orders.map(order =>
-                    order.orderNo === updatedOrder.orderNo ? { ...order, ...updatedOrder } : order
-                );
-                state.orderToPrint = updatedOrder ? [updatedOrder] : state.orderToPrint;
-                state.loading = false;
             })
-            .addCase(updateOrderStatus.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message || "เกิดข้อผิดพลาดในการอัปเดตสถานะคำสั่งซื้อ";
-            });
 
-        builder
             .addCase(getoOrderByOrderNo.fulfilled, (state, action) => {
                 state.orderToPrint = [action.payload];
             })
@@ -176,7 +136,8 @@ const moderatorSlice = createSlice({
   
 .addCase(addProduct.fulfilled, (state, action) => {
     if (Array.isArray(state.products)) {
-        state.products.push(action.payload.data);
+       state.products.push(action.payload.data);
+       
     }
 })
 .addCase(editProduct.fulfilled, (state, action) => {
@@ -184,20 +145,33 @@ const moderatorSlice = createSlice({
         const updatedProduct = action.payload?.data || action.payload;
         if (updatedProduct && updatedProduct.id) {
             state.products = state.products.map(p => 
-                p.id === updatedProduct.id ? { ...p, ...updatedProduct } : p
+                String(p.id) === String(updatedProduct.id) ? { ...p, ...updatedProduct } : p
             );
         }
     }
 })
+// .addCase(deleteProduct.fulfilled, (state, action) => {
+//     if (Array.isArray(state.products)) {
+//         state.products = state.products.filter(p => String(p.id) !== String(action.meta.arg));
+        
+//     }
+    
+// })
+
 .addCase(deleteProduct.fulfilled, (state, action) => {
-    if (Array.isArray(state.products)) {
-        // action.meta.arg contains the id passed to deleteProduct
-        state.products = state.products.filter(p => p.id !== action.meta.arg);
-    }
+  const deletedId = action.meta.arg;
+
+  state.products = state.products.map(product =>
+    product.id === deletedId
+      ? {
+          ...product,
+          status: "DELETED",
+          // productStatus: "DELETED"
+        }
+      : product
+  );
 })
 
-
-            builder
             .addCase(getproducts.fulfilled, (state, action) => {
                 const items = action.payload?.data?.data 
                 console.log("payload:", action.payload);

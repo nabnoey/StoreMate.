@@ -2,22 +2,37 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { toast } from "react-hot-toast";
+// import { toast } from "react-hot-toast";
 
 import type { RootState, AppDispatch } from "../redux/store";
-import { addNotificationFromSocket } from "../redux/notification/notificationReducer";
+import {
+  addNotificationFromSocket,
+  fetchNotificationCounts,
+} from "../redux/notification/notificationReducer";
 
 let globalNotifyClient: Client | null = null;
 let currentNotifyToken: string | null = null;
 
 const useNotificationSocket = () => {
   const dispatch = useDispatch<AppDispatch>();
-
   const token = useSelector((state: RootState) => state.auth.token);
-  const userRole = useSelector((state: RootState) => state.auth.user?.roleName);
+
+  const userRoles: string[] = useSelector((state: RootState) => {
+    const roles = state.auth.user?.roles || state.auth.user?.roleName;
+    if (Array.isArray(roles)) return roles;
+    return roles ? [roles] : [];
+  });
 
   useEffect(() => {
-    if (!token || !userRole) return;
+    if (!token || userRoles.length === 0) {
+      if (globalNotifyClient) {
+        console.log("[NOTIFY STOMP] Disconnecting due to logout...");
+        globalNotifyClient.deactivate();
+        globalNotifyClient = null;
+        currentNotifyToken = null;
+      }
+      return;
+    }
 
     if (globalNotifyClient && currentNotifyToken === token) {
       return;
@@ -45,29 +60,38 @@ const useNotificationSocket = () => {
           if (!message.body) return;
           const data = JSON.parse(message.body);
 
-          toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
-          //อันนี้กันยิงซ้ำ
-          dispatch(addNotificationFromSocket(data));
+          // toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
+
+          const formattedData = {
+            ...data,
+            isRead: data.isRead ?? false,
+          };
+
+          dispatch(addNotificationFromSocket(formattedData));
+          dispatch(fetchNotificationCounts());
         };
 
-        // Subscription จัดการตาม Role
         client.subscribe("/topic/all", handleIncomingNotification);
 
-        if (userRole === "USER") {
+        client.subscribe("/queue/notify", handleIncomingNotification);
+
+        // เช็กทั้งคำว่า CUSTOMER และ USER เพื่อผิด
+        if (userRoles.includes("CUSTOMER") || userRoles.includes("USER")) {
+          console.log("[STOMP] Subscribing to /topic/customer");
           client.subscribe("/topic/customer", handleIncomingNotification);
-        } else if (userRole === "MODERATOR") {
+        } else if (userRoles.includes("MODERATOR")) {
+          console.log("[STOMP] Subscribing to /topic/moderator");
           client.subscribe("/topic/moderator", handleIncomingNotification);
-        } else {
-          console.log("Admin connected to notification socket.");
+        } else if (userRoles.includes("OWNER") || userRoles.includes("ADMIN")) {
+          console.log("[STOMP] Subscribing to /topic/owner");
+          client.subscribe("/topic/owner", handleIncomingNotification);
         }
       },
-
       onWebSocketClose: () => {
         console.log("NOTIFY SOCKET CLOSED");
         globalNotifyClient = null;
         currentNotifyToken = null;
       },
-
       onStompError: (frame) => {
         console.error("NOTIFY STOMP ERROR:", frame.headers["message"]);
       },
@@ -78,7 +102,7 @@ const useNotificationSocket = () => {
     client.activate();
 
     return () => {};
-  }, [token, userRole, dispatch]);
+  }, [token, JSON.stringify(userRoles), dispatch]); // ใช้ JSON.stringify ช่วยป้องกันการ Re-run ลูปของ Array
 };
 
 export default useNotificationSocket;

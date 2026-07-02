@@ -47,7 +47,10 @@ const ModeratorRoute = ({ children }: Props) => {
     ? user.roles.some(
         (role: any) =>
           role === "MODERATOR" ||
-          role?.roleName === "MODERATOR",
+          role?.roleName === "MODERATOR"|| 
+          role === "ADMIN" ||
+          role?.roleName === "ADMIN",
+          
       )
     : false;
 

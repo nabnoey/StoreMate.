@@ -4,9 +4,7 @@ import axios from "axios";
 import { store } from "../redux/store";
 import { logout } from "../redux/auth/authReducer";
 
-const baseURL = import.meta.env.VITE_BASE_URL
-  ? import.meta.env.VITE_BASE_URL.replace(/\/+$/, "") + "/"
-  : undefined;
+const baseURL = import.meta.env.VITE_BASE_URL;
 
 const api = axios.create({
   baseURL,
@@ -33,12 +31,13 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const isLoginAPI = error.config.url?.includes("/login");
-      const isDeleteProductAPI = error.config.url?.includes("/products") && error.config.method === "delete";
 
-      if (!isLoginAPI && !isDeleteProductAPI) {
+      // const isDeleteProductAPI =
+      //   error.config.url?.includes("/products") &&
+      //   error.config.method === "delete";
+      if (!isLoginAPI) {
         TokenService.removeToken();
         store.dispatch(logout());
-
         window.location.href = "/login";
       }
     }

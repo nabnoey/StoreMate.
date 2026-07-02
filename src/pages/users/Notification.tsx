@@ -1,180 +1,183 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
 
 import type { AppDispatch, RootState } from "../../redux/store";
-import { fetchOwnerNotify } from "../../redux/notification/notificationReducer";
-import type {
-  Notification,
-  NotificationResponse,
-} from "../../types/notification";
+import {
+  fetchUserNotify,
+  markAsReadInStore,
+  type ClientNotification,
+  fetchNotificationCounts,
+} from "../../redux/notification/notificationReducer";
+import { Icon } from "@iconify/react";
+import ProfileSidebar from "../../components/user/ProfileSidebar";
+import type { NotificationType } from "../../types/notification";
 
 const NotificationPage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState<NotificationType>("ALL");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const filterMenuRef = useRef<HTMLDivElement>(null);
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth?.isAuthenticated ?? true,
+  );
   const rawNotifications = useSelector(
     (state: RootState) => state.notification.items,
-  ) as Notification[];
-
+  );
   const isLoading = useSelector(
     (state: RootState) => state.notification.isLoading,
   );
 
-  const [readIds, setReadIds] = useState<number[]>(() => {
-    return JSON.parse(localStorage.getItem("readNotifications") || "[]");
-  });
+  const counts = useSelector((state: RootState) => state.notification.counts);
 
   useEffect(() => {
-    dispatch(fetchOwnerNotify({ page: 0, size: 6 }));
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    dispatch(fetchNotificationCounts());
   }, [dispatch]);
 
-  const notifications: NotificationResponse[] = rawNotifications.map((item) => {
-    let simulatedType = "shop";
-    const titleText = item.title || "";
-    if (
-      titleText.includes("คำสั่งซื้อ") ||
-      titleText.toLowerCase().includes("order")
-    ) {
-      simulatedType = "orders";
-    } else if (
-      titleText.includes("คืนเงิน") ||
-      titleText.toLowerCase().includes("refund")
-    ) {
-      simulatedType = "refunds";
-    }
+  useEffect(() => {
+    dispatch(fetchUserNotify(activeFilter));
+  }, [dispatch, activeFilter]);
 
-    return {
-      id: item.id,
-      title: item.title,
-      message: item.message,
-      createdAt: item.createdAt,
-      type: simulatedType,
-      isRead: readIds.includes(item.id),
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterMenuRef.current &&
+        !filterMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileFilterOpen(false);
+      }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const notifications = [...rawNotifications].sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+    return dateB - dateA;
   });
 
-  const filteredNotifications = notifications.filter((item) => {
-    if (activeFilter === "all") return true;
-    return item.type === activeFilter;
-  });
-
-  const getCount = (type: string) => {
-    if (type === "all") return notifications.filter((n) => !n.isRead).length;
-    return notifications.filter((n) => n.type === type && !n.isRead).length;
-  };
-
-  const filters = [
-    { id: "all", label: "ทั้งหมด", count: getCount("all") },
-    { id: "orders", label: "คำสั่งซื้อ", count: getCount("orders") },
-    { id: "refunds", label: "คำขอคืนเงิน", count: getCount("refunds") },
-    { id: "shop", label: "ร้านค้า", count: getCount("shop") },
+  const filters: {
+    id: NotificationType;
+    label: string;
+    count: number;
+  }[] = [
+    {
+      id: "ALL",
+      label: "ทั้งหมด",
+      count: counts.ALL,
+    },
+    {
+      id: "ORDERED",
+      label: "คำสั่งซื้อ",
+      count: counts.ORDERED,
+    },
+    {
+      id: "REFUNDED",
+      label: "คำขอคืนเงิน",
+      count: counts.REFUNDED,
+    },
+    {
+      id: "STORE",
+      label: "ร้านค้า",
+      count: counts.STORE,
+    },
   ];
 
-  // กดอ่าน (บันทึกลง LocalStorage แก้ขัดชั่วคราว)
-  const handleNotificationClick = (notiId: number, isRead: boolean) => {
-    if (isRead) return;
+  const activeFilterData =
+    filters.find((f) => f.id === activeFilter) || filters[0];
 
-    try {
-      const currentReadItems = JSON.parse(
-        localStorage.getItem("readNotifications") || "[]",
-      );
-      if (!currentReadItems.includes(notiId)) {
-        const updatedReadItems = [...currentReadItems, notiId];
-        localStorage.setItem(
-          "readNotifications",
-          JSON.stringify(updatedReadItems),
-        );
-        setReadIds(updatedReadItems); // อัปเดต state เพื่อให้ UI Re-render เปลี่ยนเป็นตัวบางทันที
-        toast.success("บันทึกการอ่านแล้ว");
-      }
-    } catch (error) {
-      console.error("Failed to update local read status", error);
-    }
+  const handleNotificationClick = (item: ClientNotification) => {
+    dispatch(markAsReadInStore(item.id));
+    dispatch(fetchNotificationCounts());
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 font-sans text-gray-800">
-      <div className="max-w-6xl mx-auto">
-        {/* Breadcrumb */}
-        <div className="text-sm text-gray-500 mb-6 flex items-center gap-2">
-          <Link to="/" className="cursor-pointer hover:text-gray-700">
+    <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-6 sm:pt-10 pb-20">
+      <div className="max-w-[1280px] mx-auto px-4">
+        <nav className="hidden md:flex items-center text-sm text-black mb-6 font-medium">
+          <Link
+            to="/"
+            className="hover:text-black transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
-          <span>&gt;</span>
-          <Link to="/profile" className="cursor-pointer hover:text-gray-700">
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1"
+          />
+          <Link
+            to="/proflie"
+            className="hover:text-black transition-colors cursor-pointer"
+          >
             โปรไฟล์
           </Link>
-          <span>&gt;</span>
-          <span className="text-gray-800">การแจ้งเตือน</span>
-        </div>
+          <Icon
+            icon="material-symbols:chevron-right-rounded"
+            className="w-5 h-5 mx-1"
+          />
+          <span className="text-black">การแจ้งเตือน</span>
+        </nav>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-gray-100 rounded-lg p-4 flex items-center gap-4 mb-4 shadow-sm border border-gray-200">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-300">
-                <svg
-                  className="w-6 h-6 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </div>
-              <div className="font-medium text-gray-700">บุญรักษา วิมานแท้</div>
-            </div>
-
-            <div className="flex flex-col gap-3 pl-2">
-              <Link
-                to="/profile"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                โปรไฟล์ของฉัน
-              </Link>
-              <Link
-                to="/history-shop"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                การซื้อของฉัน
-              </Link>
-              <Link to="/notification" className="text-blue-500 font-medium">
-                การแจ้งเตือน
-              </Link>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <div className="hidden lg:block w-[280px] flex-shrink-0">
+            <ProfileSidebar />
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h1 className="text-xl font-bold text-gray-800">การแจ้งเตือน</h1>
-              <p className="text-sm text-gray-500 mt-1">
-                ดูการแจ้งเตือนทั้งหมดของคุณ
-              </p>
+          <main className="flex-1 w-full bg-white md:rounded-lg md:shadow-sm md:border border-gray-200 px-4 py-4 md:py-8 min-h-[500px]">
+            <div className="md:hidden flex items-start gap-3 pb-3 border-b border-gray-300 mb-4">
+              <button
+                className="mt-1 text-black p-0 flex-shrink-0"
+                onClick={() => navigate(-1)}
+                data-test="btn-mobile-back"
+              >
+                <Icon icon="material-symbols:arrow-back" className="w-6 h-6" />
+              </button>
+              <div>
+                <h1 className="text-[18px] leading-[28px] font-bold text-black">
+                  การแจ้งเตือน
+                </h1>
+                <p className="text-gray-600 text-[14px] font-normal mt-1">
+                  ดูการแจ้งเตือนทั้งหมดของคุณ
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Filter Column */}
-              <div className="w-full md:w-48 flex-shrink-0 flex flex-col gap-2">
+            <div className="hidden md:block w-full mb-6">
+              <h1 className="text-[22px] font-bold text-black">การแจ้งเตือน</h1>
+              <p className="text-[15px] mt-1 text-gray-600">
+                ดูการแจ้งเตือนทั้งหมดของคุณ
+              </p>
+              <div className="w-full border-t border-gray-300 mt-5" />
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-6 lg:gap-10 w-full">
+              {/* Desktop Filters */}
+              <div className="hidden md:flex flex-col gap-1 w-[200px] flex-shrink-0">
                 {filters.map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => setActiveFilter(filter.id)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-md transition-colors text-sm ${
+                    data-test={`filter-desktop-${filter.id}`}
+                    className={`flex items-center justify-between px-4 py-2.5 rounded-md transition-colors text-[15px] cursor-pointer w-full text-start ${
                       activeFilter === filter.id
-                        ? "bg-gray-100 text-blue-500 font-medium"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-[#F3F4F6] text-blue-600 font-bold"
+                        : "text-gray-700 hover:bg-gray-50 font-medium"
                     }`}
                   >
                     <span>{filter.label}</span>
                     {filter.count > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
                         {filter.count}
                       </span>
                     )}
@@ -182,51 +185,118 @@ const NotificationPage = () => {
                 ))}
               </div>
 
-              {/* Notifications List Column */}
-              <div className="flex-1 flex flex-col gap-3">
-                {isLoading ? (
-                  <div className="text-center py-10 text-gray-400 text-sm">
-                    กำลังโหลดข้อมูลการแจ้งเตือน...
+              {/* Mobile Filters */}
+              <div
+                className="md:hidden relative w-full mb-2"
+                ref={filterMenuRef}
+              >
+                <button
+                  onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+                  data-test="btn-mobile-filter"
+                  className="w-full flex items-center justify-between bg-[#F9FAFB] border border-gray-200 px-4 py-3 rounded-md"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-600 font-bold text-[15px]">
+                      {activeFilterData.label}
+                    </span>
+
+                    {activeFilterData.count > 0 && (
+                      <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                        {activeFilterData.count}
+                      </span>
+                    )}
                   </div>
-                ) : filteredNotifications.length > 0 ? (
-                  filteredNotifications.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() =>
-                        handleNotificationClick(item.id, item.isRead)
-                      }
-                      className={`p-4 rounded-lg flex justify-between gap-4 transition-colors cursor-pointer ${
-                        !item.isRead
-                          ? "bg-blue-50/70 border border-blue-100"
-                          : "bg-white border border-transparent hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex-1">
-                        <h3
-                          className={`text-sm md:text-base ${!item.isRead ? "font-bold text-gray-800" : "font-medium text-gray-700"}`}
-                        >
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {item.message}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">
-                          {item.createdAt
-                            ? new Date(item.createdAt).toLocaleString("th-TH")
-                            : "-"}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-10 text-gray-400 text-sm">
-                    ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                  <Icon
+                    icon="ic:baseline-menu"
+                    className="w-6 h-6 text-gray-600"
+                  />
+                </button>
+
+                {isMobileFilterOpen && (
+                  <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 shadow-lg rounded-md z-10 overflow-hidden">
+                    {filters.map((filter) => (
+                      <button
+                        key={filter.id}
+                        onClick={() => {
+                          setActiveFilter(filter.id);
+                          setIsMobileFilterOpen(false);
+                        }}
+                        data-test={`filter-mobile-${filter.id}`}
+                        className={`flex items-center justify-between w-full px-4 py-3 text-start border-b last:border-b-0 ${
+                          activeFilter === filter.id
+                            ? "bg-blue-50/50 text-blue-600 font-bold"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        <span>{filter.label}</span>
+
+                        {filter.count > 0 && (
+                          <span className="bg-[#EF4444] text-white text-[11px] font-bold px-2 py-0.5 rounded-full min-w-[22px] text-center">
+                            {filter.count}
+                          </span>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 )}
-                <div className="border-b border-gray-200 mt-4"></div>
+              </div>
+
+              {/* Notifications List */}
+              <div className="flex-1 flex flex-col gap-3 w-full">
+                {isLoading ? (
+                  <div
+                    className="text-center py-10 text-gray-400 text-sm"
+                    data-test="loading-state"
+                  >
+                    กำลังโหลดข้อมูลการแจ้งเตือน...
+                  </div>
+                ) : notifications.length > 0 ? (
+                  notifications.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNotificationClick(item)}
+                      data-test="notification-item"
+                      className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
+                        !item.isRead
+                          ? "bg-[#EBF2FE] border-blue-100"
+                          : "bg-white border-gray-100 hover:bg-gray-50"
+                      }`}
+                    >
+                      <h3
+                        className={`text-[15px] md:text-[16px] ${!item.isRead ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}
+                      >
+                        {item.title}
+                      </h3>
+                      <p
+                        className={`text-[14px] mt-0.5 leading-relaxed ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
+                      >
+                        {item.message}
+                      </p>
+                      <p className="text-[13px] text-gray-500 mt-1.5">
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleString("th-TH")
+                          : "-"}
+                      </p>
+                    </button>
+                  ))
+                ) : (
+                  <div
+                    className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-100"
+                    data-test="empty-state"
+                  >
+                    <Icon
+                      icon="solar:bell-broken"
+                      className="w-16 h-16 text-black mb-4"
+                    />
+
+                    <p className="text-xl font-bold text-gray-800">
+                      ไม่มีการแจ้งเตือนในหมวดหมู่นี้
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>

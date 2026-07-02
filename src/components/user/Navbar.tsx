@@ -1,19 +1,29 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
-import { search } from "../../redux/products/productReducer";
+// import { search } from "../../redux/products/productReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
 import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
+import {
+  fetchUserNotify,
+  clearNewNotifications,
+} from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
+  const location = useLocation();
 
   const isAuthentication = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -22,36 +32,63 @@ const Navbar: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
+    if (location.pathname !== "/search") {
+      setInputValue(keyword);
+    }
+  }, [keyword, location.pathname]);
+
+  const notifications = useSelector(
+    (state: RootState) => state.notification.items,
+  );
+
+  const [openNotifyDropdown, setOpenNotifyDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const newCount = notifications.filter((n) => n.isNew).length;
+  const previewNotifications = notifications.slice(0, 5);
+
+  useEffect(() => {
     if (isAuthentication) {
       dispatch(fetchCartThunk());
       dispatch(getProfile());
+      dispatch(fetchUserNotify("ALL"));
     }
   }, [dispatch, isAuthentication]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenNotifyDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleBellClick = () => {
+    if (window.innerWidth >= 1024) {
+      dispatch(clearNewNotifications());
+      setOpenNotifyDropdown(!openNotifyDropdown);
+    } else {
+      navigate("/notify");
+    }
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-
-    if (value.trim() !== "") {
-      dispatch(
-        search({
-          keyword: value,
-          categoryId: 0,
-          minPrice: 0,
-          maxPrice: 0,
-          page: 1,
-          size: 1000,
-        }),
-      );
-    }
   };
 
   const handleSubmitSearch = () => {
-    if (!inputValue.trim()) {
-      return;
-    }
+    // if (!inputValue.trim()) {
+    //   return;
+    // }
     navigate(`/search?keyword=${inputValue}`);
-    setOpenSearch(false);
+    // setOpenSearch(false);
   };
 
   const [openSearch, setOpenSearch] = useState(false);
@@ -60,9 +97,21 @@ const Navbar: React.FC = () => {
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
   const totalItems = cartItems?.length;
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated,
-  );
+
+  const isActive = (path: string, searchParam: string = "") => {
+    if (searchParam) {
+      return (
+        location.pathname === path && location.search.includes(searchParam)
+      );
+    }
+    if (path === "/search") {
+      return (
+        location.pathname === path &&
+        !location.search.includes("category=promotion")
+      );
+    }
+    return location.pathname === path;
+  };
 
   return (
     <nav className="flex items-center justify-between bg-white shadow-sm h-[73px] lg:h-[80px] px-4 lg:px-10 relative">
@@ -84,7 +133,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-search"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/search")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to="/search"
             >
               สินค้า
@@ -93,7 +146,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-promo"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/search", "category=promotion")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to={`/search?keyword=${keyword}&category=promotion`}
             >
               โปรโมชั่น
@@ -102,7 +159,11 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-about"
-              className="cursor-pointer transition-colors duration-200"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/about-us")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
               to="/about-us"
             >
               เกี่ยวกับเรา
@@ -111,8 +172,12 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               data-test="list-contact"
-              className="cursor-pointer transition-colors duration-200"
-              to="contact"
+              className={`cursor-pointer transition-colors duration-200 ${
+                isActive("/contact")
+                  ? "text-blue-600 font-semibold"
+                  : "text-black hover:text-blue-600"
+              }`}
+              to="/contact"
             >
               ติดต่อ
             </Link>
@@ -129,6 +194,7 @@ const Navbar: React.FC = () => {
             width="24"
             height="24"
             className="cursor-pointer text-black hover:text-indigo-600 transition-colors z-50"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               if (openSearch) {
                 handleSubmitSearch();
@@ -164,7 +230,7 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {isAuthenticated ? (
+        {isAuthentication ? (
           <>
             <div className="flex items-center gap-3 lg:gap-4 text-black">
               <button
@@ -187,12 +253,91 @@ const Navbar: React.FC = () => {
                 )}
               </button>
 
-              <Icon
-                icon="ph:bell"
-                width="24"
-                height="24"
-                className="cursor-pointer hover:text-indigo-600 transition-colors"
-              />
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  data-test="click-notifications"
+                  className="relative cursor-pointer p-1 block"
+                  onClick={handleBellClick}
+                >
+                  <Icon
+                    icon="ph:bell"
+                    width="24"
+                    height="24"
+                    className="cursor-pointer hover:text-indigo-600 transition-colors"
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+                      {unreadCount}
+                    </span>
+                  )}
+
+                  {newCount > 0 && (
+                    <span className="absolute top-0 left-0 bg-blue-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+                      {newCount}
+                    </span>
+                  )}
+                </button>
+
+                {openNotifyDropdown && (
+                  // เพิ่ม hidden lg:block เข้าไปตรงนี้ เพื่อให้ไม่แสดงผลบน mobile แน่นอน
+                  <div className="relative hidden lg:block">
+                    <ul className="absolute -right-2 top-[28px] p-0 shadow-xl bg-white rounded-lg w-[340px] border border-gray-100 z-[9999] overflow-hidden list-none animate-in fade-in slide-in-from-top-1 duration-150">
+                      {/* ส่วนเนื้อหาแจ้งเตือน (Scrollable Content) */}
+                      <div className="max-h-[300px] overflow-y-auto font-Anuphan">
+                        {previewNotifications.length === 0 ? (
+                          <div className="p-5 text-center text-gray-400 text-sm">
+                            ไม่มีการแจ้งเตือนในขณะนี้
+                          </div>
+                        ) : (
+                          previewNotifications.slice(0, 3).map((item) => (
+                            <li key={item.id} className="block">
+                              <button
+                                type="button"
+                                className="flex w-full items-start gap-3 p-3 text-left transition-colors border-b border-gray-50 hover:bg-gray-50 bg-white"
+                                onClick={() => {
+                                  dispatch(clearNewNotifications());
+                                  setOpenNotifyDropdown(false);
+                                  navigate("/notify");
+                                }}
+                              >
+                                {/* กล่องข้อความ */}
+                                <div className="flex flex-col flex-1 min-w-0 gap-0.5">
+                                  <span className="text-xs truncate text-gray-900 font-semibold">
+                                    {item.title}
+                                  </span>
+                                  <span className="text-[11px] text-black line-clamp-1 leading-normal">
+                                    {item.message}
+                                  </span>
+                                  <span className="text-[9px] text-black font-medium mt-0.5">
+                                    {item.createdAt
+                                      ? new Date(
+                                          item.createdAt,
+                                        ).toLocaleDateString("th-TH")
+                                      : "-"}
+                                  </span>
+                                </div>
+                              </button>
+                            </li>
+                          ))
+                        )}
+                      </div>
+
+                      <li className="block">
+                        <button
+                          type="button"
+                          className="cursor-pointer w-full bg-gray-200 text-black py-2.5 text-center text-xs font-bold font-Anuphan transition-colors block border-t border-gray-100"
+                          onClick={() => {
+                            setOpenNotifyDropdown(false);
+                            navigate("/notify");
+                          }}
+                        >
+                          ดูทั้งหมด
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
 
             <UserProfile />
@@ -236,7 +381,7 @@ const Navbar: React.FC = () => {
       {/* MOBILE MENU DROPDOWN */}
       {openMenu && (
         <div className="absolute top-[60px] right-4 w-[280px] sm:w-[320px] bg-white shadow-xl z-50 lg:hidden rounded-lg overflow-hidden border border-gray-100 animate-in fade-in zoom-in origin-top-right">
-          {isAuthenticated ? (
+          {isAuthentication ? (
             <UserProfile
               variant="mobile"
               onCloseMenu={() => setOpenMenu(false)}

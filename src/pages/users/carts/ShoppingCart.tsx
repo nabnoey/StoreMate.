@@ -12,7 +12,6 @@ import {
 
 import { Icon } from "@iconify/react";
 import { type Toast, toast } from "react-hot-toast";
-import Loading from "../../../components/loading/Loading";
 import type { CartItem } from "../../../types/cartItem";
 
 interface ConfirmToastProps {
@@ -185,7 +184,7 @@ const ShoppingCart = () => {
     stockQuantity: number,
   ) => {
     if (currentQuantity >= stockQuantity) {
-      toast.error("จำนวนสินค้าในสต๊อกไม่เพียงพอ");
+      toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้",{duration:1500});
       return;
     }
     dispatch(incrementCartItemThunk(productId));
@@ -215,11 +214,11 @@ const ShoppingCart = () => {
   };
 
   if (cartStatus === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading />
-      </div>
-    );
+    // return (
+    //   <div className="min-h-screen flex items-center justify-center">
+    //     <Loading />
+    //   </div>
+    // );
   }
 
   return (
@@ -285,6 +284,7 @@ const ShoppingCart = () => {
                           disabled={!item.isAvailable}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
+                          data-test={`checkbox-product-${item.productId}`}
                           className="w-5 h-5 appearance-none rounded-full border border-gray-300 cursor-pointer checked:bg-blue-500 checked:border-blue-500"
                         />
                       </div>
@@ -343,29 +343,30 @@ const ShoppingCart = () => {
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
                         </button>
-                        <span className="w-8 text-center text-sm font-bold text-black">
+                        <span
+                          className="w-8 text-center text-sm font-bold text-black"
+                          data-test="item-quantity"
+                        >
                           {item.quantity}
                         </span>
-                        <button
-                          data-test="increase-product"
-                          onClick={() =>
-                            handleIncreaseQuantity(
-                              item.productId,
-                              item.quantity,
-                              item.product.stockQuantity,
-                            )
-                          }
-                          disabled={
-                            !item.isAvailable ||
-                            item.quantity >= item.product.stockQuantity
-                          }
-                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
-                        >
-                          <Icon icon="lucide:plus" width="14" height="14" />
-                        </button>
+                       <button
+  data-test="increase-product"
+  onClick={() =>
+    handleIncreaseQuantity(
+      item.productId,
+      item.quantity,
+      item.product.stockQuantity,
+    )
+  }
+  disabled={!item.isAvailable}
+  className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed"
+>
+  <Icon icon="lucide:plus" width="14" height="14" />
+</button>
                       </div>
 
-                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center">
+                      <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center"
+                      data-test="subtotal-product">
                         ฿{(item.product.price * item.quantity).toLocaleString()}
                       </div>
 
@@ -402,7 +403,8 @@ const ShoppingCart = () => {
                     <span className="text-md text-gray-700 font-medium text-lg sm:text-base">
                       รวม ( {selectedItems.length} ) สินค้า
                     </span>
-                    <span className="text-blue-500 font-md text-xl sm:text-lg">
+                    <span className="text-blue-500 font-md text-xl sm:text-lg"
+                    data-test="total-price">
                       ฿ {subtotal.toLocaleString()}
                     </span>
                   </div>
@@ -434,6 +436,7 @@ const ShoppingCart = () => {
 
                 <button
                   onClick={() => navigate("/search")}
+                  data-test="btn-add-product"
                   className="hidden md:flex bg-[#4a89f3] hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold items-center gap-2 transition-colors text-sm shadow-sm cursor-pointer"
                 >
                   เลือกซื้อสินค้า

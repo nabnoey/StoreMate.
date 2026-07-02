@@ -10,6 +10,7 @@ const Home = lazy(() => import("../pages/HomePage"));
 const ShoppingCartPage = lazy(
   () => import("../pages/users/carts/ShoppingCart"),
 );
+
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
@@ -21,7 +22,6 @@ const PaymentShoping = lazy(
   () => import("../pages/users/payment/PaymentShoping"),
 );
 const SearchPage = lazy(() => import("../pages/SearchPage"));
-const CategoryPage = lazy(() => import("../pages/CategoryPage"));
 const AddressProfile = lazy(() => import("../pages/users/AddreesProfile"));
 const AboutUs = lazy(() => import("../pages/AboutAs"));
 const Contact = lazy(() => import("../pages/Contact"));
@@ -39,13 +39,14 @@ const CancelOrderPage = lazy(
 const NotificationPage = lazy(() => import("./../pages/users/Notification"));
 import Stock from "../pages/admin/Stock";
 import Dashboard from "../pages/admin/Dashboard";
-import RefundModeratorPage from "../pages/moderator/RefundModeratorPage";
+import RefundPage from "../pages/admin/RefundPage";
 import Order from "../pages/admin/Orders";
 import OrderDetail from "../pages/admin/OrderDetail";
-import UserEdit from "../pages/admin/UserEdit";
 import StoreEdit from "../pages/admin/StoreEdit";
-import AdminNotificationPage from "../pages/admin/Notification";
+
+import NotificationManagementPage from "../pages/admin/NotificationManagementPage";
 import Analytic from "../pages/admin/Analytic";
+import UserManagement from "../pages/admin/UserManagement";
 
 const router = createBrowserRouter([
   {
@@ -129,10 +130,6 @@ const router = createBrowserRouter([
         element: <SearchPage />,
       },
       {
-        path: "category/:category",
-        element: <CategoryPage />,
-      },
-      {
         path: "address-profile",
         element: <AddressProfile />,
       },
@@ -185,7 +182,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "notification",
+        path: "notify",
         element: (
           <ProtectedRout>
             <NotificationPage />
@@ -195,7 +192,7 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/moderator",
+    path: "/",
     element: (
       <ModeratorRoute>
         <AdminLayout />
@@ -215,25 +212,29 @@ const router = createBrowserRouter([
         element: <Stock />,
       },
       {
-        path: "analytic",
-        element: <Analytic />,
-      },
-      {
-        path: "orders",
+        path: "orders-management",
         element: <Order />,
       },
       {
-        path: "orders/:orderNo",
+        path: "orders-management/:orderNo",
         element: <OrderDetail />,
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
+        element: <RefundPage />,
+      },
+      {
+        path: "notify-management",
+        element: <NotificationManagementPage />,
+      },
+      {
+        path: "analytic",
+        element: <Analytic />,
       },
     ],
   },
   {
-    path: "/owner",
+    path: "/",
     element: (
       <AdminRoute>
         <AdminLayout />
@@ -249,37 +250,33 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "stock",
-        element: <Stock />,
-      },
-      {
         path: "analytic",
         element: <Analytic />,
       },
 
       {
-        path: "ordersMod",
+        path: "orders",
         element: <Order />,
       },
       {
-        path: "ordersMod/:orderNo",
+        path: "orders/:orderNo",
         element: <OrderDetail />,
       },
       {
         path: "refund",
-        element: <RefundModeratorPage />,
-      },
-      {
-        path: "user-edit",
-        element: <UserEdit />,
+        element: <RefundPage />,
       },
       {
         path: "store-edit",
         element: <StoreEdit />,
       },
       {
-        path: "notification",
-        element: <AdminNotificationPage />,
+        path: "user-management",
+        element: <UserManagement />,
+      },
+      {
+        path: "notify-management",
+        element: <NotificationManagementPage />,
       },
     ],
   },

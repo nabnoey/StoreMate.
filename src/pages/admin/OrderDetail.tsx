@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getoOrderByOrderNo, updateOrderStatus } from "../../redux/moderator/ModeratorReducer";
+import { changeStatus, getoOrderByOrderNo } from "../../redux/moderator/ModeratorReducer";
 import {
   FiClock,
   FiClipboard,
@@ -17,8 +17,7 @@ import { Users } from "lucide-react";
 import type { RootState, AppDispatch } from "../../redux/store";
 import { STATUS_LABELS, type OrderItem } from "../../types/moderator/ordersMod";
 import { toast } from "react-hot-toast";
-import type {PaymentMethod} from "../../types/payment";
-// import type {orderMod} from "../../types/moderator/ordersMod";
+import type { PaymentMethod } from "../../types/payment";
 
 function StatusStep({
   icon: Icon,
@@ -32,24 +31,22 @@ function StatusStep({
   isCurrent: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 relative z-10">
+    <div className="flex flex-col items-center gap-2 relative z-10 w-full">
       <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
+        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-xl transition-all duration-300 ${
           isCurrent
-            ? "bg-white border-2 border-black text-black shadow-sm"
+            ? "bg-[#3B82F6] text-white shadow-md shadow-blue-200"
             : isCompleted
-            ? "bg-white border-2 border-gray-800 text-black shadow-sm"
+            ? "bg-white border-2 border-[#3B82F6] text-[#3B82F6]"
             : "bg-white border-2 border-gray-300 text-gray-400"
         }`}
       >
         {Icon}
       </div>
       <span
-        className={`text-xs font-medium text-center ${
-          isCurrent
-            ? "font-bold text-gray-800"
-            : isCompleted
-            ? "font-medium text-gray-600"
+        className={`text-[10px] sm:text-xs text-center px-1 ${
+          isCurrent || isCompleted
+            ? "font-medium text-gray-800"
             : "text-gray-400"
         }`}
       >
@@ -72,20 +69,20 @@ function OrderItemRow({
 }) {
   return (
     <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4 flex-1">
         <img
           src={image || "https://via.placeholder.com/150"}
           alt={name}
-          className="w-14 h-14 bg-gray-100 rounded-md object-cover"
+          className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-md object-cover flex-shrink-0"
         />
         <div>
-          <p className="font-bold text-gray-800 text-sm">{name}</p>
+          <p className="font-bold text-gray-800 text-xs sm:text-sm line-clamp-2">{name}</p>
           <p className="text-xs text-gray-500 mt-1">จำนวน: {quantity}</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="font-bold text-gray-800">฿ {price?.toLocaleString()}</p>
-        <p className="text-[10px] text-gray-400 font-medium">UNIT PRICE</p>
+      <div className="text-right ml-4 flex-shrink-0">
+        <p className="font-bold text-gray-800 text-sm sm:text-base">฿ {price?.toLocaleString()}</p>
+        <p className="text-[10px] text-gray-400 font-medium mt-0.5">UNIT PRICE</p>
       </div>
     </div>
   );
@@ -98,22 +95,21 @@ function OrderDetail() {
 
   const { orderToPrint, loading } = useSelector((state: RootState) => state.moderator);
   const order = orderToPrint && orderToPrint.length > 0 ? orderToPrint[0] : null;
-
-const [selectedStatus, setSelectedStatus] = useState(
-  order?.status || ""
-);
-
- 
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
     if (orderNo && orderNo !== "undefined") {
-      dispatch(getoOrderByOrderNo(orderNo)); 
+      dispatch(getoOrderByOrderNo(orderNo));
     } else {
       console.error("เลขที่คำสั่งซื้อไม่ถูกต้อง:", orderNo);
     }
   }, [orderNo, dispatch]);
 
-
+  // useEffect(() => {
+  //   if (order?.status) {
+  //     setSelectedStatus(order.status);
+  //   }
+  // }, [order?.status]);
 
   if (loading) {
     return (
@@ -127,12 +123,12 @@ const [selectedStatus, setSelectedStatus] = useState(
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-gray-600 mb-4">ไม่พบข้อมูลคำสั่งซื้อ</p>
           <button
-            onClick={() => navigate("/moderator/orders")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            onClick={() => navigate("/orders-management")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
           >
             กลับไปที่จัดการคำสั่งซื้อ
           </button>
@@ -141,40 +137,37 @@ const [selectedStatus, setSelectedStatus] = useState(
     );
   }
 
-
-
-  const handleUpdateStatus = async () => {
+const handleUpdateStatus = async () => {
     if (!order) return;
     
+    // ดึงค่าที่เลือกมาใช้ ถ้ายังไม่เลือกอะไรให้ใช้สถานะเดิมจาก backend
+    const currentSelected = selectedStatus || order.status; 
+
+    if (currentSelected === order.status) {
+      toast.error("กรุณาเลือกสถานะใหม่ที่ต่างจากสถานะปัจจุบัน");
+      return;
+    }
+
     try {
       await dispatch(
-        updateOrderStatus({ orderNo: order.orderNo, status: selectedStatus })
+        changeStatus({ orderNo: order.orderNo, status: currentSelected })
       ).unwrap();
-      
+
       toast.success("อัปเดตสถานะเรียบร้อยแล้ว");
-      
+
       setTimeout(() => {
-        navigate("/moderator/orders");
+        navigate("/orders-management");
       }, 1500);
-    } catch (error: any) {
-      console.error("Update status failed:", error);
-      toast.error(error.message || "ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
+    } catch {
+      toast.error("ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
     }
   };
 
+  const recipientName = order.orderRecipient?.recipientName;
+  const recipientPhone = order.orderRecipient?.phone;
 
+  const recipient = order.orderRecipient || {};
 
-
-
-
-
-
-
-  const recipientName = order.orderRecipient?.recipientName 
-  const recipientPhone = order.orderRecipient?.phone 
-  
-const recipient = order.orderRecipient || {};
-  
   const deliveryAddress = {
     streetAddress: recipient.streetAddress || "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
     subdistrict: recipient.subdistrict || "",
@@ -183,15 +176,12 @@ const recipient = order.orderRecipient || {};
     zipcode: recipient.zipcode || "",
   };
 
-  // const orderDate = order.createdAt
-  //   ? new Date(order.createdAt).toLocaleDateString("th-TH")
-  //   : new Date().toLocaleDateString("th-TH");
   const orderTime = order.createdAt
     ? new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' }) + " น."
     : "";
 
   const steps = [
-    { icon: <FiClock />, label: "รอดำเนินการ, รอชำระเงิน", status: "PENDING" },
+    { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
     { icon: <FiClipboard />, label: "ที่ต้องจัดส่ง", status: "PROCESSING" },
     { icon: <FiTruck />, label: "ที่ต้องได้รับ", status: "RECEIVED" },
     { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
@@ -199,7 +189,6 @@ const recipient = order.orderRecipient || {};
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
 
-  // fallback items in case API doesn't return orderItems in moderator endpoint
   const items = order.orderItems || [
     {
       id: 1,
@@ -210,7 +199,7 @@ const recipient = order.orderRecipient || {};
     }
   ];
 
- const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
     DESTINATION: "เก็บเงินปลายทาง (COD)",
     PROMPTPAY: "พร้อมเพย์ (PromptPay)",
     CARD: "บัตรเครดิต / เดบิต",
@@ -220,115 +209,122 @@ const recipient = order.orderRecipient || {};
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full mt-0 lg:mt-10">
-      <div className="bg-white border-b border-gray-200 w-full p-6">
+      <div className="bg-white border-b border-gray-200 w-full p-4 sm:p-6">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <button
-            onClick={() => navigate("/moderator/orders")}
+            onClick={() => navigate("/orders-management")}
             className="hover:opacity-70 transition-opacity text-gray-700"
             type="button"
           >
             <FiArrowLeft className="text-xl" />
           </button>
           <div className="flex w-full items-center">
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900">
               รายละเอียดคำสั่งซื้อ
             </h1>
           </div>
         </div>
       </div>
 
-      <div className="p-6 w-full text-gray-700 max-w-7xl mx-auto">
+      <div className="p-4 sm:p-6 w-full text-gray-700 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 flex flex-col gap-6 ">
+          <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Timeline & Status */}
-            <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm relative">
-              <p className="text-sm text-gray-500 font-medium mb-6">
+            <div className="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm relative">
+              <p className="text-xs sm:text-sm text-gray-500 font-medium mb-6 sm:mb-8 text-center sm:text-left">
                 {order.orderNo}
               </p>
 
-              <div className="relative mb-10 mt-4">
-                <div className="absolute top-[1.25rem] left-12 right-12 h-0.5 bg-gray-200 z-0"></div>
-                <div 
-                  className="absolute top-[1.25rem] left-12 h-0.5 bg-gray-800 z-0 transition-all duration-500"
-                  style={{ width: progressWidth }}
-                ></div>
+              <div className="relative mb-6 sm:mb-10 mt-2">
+                {/* เส้นเทาพื้นหลัง (เว้นขอบซ้ายขวา 12.5% เพื่อให้อยู่กึ่งกลางไอคอนพอดี) */}
+                <div className="absolute top-4 sm:top-5 left-[12.5%] right-[12.5%] h-[2px] bg-gray-200 z-0">
+                  {/* เส้นสีฟ้าวิ่งตามความคืบหน้า */}
+                  <div
+                    className="absolute top-0 left-0 h-full bg-[#3B82F6] transition-all duration-500"
+                    style={{ width: progressWidth }}
+                  ></div>
+                </div>
 
-                <div className="flex justify-between items-center relative z-10">
+                {/* ตัวไอคอน Step */}
+                <div className="flex justify-between items-start relative z-10 w-full">
                   {steps.map((step, index) => (
-                    <StatusStep
-                      key={step.status}
-                      icon={step.icon}
-                      label={step.label}
-                      isCompleted={index < currentStepIndex}
-                      isCurrent={index === currentStepIndex}
-                    />
+                    <div key={step.status} className="w-1/4 flex justify-center">
+                      <StatusStep
+                        icon={step.icon}
+                        label={step.label}
+                        isCompleted={index < currentStepIndex}
+                        isCurrent={index === currentStepIndex}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
-                  
 
-                  {order.status !== "COMPLETED" && (
-              <div className="mt-8 border-t border-gray-100 pt-6">
-                <h3 className="font-bold text-gray-800 mb-4">เปลี่ยนสถานะคำสั่งซื้อ</h3>
-                <div className="flex items-end gap-4">
-                  <div className="flex flex-col">
-                    <label className="text-xs text-gray-500 mb-2">เลือกสถานะ:</label>
-                    <div className="relative">
-                      <select 
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-48 p-2.5 pr-8"
-                      >
-                        {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>{label}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              {order.status !== "COMPLETED" && (
+                <div className="mt-8 border-t border-gray-100 pt-6">
+                  <h3 className="font-bold text-gray-800 mb-4 text-sm sm:text-base">เปลี่ยนสถานะคำสั่งซื้อ</h3>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 sm:gap-4">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <label className="text-xs text-gray-500 mb-2">เลือกสถานะ:</label>
+                      <div className="relative w-full sm:w-56">
+                        <select
+                          value={selectedStatus || order.status}
+                          onChange={(e) => setSelectedStatus(e.target.value)}
+                          className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8"
+                        >
+                          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                            <option key={key} value={key}>{label}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                          <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                      <button
+                        onClick={handleUpdateStatus}
+                        className="flex-1 sm:flex-none bg-[#10B981] hover:bg-emerald-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+                      >
+                        บันทึก
+                      </button>
+                      <button
+                        onClick={() => setSelectedStatus("")}
+                        className="flex-1 sm:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+                      >
+                        ยกเลิก
+                      </button>
+                    </div>
                   </div>
-                  <button 
-                    onClick={handleUpdateStatus}
-                    className="bg-[#10B981] hover:bg-emerald-600 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-                  >
-                    บันทึก
-                  </button>
-                  <button 
-                    onClick={() => setSelectedStatus(order.status)}
-                    className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
-                  >
-                    ยกเลิก
-                  </button>
                 </div>
-              </div>
-            )}
+              )}
             </div>
 
-            
-
-
             {/* Items */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
                 รายการสินค้า ({items.length})
               </h3>
 
-              {items.map((item: OrderItem) => (
-                <OrderItemRow
-                  key={item.id}
-                  image={item.imageUrl || "https://via.placeholder.com/150"}
-                  name={item.productName || "ไม่ระบุชื่อสินค้า"}
-                  quantity={item.quantity}
-                  price={item.price}
-                />
-              ))}
+              <div className="flex flex-col">
+                {items.map((item: OrderItem) => (
+                  <OrderItemRow
+                    key={item.id}
+                    image={item.imageUrl || "https://via.placeholder.com/150"}
+                    name={item.productName || "ไม่ระบุชื่อสินค้า"}
+                    quantity={item.quantity}
+                    price={item.price}
+                  />
+                ))}
+              </div>
 
               <div className="flex flex-col gap-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center">
-                  <span className="text-[16px] font-medium text-gray-600">ราคารวม</span>
+                  <span className="text-sm sm:text-[16px] font-medium text-gray-600">ราคารวม</span>
                   <div className="text-right">
-                    <p className="text-xl text-blue-500 font-bold">
+                    <p className="text-lg sm:text-xl text-blue-500 font-bold">
                       ฿ {order.total?.toLocaleString()}
                     </p>
                     <p className="text-[10px] text-gray-400 font-bold">THB</p>
@@ -336,10 +332,10 @@ const recipient = order.orderRecipient || {};
                 </div>
 
                 <div className="flex justify-between items-center border-t border-gray-50 pt-4">
-                  <span className="text-[16px] font-medium text-gray-600">ช่องทางชำระเงิน</span>
+                  <span className="text-sm sm:text-[16px] font-medium text-gray-600">ช่องทางชำระเงิน</span>
                   <div className="text-right">
-                    <p className="text-[16px] font-medium text-gray-900">
-                       {PAYMENT_METHOD_LABELS[order.checkoutType as PaymentMethod] || order.checkoutType || "ไม่ระบุช่องทางชำระเงิน"}
+                    <p className="text-sm sm:text-[16px] font-medium text-gray-900">
+                      {PAYMENT_METHOD_LABELS[order.checkoutType as PaymentMethod] || order.checkoutType || "ไม่ระบุช่องทางชำระเงิน"}
                     </p>
                   </div>
                 </div>
@@ -366,23 +362,24 @@ const recipient = order.orderRecipient || {};
             </div>
           </div>
 
+          {/* Sidebar / ข้อมูลผู้รับ */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden sticky top-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden lg:sticky lg:top-6">
               <div className="bg-[#3B82F6] text-white px-5 py-3 flex items-center gap-2">
                 <Users className="text-lg" />
                 <h3 className="font-bold text-sm">ข้อมูลผู้รับ</h3>
               </div>
 
-              <div className="p-5 flex flex-col gap-5 ">
+              <div className="p-5 flex flex-col gap-5">
                 <div>
-                  <p className="text-xs text-gray-500 font-normal mb-2 block ">
+                  <p className="text-xs text-gray-500 font-normal mb-2 block">
                     ชื่อผู้สั่งซื้อ
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black flex-shrink-0">
                       <FiUser />
                     </div>
-                    <p className="font-bold text-sm text-gray-900">
+                    <p className="font-bold text-sm text-gray-900 break-words">
                       {recipientName}
                     </p>
                   </div>
@@ -393,10 +390,10 @@ const recipient = order.orderRecipient || {};
                     เบอร์โทรศัพท์
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black flex-shrink-0">
                       <FiPhone />
                     </div>
-                    <p className="font-bold text-sm text-gray-900">
+                    <p className="font-bold text-sm text-gray-900 break-words">
                       {recipientPhone}
                     </p>
                   </div>
@@ -410,7 +407,7 @@ const recipient = order.orderRecipient || {};
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-black shrink-0">
                       <FiMapPin />
                     </div>
-                    <div className="font-sans text-sm text-black leading-relaxed">
+                    <div className="font-sans text-sm text-black leading-relaxed break-words">
                       {deliveryAddress.streetAddress}
                       {deliveryAddress.subdistrict && (
                         <>

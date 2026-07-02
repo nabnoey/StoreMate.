@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -17,27 +18,23 @@ import { logout } from "../../redux/auth/authReducer";
 import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 import type { RootState } from "../../redux/store";
+import { getProfile } from "../../redux/auth/authReducer";
 
 function SidebarAdmin() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user } = useSelector((state: RootState) => state.auth);
-  const isAdmin = Array.isArray(user?.roles)
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isOwner = Array.isArray(user?.roles)
     ? user.roles.some(
         (role: any) => role === "ADMIN" || role?.roleName === "ADMIN",
       )
     : false;
 
-  const getMenuClass = (paths: string[]) => {
-    const isActive = paths.some((path) => location.pathname === path);
-    const baseClass =
-      "cursor-pointer w-full text-left flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium rounded-lg transition-all";
-    return isActive
-      ? `${baseClass} bg-blue-50 text-blue-600 font-semibold`
-      : `${baseClass} text-gray-700 hover:bg-gray-50 hover:text-blue-600`;
-  };
+  useEffect(() => {
+    dispatch(getProfile() as any);
+  }, [dispatch]);
 
   const handleLogout = () => {
     toast(
@@ -82,125 +79,122 @@ function SidebarAdmin() {
     );
   };
 
+  const menuClass = (paths: string[]) =>
+    `cursor-pointer w-[204px] h-12 px-[10px] rounded-lg flex items-center gap-[10px] text-[16px] transition-all ${
+      paths.some((path) => location.pathname.startsWith(path))
+        ? "bg-blue-100 text-black"
+        : "hover:bg-blue-100 hover:text-black"
+    }`;
   return (
-    <div className="w-72 h-screen sticky top-0 bg-[#ffffff] text-black p-4 flex flex-col justify-between border-r border-gray-200 print:hidden overflow-y-auto">
+    <div className="w-[244px] shrink-0 h-screen sticky top-0 bg-white text-black p-5 flex flex-col justify-between border-r border-gray-500 print:hidden overflow-y-auto">
       <div>
-        <div className="flex flex-col items-center justify-center mt-2">
+        <div className="flex justify-center py-2">
           <img
             src={logo}
-            className="w-40 h-40 object-contain"
+            className="w-[81px] h-[81px] object-contain"
             alt="Logo"
-            data-test="logo"
           />
         </div>
 
-        <ul className="menu rounded-box gap-1 px-0">
+        <ul className="flex flex-col gap-3 px-0">
           <li>
             <button
               data-test="dashboard-button"
-              className="cursor-pointer w-full text-left hover:bg-blue-100 
-     hover:text-blue-600 rounded-lg transition-all -mt-7.5"
-              onClick={() => navigate("/owner/dashboard")}
+              className={menuClass([
+                "/dashboard",
+              ])}
+              onClick={() =>
+                navigate("/dashboard")
+              }
             >
               <LayoutDashboard size={18} />
               แดชบอร์ด
             </button>
           </li>
-
           <li>
             <button
               data-test="report-button"
-              className={getMenuClass(["/owner/analytic", "/moderator/analytic"])}
-              onClick={() =>
-                navigate(isAdmin ? "/owner/analytic" : "/moderator/analytic")
-              }
+              className={menuClass(["/analytic"])}
+              onClick={() => navigate("/analytic")}
             >
               <TrendingUp size={18} />
               รายงานยอดขาย
             </button>
           </li>
-
           <li>
             <button
               data-test="stock-button"
-              className={getMenuClass(["/admin/stock", "/moderator/stock"])}
-              onClick={() =>
-                navigate(isAdmin ? "/owner/stock" : "/moderator/stock")
-              }
+              className={menuClass(["/stock"])}
+              onClick={() => navigate("/stock")}
             >
               <Package size={18} />
               จัดการสินค้าในคลัง
             </button>
           </li>
-
           <li>
             <button
-              className={getMenuClass([
-                "/admin/ordersMod",
-                "/moderator/ordersMod",
-              ])}
-              onClick={() =>
-                navigate(isAdmin ? "/owner/ordersMod" : "/moderator/ordersMod")
-              }
+              data-test="orders-button"
+              className={menuClass(["/orders"])}
+              onClick={() => navigate("/orders-management")}
             >
               <Truck size={18} />
               จัดการคำสั่งซื้อ
             </button>
           </li>
-
           <li>
             <button
-              className={getMenuClass(["/admin/refund", "/moderator/refund"])}
-              onClick={() =>
-                navigate(isAdmin ? "/owner/refund" : "/moderator/refund")
-              }
+              data-test="refund-button"
+              className={menuClass(["/refund"])}
+              onClick={() => navigate("/refund")}
             >
               <CircleDollarSign size={18} />
               จัดการคำขอคืนเงิน
             </button>
           </li>
 
-          {isAdmin && (
-            <>
+          <>
+            {isOwner && (
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/owner/user-edit")}
+                  data-test="user-edit-button"
+                  className={menuClass(["/user-management"])}
+                  onClick={() => navigate("/user-management")}
                 >
                   <Users size={18} />
                   จัดการผู้ใช้
                 </button>
               </li>
+            )}
 
+            {isOwner && (
               <li>
                 <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  onClick={() => navigate("/owner/store-edit")}
+                  data-test="store-edit-button"
+                  className={menuClass(["/store-edit"])}
+                  onClick={() => navigate("/store-edit")}
                 >
                   <Settings size={18} />
                   ตั้งค่าร้านค้า
                 </button>
               </li>
-
-              <li>
-                <button
-                  className="hover:bg-blue-100 hover:text-blue-600 rounded-lg transition-all"
-                  // onClick={() => navigate("/owner/notify")}
-                  onClick={() => navigate("/owner/notification")}
-                >
-                  <Bell size={18} />
-                  จัดการแจ้งเตือน
-                </button>
-              </li>
-            </>
-          )}
+            )}
+          </>
+          <li>
+            <button
+              data-test="notification-button"
+              className={menuClass(["/notify-management"])}
+              onClick={() => navigate("/notify-management")}
+            >
+              <Bell size={18} />
+              จัดการแจ้งเตือน
+            </button>
+          </li>
         </ul>
       </div>
-
       <div className="border-t border-gray-100 pt-4 flex flex-col gap-1">
-        <div className="flex items-center gap-3 mb-3 px-2">
+        <div className="flex items-center gap-2 p-3">
           <div className="avatar">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+            <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
               {user?.image_url || user?.image ? (
                 <img
                   src={user.image_url || user.image}
@@ -216,7 +210,7 @@ function SidebarAdmin() {
           </div>
           <div className="overflow-hidden">
             <p className="font-medium text-sm text-gray-900 truncate">
-              {user?.name || user?.email?.split("@")[0] || "กำลังโหลด..."}
+              {user?.name || "กำลังโหลด..."}
             </p>
             <p className="text-xs text-gray-500 truncate">
               {user?.email || "กำลังโหลด..."}
@@ -225,8 +219,9 @@ function SidebarAdmin() {
         </div>
 
         <button
+          data-test="home-button"
           onClick={() => navigate("/")}
-          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-lg transition-all w-full text-left"
+          className="cursor-pointer w-[204px] h-12 px-[10px] rounded-lg flex items-center gap-[10px] text-[16px] hover:bg-blue-100"
         >
           <Store size={18} />
           หน้าหลักร้านค้า
@@ -235,7 +230,7 @@ function SidebarAdmin() {
         <button
           onClick={handleLogout}
           data-test="logout-button"
-          className="cursor-pointer flex items-center gap-3 px-4 py-2.5 text-[15px] font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all w-full text-left"
+          className="cursor-pointer w-[204px] h-12 px-[10px] rounded-lg flex items-center gap-[10px] text-[16px] hover:bg-red-300"
         >
           <LogOut size={18} />
           ลงชื่อออกจากระบบ

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
+import { format } from "date-fns";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { fetchAllOrders, shippingOrder } from "../../redux/moderator/ModeratorReducer";
 import {
@@ -12,7 +13,10 @@ import {
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 import { toast } from "react-hot-toast";
 import { CiCalendar } from "react-icons/ci";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "cally";
+import { useReactToPrint } from "react-to-print";
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
@@ -31,61 +35,79 @@ function Orders() {
   const [isPrintMode, setIsPrintMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [submittedSearchTerm, setSubmittedSearchTerm] = useState("");
-  const [searchDate, setSearchDate] = useState("");
+  
+  // ✨ ระบบช่วงวันที่ (Date Range)
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  
   const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const initialPage = Number(searchParams.get("page"));
+  // 🛡️ ดึงข้อมูลจาก URL (ถ้า URL เป็น 0 ให้ UI มองเป็น 1)
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
   const [currentPage, setCurrentPage] = useState(initialPage);
 
   const rawOrders = useSelector((state: RootState) => state.moderator.orders);
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
-  const totalPages = useSelector((state: RootState) => state.moderator.totalPages)
-    const dateRef = useRef<HTMLInputElement>(null);
+  const totalPages = useSelector((state: RootState) => state.moderator.totalPages);
 
-
-  const PAGE_SIZE = 10; 
-
+  const PAGE_SIZE = 10;
+  const TIME_FILTER_MAP: Record<string, string> = {
+    "วันนี้": "today",
+    "สัปดาห์นี้": "week",
+    "เดือนนี้": "month",
+  };
 
   useEffect(() => {
-    let periodValue: string | undefined = undefined;
-    if (timeFilter === "วันนี้") periodValue = "day";
-    else if (timeFilter === "สัปดาห์นี้") periodValue = "week";
-    else if (timeFilter === "เดือนนี้") periodValue = "month";
+    const periodValue = TIME_FILTER_MAP[timeFilter];
 
-    dispatch(fetchAllOrders({
-      page: currentPage,
-      size: PAGE_SIZE,
-      keyword: submittedSearchTerm || undefined,
-      startDate: searchDate || undefined,
-      endDate: searchDate || undefined,
-      period: periodValue,
-    }));
+    const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : undefined;
+    const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : undefined;
 
-    const params: Record<string, string> = { page: String(currentPage), size: String(PAGE_SIZE) };
+    dispatch(
+      fetchAllOrders({
+        page: currentPage - 1, 
+        size: PAGE_SIZE,
+        keyword: submittedSearchTerm || undefined,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        period: periodValue,
+      })
+    );
+
+  
+    const params: Record<string, string> = { 
+      page: String(currentPage - 1), 
+      size: String(PAGE_SIZE) 
+    };
+    
     if (submittedSearchTerm) params.keyword = submittedSearchTerm;
-    if (searchDate) {
-       params.startDate = searchDate;
-       params.endDate = searchDate;
-    }
+    if (formattedStartDate) params.startDate = formattedStartDate;
+    if (formattedEndDate) params.endDate = formattedEndDate;
     if (periodValue) params.period = periodValue;
+    
     setSearchParams(params);
 
-  }, [dispatch, currentPage, setSearchParams, submittedSearchTerm, searchDate, timeFilter]);
+  }, [dispatch, currentPage, setSearchParams, submittedSearchTerm, startDate, endDate, timeFilter]);
 
- const currentItems = Array.isArray(orders) ? orders.slice(0, PAGE_SIZE) : []
+  const reactToPrintFn = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: "ใบปะหน้าพัสดุ",
+  });
 
   useEffect(() => {
     if (isPrinting && printData.length > 0) {
       const timer = setTimeout(() => {
-        window.print();
+        reactToPrintFn();
         setIsPrinting(false);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isPrinting, printData]);
+  }, [isPrinting, printData, reactToPrintFn]);
 
   const handlePageChange = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -96,7 +118,7 @@ function Orders() {
   const handleSelectOrder = (orderNo: string) => {
     const key = String(orderNo);
     setSelectedOrders((prev) =>
-      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key],
+      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key]
     );
   };
 
@@ -105,42 +127,39 @@ function Orders() {
     setIsPrintMode(true);
   };
 
-
   const handleCancelPrintMode = () => {
     setSelectedOrders([]);
     setIsPrintMode(false);
   };
 
- 
   const handleConfirmPrint = async () => {
     const selectedData = orders.filter((o) =>
-      selectedOrders.includes(String(o.orderNo)),
+      selectedOrders.includes(String(o.orderNo))
     );
     if (selectedData.length === 0) return;
-    
-    const invalidOrders = selectedData.filter(o => o.status !== "PROCESSING");
+
+    const invalidOrders = selectedData.filter((o) => o.status !== "PROCESSING");
     if (invalidOrders.length > 0) {
       toast.error("สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น");
       return;
     }
 
-    const ids = selectedData.map(o => o.id).filter(id => id != null);
-    
     try {
-      if (ids.length > 0) {
-        await dispatch(shippingOrder(ids[0])).unwrap();
+      if (selectedData.length > 0) {
+        const orderIds = selectedData.map((order) => Number(order.id));
+        await dispatch(shippingOrder(orderIds)).unwrap();
+        // 🛠️ ตอนรีเฟรชข้อมูลก็ต้อง -1 ให้ API เหมือนกัน
         dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
       }
       setPrintData(selectedData);
       setIsPrinting(true);
-    } catch (error: any) {
-      const errorMsg = error?.response?.data?.message || error.message || "ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้";
-      toast.error(errorMsg);
+    } catch {
+      toast.error("ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้");
     }
   };
 
-const maxVisiblePages = 5; 
-  
+  const maxVisiblePages = 5;
+
   const getVisiblePages = () => {
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let end = start + maxVisiblePages - 1;
@@ -161,6 +180,7 @@ const maxVisiblePages = 5;
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-start text-left w-full">
+      
       <div className="w-full flex flex-col items-start print:hidden">
         <HeaderAdmin
           title="จัดการคำสั่งซื้อ"
@@ -172,19 +192,17 @@ const maxVisiblePages = 5;
             <div className="flex flex-col gap-4 mb-6">
               <div className="flex items-center gap-3">
                 {!isPrintMode ? (
-                  /* ─── โหมดปกติ: แสดงแค่ปุ่มปริ้นใบปะหน้า ─── */
                   <button
                     type="button"
                     onClick={handleEnterPrintMode}
-                    className="h-[40px] px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    className="h-[40px] px-4 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                   >
                     <span>🖨️</span>
                     ปริ้นใบปะหน้า
                   </button>
                 ) : (
-                  /* ─── โหมดเลือกปริ้น: แสดงจำนวน + ยืนยัน + ยกเลิก ─── */
                   <>
-                    <div className="h-[40px] px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+                    <div className="h-[40px] cursor-pointer px-4 bg-blue-600 text-white rounded-lg text-sm font-medium flex items-center gap-2">
                       <span>🖨️</span>
                       ปริ้นใบปะหน้าที่เลือก ({selectedOrders.length})
                     </div>
@@ -192,14 +210,14 @@ const maxVisiblePages = 5;
                       type="button"
                       onClick={handleConfirmPrint}
                       disabled={selectedOrders.length === 0}
-                      className="h-[40px] w-[100px] bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                      className="h-[40px] w-[100px] bg-blue-700 cursor-pointer hover:bg-blue-800 text-white rounded-lg text-sm font-medium transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                     >
                       ยืนยัน
                     </button>
                     <button
                       type="button"
                       onClick={handleCancelPrintMode}
-                      className="h-[40px] w-[100px] rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
+                      className="h-[40px] w-[100px] cursor-pointer rounded-lg border border-black text-gray-700 text-sm font-semibold font-['Anuphan'] hover:bg-gray-50 transition-colors"
                     >
                       ยกเลิก
                     </button>
@@ -217,39 +235,120 @@ const maxVisiblePages = 5;
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         setSubmittedSearchTerm(searchTerm);
-                        setCurrentPage(0);
+                        setCurrentPage(1);
                       }
                     }}
                     className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64"
                   />
-                  
-                <div className="relative">
+
+                 <div 
+  className={`
+    relative text-sm font-['Anuphan'] cursor-pointer
+    ${startDate && endDate ? "w-full" : "w-[140px]"}
+  `}
+>
   <input
-    ref={dateRef}
-    type="date"
-    value={searchDate}
-    onChange={(e) => setSearchDate(e.target.value)}
-    className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+    type="text"
+    data-test="select-date"
+    readOnly
+    placeholder="เลือกช่วงเวลา"
+    value={
+      startDate && endDate
+        ? `${format(startDate, "dd/MM/yyyy")} - ${format(
+            endDate,
+            "dd/MM/yyyy"
+          )}`
+        : ""
+    }
+   onClick={() => {
+     setIsDatePickerOpen(!isDatePickerOpen); // 🛠️ แก้ไขให้กดเปิด-ปิดได้
+   }}
+    className={`
+    relative border border-gray-300 rounded px-3 py-2 text-sm 
+    focus:outline-none focus:ring-1 focus:ring-blue-500 
+    ${startDate && endDate ? "w-full" : "w-[140px]"}
+    text-gray-700 bg-white cursor-pointer
+  `}
+    
+    
   />
 
-  <button
-    type="button"
-    data-test="calendar-button"
-    className="absolute right-3 top-1/2 -translate-y-1/2"
-    onClick={() => dateRef.current?.showPicker?.()}
-  >
-    <CiCalendar size={20} />
-  </button>
-</div>        
-  </div>
+    <CiCalendar 
+    className="
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-gray-500
+      pointer-events-none
+    "
+    size={18}
+  />
 
-                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto">
+  {isDatePickerOpen && (
+    <div
+      className="
+        absolute left-0 mt-2 z-50
+        bg-white border border-gray-200
+        shadow-xl rounded-2xl p-4
+      "
+    >
+      <DatePicker
+        selected={startDate}
+        onChange={(dates) => {
+          const [start, end] = dates as [Date | null, Date | null];
+
+          setStartDate(start);
+          setEndDate(end);
+        }}
+        startDate={startDate}
+        endDate={endDate}
+        selectsRange
+        inline
+        monthsShown={2}
+        minDate={startDate || undefined}
+      />
+
+      <div className="flex justify-end gap-3 mt-4">
+        <button
+          type="button"
+          onClick={() => {
+            setStartDate(null);
+            setEndDate(null);
+            setCurrentPage(1); // รีเซ็ตหน้ากลับไปหน้าแรกด้วย
+          }}
+          className="px-4 py-2 border rounded-lg cursor-pointer"
+        >
+          ล้างค่า
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setIsDatePickerOpen(false);
+            setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer"
+        >
+          บันทึก
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
+                </div>
+
+                <div className="flex rounded border border-gray-200 overflow-hidden text-xs font-medium self-end md:self-auto ">
                   {["วันนี้", "สัปดาห์นี้", "เดือนนี้"].map((tab) => (
                     <button
                       key={tab}
                       type="button"
-                      onClick={() => setTimeFilter(tab)}
-                      className={`px-4 py-2 border-r last:border-r-0 transition-colors ${
+                      onClick={() => {
+                        setTimeFilter(tab);
+                        setCurrentPage(1); // เปลี่ยน Tab ก็ควรกลับไปหน้าแรก
+                      }}
+                      className={`px-4 py-2 border-r last:border-r-0 transition-colors cursor-pointer ${
                         timeFilter === tab
                           ? "bg-gray-100 text-black"
                           : "bg-white text-gray-500 hover:bg-gray-50"
@@ -262,9 +361,7 @@ const maxVisiblePages = 5;
               </div>
             </div>
 
-            <h3 className="text-base font-bold text-gray-800 mb-4">
-              คำสั่งซื้อ
-            </h3>
+            <h3 className="text-base font-bold text-gray-800 mb-4">คำสั่งซื้อ</h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left border-collapse">
@@ -295,55 +392,43 @@ const maxVisiblePages = 5;
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {currentItems.length > 0 ? (
-                    currentItems.map((order: OrderMod) => {
+                  {orders.length > 0 ? (
+                    orders.map((order: OrderMod) => {
 
+                      
                       const { dateStr, timeStr } = formatDateTime(order.createdAt || "");
                       const isSelected = selectedOrders.includes(String(order.orderNo));
 
                       return (
-                       <tr
-  key={order.id || order.orderNo}
- 
-  className={`hover:bg-gray-50/50 transition-colors cursor-pointer ${
-    isPrintMode && isSelected ? "bg-blue-50" : ""
-  }`}
->
-
+                        <tr
+                          key={order.id || order.orderNo}
+                          className={`hover:bg-gray-50/50 transition-colors cursor-pointer ${
+                            isPrintMode && isSelected ? "bg-blue-50" : ""
+                          }`}
+                        >
                           <td className="py-4 px-2">
                             <div className="flex items-center gap-3">
-                              {/* วงกลมติ๊ก: โชว์เฉพาะตอนอยู่ในโหมดปริ้น */}
                               {isPrintMode && (
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    handleSelectOrder(String(order.orderNo))
-                                  }
+                                  onClick={() => handleSelectOrder(String(order.orderNo))}
                                   className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
                                     isSelected
                                       ? "bg-blue-700 border-blue-700"
                                       : "border-gray-300 bg-white"
                                   }`}
                                 >
-                                  {isSelected && (
-                                    <span className="text-white text-[10px]">
-                                      ✓
-                                    </span>
-                                  )}
+                                  {isSelected && <span className="text-white text-[10px]">✓</span>}
                                 </button>
                               )}
-                              <span className="text-gray-600 font-medium">
-                                {order.orderNo}
-                              </span>
+                              <span className="text-gray-600 font-medium">{order.orderNo}</span>
                             </div>
                           </td>
 
                           <td className="py-4 px-2 text-gray-800 font-medium">
                             {order.recipientName}
                           </td>
-                          <td className="py-4 px-2 text-gray-500">
-                            {order.phone}
-                          </td>
+                          <td className="py-4 px-2 text-gray-500">{order.phone}</td>
 
                           <td className="py-4 px-2 text-gray-500 text-xs leading-relaxed">
                             {dateStr}
@@ -363,49 +448,41 @@ const maxVisiblePages = 5;
                           <td className="py-4 px-2">
                             <span
                               className={`inline-flex items-center px-3 py-[4px] rounded-full text-[11px] font-medium whitespace-nowrap ${
-                                STATUS_STYLES[order.status] ||
-                                "bg-gray-100 text-gray-600"
+                                STATUS_STYLES[order.status] || "bg-gray-100 text-gray-600"
                               }`}
                             >
                               {STATUS_LABELS[order.status] || order.status}
                             </span>
                           </td>
                           <td className="py-4 text-right text-xs space-x-3 pr-2">
-                            {order.is_printed && (
-                              <span className="text-[#60A5FA] text-xs font-medium">
-                                printed
-                              </span>
-                            )}
-                            {isPrintMode ? (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleSelectOrder(String(order.orderNo))
-                                }
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                {isSelected ? "ยกเลิก" : "เลือก"}
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => navigate(`/moderator/orders/${order.orderNo}`)}
-
-                                className="text-blue-600 hover:underline font-medium"
-                              >
-                                จัดการ
-                              </button>
-                            )}
-                          </td>
+  {order.is_printed && (
+    <span className="text-[#60A5FA] text-xs font-medium">printed</span>
+  )}
+  {isPrintMode ? (
+    <button
+      type="button"
+      onClick={() => handleSelectOrder(String(order.orderNo))}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      {isSelected ? "ยกเลิก" : "เลือก"}
+    </button>
+  ) : (
+    <button
+      type="button"
+      data-test={`menagemate-order-${order.orderNo}`}
+      onClick={() => navigate(`/orders-management/${order.orderNo}`)}
+      className="text-blue-600 hover:underline font-medium cursor-pointer"
+    >
+      จัดการ
+    </button>
+  )}
+</td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td
-                        colSpan={8}
-                        className="py-8 text-center text-gray-400 font-medium"
-                      >
+                      <td colSpan={8} className="py-8 text-center text-gray-400 font-medium">
                         ไม่มีรายการคำสั่งซื้อในระบบ
                       </td>
                     </tr>
@@ -414,7 +491,7 @@ const maxVisiblePages = 5;
               </table>
             </div>
 
-      
+            {/* Pagination Controls */}
             <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
               <button
                 type="button"
@@ -446,7 +523,6 @@ const maxVisiblePages = 5;
                     </button>
                   ))
                 ) : (
-
                   <button type="button" className="w-8 h-8 text-blue-500 font-bold">1</button>
                 )}
               </div>
@@ -468,8 +544,7 @@ const maxVisiblePages = 5;
         </div>
       </div>
 
-      {/* ส่วนที่ใช้สำหรับ Print */}
-      <div className="hidden print:block w-full absolute top-0 left-0 bg-white">
+      <div className="hidden">
         <InvoicePrint ref={printRef} data={printData} />
       </div>
     </div>

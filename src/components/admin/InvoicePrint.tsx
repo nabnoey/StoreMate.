@@ -108,81 +108,37 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
 
               {/* รายการสินค้า */}
               <div style={{ fontSize: "12px", marginBottom: "12px" }}>
-                {/* สินค้าที่ 1 — แสดงทุก order */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: "4px",
-                  }}
-                >
-                  <span style={{ flex: 1 }}>
-                    1.น้ำมะม่วงหาวมะนาวโห่ สกัดเข้มข้น ไม่มีน้ำตาล
-                  </span>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "32px",
-                      minWidth: "90px",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <span>x1</span>
-                    <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 35</span>
-                  </div>
-                </div>
-
-                {/* สินค้าที่ 2 — แสดงตั้งแต่ order ที่ 2 */}
-                {index >= 1 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    <span style={{ flex: 1 }}>
-                      2 .น้ำมะม่วงหาวมะนาวโห่สูตรดั้งเดิม
-                    </span>
+                {order.orderItems && order.orderItems.length > 0 ? (
+                  order.orderItems.map((item, idx) => (
                     <div
+                      key={item.id || idx}
                       style={{
                         display: "flex",
-                        gap: "32px",
-                        minWidth: "90px",
-                        justifyContent: "flex-end",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "4px",
                       }}
                     >
-                      <span>x1</span>
-                      <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 35</span>
+                      <span style={{ flex: 1, paddingRight: "16px" }}>
+                        {idx + 1}. {item.productName}
+                      </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "32px",
+                          minWidth: "90px",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <span>x{item.quantity}</span>
+                        <span style={{ minWidth: "40px", textAlign: "right" }}>
+                          ฿ {item.price.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                {/* สินค้าที่ 3 — แสดงตั้งแต่ order ที่ 3 */}
-                {index >= 2 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    <span style={{ flex: 1 }}>3.สบู่ มะม่วงมะนาวโห่</span>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "32px",
-                        minWidth: "90px",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <span>x1</span>
-                      <span style={{ minWidth: "40px", textAlign: "right" }}>฿ 100</span>
-                    </div>
-                  </div>
+                  ))
+                ) : (
+                  <div>ไม่มีรายการสินค้า</div>
                 )}
               </div>
 
@@ -202,13 +158,13 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
                 <div style={{ textAlign: "center" }}>
                   <div style={{ color: "#555" }}>มูลค่าสินค้า</div>
                   <div style={{ marginTop: "3px" }}>
-                    ฿ {order.total ?? (index === 0 ? 35 : index === 1 ? 70 : 170)}
+                    ฿ {order.total?.toLocaleString() || "0"}
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ color: "#555" }}>ช่องทางชำระเงิน</div>
                   <div style={{ marginTop: "3px", fontWeight: "500" }}>
-                    พร้อมเพย์ (PromptPay)
+                    {order.checkoutType === "PROMPTPAY" ? "พร้อมเพย์ (PromptPay)" : order.checkoutType || "พร้อมเพย์ (PromptPay)"}
                   </div>
                 </div>
               </div>

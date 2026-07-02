@@ -2,6 +2,18 @@ import type { CreateReviewPayload } from "./../../types/review";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ReviewsService } from "../../services/reviews.service";
 
+export const fetchProductReviews = createAsyncThunk(
+  "reviews/fetchReviews",
+  async (orderItemId: number, { rejectWithValue }) => {
+    try {
+      const response = await ReviewsService.getReviews(orderItemId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Failed to fetch reviews");
+    }
+  },
+);
+
 export const submitProductReview = createAsyncThunk(
   "reviews/submitReview",
   async (
@@ -46,7 +58,6 @@ export const deleteProductReview = createAsyncThunk(
     }
   },
 );
-// สร้าง Slice (ไว้สำหรับจัดการ Loading/Error state ถ้าต้องการ)
 const reviewSlice = createSlice({
   name: "reviews",
   initialState: {
@@ -55,6 +66,21 @@ const reviewSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
+    // fetchReviews
+    builder
+      .addCase(fetchProductReviews.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductReviews.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(fetchProductReviews.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    //createReview
     builder
       .addCase(submitProductReview.pending, (state) => {
         state.isLoading = true;

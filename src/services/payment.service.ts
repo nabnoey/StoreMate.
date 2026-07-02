@@ -1,5 +1,10 @@
 import api from "./api";
-import type { PaymentIntentPayload, PaymentNowPayload } from "../types/payment";
+import type {
+  PaymentIntentPayload,
+  PaymentNowPayload,
+  RetryPaymentRequest,
+  ReOrderPayment,
+} from "../types/payment";
 import type { RefundRequest } from "../types/orders";
 
 const createPaymentIntent = async (data: PaymentIntentPayload) => {
@@ -26,8 +31,20 @@ const sendRefund = async (data: RefundRequest) => {
   return res.data;
 };
 
+const retryPayment = async (data: RetryPaymentRequest) => {
+  const res = await api.post("/retry", data);
+  return res.data;
+};
+
+const reOrderPayment = async (data: ReOrderPayment) => {
+  const res = await api.post(`/payment/reorder`, data);
+  return res.data;
+};
+
 export const PaymentService = {
   createPaymentIntent,
   paymentNow,
   sendRefund,
+  retryPayment,
+  reOrderPayment,
 };

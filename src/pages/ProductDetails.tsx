@@ -3,22 +3,19 @@ import axios from "axios";
 import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-// import { jwtDecode } from "jwt-decode";
 import { Icon } from "@iconify/react";
 
 import type { RootState, AppDispatch } from "../redux/store";
 import { addToCartThunk } from "../redux/carts/CartReducer";
-
-import { ProductService } from "../services/product.service";
-import type { ProductDetail } from "../types/product";
+import { fetchProductById } from "../redux/products/productReducer";
 import { TokenService } from "../services/token.service";
 
 import Pagination from "../components/user/Pagination";
-import Loading from "../components/loading/Loading";
+// import Loading from "../components/loading/Loading";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
-const catagoryTranslator: Record<string, string> = {
+const categoryTranslator: Record<string, string> = {
   Promotion: "โปรโมชัน",
   Soap: "สบู่",
   Drinks: "เครื่องดื่ม",
@@ -31,30 +28,20 @@ const ProductDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [productDetail, setProductDetail] = useState<ProductDetail | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>("");
   const [buyQuantity, setBuyQuantity] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   // const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const productDetail = useSelector(
+    (state: RootState) => state.products.selectedProduct,
+  );
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
 
-  // แก้ไข และ ลบรีวิว
-  // const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-  // const [selectedReview, setSelectedReview] = useState<any>(null);
-  // const [editScore, setEditScore] = useState<number>(0);
-  // const [editMessage, setEditMessage] = useState<string>("");
-
   // แสดงเพิ่มเติมของรายละเอียดสินค้า mobile
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-
-  // จำกัดสิทธิ์
-  // const token = TokenService.getAccessToken();
-  // const isLoggedIn = !!token;
   const categoryName = location.state?.categoryName || "สินค้า";
 
   // Pagination
@@ -68,20 +55,6 @@ const ProductDetailPage: React.FC = () => {
     indexOfLastReview,
   );
 
-  // type JwtPayload = {
-  //   userId: number;
-  // };
-
-  // const currentUserId = useMemo(() => {
-  //   if (!token) return null;
-  //   try {
-  //     const decoded = jwtDecode<JwtPayload>(token);
-  //     return decoded.userId;
-  //   } catch {
-  //     return null;
-  //   }
-  // }, [token]);
-
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
     return cartItems.find((items) => items.productId === Number(id));
@@ -89,48 +62,26 @@ const ProductDetailPage: React.FC = () => {
 
   const quantityInCart = itemInCart?.quantity || 0;
 
+  const isUnavailable =
+    productDetail?.productStatus !== "ACTIVE" || currentStock <= 0;
+
   useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        setLoading(true);
-        if (id) {
-          const data = await ProductService.getProductById(Number(id));
-          if (!data) {
-            toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
-            setTimeout(() => {
-              navigate("/");
-            }, 1000);
-            return;
-          }
+    if (id) {
+      dispatch(fetchProductById(Number(id)));
+    }
+  }, [id, dispatch]);
 
-          setProductDetail(data);
-
-          if (data.productImages && data.productImages.length > 0) {
-            setActiveImage(data.productImages[0].imageUrl);
-          }
-        }
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error);
-
-        toast.error("ไม่พบข้อมูลสินค้า", { id: "product-not-found" });
-
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDetail();
-    window.scrollTo(0, 0);
-  }, [id, navigate]);
+  useEffect(() => {
+    if (productDetail?.productImages?.length) {
+      setActiveImage(productDetail.productImages[0].imageUrl);
+    }
+  }, [productDetail]);
 
   const handleIncrease = () => {
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
-      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
     }
   };
 
@@ -146,14 +97,16 @@ const ProductDetailPage: React.FC = () => {
     if (isAddingToCart) return;
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
+      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น", {
+        duration: 1500,
+      });
       navigate("/login");
       return;
     }
     if (!productDetail) return;
 
-    if (currentStock <= 0) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
+    if (isUnavailable) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
       return;
     }
 
@@ -163,10 +116,12 @@ const ProductDetailPage: React.FC = () => {
       if (quantityInCart > 0) {
         toast.error(
           `ไม่สามารถเพิ่มจำนวนสินค้าได้ เนื่องจากคุณเพิ่มสินค้านี้ไว้ในรถเข็นเเล้ว ${quantityInCart} ชิ้น`,
+          { duration: 1500 },
         );
       } else {
         toast.error(
           `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+          { duration: 1500 },
         );
       }
       return;
@@ -181,7 +136,7 @@ const ProductDetailPage: React.FC = () => {
 
     try {
       await dispatch(addToCartThunk(cartItemPayload)).unwrap();
-      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
+      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว", { duration: 1500 });
       setBuyQuantity(1);
 
       if (shouldRedirect) {
@@ -193,7 +148,7 @@ const ProductDetailPage: React.FC = () => {
         backendMessage = error.response?.data?.message || error.message;
       }
       if (backendMessage === "There is insufficient stock.") {
-        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
+        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
       } else {
         toast.error(backendMessage);
       }
@@ -207,21 +162,22 @@ const ProductDetailPage: React.FC = () => {
     const token = TokenService.getAccessToken();
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ", { duration: 1500 });
       navigate("/login");
       return;
     }
 
     if (!productDetail) return;
 
-    if (currentStock <= 0) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่ายในขณะนี้");
+    if (isUnavailable) {
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
       return;
     }
 
     if (buyQuantity > currentStock) {
       toast.error(
         `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
+        { duration: 1500 },
       );
       return;
     }
@@ -268,7 +224,7 @@ const ProductDetailPage: React.FC = () => {
     setCurrentPage(page);
   };
 
-  if (loading) return <Loading />;
+  // if (loading) return <Loading />;
   if (!productDetail)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -299,7 +255,7 @@ const ProductDetailPage: React.FC = () => {
               to={`/search?category=${categoryName}`}
               className="transition-colors cursor-pointer"
             >
-              {catagoryTranslator[categoryName] || categoryName}
+              {categoryTranslator[categoryName] || categoryName}
             </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
@@ -401,7 +357,7 @@ const ProductDetailPage: React.FC = () => {
                   รายละเอียดสินค้า
                 </h3>
                 <div
-                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left transition-all duration-300 ${
+                  className={`text-black text-[16px] md:text-base leading-relaxed whitespace-pre-line text-left break-words w-full overflow-hidden transition-all duration-300 ${
                     !isDescriptionExpanded
                       ? "line-clamp-3 md:line-clamp-none"
                       : ""
@@ -441,6 +397,8 @@ const ProductDetailPage: React.FC = () => {
                     >
                       <button
                         type="button"
+                        data-test="btn-decrease"
+                        disabled={isUnavailable}
                         onClick={handleDecrease}
                         className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                       >
@@ -452,6 +410,7 @@ const ProductDetailPage: React.FC = () => {
                       <button
                         type="button"
                         data-test="btn-increase"
+                        disabled={isUnavailable}
                         onClick={handleIncrease}
                         className="flex-1 h-full flex items-center justify-center cursor-pointer text-lg font-medium text-black transition-colors"
                       >
@@ -471,8 +430,13 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     data-test="btn-add-to-cart"
+                    disabled={isUnavailable}
                     onClick={() => handleAddToCart(false)}
-                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#3B82F6] hover:bg-blue-600 text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
+                    className={`w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] rounded font-semibold text-[15px] transition-colors shadow-sm ${
+                      isUnavailable
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-[#3B82F6] hover:bg-blue-600 text-white cursor-pointer"
+                    }`}
                   >
                     เพิ่มลงรถเข็น
                   </button>
@@ -480,8 +444,13 @@ const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     data-test="btn-buy-cart"
+                    disabled={isUnavailable}
                     onClick={handleBuyNow}
-                    className="w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] cursor-pointer bg-[#10B981] hover:bg-[#059669] text-white rounded font-semibold text-[15px] transition-colors shadow-sm"
+                    className={`w-[120px] h-[44px] flex items-center justify-center gap-[10px] p-[10px] rounded font-semibold text-[15px] transition-colors shadow-sm ${
+                      isUnavailable
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : "bg-[#10B981] hover:bg-[#059669] text-white cursor-pointer"
+                    }`}
                   >
                     สั่งซื้อสินค้า
                   </button>
@@ -526,41 +495,6 @@ const ProductDetailPage: React.FC = () => {
                               );
                             })}
                           </div>
-
-                          {/* {isLoggedIn &&
-                            currentUserId === review.reviewer?.id && (
-                              <div className="relative">
-                                <Icon
-                                  icon="mdi:dots-vertical"
-                                  width="24"
-                                  height="24"
-                                  data-test="onclick-toggle-menu"
-                                  className="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
-                                  onClick={() => toggleMenu(review.id)}
-                                />
-
-                                {openMenuId === review.id && (
-                                  <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-100 rounded-md shadow-lg z-10 py-1 overflow-hidden">
-                                    <button
-                                      type="button"
-                                      data-test="edit-review"
-                                      onClick={() => setOpenMenuId(null)}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-50 transition-colors"
-                                    >
-                                      แก้ไข
-                                    </button>
-                                    <button
-                                      type="button"
-                                      data-test="delete-review"
-                                      onClick={() => setOpenMenuId(null)}
-                                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50 transition-colors"
-                                    >
-                                      ลบ
-                                    </button>
-                                  </div>
-                                )}
-                              </div> */}
-                          {/* )} */}
                         </div>
                       </div>
                       <p className="text-gray-600 text-sm mt-2">

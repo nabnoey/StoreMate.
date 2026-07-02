@@ -2,21 +2,29 @@ export interface Notification {
   id: number;
   title: string;
   message: string;
-  sendTo: string;
+  sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
   createdAt: string;
-}
 
-export interface NotificationResponse {
-  id: number;
-  title: string;
-  message: string;
-  createdAt: string;
-  type: string; // จำลอง: 'orders' | 'refunds' | 'shop'
-  isRead: boolean; // จำลองผ่าน localStorage
+  type: NotificationType;
 }
 
 export interface NotificationRequest {
   title: string;
   message: string;
-  sendTo: string;
+  sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
 }
+
+export interface FetchNotifyParams {
+  keyword: string;
+  page: number;
+  size: number;
+}
+
+export interface PageableNotificationResponse {
+  content: Notification[];
+  totalPages: number;
+  number: number; // currentPage
+  totalElements: number;
+}
+
+export type NotificationType = "ALL" | "STORE" | "ORDERED" | "REFUNDED";

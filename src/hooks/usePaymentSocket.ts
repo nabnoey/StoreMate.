@@ -48,8 +48,16 @@ const usePaymentSocket = () => {
       },
 
       debug: (str) => console.log("[STOMP]", str),
+      onWebSocketError: (event) => {
+        console.error("WS ERROR:", event);
+      },
+
+      onDisconnect: () => {
+        console.log("STOMP DISCONNECTED");
+      },
 
       onConnect: () => {
+        currentToken = token;
         console.log("SOCKET CONNECTED");
 
         client.subscribe("/user/queue/notifications", (message) => {
@@ -65,7 +73,7 @@ const usePaymentSocket = () => {
             data.status === "COMPLETED"
           ) {
             toast.dismiss();
-            toast.success("ชำระเงินสำเร็จ");
+            toast.success("คำสั่งซื้อสำเร็จ");
 
             localStorage.removeItem("orderNo");
 
@@ -82,7 +90,7 @@ const usePaymentSocket = () => {
             data.paymentStatus === "PAYMENT_FAILS" ||
             data.status === "CANCELLED"
           ) {
-            toast.error("ชำระเงินไม่สำเร็จ");
+            toast.error("QR Code หมดอายุการใช้งาน");
 
             dispatch(
               setPaymentStatus({
@@ -94,14 +102,16 @@ const usePaymentSocket = () => {
         });
       },
 
+      onStompError: (frame) => {
+        console.error("STOMP ERROR:", frame);
+        console.error("MESSAGE:", frame.headers["message"]);
+        console.error("BODY:", frame.body);
+      },
+
       onWebSocketClose: () => {
         console.log("SOCKET CLOSED");
         globalClient = null;
         currentToken = null;
-      },
-
-      onStompError: (frame) => {
-        console.error("STOMP ERROR:", frame.headers["message"]);
       },
     });
 

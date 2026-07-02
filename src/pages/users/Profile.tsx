@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Cropper from "react-easy-crop";
 import {
@@ -10,10 +10,9 @@ import {
 } from "../../redux/auth/authReducer";
 import type { RootState } from "../../redux/store";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
-import Loading from "../../components/loading/Loading";
+// import Loading from "../../components/loading/Loading";
 import { Icon } from "@iconify/react";
 
-// --- Utility Function สำหรับการ Crop รูปภาพ ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -64,7 +63,6 @@ async function getCroppedImg(
   });
 }
 
-// --- Sub-Component: Modal ทั่วไป ---
 interface ModalProps {
   isOpen: boolean;
   title: string;
@@ -82,28 +80,32 @@ const EditModal = ({
 }: ModalProps) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed bottom-0 left-0 right-0 top-[60px] sm:top-0 sm:inset-0 z-[60] flex items-start sm:items-center justify-center bg-white sm:bg-black/50 sm:backdrop-blur-sm">
-      <div className="bg-white w-full h-full sm:h-auto sm:max-w-[450px] sm:rounded-xl shadow-none sm:shadow-2xl flex flex-col animate-in slide-in-from-right-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200 font-['Anuphan'] relative">
+    <div
+      className="
+    fixed inset-0 z-[60]
+    flex items-center justify-center
+    bg-black/50 backdrop-blur-sm
+    p-4
+  "
+    >
+      <div
+        className="
+    bg-white
+    w-[92%]
+    max-w-[420px]
+    rounded-xl
+    shadow-2xl
+    overflow-hidden
+  "
+      >
         <div className="px-4 pt-6 pb-2">
           <div className="flex items-center gap-2 mb-3">
-            <button
-              onClick={onClose}
-              className="text-black p-1 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-            >
-              <Icon
-                icon="material-symbols:arrow-back"
-                className="sm:hidden w-6 h-6"
-              />
-            </button>
             <h3 className="text-[#374151] text-[16px] sm:text-[18px] font-bold break-words">
               {title}
             </h3>
           </div>
-          <hr className="sm:hidden border-t-2 border-black w-full" />
         </div>
-
-        <div className="px-5 py-4 flex-1 overflow-y-auto">{children}</div>
-
+        <div className="px-4 py-4 flex-1 overflow-y-auto">{children}</div>
         <div className="px-4 pb-6 pt-4 mt-auto bg-white">
           <div
             data-test="edit-modal-actions"
@@ -114,7 +116,7 @@ const EditModal = ({
               onClick={onSave}
               className="flex-1 cursor-pointer bg-[#10B981] text-white py-2.5 rounded text-[16px] font-normal leading-[24px] break-words hover:bg-green-600 transition-colors"
             >
-              บันทึก
+              บันทึกข้อมูล
             </button>
 
             <button
@@ -138,13 +140,12 @@ const ProfilePage = () => {
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [tempData, setTempData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
     image: "",
   });
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [imageUploadStep, setImageUploadStep] = useState<"upload" | "crop">(
     "upload",
@@ -161,21 +162,16 @@ const ProfilePage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
       setTempData({
-        firstName: firstName,
-        lastName: lastName,
+        name: user.name,
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
       });
     }
-    setLoading(false);
+    // setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -184,9 +180,17 @@ const ProfilePage = () => {
 
   const openModal = (type: string) => setActiveModal(type);
 
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
   const processFile = (file: File) => {
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG", { duration: 1500 });
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("ไฟล์มีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ขนาดไม่เกิน 5 MB");
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 5 MB", {
+        duration: 1500,
+      });
       return;
     }
     const reader = new FileReader();
@@ -226,7 +230,7 @@ const ProfilePage = () => {
   );
 
   const handleSaveCrop = async () => {
-    const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
+    // const toastId = toast.loading("กำลังอัปเดตรูปโปรไฟล์...");
 
     try {
       if (rawImageSrc && croppedAreaPixels) {
@@ -239,10 +243,8 @@ const ProfilePage = () => {
         setImageFileForUpload(blob);
 
         const formData = new FormData();
-        const fullName =
-          `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
         const userData = {
-          name: fullName,
+          name: tempData.name,
           email: tempData.email,
           phone: tempData.phone,
         };
@@ -253,18 +255,22 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("อัปเดตรูปโปรไฟล์สำเร็จ!", { id: toastId });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
         setImageUploadStep("upload");
         setZoom(1);
       }
-    } catch (e: any) {
-      console.error(e);
-      const errorMessage =
-        typeof e === "string" ? e : "เกิดข้อผิดพลาดในการบันทึกรูปภาพ";
-      toast.error(errorMessage, { id: toastId });
+    } catch (error: any) {
+      toast.error(
+        typeof error === "string"
+          ? error
+          : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
+        {
+          duration: 1500,
+        },
+      );
     }
   };
 
@@ -276,14 +282,24 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
-    const toastId = toast.loading("กำลังอัปเดตข้อมูล...");
-
     try {
-      const fullName =
-        `${tempData.firstName.trim()} ${tempData.lastName.trim()}`.trim();
+      if (activeModal === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(tempData.email)) {
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { duration: 1500 });
+          return;
+        }
+      }
+
+      if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
+        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก", {
+          duration: 1500,
+        });
+        return;
+      }
 
       const userData = {
-        name: fullName,
+        name: tempData.name,
         email: tempData.email,
         phone: tempData.phone,
       };
@@ -298,9 +314,7 @@ const ProfilePage = () => {
       await dispatch(updateProfile(formData) as any).unwrap();
 
       if (tempData.email !== user.email) {
-        toast.success("เปลี่ยนอีเมลสำเร็จ กรุณาเข้าสู่ระบบใหม่ด้วยอีเมลใหม่", {
-          id: toastId,
-        });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
         setActiveModal(null);
 
         setTimeout(() => {
@@ -311,7 +325,8 @@ const ProfilePage = () => {
       }
 
       await dispatch(getProfile() as any).unwrap();
-      toast.success("บันทึกข้อมูลสำเร็จ", { id: toastId });
+
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
@@ -321,18 +336,14 @@ const ProfilePage = () => {
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
 
-      toast.error(errorMessage, {
-        id: toastId,
-      });
+      toast.error(errorMessage, { duration: 1500 });
     }
   };
 
   const handleCloseModal = () => {
     if (user) {
-      const nameParts = (user.name || "").trim().split(/\s+/);
       setTempData({
-        firstName: nameParts[0] || "",
-        lastName: nameParts.slice(1).join(" ") || "",
+        name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
         image: user.image_url || user.image || "",
@@ -341,18 +352,16 @@ const ProfilePage = () => {
     setActiveModal(null);
   };
 
-  // ฟังก์ชันสำหรับแปลงรูปแบบวันที่
   const formatDate = (dateString: string) => {
     if (!dateString || dateString === "null") return "-";
 
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
-    // ถ้าอยากได้ พ.ศ. ปัจจุบัน ให้บวก 543
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`;
   };
 
-  if (loading) return <Loading />;
-  if (!user) return <Link to="/login" replace />;
+  // if (loading) return <Loading />;
+  if (!user) return <Navigate to="/login" replace />;
 
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-20 pb-20">
@@ -397,8 +406,8 @@ const ProfilePage = () => {
         <div className="flex flex-col-reverse md:flex-row gap-6 items-start">
           <ProfileSidebar />
 
-          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 md:px-6 py-3 md:py-6 gap-[9px] relative">
-            <div className="hidden sm:block w-full mb-6 md:mb-8">
+          <main className="flex flex-col w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 gap-[9px] relative">
+            <div className="hidden sm:hidden md:block w-full mb-6 md:mb-8">
               <h1 className="text-[20px] font-bold text-black">ข้อมูลของฉัน</h1>
               <p className="text-[14px] mt-1 text-black">
                 จัดการข้อมูลส่วนตัวคุณเพื่อความปลอดภัยของบัญชีผู้ใช้นี้
@@ -434,8 +443,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Desktop Divider */}
-              <div className="hidden md:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
-
+              <div className="hidden md:hidden xl:block w-[1px] bg-gray-300 order-2 min-h-[250px] mx-4 lg:mx-8" />
               <div className="w-full flex-1 order-3 md:order-1 mt-4 md:mt-0 md:pr-10 lg:pr-16">
                 <div className="flex flex-col gap-6 sm:gap-8 w-full max-w-lg font-['Anuphan']">
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
@@ -447,7 +455,7 @@ const ProfilePage = () => {
                         data-test="profile-name"
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
-                        {tempData.firstName} {tempData.lastName}
+                        {tempData.name}
                       </div>
                       <button
                         data-test="btn-change-name"
@@ -475,7 +483,7 @@ const ProfilePage = () => {
                         className="text-[14px] sm:text-[16px] text-black truncate"
                       >
                         {tempData.email.replace(
-                          /(.{3})([^@]*)(@.*)/,
+                          /(.)([^@]*)(@.*)/,
                           "$1******$3",
                         )}
                       </div>
@@ -497,7 +505,7 @@ const ProfilePage = () => {
 
                   <div className="flex items-center gap-4 sm:gap-8 w-full">
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
-                      หมายเลขโทรศัพท์
+                      เบอร์โทรศัพท์
                     </div>
                     <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
                       <div
@@ -529,7 +537,10 @@ const ProfilePage = () => {
                     <div className="w-[100px] sm:w-[130px] text-right text-[14px] sm:text-[16px] text-black shrink-0">
                       วันที่สมัคร
                     </div>
-                    <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
+                    <div
+                      data-test="profile-created-at"
+                      className="flex-1 flex items-center justify-between gap-2 overflow-hidden"
+                    >
                       <div className="text-[14px] sm:text-[16px] text-black truncate">
                         {user.createdAt && user.createdAt !== "null"
                           ? formatDate(user.createdAt)
@@ -559,18 +570,19 @@ const ProfilePage = () => {
             }}
           >
             <div
-            data-test="stop-Propagation"
+              data-test="image-modal-content"
               className="bg-white rounded-xl shadow-2xl w-full max-w-[550px] overflow-hidden animate-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-100 pb-4">
+              {/* ปรับแก้ให้ใช้ px-4 เสมอตาม EditModal ด้านบนเพื่อความสมมาตร */}
+              <div className="px-4 pt-6 pb-4 border-b border-gray-100">
                 {imageUploadStep === "upload" ? (
                   <div
                     data-test="image-upload-area"
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center p-12 transition-colors w-full min-h-[260px] ${
+                    className={`border border-gray-200 rounded-xl bg-[#F8FAFC] flex flex-col items-center justify-center px-4 py-12 transition-colors w-full min-h-[260px] ${
                       isDragging ? "border-blue-500 bg-blue-50/50" : ""
                     }`}
                   >
@@ -592,6 +604,7 @@ const ProfilePage = () => {
                     </span>
 
                     <button
+                      data-test="btn-select-file"
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="cursor-pointer bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-medium px-6 py-2.5 rounded-lg transition shadow-sm"
@@ -629,7 +642,7 @@ const ProfilePage = () => {
                       )}
                     </div>
 
-                    {/* แถบย่อ-ขยาย พร้อมเอฟเฟกต์สีวิ่ง */}
+                    {/* แถบย่อ-ขยาย */}
                     <div className="w-full max-w-xs mt-6 flex items-center gap-4">
                       <span className="text-xs text-gray-500 font-medium">
                         0
@@ -661,9 +674,8 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              {/* 🟢 ย้ายปุ่มควบคุมมาครอบด้วยเงื่อนไข crop เท่านั้น (หน้าจอ upload จะไม่มีปุ่มและไม่มีแถบสีเทาด้านล่างกวนใจ) */}
               {imageUploadStep === "crop" && (
-                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                <div className="px-4 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                   <button
                     data-test="btn-cancel-crop"
                     onClick={closeImageModal}
@@ -676,7 +688,7 @@ const ProfilePage = () => {
                     onClick={handleSaveCrop}
                     className="cursor-pointer px-6 py-2 bg-[#00BFA5] text-white rounded-lg text-sm font-medium hover:bg-[#009E88] transition"
                   >
-                    บันทึก
+                    บันทึกข้อมูล
                   </button>
                 </div>
               )}
@@ -691,41 +703,23 @@ const ProfilePage = () => {
           onClose={handleCloseModal}
           onSave={handleSave}
         >
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="firstName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block"
-              >
-                ชื่อ
-              </label>
-              <input
-                id="input-first-name"
-                data-test="input-first-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.firstName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, firstName: e.target.value })
-                }
-              />
-              <label
-                htmlFor="lastName"
-                className="text-sm text-gray-600 font-medium mb-1.5 block mt-4"
-              >
-                นามสกุล
-              </label>
-              <input
-                id="input-last-name"
-                data-test="input-last-name"
-                type="text"
-                className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
-                value={tempData.lastName}
-                onChange={(e) =>
-                  setTempData({ ...tempData, lastName: e.target.value })
-                }
-              />
-            </div>
+          <div>
+            <label
+              htmlFor="name"
+              className="text-sm text-gray-600 font-medium mb-1.5 block"
+            >
+              ชื่อ-นามสกุล
+            </label>
+            <input
+              id="input-name"
+              data-test="input-name"
+              type="text"
+              className="w-full border border-gray-300 px-3 py-2.5 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 text-sm"
+              value={tempData.name}
+              onChange={(e) =>
+                setTempData({ ...tempData, name: e.target.value })
+              }
+            />
           </div>
         </EditModal>
 
@@ -764,9 +758,9 @@ const ProfilePage = () => {
           <div>
             <label
               htmlFor="phone"
-              className="text-sm text-gray-600 font-medium mb-1.5 block"
+              className="text-md text-gray-600 font-medium mb-1.5 block"
             >
-              เบอร์โทรศัพท์ (10 หลัก)
+              เบอร์โทร
             </label>
             <input
               id="input-phone"
