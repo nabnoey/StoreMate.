@@ -11,7 +11,7 @@ import { sendRefundThunk } from "../../../redux/payment/paymentReducer";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
-  { value: "return_refund", label: "คืนสินค้า/คืนเงิน" },
+  { value: "return_refund", label: "ขอคืนเงิน" },
   {
     value: "change_shipping_address",
     label: "ต้องการเปลี่ยนที่อยู่ในการจัดส่ง",
@@ -72,12 +72,14 @@ const CancelOrderPage = () => {
       await dispatch(sendRefundThunk(payload)).unwrap();
 
       if (isCancelAction) {
+        toast.dismiss();
         toast.success("ส่งคำขอยกเลิกสำเร็จ", { duration: 1500 });
 
         setTimeout(() => {
           navigate("/orders?status=CANCELLED");
         });
       } else if (isRefundAction) {
+        toast.dismiss();
         toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ", {
           duration: 1500,
         });
@@ -110,15 +112,16 @@ const CancelOrderPage = () => {
     }
   };
   return (
-    <div className="min-h-screen flex flex-col bg-white font-anuphan text-gray-950 pt-4 md:pt-20 pb-4 md:pb-20">
+    <div className="min-h-screen flex flex-col bg-white font-anuphan text-gray-950 pt-4 md:pt-5 pb-4 md:pb-20">
       <Toaster position="top-center" reverseOrder={false} />
 
       {/* --- DESKTOP & TABLET BREADCRUMB --- */}
-      <div className="max-w-[1200px] mx-auto px-4 w-full hidden md:block">
-        <nav className="flex flex-wrap items-center text-sm md:text-md text-black mb-4 font-medium">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
+        <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
           <Link
+            data-test="click-home"
             to="/"
-            className="transition-colors cursor-pointer hover:text-blue-500"
+            className="transition-colors cursor-pointer"
           >
             หน้าหลัก
           </Link>
@@ -126,14 +129,14 @@ const CancelOrderPage = () => {
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/orders" className="text-black hover:text-blue-500">
+          <Link to="/orders" className="transition-colors cursor-pointer">
             การซื้อของฉัน
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
             className="w-5 h-5 mx-1 text-black"
           />
-          <span className="transition-colors">ขอคืนเงิน/ยกเลิกสินค้า</span>
+          <span className="text-black">ขอคืนเงิน/ยกเลิกสินค้า</span>
         </nav>
       </div>
 

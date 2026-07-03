@@ -63,7 +63,15 @@ const usePaymentSocket = () => {
         client.subscribe("/user/queue/notifications", (message) => {
           if (!message.body) return;
 
+          console.log("========== SOCKET MESSAGE ==========");
+          console.log("RAW:", message.body);
+
           const data = JSON.parse(message.body);
+
+          console.log("PARSED:", data);
+          console.log("CURRENT ORDER:", localStorage.getItem("orderNo"));
+          console.log("===================================");
+
           const currentOrder = localStorage.getItem("orderNo");
 
           if (data.orderNo && data.orderNo !== currentOrder) return;

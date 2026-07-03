@@ -16,6 +16,7 @@ import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
   clearNewNotifications,
+  fetchNotificationCounts,
 } from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
@@ -44,7 +45,9 @@ const Navbar: React.FC = () => {
   const [openNotifyDropdown, setOpenNotifyDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = useSelector(
+    (state: RootState) => state.notification.counts.ALL,
+  );
   const newCount = notifications.filter((n) => n.isNew).length;
   const previewNotifications = notifications.slice(0, 5);
 
@@ -53,6 +56,7 @@ const Navbar: React.FC = () => {
       dispatch(fetchCartThunk());
       dispatch(getProfile());
       dispatch(fetchUserNotify("ALL"));
+      dispatch(fetchNotificationCounts());
     }
   }, [dispatch, isAuthentication]);
 
