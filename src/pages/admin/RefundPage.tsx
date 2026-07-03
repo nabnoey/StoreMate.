@@ -12,7 +12,8 @@ import {
 } from "../../redux/moderator/refundReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { toast } from "react-hot-toast";
-
+// MANAGE ในนี้คือ"รายการที่ต้องเข้าไปจัดการ" เช่น กดอนุมัติคำขอ หรือปฎิเสธ
+// จริงๆใน BE ไม่มีแต่ที่เพิ่มมาเพราะเอาไว้จำกัดการแสดงข้อความในคอลัมน์ การดำเนินการ
 type ModalType = "VIEW" | "MANAGE" | null;
 
 const RefundPage = () => {
