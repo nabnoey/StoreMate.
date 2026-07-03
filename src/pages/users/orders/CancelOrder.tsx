@@ -81,7 +81,7 @@ const CancelOrderPage = () => {
       } else if (isRefundAction) {
         toast.dismiss();
         toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ", {
-          duration: 1500,
+          duration: 2000,
         });
         setTimeout(() => {
           navigate("/orders?status=PROCESSING");
