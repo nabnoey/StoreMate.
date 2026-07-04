@@ -211,6 +211,9 @@ const PaymentContent = () => {
     }
 
     if (checkoutType === "PROMPTPAY") {
+      await dispatch(fetchCartThunk());
+      dispatch(setSelectedItems([]));
+
       navigate("/payment-qr", {
         state: {
           clientSecret,
@@ -261,6 +264,7 @@ const PaymentContent = () => {
       const currentCheckoutType = paymentMethod as PaymentMethod;
 
       const response = await executePaymentApi(currentCheckoutType);
+      console.log(response);
 
       // if (!isBuyNow) dispatch(fetchCartThunk());
 
@@ -277,30 +281,32 @@ const PaymentContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white md:bg-white lg:bg-white pb-4 md:pb-0 font-anuphan flex flex-col items-center">
+    <div className="min-h-screen bg-white md:bg-white lg:bg-white pb-4 md:pb-0 pt-5 font-anuphan flex flex-col items-center">
       {/* --- DESKTOP & TABLET BREADCRUMB --- */}
-      <div className="w-full max-w-[1136px] px-4 md:px-8 hidden md:block">
-        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
-          <Link to="/" className="cursor-pointer hover:text-blue-500">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
+        <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1"
+            className="w-5 h-5 mx-1 text-black"
           />
           <Link
             to="/shopping-cart"
-            className="cursor-pointer hover:text-blue-500"
+            className="transition-colors cursor-pointer"
           >
             รถเข็น
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1"
+            className="w-5 h-5 mx-1 text-black"
           />
-          <span className="transition-colors font-semibold">
-            สรุปคำสั่งซื้อ
-          </span>
+          <span className="text-black">สรุปคำสั่งซื้อ</span>
         </nav>
       </div>
 

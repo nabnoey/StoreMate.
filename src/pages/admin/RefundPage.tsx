@@ -12,8 +12,9 @@ import {
 } from "../../redux/moderator/refundReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { toast } from "react-hot-toast";
-
-type ModalType = "ALL" | "PENDING" | "APPROVED" | "REJECTED" | null;
+// MANAGE ในนี้คือ"รายการที่ต้องเข้าไปจัดการ" เช่น กดอนุมัติคำขอ หรือปฎิเสธ
+// จริงๆใน BE ไม่มีแต่ที่เพิ่มมาเพราะเอาไว้จำกัดการแสดงข้อความในคอลัมน์ การดำเนินการ
+type ModalType = "VIEW" | "MANAGE" | null;
 
 const RefundPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -40,6 +41,7 @@ const RefundPage = () => {
   useEffect(() => {
     setKeywordInput(keywordParam);
   }, [keywordParam]);
+
   useEffect(() => {
     if (!token) return;
 
@@ -98,14 +100,14 @@ const RefundPage = () => {
     dispatch(clearSelectedRefund());
   };
 
-  const handleConfirmAction = async () => {
+  const handleAction = async (actionType: "APPROVED" | "REJECTED") => {
     if (!targetRefundNo || !activeModal) return;
 
     try {
       setAlertError(null);
-      if (activeModal === "APPROVED") {
+      if (actionType === "APPROVED") {
         await dispatch(approveRefund(targetRefundNo)).unwrap();
-      } else if (activeModal === "REJECTED") {
+      } else if (actionType === "REJECTED") {
         await dispatch(rejectRefund(targetRefundNo)).unwrap();
       }
 
@@ -113,6 +115,7 @@ const RefundPage = () => {
       toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว", { duration: 1500 });
       handleCloseModal();
 
+      // ดึงข้อมูลใหม่ด้วย page ปัจจุบัน เพื่อให้อยู่ที่เดิม
       dispatch(
         fetchRefunds({
           page: currentPage - 1,
@@ -145,7 +148,6 @@ const RefundPage = () => {
 
   const getVisiblePages = () => {
     let start = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-
     let end = start + maxVisiblePages - 1;
 
     if (end > totalPages) {
@@ -154,11 +156,9 @@ const RefundPage = () => {
     }
 
     const pages = [];
-
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-
     return pages;
   };
 
@@ -294,7 +294,9 @@ const RefundPage = () => {
                     </th>
                     <th className="py-3 px-1 font-normal">วันที่ยื่นคำขอ</th>
                     <th className="py-3 px-1 font-normal">สถานะ</th>
-                    <th className="py-3 px-1 font-normal">การดำเนินการ</th>
+                    <th className="py-3 px-1 font-normal text-center">
+                      การดำเนินการ
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-gray-100 text-gray-600">
@@ -310,39 +312,53 @@ const RefundPage = () => {
                   ) : refunds.length === 0 ? (
                     <tr>
                       <td
+                        data-test="row-empty"
                         colSpan={8}
                         className="text-center py-16 text-gray-400"
                       >
-                        ไม่พบรายการข้อมูลคำขอคืนเงินในระบบ
+                        ไม่พบรายการคำขอคืนเงินที่ค้นหา
                       </td>
                     </tr>
                   ) : (
                     refunds.map((row) => (
                       <tr
+                        data-test={`row-refund-${row.orderNo}`}
                         key={row.orderNo}
-                        className="hover:bg-gray-50/50 transition-colors"
+                        onClick={() => {
+                          if (row.status !== "PENDING") {
+                            handleOpenModal("VIEW", row.refundNo, row.orderNo);
+                          }
+                        }}
+                        className={`transition-colors ${
+                          row.status !== "PENDING"
+                            ? "cursor-pointer hover:bg-gray-50/50"
+                            : "hover:bg-gray-50/50"
+                        }`}
                       >
-                        <td className="px-2 py-4 text-[#4B5563] text-[14px] break-all max-w-[180px]">
+                        <td
+                          data-test="row-open-refundNo"
+                          className="px-2 py-4 text-[#4B5563] text-[14px] break-all max-w-[180px] cursor-pointer"
+                        >
                           {row.refundNo || "ไม่มีข้อมูลหมายเลข"}
                         </td>
-                        <td className="px-1 py-4 w-[140px] text-[#4B5563] text-[14px] font-medium min-w-[100px] whitespace-nowrap">
+                        <td className="px-1 py-4 w-[140px] text-[#4B5563] text-[14px] font-medium min-w-[100px] whitespace-nowrap cursor-pointer">
                           {row.receiverName}
                         </td>
-                        <td className="px-2 py-4 w-[140px] text-[#4B5563] text-[14px] break-all max-w-[180px]">
+                        <td className="px-2 py-4 w-[140px] text-[#4B5563] text-[14px] break-all max-w-[180px] cursor-pointer">
                           {row.orderNo}
                         </td>
-                        <td className="px-1 py-4 text-center text-[#4B5563] text-[14px] font-medium">
+                        <td className="px-1 py-4 text-center text-[#4B5563] text-[14px] font-medium cursor-pointer">
                           ฿{row.total.toLocaleString()}
                         </td>
-                        <td className="px-2 py-4 text-[#4B5563] item-center text-[14px] break-all max-w-[180px]">
+                        <td className="px-2 py-4 text-[#4B5563] item-center text-[14px] break-all max-w-[180px] cursor-pointer">
                           {row.reason || "-"}
                         </td>
-                        <td className="px-1 py-4 text-[#4B5563] text-[14px]">
+                        <td className="px-1 py-4 text-[#4B5563] text-[14px] cursor-pointer">
                           {row.requestedAt !== "null"
                             ? formatDate(row.requestedAt)
                             : "-"}
                         </td>
-                        <td className="px-1 py-4">
+                        <td className="px-1 py-4 cursor-pointer">
                           {row.status === "APPROVED" && (
                             <span className="inline-flex items-center justify-center px-3 py-1 text-[13px] font-medium bg-[#10b981] text-white rounded-full whitespace-nowrap">
                               อนุมัติ
@@ -361,53 +377,25 @@ const RefundPage = () => {
                         </td>
 
                         <td className="px-1 py-4">
-                          <div className="flex items-center justify-center gap-3 text-gray-400">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleOpenModal(
-                                  "PENDING",
-                                  row.refundNo,
-                                  row.orderNo,
-                                )
-                              }
-                              className="text-gray-700 transition-colors cursor-pointer hover:text-black"
-                            >
-                              <Icon icon="lucide:eye" className="w-4 h-4" />
-                            </button>
-
-                            {row.status === "PENDING" && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleOpenModal(
-                                      "APPROVED",
-                                      row.refundNo,
-                                      row.orderNo,
-                                    )
-                                  }
-                                  className="text-green-500 transition-colors cursor-pointer hover:text-green-600"
-                                >
-                                  <Icon
-                                    icon="lucide:check"
-                                    className="w-4 h-4"
-                                  />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleOpenModal(
-                                      "REJECTED",
-                                      row.refundNo,
-                                      row.orderNo,
-                                    )
-                                  }
-                                  className="text-red-500 transition-colors cursor-pointer hover:text-red-600"
-                                >
-                                  <Icon icon="lucide:x" className="w-4 h-4" />
-                                </button>
-                              </>
+                          <div className="flex items-center justify-center gap-3">
+                            {row.status === "PENDING" ? (
+                              <button
+                                data-test="btn-open-refundNo"
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenModal(
+                                    "MANAGE",
+                                    row.refundNo,
+                                    row.orderNo,
+                                  );
+                                }}
+                                className="text-blue-500 hover:text-blue-600 transition-colors cursor-pointer text-sm font-medium"
+                              >
+                                จัดการ
+                              </button>
+                            ) : (
+                              <span className="text-gray-400 text-sm"></span>
                             )}
                           </div>
                         </td>
@@ -421,6 +409,7 @@ const RefundPage = () => {
             {/* Pagination Controls */}
             <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
               <button
+                data-test="btn-prev-page"
                 type="button"
                 disabled={currentPage === 1}
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -436,6 +425,7 @@ const RefundPage = () => {
               <div className="flex items-center gap-1">
                 {visiblePages.map((page) => (
                   <button
+                    data-test="btn-current-page"
                     key={page}
                     type="button"
                     onClick={() => handlePageChange(page)}
@@ -452,6 +442,7 @@ const RefundPage = () => {
 
               <button
                 type="button"
+                data-test="btn-next-page"
                 disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => handlePageChange(currentPage + 1)}
                 className={`cursor-pointer border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
@@ -568,53 +559,35 @@ const RefundPage = () => {
                 </div>
 
                 <div className="flex gap-2 w-full mt-5 justify-end">
-                  {activeModal === "PENDING" && (
-                    <button
-                      type="button"
-                      onClick={handleCloseModal}
-                      className="px-4 py-2 border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 rounded-xl font-medium cursor-pointer text-xs"
-                    >
-                      ปิด
-                    </button>
-                  )}
-
-                  {activeModal === "APPROVED" && (
+                  {activeModal === "MANAGE" && (
                     <>
                       <button
+                        data-test="btn-approved"
                         type="button"
-                        onClick={handleCloseModal}
-                        className="px-4 py-2 border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 rounded-xl font-medium cursor-pointer text-xs"
+                        onClick={() => handleAction("APPROVED")}
+                        className="px-4 py-2 bg-green-500 text-white rounded-md font-medium cursor-pointer text-[16px] transition-colors"
                       >
-                        ยกเลิก
+                        อนุมัติ
                       </button>
                       <button
                         type="button"
-                        onClick={handleConfirmAction}
-                        className="px-4 py-2 bg-[#10b981] hover:bg-[#0f9f6e] text-white rounded-xl font-medium cursor-pointer text-xs transition-colors"
+                        data-test="btn-rejected"
+                        onClick={() => handleAction("REJECTED")}
+                        className="px-4 py-2 bg-white border border-red-700 text-black rounded-md font-medium cursor-pointer text-[16px] transition-colors"
                       >
-                        ยืนยันการอนุมัติ
+                        ปฏิเสธ
                       </button>
                     </>
                   )}
 
-                  {activeModal === "REJECTED" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleCloseModal}
-                        className="px-4 py-2 border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 rounded-xl font-medium cursor-pointer text-xs"
-                      >
-                        ยกเลิก
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleConfirmAction}
-                        className="px-4 py-2 bg-[#ef4444] hover:bg-[#dc2626] text-white rounded-xl font-medium cursor-pointer text-xs transition-colors"
-                      >
-                        ยืนยันการปฏิเสธ
-                      </button>
-                    </>
-                  )}
+                  <button
+                    type="button"
+                    data-test="btn-close"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2 border border-gray-200 text-gray-600 bg-white rounded-md font-medium cursor-pointer text-[16px]"
+                  >
+                    ปิด
+                  </button>
                 </div>
               </div>
             )}

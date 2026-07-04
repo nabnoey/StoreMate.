@@ -194,14 +194,48 @@ const NotificationManagementPage: React.FC = () => {
   };
 
   const handleCancel = (): void => {
-    if (formData.subject.trim() || formData.message.trim()) {
-      if (window.confirm("คุณต้องการละทิ้งการแจ้งเตือนนี้หรือไม่?")) {
-        setIsModalOpen(false);
-        setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
-      }
-    } else {
-      setIsModalOpen(false);
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 items-center p-2">
+          <span className="text-gray-800 font-medium text-base">
+            คุณต้องการละทิ้งการแจ้งเตือนนี้หรือไม่?
+          </span>
+
+          <div className="flex gap-3 mt-2">
+            <button
+              data-test="btn-confirm-cancel-modal"
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                setIsModalOpen(false);
+                setFormData({
+                  subject: "",
+                  message: "",
+                  recipients: "ทั้งหมด",
+                });
+              }}
+              className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              ยืนยันการยกเลิก
+            </button>
+
+            <button
+              data-test="btn-dismiss-cancel-modal"
+              type="button"
+              onClick={() => toast.dismiss(t.id)}
+              className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors border border-gray-200"
+            >
+              ย้อนกลับ
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+        id: "cancel-notification-modal",
+      },
+    );
   };
 
   const handleChange = (
@@ -245,14 +279,14 @@ const NotificationManagementPage: React.FC = () => {
           onClick={() => (window.location.href = "/store")}
           className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm transition-all"
         >
-          กลับหน้าหลัก (Store Page)
+          กลับหน้าหลัก
         </button>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-white font-anuphan">
+    <div className="flex h-screen bg-[#F8F9FA] font-anuphan">
       <main className="flex-1 flex flex-col overflow-hidden">
         <HeaderAdmin
           title="จัดการแจ้งเตือน"
@@ -264,7 +298,7 @@ const NotificationManagementPage: React.FC = () => {
             <div className="flex justify-end items-end mb-6">
               {isOwner && (
                 <button
-                  data-test="btn-open-create-modal"
+                  data-test="btn-open-create-noti"
                   onClick={() => setIsModalOpen(true)}
                   className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium flex items-center transition-all shadow-md shadow-blue-100"
                 >
@@ -280,18 +314,17 @@ const NotificationManagementPage: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
                 <thead>
-                  <tr className="text-left text-sm font-semibold text-black border-b border-gray-100">
-                    <th className="pb-4 font-medium pl-2">หัวข้อ (Subject)</th>
-                    <th className="pb-4 font-medium text-center">
-                      ผู้รับ (Recipients)
+                  <tr className="text-left text-[16px] font-medium text-black border-b border-gray-100">
+                    <th className="pb-4 font-medium pl-2 w-[45%]">หัวข้อ</th>
+                    <th className="pb-4 font-medium text-center w-[20%]">
+                      ผู้รับ
                     </th>
-                    <th className="pb-4 font-medium text-center">
-                      วันที่ส่ง (Sent Date)
+                    <th className="pb-4 font-medium text-center w-[20%]">
+                      วันที่ส่ง
                     </th>
-
-                    {isOwner && <th className="pb-4 font-medium"></th>}
+                    {isOwner && <th className="pb-4 font-medium w-[15%]"></th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -309,25 +342,44 @@ const NotificationManagementPage: React.FC = () => {
                       const recipient = getRecipientConfig(noti.sendTo);
                       return (
                         <tr
+                          data-test={`row-noti-${noti.id}`}
                           key={noti.id}
                           className="hover:bg-gray-50 transition-colors group"
                         >
-                          <td className="py-4 pl-2">
-                            <p className="text-sm font-semibold text-gray-800">
+                          <td className="py-4 pl-2 pr-4">
+                            {/* เผื่อเช็คเทสข้อมูลตามยูสเคส */}
+                            <p
+                              data-test={`cell-title-${noti.id}`}
+                              className="text-[16px] font-medium text-[#0F172A] truncate"
+                              title={noti.title}
+                            >
                               {noti.title}
                             </p>
-                            <p className="text-xs text-gray-400 mt-0.5">
+                            {/* เผื่อเช็คเทสข้อมูลตามยูสเคส */}
+                            <p
+                              data-test={`cell-message-${noti.id}`}
+                              className="text-[14px] text-[#6B7280] mt-0.5 line-clamp-2"
+                              title={noti.message}
+                            >
                               {noti.message}
                             </p>
                           </td>
-                          <td className="py-4 text-center">
+                          {/* เผื่อเช็คเทสข้อมูลตามยูสเคส */}
+                          <td
+                            data-test={`cell-recipient-${noti.id}`}
+                            className="py-4 text-center"
+                          >
                             <span
                               className={`text-[10px] px-3 py-1 rounded-full font-medium ${recipient.className}`}
                             >
                               {recipient.label}
                             </span>
                           </td>
-                          <td className="py-4 text-center text-sm text-black">
+                          {/* เผื่อเช็คเทสข้อมูลตามยูสเคส */}
+                          <td
+                            className="py-4 text-center text-[16px] text-black"
+                            data-test={`cell-date-${noti.id}`}
+                          >
                             {noti.createdAt
                               ? new Date(noti.createdAt).toLocaleDateString(
                                   "th-TH",
@@ -336,15 +388,17 @@ const NotificationManagementPage: React.FC = () => {
                           </td>
 
                           {isOwner && (
-                            <td className="py-4 text-right">
-                              <button
-                                data-test="btn-open-delete"
-                                onClick={() => handleDelete(noti.id)}
-                                title="ลบการแจ้งเตือน"
-                                className="cursor-pointer flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-50 transition-colors"
-                              >
-                                ลบ
-                              </button>
+                            <td className="py-4 pr-2 text-right">
+                              <div className="flex justify-end">
+                                <button
+                                  data-test={`btn-open-delete-${noti.id}`}
+                                  onClick={() => handleDelete(noti.id)}
+                                  title="ลบการแจ้งเตือน"
+                                  className="cursor-pointer flex items-center justify-center w-9 h-9 rounded-md border border-gray-200 bg-white text-red-500 hover:bg-red-50 transition-colors"
+                                >
+                                  ลบ
+                                </button>
+                              </div>
                             </td>
                           )}
                         </tr>
@@ -353,6 +407,7 @@ const NotificationManagementPage: React.FC = () => {
                   ) : (
                     <tr>
                       <td
+                        data-test="noti-empyt"
                         colSpan={isOwner ? 4 : 3}
                         className="py-20 text-center text-gray-400 text-sm"
                       >
@@ -364,7 +419,6 @@ const NotificationManagementPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
-
               {totalPages > 1 && (
                 <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm font-medium">
                   <span className="text-gray-500">
@@ -408,36 +462,36 @@ const NotificationManagementPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="bg-blue-600 py-8 px-6 text-center">
-              <h2 className="text-white text-3xl font-bold tracking-tight">
-                การแจ้งเตือน
+              <h2 className="text-white text-[48px] font-bold tracking-tight">
+                สร้างการแจ้งเตือน
               </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                  หัวข้อ (Subject)
+                <label className="block text-[16px] font-medium text-black uppercase tracking-wider mb-2">
+                  หัวข้อการแจ้งเตือน
                 </label>
                 <input
                   data-test="input-subject"
                   type="text"
                   name="subject"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all text-gray-800"
-                  placeholder="ระบุหัวข้อ..."
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-md outline-none text-sm transition-all text-[#BDBDBD]"
+                  placeholder="เช่น โปรโมชั่นเดือนพฤษภาคม..."
                   value={formData.subject}
                   onChange={handleChange}
                   autoComplete="off"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                  รายละเอียด (Message)
+                <label className="block text-[16px] font-medium text-black uppercase tracking-wider mb-2">
+                  รายละเอียด
                 </label>
                 <textarea
                   data-test="input-message"
                   name="message"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-sm transition-all h-28 resize-none text-gray-800"
-                  placeholder="ข้อความที่ต้องการแจ้ง..."
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-md outline-none text-sm transition-all h-28 resize-none text-[#BDBDBD]"
+                  placeholder="เช่น ลดราคา"
                   value={formData.message}
                   onChange={handleChange}
                 />
@@ -451,26 +505,26 @@ const NotificationManagementPage: React.FC = () => {
                   value={formData.recipients}
                   onChange={handleChange}
                 >
-                  <option value="ทั้งหมด">ทั้งหมด</option>
+                  <option value="ส่งทั้งหมด ">ส่งทั้งหมด </option>
                   <option value="พนักงาน">พนักงาน</option>
                   <option value="ผู้ใช้งาน">ผู้ใช้งาน</option>
                 </select>
 
                 <div className="flex space-x-3">
                   <button
+                    data-test="btn-submit-create"
+                    type="submit"
+                    className="cursor-pointer bg-blue-600 text-white px-8 py-2.5 rounded-full text-xs font-medium transition-al"
+                  >
+                    ส่งการแจ้งเตือน
+                  </button>
+                  <button
                     data-test="btn-cancel-create"
                     type="button"
                     onClick={handleCancel}
-                    className="cursor-pointer px-6 py-2.5 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                    className="cursor-pointer bg-white border border-black text-black px-8 py-2.5 rounded-full text-xs font-medium transition-all"
                   >
                     ยกเลิก
-                  </button>
-                  <button
-                    data-test="btn-submit-create"
-                    type="submit"
-                    className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-blue-200"
-                  >
-                    ส่งการแจ้งเตือน
                   </button>
                 </div>
               </div>
