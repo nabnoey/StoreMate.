@@ -46,11 +46,18 @@ export interface OrderMod {
   };
 }
 
+export const STATUS_ORDER = [
+  "PENDING",
+  "PROCESSING",
+  "RECEIVED",
+  "COMPLETED",
+]
+
 export const STATUS_LABELS: Record<string, string> = {
-  PENDING: "รอชำระเงิน",
-  PROCESSING: "ที่ต้องจัดส่ง",
-  RECEIVED: "ที่ต้องได้รับ",
-  COMPLETED: "คำสั่งซื้อสำเร็จ",
+  PENDING: "รอดำเนินการ",
+  PROCESSING: "กำลังเตรียมสินค้า",
+  RECEIVED: "จัดส่งแล้ว",
+  COMPLETED: "สำเร็จแล้ว",
 };
 
 export const STATUS_STYLES: Record<string, string> = {

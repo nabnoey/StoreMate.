@@ -1,8 +1,12 @@
 import React from "react";
-import type { OrderMod } from "../../types/moderator/ordersMod";
-
+import type {InvoicePrintData} from "../../types/moderator/InvoicePrint";
+import type { OrderMod} from "../../types/moderator/ordersMod";
 interface InvoicePrintProps {
-  data: OrderMod[];
+  data: InvoicePrintData[];
+    // order: OrderMod[];
+}
+interface OrderItem {
+  order: OrderMod[];
 }
 
 const forceColor: React.CSSProperties = {
@@ -83,22 +87,30 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
                 </div>
 
                 {/* ผู้รับ */}
-                <div>
-                  <div style={blackLabelStyle}>ผู้รับ</div>
-                  <div style={{ fontSize: "12px", fontWeight: "600" }}>
-                    {order.orderRecipient?.recipientName || "สมชาย ใจดี"}
-                  </div>
-                  <div style={{ fontSize: "12px" }}>
-                    {order.orderRecipient?.phone || "098-3809919"}
-                  </div>
-                  <div style={{ fontSize: "12px", color: "#222", marginTop: "2px" }}>
-                    {order.orderRecipient?.district || "199 ม.6 116/1 ม.1 ต.ห้วยขวาง"}
-                    <br />
-                    {order.orderRecipient?.district && order.orderRecipient?.province && order.orderRecipient?.zipcode
-                      ? `${order.orderRecipient.district} ${order.orderRecipient.province} ${order.orderRecipient.zipcode}`
-                      : "อ.กำแพงแสน จ.นครปฐม 73140"}
-                  </div>
-                </div>
+{/* ส่วนผู้รับ */}
+<div style={{ fontSize: "12px", fontWeight: "600" }}>
+  {order.receiverInfo?.name || "สมชาย ใจดี"}
+</div>
+<div style={{ fontSize: "12px" }}>
+  {order.receiverInfo?.phone || "098-3809919"}
+</div>
+<div style={{ fontSize: "12px", color: "#222", marginTop: "2px" }}>
+  {order.receiverInfo?.address || "ที่อยู่ผู้รับ"}
+</div>
+
+{/* ส่วนรายการสินค้า */}
+{order.shippingItems && order.shippingItems.length > 0 ? (
+  order.shippingItems.map((item, idx) => (
+    <div key={idx} /* ... */>
+      <span>{idx + 1}. {item.productName}</span>
+      {/* ... */}
+      <span>x{item.quantity}</span>
+      <span>฿ {item.price.toLocaleString()}</span>
+    </div>
+  ))
+) : (
+  <div>ไม่มีรายการสินค้า</div>
+)}
               </div>
 
               {/* แถบเลข order ดำเต็มแนว */}
@@ -108,7 +120,7 @@ export const InvoicePrint = React.forwardRef<HTMLDivElement, InvoicePrintProps>(
 
               {/* รายการสินค้า */}
               <div style={{ fontSize: "12px", marginBottom: "12px" }}>
-                {order.orderItems && order.orderItems.length > 0 ? (
+                { order.orderItems && order.orderItems.length > 0 ? (
                   order.orderItems.map((item, idx) => (
                     <div
                       key={item.id || idx}

@@ -402,7 +402,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      ราคา
+                      ราคาต่อชิ้น
                     </label>
                     <Field
                       type="number"
@@ -419,7 +419,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   </div>
                   <div>
   <label className="block text-sm font-medium text-gray-700 mb-1">
-    จำนวนสินค้าในคลัง
+  จำนวนคงเหลือ
   </label>
   <Field
     type="number"
