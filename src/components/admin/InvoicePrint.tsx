@@ -3,7 +3,7 @@ import type { ShippingLabel, OrderMod } from "../../types/moderator/ordersMod";
 
 interface InvoicePrintProps {
   data: OrderMod[];
-  shippingLabel: ShippingLabel[];
+  shippingLabel?: ShippingLabel[];
 }
 
 const forceColor: React.CSSProperties = {
