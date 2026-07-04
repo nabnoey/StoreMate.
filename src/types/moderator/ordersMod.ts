@@ -4,24 +4,22 @@ export interface OrderItem {
   imageUrl?: string;
   quantity: number;
   price: number;
-  subTotal?: number; 
+  subTotal?: number;
 }
 
 export interface OrderStatusHistory {
+  status: string;
 
-status: string;
+  updatedBy: string;
 
-updatedBy: string;
-
-updatedAt: string;
-
+  updatedAt: string;
 }
 
 export interface OrderMod {
   id: number;
-  orderNo: string; 
+  orderNo: string;
   recipientName?: string;
-   phone?: string;
+  phone?: string;
   status: string;
   total: number;
   shippingFrom?: string;
@@ -29,10 +27,8 @@ export interface OrderMod {
   checkoutType?: string;
   orderItems?: OrderItem[];
   orderStatusHistory?: OrderStatusHistory[];
-    updatedAt: string;
-    'createdAt': string;
-
-    
+  updatedAt: string;
+  createdAt: string;
 
   // ปรับโครงสร้างตรงนี้ให้ตรงกับ Backend
   orderRecipient?: {
@@ -44,14 +40,39 @@ export interface OrderMod {
     province?: string;
     zipcode?: string;
   };
+  
+  // เพิ่มฟิลด์รองรับรูปแบบ ShippingLabel
+  shippingItems?: OrderItem[];
+  senderInfo?: {
+    name?: string;
+    phone?: string;
+    address?: string;
+  };
+  receiverInfo?: {
+    name?: string;
+    phone?: string;
+    address?: string;
+  };
 }
 
-export const STATUS_ORDER = [
-  "PENDING",
-  "PROCESSING",
-  "RECEIVED",
-  "COMPLETED",
-]
+export interface ShippingLabel {
+  order: OrderMod[];
+  shippingItems: OrderItem[];
+  total: number;
+  checkoutType: string;
+  senderInfo:{
+    name: string;
+    phone: string;
+    address: string;
+  }
+  receiverInfo:{
+    name: string;
+    phone: string;
+    address: string;
+  }
+}
+
+export const STATUS_ORDER = ["PENDING", "PROCESSING", "RECEIVED", "COMPLETED"];
 
 export const STATUS_LABELS: Record<string, string> = {
   PENDING: "รอดำเนินการ",

@@ -146,11 +146,15 @@ function Orders() {
     try {
       if (selectedData.length > 0) {
         const orderIds = selectedData.map((order) => Number(order.id));
-        await dispatch(shippingOrder(orderIds)).unwrap();
+        const printedLabels = await dispatch(shippingOrder(orderIds)).unwrap();
         // 🛠️ ตอนรีเฟรชข้อมูลก็ต้อง -1 ให้ API เหมือนกัน
         dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
+        
+        // ใช้ข้อมูลที่ได้จาก API (ซึ่งมีรายการสินค้าและที่อยู่ครบ) ส่งไปปริ้นท์
+        setPrintData(printedLabels);
+      } else {
+        setPrintData([]);
       }
-      setPrintData(selectedData);
       setIsPrinting(true);
     } catch {
       toast.error("ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้");
