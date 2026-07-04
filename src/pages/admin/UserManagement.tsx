@@ -233,14 +233,6 @@ function UserManagement() {
 
   const paginatedUsers = displayedUsers;
 
-  // const paginatedUsers = useMemo(() => {
-  //   const startIndex = displayPage * ITEMS_PER_PAGE;
-  //   return displayedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  // }, [displayedUsers, displayPage]);
-
-  // ──────────────────────────────────────────────
-  // Pagination helpers
-  // ──────────────────────────────────────────────
   const handlePageChange = (newDisplayPage: number) => {
     if (newDisplayPage >= 0 && newDisplayPage < totalDisplayPages) {
       setDisplayPage(newDisplayPage);
@@ -519,7 +511,7 @@ function UserManagement() {
                   disabled={formik.isSubmitting}
                   className="px-8 py-2 bg-[#10B981] hover:bg-emerald-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
                 >
-                  บันทึก
+                  บันทึกการตั้งค่า
                 </button>
                 <button
                   type="button"

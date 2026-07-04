@@ -162,7 +162,8 @@ const maxVisiblePages = 5;
             </thead>
 
             <tbody>
-              {currentItems.map((product) => (
+               {currentItems.length > 0 ? (
+              currentItems.map((product) => (
                 <tr
                   key={product.id}
                   className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
@@ -190,19 +191,29 @@ const maxVisiblePages = 5;
                       {((product).status) === "ACTIVE" ? "พร้อมจำหน่าย" : "ไม่พร้อมจำหน่าย"}
                     </span>
                   </td>
-                  <td className="py-4">
-                    <button
-                      type="button"
-                      data-test={`menagemate-product-${product.id}`}
-                      onClick={() => handleEditProduct(product as ProductMod)}
-                      className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
-                    >
-                      จัดการ
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                   <td className="py-4">
+          <button
+            type="button"
+            data-test={`menagemate-product-${product.id}`}
+            onClick={() => handleEditProduct(product as ProductMod)}
+            className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
+          >
+            จัดการ
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td
+        colSpan={7}
+        className="py-8 text-center text-gray-500"
+      >
+        ไม่พบรายการสินค้าที่ค้นหา
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
 
                    <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
