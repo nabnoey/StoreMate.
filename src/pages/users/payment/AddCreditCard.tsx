@@ -98,31 +98,38 @@ const AddCreditCardFormInner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white lg:bg-white pb-10 lg:pb-0 font-anuphan text-gray-800 flex flex-col items-center">
-      <div className="w-[1136px] hidden lg:block">
-        <nav className="flex items-start mt-16 mb-4 py-1 font-anuphan text-[14px] font-normal leading-[24px] text-black break-words">
-          <Link to="/" className="cursor-pointer">
+    <div className="min-h-screen bg-white lg:bg-white pb-10 lg:pb-0 pt-5 font-anuphan text-gray-800 flex flex-col items-center">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
+        <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+          <Link
+            data-test="click-home"
+            to="/"
+            className="transition-colors cursor-pointer"
+          >
             หน้าหลัก
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1"
+            className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/shopping-cart" className="cursor-pointer">
+          <Link
+            to="/shopping-cart"
+            className="transition-colors cursor-pointer"
+          >
             รถเข็น
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1"
+            className="w-5 h-5 mx-1 text-black"
           />
-          <Link to="/payment" className="cursor-pointer">
+          <Link to="/payment" className="transition-colors cursor-pointer">
             สรุปคำสั่งซื้อ
           </Link>
           <Icon
             icon="material-symbols:chevron-right-rounded"
-            className="w-5 h-5 mx-1"
+            className="w-5 h-5 mx-1 text-black"
           />
-          <span className="transition-colors">เพิ่มบัตรเครดิต/เดบิต</span>
+          <span className="text-black">กรอกข้อมูลบัตรเครดิต/เดบิต</span>
         </nav>
       </div>
 

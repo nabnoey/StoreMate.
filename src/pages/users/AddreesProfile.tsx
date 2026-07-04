@@ -40,15 +40,11 @@ const AddressProfile = () => {
     zipcodeId: 0,
   });
 
-
   useEffect(() => {
     dispatch(fetchAllAddresses());
-
   }, [dispatch]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -58,15 +54,12 @@ const AddressProfile = () => {
 
   const fillAddressData = async (address: Address) => {
     const streetAddress = address.streetAddress;
-      const provinceName = address.province;
+    const provinceName = address.province;
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
-  
 
     // จังหวัด
-    const provinceRes = await dispatch(
-      addressDropdown({ }),
-    ).unwrap();
+    const provinceRes = await dispatch(addressDropdown({})).unwrap();
 
     const province =
       provinceRes.find(
@@ -151,7 +144,7 @@ const AddressProfile = () => {
     return response?.data || [];
   };
 
-const openAddModal = async () => {
+  const openAddModal = async () => {
     setIsEditMode(false);
 
     setFormData({
@@ -169,13 +162,11 @@ const openAddModal = async () => {
         provinceId: 0,
         districtId: 0,
         subdistrictId: 0,
-      })
+      }),
     );
 
     setIsModalOpen(true);
   };
-
-
 
   const handleProvinceChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -212,14 +203,10 @@ const openAddModal = async () => {
       zipcodeId,
     } = formData;
 
-   
-      const fetchZipcodeInfo = async (zip: string, zipId: number) => {
-   
-        if (zip && zipId) {
-        
+    const fetchZipcodeInfo = async (zip: string, zipId: number) => {
+      if (zip && zipId) {
         return { zipcode: zip, zipcodeId: zipId };
       }
-    
 
       const zipResRaw = await dispatch(
         addressDropdown({
