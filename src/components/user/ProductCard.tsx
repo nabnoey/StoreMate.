@@ -3,20 +3,28 @@ import type { Product } from "../../types/product";
 
 type Props = { product: Product };
 
+
+
 function ProductCard({ product }: Readonly<Props>) {
-  const isOutOfStock  = product.stockQuantity === 0;
+  const isOutOfStock  = product.productStatus !== "ACTIVE" 
 
   return (
+    
     <Link
+    
       to={`/product/${product.id}`}
       state={{ categoryName: product.categoryName }}
 className={`block group h-full ${
   isOutOfStock
-    ? "cursor-not-allowed opacity-60 grayscale"
+    ? "cursor-not-allowed opacity-70 "
     : ""
-}`}
+    
+}` }
+
       data-test="product-card"
     >
+      
+      
    
   <div className={`rounded-2xl shadow-sm transition p-3 flex flex-col h-full ${
   isOutOfStock ? "bg-gray-200" : "bg-white"
