@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
-// import { search } from "../../redux/products/productReducer";
 import { fetchCartThunk } from "../../redux/carts/CartReducer";
 import UserProfile from "./UserProfile";
 import logo from "../../assets/logo.png";
@@ -31,12 +30,6 @@ const Navbar: React.FC = () => {
   );
 
   const [inputValue, setInputValue] = useState("");
-
-  useEffect(() => {
-    if (location.pathname !== "/search") {
-      setInputValue(keyword);
-    }
-  }, [keyword, location.pathname]);
 
   const notifications = useSelector(
     (state: RootState) => state.notification.items,
@@ -88,11 +81,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleSubmitSearch = () => {
-    // if (!inputValue.trim()) {
-    //   return;
-    // }
     navigate(`/search?keyword=${inputValue}`);
-    // setOpenSearch(false);
   };
 
   const [openSearch, setOpenSearch] = useState(false);

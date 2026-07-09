@@ -86,9 +86,8 @@ const HistoryPage = () => {
   };
 
   useEffect(() => {
-    if (!token) return;
-    dispatch(fetchOrders(status as any));
-  }, [dispatch, status, token]);
+    dispatch(fetchOrders(status));
+  }, [dispatch, status]);
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
