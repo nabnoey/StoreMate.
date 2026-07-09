@@ -380,7 +380,10 @@ const PaymentContent = () => {
                   alt=""
                   className="w-30 h-30 object-contain rounded-md"
                 />
-                <div className="flex-1 font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-1">
+                <div
+                  data-test="product-name"
+                  className="flex-1 font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words line-clamp-1"
+                >
                   {item.productName}
                 </div>
                 <div className="w-24 text-left font-anuphan text-[16px] font-normal text-black leading-[24px] break-words">

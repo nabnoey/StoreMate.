@@ -337,7 +337,10 @@ const ProductDetailPage: React.FC = () => {
               id="product-details-container"
               className="flex flex-col mt-4 md:mt-0 h-full w-full md:border md:border-gray-100 md:rounded-xl md:p-6 md:shadow-lg"
             >
-              <h1 className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight">
+              <h1
+                data-test="product-name"
+                className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight"
+              >
                 {productDetail.productName}
               </h1>
 
