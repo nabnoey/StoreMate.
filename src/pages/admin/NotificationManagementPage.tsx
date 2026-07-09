@@ -29,6 +29,7 @@ const NotificationManagementPage: React.FC = () => {
 
   const keywordParam = searchParams.get("keyword") || "";
   const page = Number(searchParams.get("page") ?? 0);
+  const size = Number(searchParams.get("size") ?? 10);
   const [searchKeyword] = useState(keywordParam);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -50,7 +51,7 @@ const NotificationManagementPage: React.FC = () => {
         fetchOwnerNotify({
           keyword: searchKeyword,
           page,
-          size: 10,
+          size,
         }),
       );
 
@@ -107,7 +108,7 @@ const NotificationManagementPage: React.FC = () => {
                     fetchOwnerNotify({
                       keyword: searchKeyword,
                       page,
-                      size: 10,
+                      size,
                     }),
                   );
                   toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว", {
@@ -251,6 +252,7 @@ const NotificationManagementPage: React.FC = () => {
     const params = new URLSearchParams(searchParams);
 
     params.set("page", String(newPage));
+    params.set("size", String(size));
 
     if (searchKeyword) {
       params.set("keyword", searchKeyword);
@@ -284,6 +286,20 @@ const NotificationManagementPage: React.FC = () => {
       </div>
     );
   }
+
+  const maxVisiblePages = 5;
+
+  let startPage = Math.max(1, page + 1 - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  const visiblePages = Array.from(
+    { length: Math.max(0, endPage - startPage + 1) },
+    (_, i) => startPage + i,
+  );
 
   return (
     <div className="flex h-screen bg-[#F8F9FA] font-anuphan">
@@ -419,40 +435,59 @@ const NotificationManagementPage: React.FC = () => {
                   )}
                 </tbody>
               </table>
-              {totalPages > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 text-sm font-medium">
-                  <span className="text-gray-500">
-                    แสดงหน้า {page + 1} จาก {totalPages} หน้า
-                  </span>
-                  <div className="flex items-center space-x-2">
+              <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-gray-100 text-sm">
+                <button
+                  type="button"
+                  disabled={page === 0}
+                  onClick={() => updatePage(page - 1)}
+                  className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
+                    page === 1
+                      ? "text-gray-300 cursor-not-allowed border-gray-200"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  ก่อนหน้า
+                </button>
+
+                <div className="flex font-normal font-['Anuphan'] items-center gap-1">
+                  {visiblePages.length > 0 ? (
+                    visiblePages.map((pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        type="button"
+                        onClick={() => updatePage(pageNumber - 1)}
+                        className={`w-8 h-8 rounded-md flex items-center justify-center font-medium transition-colors ${
+                          pageNumber === page + 1
+                            ? "text-blue-500 font-bold bg-transparent"
+                            : "text-gray-500 hover:bg-gray-100"
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    ))
+                  ) : (
                     <button
-                      data-test="btn-prev-page"
                       type="button"
-                      onClick={() => updatePage(page - 1)}
-                      disabled={page === 0}
-                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
+                      className="w-8 h-8 text-blue-500 font-bold"
                     >
-                      <Icon icon="lucide:chevron-left" width="18" height="18" />
+                      1
                     </button>
-                    <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs">
-                      {page + 1}
-                    </span>
-                    <button
-                      data-test="btn-next-page"
-                      type="button"
-                      onClick={() => updatePage(page + 1)}
-                      disabled={page >= totalPages - 1}
-                      className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-all text-gray-600"
-                    >
-                      <Icon
-                        icon="lucide:chevron-right"
-                        width="18"
-                        height="18"
-                      />
-                    </button>
-                  </div>
+                  )}
                 </div>
-              )}
+
+                <button
+                  type="button"
+                  disabled={page >= totalPages - 1}
+                  onClick={() => updatePage(page + 1)}
+                  className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
+                    page >= totalPages - 1 || totalPages === 0
+                      ? "text-gray-300 cursor-not-allowed border-gray-200"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  ต่อไป
+                </button>
+              </div>
             </div>
           </div>
         </div>
