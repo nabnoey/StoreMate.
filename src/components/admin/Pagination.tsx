@@ -63,13 +63,9 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
 
       <button
         type="button"
-        disabled={currentPage === totalPages || totalPages === 0}
+        // disabled={currentPage === totalPages || totalPages === 0}
         onClick={() => onPageChange(currentPage + 1)}
-        className={`border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors ${
-          currentPage === totalPages || totalPages === 0
-            ? "text-gray-300 cursor-not-allowed border-gray-200"
-            : "text-gray-600 hover:bg-gray-50"
-        }`}
+         className="border border-gray-300 rounded-md px-4 py-1.5 font-medium transition-colors text-gray-600 hover:bg-gray-50"
       >
         ต่อไป
       </button>

@@ -11,11 +11,6 @@
   isDefault: boolean;
 }
 
-// export interface CreateAddressRequest {
-//   streetAddress: string;
-//   zipcodeId: number;
-//   isDefault: boolean;
-// }
 
 
 type DropdownItem = {

@@ -13,6 +13,7 @@ import {
 } from "../../redux/owner/ownerReducer";
 import type { User, UserRole } from "../../types/owner";
 import UserFilterBar from "../../components/admin/UserFilterBar";
+import { Pagination } from "../../components/admin/Pagination";
 
 // ─── Pagination config ───
 const ITEMS_PER_PAGE = 10;
@@ -25,9 +26,13 @@ const ROLE_LABEL_MAP: Record<UserRole, string> = {
   USER: "ผู้ใช้งาน",
 };
 
-const getRoleLabel = (role: UserRole): string => ROLE_LABEL_MAP[role];
+const getRoleLabel = (role: UserRole): string => {
+  if (!role) return "-";
+  return ROLE_LABEL_MAP[role] || "-";
+};
 
 const getRoleBadgeClass = (role: UserRole): string => {
+  if (!role) return "bg-[#F3F4F6] text-[#4B5563]";
   const norm = role.replace("ROLE_", "");
   switch (norm) {
     case "OWNER":
@@ -61,11 +66,9 @@ function UserManagement() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { users, totalPages } = useSelector((state: RootState) => state.owner);
-
-  // อ่านหน้าปัจจุบันจาก URL (ค่าเริ่มต้นเริ่มที่หน้า 1)
-  const [displayPage, setDisplayPage] = useState(() => {
-    return Number(searchParams.get("page") || 0);
-  });
+  const pageParam = searchParams.get("page");
+  const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   // อ่านค่า keyword จาก URL มาเป็นสถานะเริ่มต้น
   const [searchTerm, setSearchTerm] = useState(() => {
@@ -156,40 +159,33 @@ function UserManagement() {
   }, [setSearchParams]);
 
   // ฟังก์ชันเขียนค่าลง URL
-  const updateSearchParams = useCallback(
-    (pageValue: number, keywordValue: string) => {
-      const params: Record<string, string> = {
-        page: String(pageValue),
-        size: String(ITEMS_PER_PAGE),
-      };
+  const updateSearchParams = useCallback(() => {
+    const params: Record<string, string> = {
+      page: String(currentPage - 1),
+      size: String(ITEMS_PER_PAGE),
+    };
 
-      if (keywordValue.trim()) {
-        params.search = keywordValue.trim();
-      }
-
-      setSearchParamsRef.current(params, { replace: true });
-    },
-    [],
-  );
+    setSearchParamsRef.current(params, { replace: true });
+  }, []);
 
   useEffect(() => {
-    updateSearchParams(displayPage, activeKeyword);
-  }, [displayPage, activeKeyword, updateSearchParams]);
+    updateSearchParams();
+  }, [currentPage, activeKeyword, updateSearchParams]);
 
-  // เรียกดึงข้อมูลจาก API เมื่อ activeKeyword หรือหน้า (displayPage) มีการเปลี่ยนแปลง
+  // เรียกดึงข้อมูลจาก API เมื่อ activeKeyword หรือหน้า (currentPage) มีการเปลี่ยนแปลง
   useEffect(() => {
     dispatch(
       getUserManagement({
-        page: displayPage,
+        page: currentPage - 1,
         size: ITEMS_PER_PAGE,
         search: activeKeyword.trim(),
       }),
     );
-  }, [dispatch, displayPage, activeKeyword]);
+  }, [dispatch, currentPage, activeKeyword]);
 
   // ฟังก์ชันกดค้นหาจากปุ่ม หรือ Enter
   const handleSearchSubmit = () => {
-    setDisplayPage(0);
+    setCurrentPage(1);
     setActiveKeyword(searchTerm);
   };
 
@@ -232,39 +228,17 @@ function UserManagement() {
   const totalDisplayPages = totalPages || 0;
 
   const paginatedUsers = displayedUsers;
-
-  const handlePageChange = (newDisplayPage: number) => {
-    if (newDisplayPage >= 0 && newDisplayPage < totalDisplayPages) {
-      setDisplayPage(newDisplayPage);
-    }
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
   };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (value.trim() === "") {
-      setDisplayPage(0);
+      setCurrentPage(1);
       setActiveKeyword("");
     }
   };
-
-  const maxVisiblePages = 5;
-  const pageNumbers = useMemo(() => {
-    if (totalDisplayPages <= 0) return [];
-
-    let start = Math.max(0, displayPage - Math.floor(maxVisiblePages / 2));
-    let end = start + maxVisiblePages - 1;
-
-    if (end >= totalDisplayPages) {
-      end = Math.max(0, totalDisplayPages - 1);
-      start = Math.max(0, end - maxVisiblePages + 1);
-    }
-
-    const pages: number[] = [];
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }, [totalDisplayPages, displayPage]);
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -282,12 +256,12 @@ function UserManagement() {
             roleFilter={roleFilter}
             onRoleChange={(value) => {
               setRoleFilter(value);
-              setDisplayPage(0);
+              setCurrentPage(1);
             }}
             statusFilter={statusFilter}
             onStatusChange={(value) => {
               setStatusFilter(value);
-              setDisplayPage(0);
+              setCurrentPage(1);
             }}
           />
 
@@ -359,55 +333,11 @@ function UserManagement() {
             </table>
           </div>
 
-          {/* ─── Pagination ─── */}
-          {totalDisplayPages > 0 && (
-            <div className="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
-              <button
-                id="pagination-prev"
-                type="button"
-                onClick={() => handlePageChange(displayPage - 1)}
-                disabled={displayPage === 0}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  displayPage === 0
-                    ? "text-gray-300 cursor-not-allowed border-gray-200"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                ก่อนหน้า
-              </button>
-
-              <div className="flex items-center gap-1">
-                {pageNumbers.map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => handlePageChange(p)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                      p === displayPage
-                        ? "text-blue-600 font-bold bg-transparent"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    {p + 1}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                id="pagination-next"
-                type="button"
-                onClick={() => handlePageChange(displayPage + 1)}
-                disabled={displayPage >= totalDisplayPages - 1}
-                className={`px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  displayPage >= totalDisplayPages - 1
-                    ? "text-gray-300 cursor-not-allowed border-gray-200"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                ต่อไป
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage} // บวก 1 เพื่อให้ Pagination โชว์เริ่มที่หน้า 1
+            totalPages={totalDisplayPages}
+            onPageChange={(newPage) => handlePageChange(newPage)} // ลบ 1 คืนตอนส่งค่ากลับให้ State
+          />
         </div>
       </div>
 
