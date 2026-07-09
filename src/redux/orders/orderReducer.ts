@@ -5,15 +5,13 @@ import type { Order, OrderStatus } from "../../types/orders";
 interface OrdersState {
   orders: Order[];
   orderDetail: Order | null;
-  loading: boolean;
-  // error: string | null;
+
+ 
 }
 
 const initialState: OrdersState = {
   orders: [],
   orderDetail: null,
-  loading: false,
-  // error: null,
 };
 
 export const fetchOrders = createAsyncThunk(
@@ -41,7 +39,6 @@ const ordersSlice = createSlice({
 
   
       .addCase(fetchOrders.fulfilled, (state, action) => {
-         state.loading = false;
         state.orders = action.payload;
       })
      
