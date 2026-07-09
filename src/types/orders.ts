@@ -24,7 +24,7 @@ export const statusConfig: Record<
   PENDING: { label: "ที่ต้องชำระ", color: "text-blue-500" },
   PROCESSING: { label: "ที่ต้องจัดส่ง", color: "text-[#3B82F6]" },
   RECEIVED: { label: "ที่ต้องได้รับ", color: "text-[#1E40AF]" },
-  COMPLETED: { label: "สำเร็จแล้ว", color: "text-[#10B981]" },
+  COMPLETED: { label: "คำสั่งซื้อสำเร็จ", color: "text-[#10B981]" },
   CANCELLED: { label: "ยกเลิกแล้ว", color: "text-red-500" },
   REFUNDED: { label: "คืนเงินแล้ว", color: "text-purple-500" },
   ALL: { label: "ทั้งหมด", color: "text-black" },

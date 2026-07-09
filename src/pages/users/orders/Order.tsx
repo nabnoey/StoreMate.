@@ -11,6 +11,7 @@ import {
 } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import  {statusConfig,getOrderLabel} from "../../../types/orders"
+import type { CreateReviewPayload } from "../../../types/review";
 import {
   fetchProductReviews,
   submitProductReview,
@@ -442,7 +443,7 @@ const Order = () => {
                     statusConfig[order?.status]?.color || "text-black";
                   const label = getOrderLabel(
                     order?.status,
-                    order?.checkoutType,
+                    
                   );
 
                   const orderTotal =
