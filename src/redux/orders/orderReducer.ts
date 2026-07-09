@@ -5,14 +5,14 @@ import type { Order, OrderStatus } from "../../types/orders";
 interface OrdersState {
   orders: Order[];
   orderDetail: Order | null;
-  // loading: boolean;
+  loading: boolean;
   // error: string | null;
 }
 
 const initialState: OrdersState = {
   orders: [],
   orderDetail: null,
-  // loading: false,
+  loading: false,
   // error: null,
 };
 
@@ -41,6 +41,7 @@ const ordersSlice = createSlice({
 
   
       .addCase(fetchOrders.fulfilled, (state, action) => {
+         state.loading = false;
         state.orders = action.payload;
       })
      

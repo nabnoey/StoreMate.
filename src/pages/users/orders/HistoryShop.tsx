@@ -37,7 +37,7 @@ const HistoryPage = () => {
 
   const { orders } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch<AppDispatch>();
-  const { token } = useSelector((state: RootState) => state.auth);
+  // const { token } = useSelector((state: RootState) => state.auth);
 
 
   // เพิ่มรีวิว
@@ -86,9 +86,8 @@ const HistoryPage = () => {
   };
 
   useEffect(() => {
-    if (!token) return;
-    dispatch(fetchOrders(status as any));
-  }, [dispatch, status, token]);
+    dispatch(fetchOrders(status));
+  }, [dispatch, status]);
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
