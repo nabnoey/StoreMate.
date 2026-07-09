@@ -39,9 +39,6 @@ const HistoryPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
 
-  // useEffect(() => {
-  //   console.log("ORDERS FROM REDUX", orders);
-  // }, [orders]);
 
   // เพิ่มรีวิว
   const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);

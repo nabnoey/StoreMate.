@@ -12,7 +12,7 @@ import {
   updateAddress,
   addressDropdown,
 } from "../../redux/address/addressReducer";
-import type { Address } from "../../types/address";
+import type { Address, DropdownItem } from "../../types/address";
 import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
 
@@ -58,23 +58,31 @@ const AddressProfile = () => {
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
 
-    // จังหวัด
-    const provinceRes = await dispatch(addressDropdown({})).unwrap();
+     setFormData((prev) => ({
+      ...prev,
+      streetAddress: streetAddress,
+      // เราอาจจะเซ็ตพวกไอดีให้เป็น 0 ไว้ก่อนระหว่างรอโหลด
+      province: 0,
+      district: 0,
+      subDistrict: 0,
+    }));
 
-    const province =
-      provinceRes.find(
-        (p: { id: number; name: string }) =>
-          String(p.name).trim() === String(provinceName).trim(),
-      )?.id || 0;
+    
+    // จังหวัด
+    const provinceRes: DropdownItem[] = await dispatch(
+      addressDropdown({}),
+    ).unwrap();
+
+    const province = provinceRes.find((p) => p.name === provinceName)?.id ?? 0;
 
     setFormData((prev) => ({
       ...prev,
-      streetAddress,
+      // streetAddress,
       province,
     }));
 
     //อำเภอ
-    const districtRes = await dispatch(
+    const districtRes: DropdownItem[] = await dispatch(
       addressDropdown({
         provinceId: province,
         districtId: 0,
@@ -82,11 +90,7 @@ const AddressProfile = () => {
       }),
     ).unwrap();
 
-    const district =
-      districtRes.find(
-        (d: { id: number; name: string }) =>
-          String(d.name).trim() === String(districtName).trim(),
-      )?.id || 0;
+    const district = districtRes.find((d) => d.name === districtName)?.id ?? 0;
 
     setFormData((prev) => ({
       ...prev,
@@ -94,7 +98,7 @@ const AddressProfile = () => {
     }));
 
     //ตำบล
-    const subRes = await dispatch(
+    const subRes: DropdownItem[] = await dispatch(
       addressDropdown({
         provinceId: province,
         districtId: district,
@@ -102,14 +106,14 @@ const AddressProfile = () => {
       }),
     ).unwrap();
 
-    const selectedSub = subRes.find(
-      (s: { id: number; name: string }) =>
-        String(s.name).trim() === String(subDistrictName).trim(),
-    );
+    const subDistrict = subRes.find((s) => s.name === subDistrictName)?.id || 0;
 
-    const subDistrict = selectedSub?.id || 0;
+    setFormData((prev) => ({
+      ...prev,
+      subDistrict,
+    }));
 
-    const zipRes = await dispatch(
+    const zipRes: DropdownItem[] = await dispatch(
       addressDropdown({
         provinceId: province,
         districtId: district,
@@ -130,18 +134,21 @@ const AddressProfile = () => {
     }));
   };
 
-  const openEditModal = (address: Address) => {
+  const openEditModal = async (address: Address) => {
     setIsEditMode(true);
     setTargetAddressId(String(address.id));
-
+     await fillAddressData(address);
     setIsModalOpen(true);
-
-    fillAddressData(address);
   };
 
-  const parseDropdownResponse = (response: any) => {
-    if (Array.isArray(response)) return response;
-    return response?.data || [];
+  const parseDropdownResponse = (
+    response: DropdownItem[] | { data: DropdownItem[] },
+  ) => {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    return response.data;
   };
 
   const openAddModal = async () => {
@@ -155,6 +162,8 @@ const AddressProfile = () => {
       zipcode: "",
       zipcodeId: 0,
     });
+
+    setZipcodes([]);
 
     // ดึงข้อมูลจังหวัดตอนกดปุ่ม
     await dispatch(

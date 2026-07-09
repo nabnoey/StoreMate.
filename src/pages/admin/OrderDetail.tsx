@@ -106,7 +106,7 @@ function OrderDetail() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { orderToPrint, loading } = useSelector(
+  const { orderToPrint } = useSelector(
     (state: RootState) => state.moderator,
   );
   const order =
@@ -119,7 +119,7 @@ function OrderDetail() {
     }
   }, [orderNo, dispatch]);
 
-  if (loading) {
+  if (!order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
