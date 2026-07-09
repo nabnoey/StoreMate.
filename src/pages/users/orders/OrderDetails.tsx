@@ -120,19 +120,6 @@ function OrderDetails() {
   }
 
   const recipient = order.orderRecipient;
-  const recipientName = recipient?.recipientName || "ไม่ระบุชื่อ";
-  const recipientPhone = recipient?.phone || "ไม่ระบุเบอร์โทรศัพท์";
-
-  const deliveryAddress = recipient
-    ? recipient
-    : {
-        streetAddress:
-          authUser?.address?.streetAddress ?? "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
-        subdistrict: "",
-        district: "",
-        province: "",
-        zipcode: "",
-      };
 
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleDateString("th-TH")
@@ -145,6 +132,7 @@ function OrderDetails() {
     { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
   ];
 
+  //สถานะปัจจุบันอยู่ขั้นตอนที่เท่าไหร่
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
 
   const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -172,8 +160,10 @@ function OrderDetails() {
               รายละเอียดคำสั่งซื้อ
             </h1>
             <div className="text-sm md:ml-auto break-words flex flex-wrap items-center gap-1">
-              <span className="text-gray-500">เลขที่คำสั่งซื้อ: {order.orderNo} |</span>
-              {/* นำ statusColor มาแสดงผลสีข้อความให้ตรงกับ History */}
+              <span className="text-gray-500">
+                เลขที่คำสั่งซื้อ: {order.orderNo} |
+              </span>
+              {/* นำ statusColor มาแสดงผลสีข้อความให้ตรงกับ order */}
               <span className={`font-semibold ${statusColor}`}>
                 {getOrderLabel(order.status, order.checkoutType)}
               </span>
@@ -351,7 +341,7 @@ function OrderDetails() {
                       <FiUser />
                     </div>
                     <p className="font-bold text-sm text-gray-900">
-                      {recipientName}
+                      {recipient?.recipientName}
                     </p>
                   </div>
                 </div>
@@ -365,7 +355,7 @@ function OrderDetails() {
                       <FiPhone />
                     </div>
                     <p className="font-bold text-sm text-gray-900">
-                      {recipientPhone}
+                      {recipient?.phone}
                     </p>
                   </div>
                 </div>
@@ -379,18 +369,18 @@ function OrderDetails() {
                       <FiMapPin />
                     </div>
                     <div className="font-sans text-sm text-black leading-relaxed">
-                      {deliveryAddress.streetAddress}
-                      {deliveryAddress.subdistrict && (
+                      {recipient?.streetAddress}
+                      {recipient?.subdistrict && (
                         <>
                           <br />
-                          {deliveryAddress.subdistrict}
-                          {deliveryAddress.district}
+                          {recipient.subdistrict}
+                          {recipient.district}
                         </>
                       )}
-                      {deliveryAddress.province && (
+                      {recipient?.province && (
                         <>
                           <br />
-                          {deliveryAddress.province} {deliveryAddress.zipcode}
+                          {recipient.province} {recipient.zipcode}
                         </>
                       )}
                     </div>
