@@ -260,7 +260,6 @@ const PaymentContent = () => {
     let loadingToastId: string | undefined;
 
     try {
-      loadingToastId = toast.loading("กำลังดำเนินการ...");
       const currentCheckoutType = paymentMethod as PaymentMethod;
 
       const response = await executePaymentApi(currentCheckoutType);
