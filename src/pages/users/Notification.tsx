@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { Pagination } from "../../components/admin/Pagination";
 
 import type { AppDispatch, RootState } from "../../redux/store";
 import {
@@ -31,6 +32,12 @@ const NotificationPage = () => {
   );
 
   const counts = useSelector((state: RootState) => state.notification.counts);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -66,6 +73,13 @@ const NotificationPage = () => {
 
     return dateB - dateA;
   });
+
+  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE);
+
+  const paginatedNotifications = notifications.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const filters: {
     id: NotificationType;
@@ -249,34 +263,52 @@ const NotificationPage = () => {
                     กำลังโหลดข้อมูลการแจ้งเตือน...
                   </div>
                 ) : notifications.length > 0 ? (
-                  notifications.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleNotificationClick(item)}
-                      data-test="notification-item"
-                      className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
-                        !item.isRead
-                          ? "bg-[#EBF2FE] border-blue-100"
-                          : "bg-white border-gray-100 hover:bg-gray-50"
-                      }`}
-                    >
-                      <h3
-                        className={`text-[15px] md:text-[16px] ${!item.isRead ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}
+                  <>
+                    {paginatedNotifications.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleNotificationClick(item)}
+                        data-test="notification-item"
+                        className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
+                          !item.isRead
+                            ? "bg-[#EBF2FE] border-blue-100"
+                            : "bg-white border-gray-100 hover:bg-gray-50"
+                        }`}
                       >
-                        {item.title}
-                      </h3>
-                      <p
-                        className={`text-[14px] mt-0.5 leading-relaxed ${!item.isRead ? "text-gray-700" : "text-gray-500"}`}
-                      >
-                        {item.message}
-                      </p>
-                      <p className="text-[13px] text-gray-500 mt-1.5">
-                        {item.createdAt
-                          ? new Date(item.createdAt).toLocaleString("th-TH")
-                          : "-"}
-                      </p>
-                    </button>
-                  ))
+                        <h3
+                          className={`text-[15px] md:text-[16px] ${
+                            !item.isRead
+                              ? "font-bold text-gray-900"
+                              : "font-medium text-gray-700"
+                          }`}
+                        >
+                          {item.title}
+                        </h3>
+
+                        <p
+                          className={`text-[14px] mt-0.5 leading-relaxed ${
+                            !item.isRead ? "text-gray-700" : "text-gray-500"
+                          }`}
+                        >
+                          {item.message}
+                        </p>
+
+                        <p className="text-[13px] text-gray-500 mt-1.5">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleString("th-TH")
+                            : "-"}
+                        </p>
+                      </button>
+                    ))}
+
+                    {totalPages > 1 && (
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
+                    )}
+                  </>
                 ) : (
                   <div
                     className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-100"

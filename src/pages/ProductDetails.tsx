@@ -15,11 +15,23 @@ import Pagination from "../components/user/Pagination";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
-const categoryTranslator: Record<string, string> = {
-  Promotion: "โปรโมชัน",
-  Soap: "สบู่",
-  Drinks: "เครื่องดื่ม",
-  Shampoo: "แชมพู",
+const categoryConfig: Record<string, { label: string; search: string }> = {
+  Promotion: {
+    label: "โปรโมชัน",
+    search: "promotion",
+  },
+  Soap: {
+    label: "สบู่",
+    search: "soap",
+  },
+  Drinks: {
+    label: "เครื่องดื่ม",
+    search: "drinks",
+  },
+  Shampoo: {
+    label: "แชมพู",
+    search: "shampoo",
+  },
 };
 
 const ProductDetailPage: React.FC = () => {
@@ -54,6 +66,10 @@ const ProductDetailPage: React.FC = () => {
     indexOfFirstReview,
     indexOfLastReview,
   );
+
+  const breadcrumbLink = `/search?keyword=&category=${
+    categoryConfig[categoryName]?.search ?? ""
+  }`;
 
   //เช็คสินค้าในรถเข็น
   const itemInCart = useMemo(() => {
@@ -252,10 +268,10 @@ const ProductDetailPage: React.FC = () => {
               className="w-5 h-5 mx-1 text-black"
             />
             <Link
-              to={`/search?category=${categoryName}`}
+              to={breadcrumbLink}
               className="transition-colors cursor-pointer"
             >
-              {categoryTranslator[categoryName] || categoryName}
+              {categoryConfig[categoryName]?.label || categoryName}
             </Link>
             <Icon
               icon="material-symbols:chevron-right-rounded"
@@ -321,7 +337,10 @@ const ProductDetailPage: React.FC = () => {
               id="product-details-container"
               className="flex flex-col mt-4 md:mt-0 h-full w-full md:border md:border-gray-100 md:rounded-xl md:p-6 md:shadow-lg"
             >
-              <h1 className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight">
+              <h1
+                data-test="product-name"
+                className="order-1 text-2xl md:text-3xl lg:text-4xl font-bold text-[#2C2221] mb-2 md:mb-3 leading-tight"
+              >
                 {productDetail.productName}
               </h1>
 
