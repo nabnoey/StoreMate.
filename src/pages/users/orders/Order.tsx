@@ -10,8 +10,7 @@ import {
   fetchOrderDetails,
 } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
-import { statusConfig, getOrderLabel } from "../../../utils/order";
-import type { CreateReviewPayload } from "../../../types/review";
+import  {statusConfig,getOrderLabel} from "../../../types/orders"
 import {
   fetchProductReviews,
   submitProductReview,
@@ -27,7 +26,7 @@ import WriteReviewModal from "../../../components/user/review/WriteReviewModal";
 import ViewReviewModal from "../../../components/user/review/ViewReviewModal";
 import EditReviewModal from "../../../components/user/review/EditReviewModal";
 
-const HistoryPage = () => {
+const Order = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [error] = useState<string | null>(null);
@@ -37,7 +36,7 @@ const HistoryPage = () => {
 
   const { orders } = useSelector((state: RootState) => state.orders);
   const dispatch = useDispatch<AppDispatch>();
-  // const { token } = useSelector((state: RootState) => state.auth);
+
 
 
   // เพิ่มรีวิว
@@ -817,4 +816,4 @@ const HistoryPage = () => {
   );
 };
 
-export default HistoryPage;
+export default Order;
