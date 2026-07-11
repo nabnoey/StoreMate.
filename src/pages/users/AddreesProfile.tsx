@@ -243,7 +243,7 @@ const AddressProfile = () => {
       !province ||
       !finalZipcodeId
     ) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { duration: 1500 });
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
@@ -265,7 +265,7 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("แก้ไขที่อยู่สำเร็จ", { duration: 1700 });
+      toast.success("แก้ไขที่อยู่สำเร็จ");
     } else {
       await dispatch(
         addAddress({
@@ -275,7 +275,7 @@ const AddressProfile = () => {
         }),
       );
 
-      toast.success("เพิ่มที่อยู่สำเร็จ", { duration: 1500 });
+      toast.success("เพิ่มที่อยู่สำเร็จ");
     }
     dispatch(fetchAllAddresses());
     setIsModalOpen(false);
@@ -285,8 +285,8 @@ const AddressProfile = () => {
   const handleDeleteAddress = (addressId: number) => {
     if (addresses.length === 1) {
       toast.error(
-        "ไม่สามารถลบได้ เนื่องจากต้องมีที่อยู่เริ่มต้นอย่างน้อย 1 รายการ",
-        { duration: 2000 },
+        "ไม่สามารถลบได้ เนื่องจากต้องมีที่อยู่เริ่มต้นอย่างน้อย 1 รายการ"
+       
       );
       return;
     }
@@ -297,7 +297,7 @@ const AddressProfile = () => {
       toast.dismiss(toastId);
       await dispatch(deleteAddress(addressId));
 
-      toast.success("ลบที่อยู่สำเร็จ", { duration: 1500 });
+      toast.success("ลบที่อยู่สำเร็จ");
 
       setIsBlocking(false);
     };

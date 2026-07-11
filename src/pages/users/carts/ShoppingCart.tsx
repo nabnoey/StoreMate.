@@ -156,7 +156,7 @@ const ShoppingCart = () => {
 
     dispatch(deleteCartItemThunk(productId));
     setSelectedItems((prev) => prev.filter((id) => id !== productId));
-    toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+    toast.success("ลบสินค้าแล้ว");
   };
 
   const handleRemoveSelected = async () => {
@@ -170,12 +170,13 @@ const ShoppingCart = () => {
     );
     if (!isConfirmed) return;
 
+    //Promise ทุกตัวใน array ทำงานเสร็จทั้งหมด แล้วค่อยทำคำสั่งต่อไป
     await Promise.all(
       selectedItems.map((id) => dispatch(deleteCartItemThunk(id))),
     );
 
     setSelectedItems([]);
-    toast.success("ลบสินค้าสำเร็จ", { duration: 1500 });
+    toast.success("ลบสินค้าสำเร็จ");
   };
 
   const handleIncreaseQuantity = (
@@ -184,7 +185,7 @@ const ShoppingCart = () => {
     stockQuantity: number,
   ) => {
     if (currentQuantity >= stockQuantity) {
-      toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้",{duration:1500});
+      toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้");
       return;
     }
     dispatch(incrementCartItemThunk(productId));
@@ -205,7 +206,7 @@ const ShoppingCart = () => {
 
       setSelectedItems((prev) => prev.filter((id) => id !== productId));
 
-      toast.success("ลบสินค้าแล้ว", { duration: 1500 });
+      toast.success("ลบสินค้าแล้ว");
 
       return;
     }

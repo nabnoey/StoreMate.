@@ -11,6 +11,7 @@ import {
 } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import  {statusConfig,getOrderLabel} from "../../../types/orders"
+import type { PaymentMethod } from "../../../types/payment";
 import type { CreateReviewPayload } from "../../../types/review";
 import {
   fetchProductReviews,
@@ -36,6 +37,11 @@ const Order = () => {
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders } = useSelector((state: RootState) => state.orders);
+   const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+      DESTINATION: "เก็บเงินปลายทาง (COD)",
+      PROMPTPAY: "พร้อมเพย์ (PromptPay)",
+      CARD: "บัตรเครดิต / เดบิต",
+    };
   const dispatch = useDispatch<AppDispatch>();
 
 
@@ -446,9 +452,7 @@ const Order = () => {
                     
                   );
 
-                  const orderTotal =
-                    order?.totalPrice ||
-                    order?.total ||
+                  const orderTotal = 
                     (order?.orderItems || []).reduce(
                       (sum, item) =>
                         sum + (item?.price || 0) * (item?.quantity || 0),
@@ -472,12 +476,19 @@ const Order = () => {
                   const hasUnreviewed = unreviewedItems.length > 0;
                   const isExpanded = !!expandedOrders[order.id];
 
-                  const visibleItems =
-                    window.innerWidth >= 768
-                      ? order.orderItems || []
-                      : isExpanded
-                        ? order.orderItems || []
-                        : (order.orderItems || []).slice(0, 1);
+                  // const visibleItems =
+                  //   window.innerWidth >= 768
+                  //     ? order.orderItems || []
+                  //     : isExpanded
+                  //       ? order.orderItems || []
+                  //       : (order.orderItems || []).slice(0, 1);
+                  const isDesktop = window.innerWidth >= 768;
+
+const visibleItems = isExpanded
+  ? order.orderItems || []
+  : isDesktop
+    ? (order.orderItems || []).slice(0, 2)
+    : (order.orderItems || []).slice(0, 1);
                   return (
                     <div
                       key={order.id}
@@ -577,7 +588,23 @@ const Order = () => {
                               ฿ {orderTotal.toLocaleString()}
                             </span>
                           </div>
+                          
                         </div>
+                        
+                        {/* <div className="flex justify-center md:justify-between items-center gap-4 rounded-lg bg-[#F9FAFB] px-4 py-3">
+                          <div className="flex items-center gap-3 md:w-full md:justify-between">
+                            <span className="text-black font-bold text-[15px] sm:text-[18px]">
+                             ช่องทางชำระเงิน
+                            </span>
+                            <span className="font-bold text-[#3B82F6] text-[16px] sm:text-[16px]">
+                                {PAYMENT_METHOD_LABELS[order.checkoutType] ||
+                            order.checkoutType}
+                            </span>
+                          </div> */}
+                          
+                        </div>
+                       
+
 
                         {order.status === "COMPLETED" ? (
                           <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">

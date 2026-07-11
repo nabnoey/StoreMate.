@@ -21,10 +21,10 @@ createRoot(document.getElementById("root")!).render(
         reverseOrder={false}
         toastOptions={{
           // ตั้งค่าให้ toast ธรรมดาหายไปใน 3 วินาที
-          duration: 1500,
+          duration: 2000,
           // ถ้าเป็น error อาจจะให้อยู่นานหน่อย เช่น 5 วินาที
           error: {
-            duration: 1500,
+            duration: 2000,
           },
         }}
       />

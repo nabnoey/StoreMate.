@@ -207,11 +207,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
     try {
       await dispatch(deleteProduct(product.id)).unwrap();
-      toast.success("ลบสินค้าเรียบร้อยแล้ว",{duration:1500});
+      toast.success("ลบสินค้าเรียบร้อยแล้ว");
       refreshProductList();
       handleCloseModal();
     } catch{
-      toast.error("ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้",{duration:2000});
+      toast.error("ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้");
 
       
     }
@@ -241,7 +241,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       ) {
         validFiles.push({ file, preview: URL.createObjectURL(file) });
       } else {
-        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`,{duration:1500});
+        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
       }
     });
 
@@ -306,7 +306,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 }
 
                 if ( displayImages.length === 0) {
-                  toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป",{duration:1500});
+                  toast.error("กรุณาเพิ่มรูปภาพสินค้าอย่างน้อย 1 รูป");
                   return;
                 }
 
@@ -336,10 +336,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   await dispatch(
                     editProduct({ id: product.id, data: formData }),
                   ).unwrap();
-                  toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว",{duration:1500});
+                  toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว");
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
-                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว",{duration:1500});
+                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว");
                 }
 
                 refreshProductList();
@@ -348,7 +348,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 toast.error(
                     (isEditMode
                       ? "เกิดข้อผิดพลาดในการแก้ไขสินค้า"
-                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า"),{duration:1500}
+                      : "เกิดข้อผิดพลาดในการเพิ่มสินค้า")
                 );
               } finally {
                 setSubmitting(false);

@@ -10,14 +10,14 @@ export interface CartState {
   items: CartItem[];
   selectedItems: CartItem[];
   status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
+  // error: string | null;
 }
 
 const initialState: CartState = {
   items: [],
   selectedItems: [],
   status: "idle",
-  error: null,
+  // error: null,
 };
 
 export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
@@ -27,55 +27,55 @@ export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
 
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
-  async (itemData: CartItemRequestDTO, { dispatch, rejectWithValue }) => {
-    try {
+  async (itemData: CartItemRequestDTO, { dispatch }) => {
+    // try {
       const response = await CartItemService.addToCart(itemData);
       dispatch(fetchCartThunk());
       return response;
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data ||
-        error.message ||
-        "เกิดข้อผิดพลาดในการเพิ่มสินค้า";
-      return rejectWithValue({ message: errorMessage });
+    // } catch (error: any) {
+    //   const errorMessage =
+    //     error.response?.data?.message ||
+    //     error.response?.data ||
+    //     error.message ||
+    //     "เกิดข้อผิดพลาดในการเพิ่มสินค้า";
+    //   return rejectWithValue({ message: errorMessage });
     }
-  },
+  // },
 );
 
 export const incrementCartItemThunk = createAsyncThunk(
   "cart/incrementCartItem",
-  async (productId: number, { rejectWithValue }) => {
-    try {
+  async (productId: number) => {
+    
       const response = await CartItemService.incrementCartItem(productId);
       return response;
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data ||
-        error.message ||
-        "เกิดข้อผิดพลาดในการเพิ่มจำนวนสินค้า";
+    // } catch (error: any) {
+    //   const errorMessage =
+    //     error.response?.data?.message ||
+    //     error.response?.data ||
+    //     error.message ||
+    //     "เกิดข้อผิดพลาดในการเพิ่มจำนวนสินค้า";
 
-      return rejectWithValue({ message: errorMessage });
-    }
+    //   return rejectWithValue({ message: errorMessage });
+    // }
   },
 );
 
 export const decrementCartItemThunk = createAsyncThunk(
   "cart/decrementCartItem",
-  async (productId: number, { rejectWithValue }) => {
-    try {
+  async (productId: number) => {
+    // try {
       const response = await CartItemService.decrementCartItem(productId);
       return response;
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data ||
-        error.message ||
-        "เกิดข้อผิดพลาดในการลดจำนวนสินค้า";
+    // } catch (error: any) {
+    //   const errorMessage =
+    //     error.response?.data?.message ||
+    //     error.response?.data ||
+    //     error.message ||
+    //     "เกิดข้อผิดพลาดในการลดจำนวนสินค้า";
 
-      return rejectWithValue({ message: errorMessage });
-    }
+    //   return rejectWithValue({ message: errorMessage });
+    // }
   },
 );
 
@@ -127,11 +127,11 @@ const cartSlice = createSlice({
           state.items.push(action.payload);
         }
       })
-      .addCase(addToCartThunk.rejected, (state, action: any) => {
+      .addCase(addToCartThunk.rejected, (state) => {
         state.status = "failed";
 
-        const payload = action.payload as { message?: string } | undefined;
-        state.error = payload?.message || "เกิดข้อผิดพลาด";
+        // const payload = action.payload as { message?: string } | undefined;
+        // state.error = payload?.message || "เกิดข้อผิดพลาด";
       })
       .addCase(incrementCartItemThunk.fulfilled, (state, action) => {
         const productId = action.meta.arg;
@@ -172,9 +172,9 @@ const cartSlice = createSlice({
         state.status = "succeeded";
         state.items = action.payload;
       })
-      .addCase(fetchCartThunk.rejected, (state, action) => {
+      .addCase(fetchCartThunk.rejected, (state) => {
         state.status = "failed";
-        state.error = action.payload as string;
+       
       });
   },
 });

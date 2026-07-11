@@ -54,7 +54,7 @@ const OrderCard = ({ order }: { order: Order }) => {
   
       <div className="border-t pt-2 mt-2 text-right">
         <p className="text-sm font-bold text-gray-900">
-          รวม: ฿ {(order.total || order.totalPrice || 0).toLocaleString()}
+          รวม: ฿ {(order.total).toLocaleString()}
         </p>
       </div>
     </div>

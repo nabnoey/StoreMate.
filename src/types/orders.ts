@@ -31,6 +31,7 @@ export const statusConfig: Record<
 };
 
 
+//แปลง สถานะของออเดอร์ (status) ให้เป็น ข้อความ
 export const getOrderLabel = (status: OrderStatus): string => {
   return statusConfig[status]?.label || status;
 };
@@ -59,7 +60,7 @@ export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
-  totalPrice: number;
+  // totalPrice: number;
   statusDelivery?: string;
   checkoutType: PaymentMethod;
 
