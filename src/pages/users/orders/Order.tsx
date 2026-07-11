@@ -11,7 +11,7 @@ import {
 } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import  {statusConfig,getOrderLabel} from "../../../types/orders"
-import type { PaymentMethod } from "../../../types/payment";
+// import type { PaymentMethod } from "../../../types/payment";
 import type { CreateReviewPayload } from "../../../types/review";
 import {
   fetchProductReviews,
@@ -37,11 +37,11 @@ const Order = () => {
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders } = useSelector((state: RootState) => state.orders);
-   const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
-      DESTINATION: "เก็บเงินปลายทาง (COD)",
-      PROMPTPAY: "พร้อมเพย์ (PromptPay)",
-      CARD: "บัตรเครดิต / เดบิต",
-    };
+  //  const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  //     DESTINATION: "เก็บเงินปลายทาง (COD)",
+  //     PROMPTPAY: "พร้อมเพย์ (PromptPay)",
+  //     CARD: "บัตรเครดิต / เดบิต",
+  //   };
   const dispatch = useDispatch<AppDispatch>();
 
 
@@ -600,9 +600,9 @@ const visibleItems = isExpanded
                                 {PAYMENT_METHOD_LABELS[order.checkoutType] ||
                             order.checkoutType}
                             </span>
-                          </div> */}
+                          </div>
                           
-                        </div>
+                        </div> */}
                        
 
 
