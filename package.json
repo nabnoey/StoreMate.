@@ -40,7 +40,6 @@
     "react-to-print": "^3.3.0",
     "react-toastify": "^11.0.5",
     "recharts": "^3.8.1",
-    "redux-persist": "^6.0.0",
     "sockjs-client": "^1.6.1",
     "sweetalert2": "^11.26.17",
     "tailwindcss": "^4.1.18",

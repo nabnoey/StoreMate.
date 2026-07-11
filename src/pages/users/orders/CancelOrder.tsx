@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import type { OrderStatus, RefundRequest } from "../../../types/orders";
 import type { PaymentMethod } from "../../../types/payment";
 import { useDispatch } from "react-redux";
@@ -11,17 +11,11 @@ import { sendRefundThunk } from "../../../redux/payment/paymentReducer";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
-  { value: "return_refund", label: "ขอคืนเงิน" },
   {
     value: "change_shipping_address",
     label: "ต้องการเปลี่ยนที่อยู่ในการจัดส่ง",
   },
   { value: "edit_order_details", label: "ต้องการแก้ไขรายละเอียดคำสั่งซื้อ" },
-  {
-    value: "complex_payment_process",
-    label: "ขั้นตอนการชำระเงินซับซ้อนเกินไป",
-  },
-  { value: "found_cheaper", label: "เจอสินค้าเดียวกันที่ถูกกว่า" },
   { value: "no_longer_want", label: "ไม่ต้องการซื้อสินค้านี้แล้ว" },
 ];
 
@@ -51,12 +45,12 @@ const CancelOrderPage = () => {
 
   const handleSubmit = async () => {
     if (!selectedReason) {
-      toast.error("กรุณาเลือกเหตุผลในการยกเลิกคำสั่งซื้อ", { duration: 1500 });
+      toast.error("กรุณาเลือกเหตุผลในการยกเลิกคำสั่งซื้อ");
       return;
     }
 
     if (!orderNo) {
-      toast.error("ไม่พบข้อมูลคำสั่งซื้อ", { duration: 1500 });
+      toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
 
       return;
     }
@@ -72,17 +66,13 @@ const CancelOrderPage = () => {
       await dispatch(sendRefundThunk(payload)).unwrap();
 
       if (isCancelAction) {
-        toast.dismiss();
-        toast.success("ส่งคำขอยกเลิกสำเร็จ", { duration: 1500 });
+        toast.success("ส่งคำขอยกเลิกสำเร็จ");
 
         setTimeout(() => {
           navigate("/orders?status=CANCELLED");
         });
       } else if (isRefundAction) {
-        toast.dismiss();
-        toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ", {
-          duration: 2000,
-        });
+        toast.success("ส่งคำขอคืนเงินสำเร็จ อยู่ระหว่างการตรวจสอบ");
         setTimeout(() => {
           navigate("/orders?status=PROCESSING");
         });
@@ -97,9 +87,7 @@ const CancelOrderPage = () => {
       ) {
         toast.error("ไม่พบข้อมูลคำสั่งซื้อ");
       } else if (errorMessage === "Refund exist") {
-        toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว", {
-          duration: 1500,
-        });
+        toast.error("คุณได้ส่งคำขอยกเลิก/คืนเงิน สำหรับออเดอร์นี้ไปแล้ว");
       } else if (errorMessage === "Can't refund this order") {
         toast.error(
           "หลังบ้านยังไม่ได้ปรับสิทธิ์: ออเดอร์ PENDING ไม่ต้องวิ่งเข้าฟังก์ชัน Refund",
@@ -113,8 +101,6 @@ const CancelOrderPage = () => {
   };
   return (
     <div className="min-h-screen flex flex-col bg-white font-anuphan text-gray-950 pt-4 md:pt-5 pb-4 md:pb-20">
-      <Toaster position="top-center" reverseOrder={false} />
-
       {/* --- DESKTOP & TABLET BREADCRUMB --- */}
       <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
         <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
@@ -186,8 +172,9 @@ const CancelOrderPage = () => {
 
             {/* Reason Dropdown */}
             <div className="flex flex-col gap-2">
-              <label className="text-[14px] md:text-[16px] text-[#94A3B8] font-medium md:pt-4">
-                เหตุผลในการขอทำรายการ
+              <label className="flex items-center gap-1 text-[14px] md:text-[16px] text-[#94A3B8] font-medium md:pt-4">
+                <span>เหตุผลในการขอทำรายการ</span>
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative w-full md:w-1/2">
                 <div
