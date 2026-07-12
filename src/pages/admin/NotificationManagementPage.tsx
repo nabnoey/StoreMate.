@@ -111,14 +111,10 @@ const NotificationManagementPage: React.FC = () => {
                       size,
                     }),
                   );
-                  toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว", {
-                    duration: 1500,
-                  });
+                  toast.success("ลบการแจ้งเตือนเรียบร้อยแล้ว");
                   // refreshNotificationList();
                 } catch (error) {
-                  toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้", {
-                    duration: 1500,
-                  });
+                  toast.error("เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้");
                 }
               }}
               className="cursor-pointer px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-colors"
@@ -157,7 +153,7 @@ const NotificationManagementPage: React.FC = () => {
     const { subject, message, recipients } = formData;
 
     if (!subject.trim() || !message.trim()) {
-      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน", { duration: 1500 });
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
       return;
     }
 
@@ -181,16 +177,14 @@ const NotificationManagementPage: React.FC = () => {
         }),
       );
 
-      toast.success("ส่งการแจ้งเตือนสำเร็จ", { duration: 1500 });
+      toast.success("ส่งการแจ้งเตือนสำเร็จ");
 
       setFormData({ subject: "", message: "", recipients: "ทั้งหมด" });
       setIsModalOpen(false);
 
       // refreshNotificationList();
     } catch (error: any) {
-      toast.error(error?.message || "เกิดข้อผิดพลาดในการส่งแจ้งเตือน", {
-        duration: 1500,
-      });
+      toast.error(error?.message || "เกิดข้อผิดพลาดในการส่งแจ้งเตือน");
     }
   };
 

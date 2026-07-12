@@ -69,7 +69,7 @@ const PaymentQRInner = () => {
     return Number(savedPrice) || 0;
   });
 
-  const [showQR] = useState(true);
+  const showQR = true;
 
   // ถ้ารีหน้า เวลาต้องนับต่อห้ามนับใหม่
   const [timeLeft, setTimeLeft] = useState(() => {
@@ -212,9 +212,7 @@ const PaymentQRInner = () => {
         );
 
         if (error) {
-          toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code", {
-            duration: 1500,
-          });
+          toast.error(error.message || "เกิดข้อผิดพลาดในการสร้าง QR Code");
           // ปิ้วๆ qr ใหม่ได้ถ้าพัง
           hasRequestedQR.current = false;
         } else {
@@ -252,14 +250,12 @@ const PaymentQRInner = () => {
             setQrImage(qrData);
             localStorage.setItem("payment_qr_image", qrData);
           } else {
-            toast.error("ไม่พบข้อมูล QR Code จากระบบ", { duration: 1500 });
+            toast.error("ไม่พบข้อมูล QR Code จากระบบ");
           }
         }
       } catch (err) {
         console.error(err);
-        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้", {
-          duration: 1500,
-        });
+        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้");
       } finally {
         setIsGenerating(false);
       }
@@ -271,7 +267,7 @@ const PaymentQRInner = () => {
   // เรื่องเวลาถอยหลัง และจัดการตอนเบิ่ดเวลา
   useEffect(() => {
     if (!clientSecret || !totalPrice) {
-      toast.error("ข้อมูลการชำระเงินไม่ครบถ้วน", { duration: 1500 });
+      toast.error("ข้อมูลการชำระเงินไม่ครบถ้วน");
       clearPaymentSession();
       navigate("/shopping-cart");
       return;
@@ -279,7 +275,7 @@ const PaymentQRInner = () => {
 
     if (showQR) {
       if (timeLeft <= 0) {
-        toast.error("QR Code หมดอายุการใช้งาน", { duration: 1500 });
+        toast.error("QR Code หมดอายุการใช้งาน");
         clearPaymentSession();
 
         navigate(`/orders`);
@@ -294,7 +290,7 @@ const PaymentQRInner = () => {
           );
           if (remaining <= 0) {
             clearInterval(timerId);
-            toast.error("QR Code หมดอายุการใช้งาน", { duration: 1500 });
+            toast.error("QR Code หมดอายุการใช้งาน");
             clearPaymentSession();
             navigate(`/orders`);
           } else {
@@ -304,7 +300,7 @@ const PaymentQRInner = () => {
           setTimeLeft((prev) => {
             if (prev <= 1) {
               clearInterval(timerId);
-              toast.error("QR Code หมดอายุการใช้งาน", { duration: 1500 });
+              toast.error("QR Code หมดอายุการใช้งาน");
               clearPaymentSession();
               navigate(`/orders`);
               return 0;

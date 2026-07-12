@@ -31,15 +31,43 @@ const AddCreditCardFormInner = () => {
   const [cardName, setCardName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [isCardComplete, setIsCardComplete] = useState(false);
+  const [cardBrand, setCardBrand] = useState<string>("");
+
+  const validateCard = () => {
+    if (!cardName.trim()) {
+      toast.error("กรุณากรอกชื่อผู้ถือบัตร");
+      return false;
+    }
+
+    if (!/^[A-Za-zก-๙\s]+$/.test(cardName.trim())) {
+      toast.error("กรุณากรอกชื่อผู้ถือบัตรเป็นตัวอักษรเท่านั้น");
+      return false;
+    }
+
+    if (!isCardComplete) {
+      toast.error("กรุณากรอกหมายเลขบัตรให้ครบ");
+      return false;
+    }
+
+    if (!["visa", "mastercard"].includes(cardBrand)) {
+      toast.error("รองรับเฉพาะบัตร Visa และ Mastercard");
+      return;
+    }
+
+    return true;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateCard()) return;
+
     if (!stripe || !elements) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
+
     if (!cardNumberElement) {
-      toast.error("ข้อมูลฟอร์มไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง", {
-        duration: 1500,
-      });
+      toast.error("ข้อมูลฟอร์มไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง");
       return;
     }
 
@@ -54,32 +82,46 @@ const AddCreditCardFormInner = () => {
         card: cardNumberElement,
         billing_details: {
           email: userEmail,
-          name: cardName || userProfile?.name || "Guest",
+          name: cardName,
         },
       });
 
       if (error) {
-        toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร", {
-          duration: 1500,
-        });
-      } else {
-        const isBuyNow = location.state?.isBuyNow;
-        navigate("/payment", {
-          state: {
-            items: cartItems,
-            isBuyNow,
-            newlyAddedCard: paymentMethod,
+        switch (error.code) {
+          // 2.1.2 เลขบัตรไม่ถูกต้อง
+          case "incomplete_cvc":
+            toast.error("กรุณากรอกรหัส CVC ให้ครบ 3 หลัก");
+            break;
 
-            orderNo: location.state?.orderNo,
-            isReOrder: location.state?.isReOrder,
-          },
-        });
+          // 2.1.3 เดือนผิด ปีผิด หรือบัตรหมดอายุ
+          case "invalid_expiry_month":
+          case "invalid_expiry_year":
+          case "expired_card":
+            toast.error("วันหมดอายุไม่ถูกต้อง กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            break;
+
+          default:
+            toast.error(error.message || "เกิดข้อผิดพลาดในการตรวจสอบบัตร");
+        }
+
+        return;
       }
+
+      const isBuyNow = location.state?.isBuyNow;
+
+      navigate("/payment", {
+        state: {
+          items: cartItems,
+          isBuyNow,
+          newlyAddedCard: paymentMethod,
+          orderNo: location.state?.orderNo,
+          isReOrder: location.state?.isReOrder,
+        },
+      });
     } catch (err) {
       console.error(err);
-      toast.error("ไม่สามารถดึงข้อมูลผู้ใช้งาน หรือเชื่อมต่อระบบได้", {
-        duration: 1500,
-      });
+
+      toast.error("ไม่สามารถเชื่อมต่อระบบได้");
     } finally {
       setIsProcessing(false);
     }
@@ -238,7 +280,22 @@ const AddCreditCardFormInner = () => {
               data-test="card-number-input"
               className="w-full border border-gray-300 rounded-lg px-4 py-3.5 focus-within:border-[#4285F4] focus-within:ring-1 focus-within:ring-[#4285F4] bg-white"
             >
-              <CardNumberElement options={cardNumberOptions} />
+              <CardNumberElement
+                options={cardNumberOptions}
+                onChange={(event) => {
+                  setIsCardComplete(event.complete);
+                  setCardBrand(event.brand);
+
+                  if (
+                    event.brand &&
+                    event.brand !== "visa" &&
+                    event.brand !== "mastercard" &&
+                    event.brand !== "unknown"
+                  ) {
+                    toast.error("ระบบรองรับเฉพาะบัตร Visa และ Mastercard");
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -278,7 +335,13 @@ const AddCreditCardFormInner = () => {
           <button
             data-test="confirm-add-card-btn"
             type="submit"
-            disabled={!stripe || isProcessing || !cardName.trim()}
+            disabled={
+              !stripe ||
+              isProcessing ||
+              !cardName.trim() ||
+              !isCardComplete ||
+              !["visa", "mastercard"].includes(cardBrand)
+            }
             className="cursor-pointer w-full bg-[#1E40AF] text-white font-bold py-3.5 rounded-lg mt-4 transition-colors shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-[20px]"
           >
             {isProcessing ? "กำลังประมวลผล..." : "ยืนยันข้อมูลบัตร"}

@@ -108,23 +108,23 @@ const PaymentContent = () => {
 
   const validateOrder = () => {
     if (!selectedItems || selectedItems.length === 0) {
-      toast.error("ไม่พบสินค้าในคำสั่งซื้อ", { duration: 2000 });
+      toast.error("ไม่พบสินค้าในคำสั่งซื้อ");
       navigate("/shopping-cart");
       return false;
     }
 
     if (!defaultAddress) {
-      toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า", { duration: 2000 });
+      toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า");
       return false;
     }
 
     if (!paymentMethod) {
-      toast.error("กรุณาเลือกช่องทางการชำระเงิน", { duration: 2000 });
+      toast.error("กรุณาเลือกช่องทางการชำระเงิน");
       return false;
     }
 
     if (paymentMethod === "CARD" && !selectedCardId) {
-      toast.error("กรุณาเลือกบัตรเครดิต", { duration: 2000 });
+      toast.error("กรุณาเลือกบัตรเครดิต");
       return false;
     }
     return true;
@@ -168,9 +168,7 @@ const PaymentContent = () => {
   ) => {
     if (checkoutType === "CARD") {
       if (!stripe) {
-        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้", {
-          duration: 2000,
-        });
+        toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้");
         return;
       }
 
@@ -179,9 +177,7 @@ const PaymentContent = () => {
       });
 
       if (confirmResult.error) {
-        toast.error("ข้อมูลบัตรไม่ถูกต้องหรือยอดเงินไม่เพียงพอ", {
-          duration: 2000,
-        });
+        toast.error("ข้อมูลบัตรไม่ถูกต้องหรือยอดเงินไม่เพียงพอ");
         return;
       }
 
@@ -191,9 +187,7 @@ const PaymentContent = () => {
           dispatch(setSelectedItems([]));
         }
 
-        toast.success("คำสั่งซื้อสำเร็จ", {
-          duration: 2000,
-        });
+        toast.success("คำสั่งซื้อสำเร็จ");
 
         setTimeout(() => {
           navigate("/orders", {
@@ -225,9 +219,9 @@ const PaymentContent = () => {
     }
 
     if (checkoutType === "DESTINATION") {
-      toast.success("คำสั่งซื้อสำเร็จ", {
-        duration: 2000,
-      });
+      await dispatch(fetchCartThunk());
+      dispatch(setSelectedItems([]));
+      toast.success("คำสั่งซื้อสำเร็จ");
 
       setTimeout(() => {
         navigate("/orders", {
@@ -246,12 +240,12 @@ const PaymentContent = () => {
       error?.response?.data?.message === "OUT_OF_STOCK";
 
     if (isOutOfStock) {
-      toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ", { duration: 2000 });
+      toast.error("สินค้าในรถเข็นหมดหรือมีไม่เพียงพอ");
       navigate("/shopping-cart");
       return;
     }
 
-    toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ", { duration: 2000 });
+    toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
   };
 
   const handleConfirmOrder = async () => {

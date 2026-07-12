@@ -13,6 +13,9 @@ import {
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig } from "../../../types/orders";
 // import type { PaymentMethod } from "../../../types/payment";
+
+// import { statusConfig, getOrderLabel } from "../../../types/orders";
+// >>>>>>> develop
 import type { CreateReviewPayload } from "../../../types/review";
 import {
   fetchProductReviews,
@@ -341,6 +344,15 @@ const Order = () => {
     }
   };
 
+  // เคลียร์ session
+  const clearPaymentSession = () => {
+    localStorage.removeItem("payment_expiry_timestamp");
+    localStorage.removeItem("payment_qr_image");
+    localStorage.removeItem("payment_ref_id");
+    localStorage.removeItem("payment_total_price");
+    localStorage.removeItem("payment_client_secret");
+  };
+
   // ชำระเงินอีกครั้ง กรณ๊ของ qr-code ที่ผู้ใช้งานกดตกลง หรือ ไม่ได้ชำระเงินภายใน 15 นาที
   const handleRetryPayment = async (
     e: React.MouseEvent,
@@ -350,12 +362,17 @@ const Order = () => {
     e.stopPropagation();
 
     try {
+      // ล้าง Session เก่าก่อน
+      clearPaymentSession();
+
       const response = await dispatch(
         retryPaymentThunk({
           orderNo: order.orderNo,
         }),
       ).unwrap();
+
       localStorage.setItem("orderNo", order.orderNo);
+
       navigate("/payment-qr", {
         state: {
           orderNo: order.orderNo,
@@ -363,7 +380,7 @@ const Order = () => {
           clientSecret: response.clientSecret,
         },
       });
-    } catch (error) {
+    } catch {
       toast.error("ไม่สามารถสร้างรายการชำระเงินได้");
     }
   };
@@ -429,11 +446,17 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const orderTotal = (order?.orderItems || []).reduce(
-                    (sum, item) =>
-                      sum + (item?.price || 0) * (item?.quantity || 0),
-                    0,
-                  );
+// <<<<<<< HEAD
+//                   const orderTotal = (order?.orderItems || []).reduce(
+//                     (sum, item) =>
+//                       sum + (item?.price || 0) * (item?.quantity || 0),
+//                     0,
+//                   );
+// =======
+//                   const color =
+//                     statusConfig[order?.status]?.color || "text-black";
+//                   const label = getOrderLabel(order?.status);
+// >>>>>>> develop
 
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
