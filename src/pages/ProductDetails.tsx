@@ -97,7 +97,7 @@ const ProductDetailPage: React.FC = () => {
     if (buyQuantity < currentStock) {
       setBuyQuantity((prev) => prev + 1);
     } else {
-      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
+      toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
     }
   };
 
@@ -113,16 +113,14 @@ const ProductDetailPage: React.FC = () => {
     if (isAddingToCart) return;
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น", {
-        duration: 1500,
-      });
+      toast.error("กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าลงรถเข็น");
       navigate("/login");
       return;
     }
     if (!productDetail) return;
 
     if (isUnavailable) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย");
       return;
     }
 
@@ -132,12 +130,10 @@ const ProductDetailPage: React.FC = () => {
       if (quantityInCart > 0) {
         toast.error(
           `ไม่สามารถเพิ่มจำนวนสินค้าได้ เนื่องจากคุณเพิ่มสินค้านี้ไว้ในรถเข็นเเล้ว ${quantityInCart} ชิ้น`,
-          { duration: 1500 },
         );
       } else {
         toast.error(
           `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
-          { duration: 1500 },
         );
       }
       return;
@@ -152,7 +148,7 @@ const ProductDetailPage: React.FC = () => {
 
     try {
       await dispatch(addToCartThunk(cartItemPayload)).unwrap();
-      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว", { duration: 1500 });
+      toast.success("เพิ่มสินค้าเข้ารถเข็นเรียบร้อยแล้ว");
       setBuyQuantity(1);
 
       if (shouldRedirect) {
@@ -164,7 +160,7 @@ const ProductDetailPage: React.FC = () => {
         backendMessage = error.response?.data?.message || error.message;
       }
       if (backendMessage === "There is insufficient stock.") {
-        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ", { duration: 1500 });
+        toast.error("จำนวนสินค้าในสต็อกไม่เพียงพอ");
       } else {
         toast.error(backendMessage);
       }
@@ -178,7 +174,7 @@ const ProductDetailPage: React.FC = () => {
     const token = TokenService.getAccessToken();
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ", { duration: 1500 });
+      toast.error("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
       navigate("/login");
       return;
     }
@@ -186,14 +182,13 @@ const ProductDetailPage: React.FC = () => {
     if (!productDetail) return;
 
     if (isUnavailable) {
-      toast.error("สินค้านี้ไม่พร้อมจำหน่าย", { duration: 1500 });
+      toast.error("สินค้านี้ไม่พร้อมจำหน่าย");
       return;
     }
 
     if (buyQuantity > currentStock) {
       toast.error(
         `จำนวนสินค้าในสต็อกไม่เพียงพอ (คงเหลือ ${currentStock} ชิ้น)`,
-        { duration: 1500 },
       );
       return;
     }

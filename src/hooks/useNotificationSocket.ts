@@ -60,8 +60,6 @@ const useNotificationSocket = () => {
           if (!message.body) return;
           const data = JSON.parse(message.body);
 
-          // toast.success(`ประกาศใหม่: ${data.title}`, { duration: 5000 });
-
           const formattedData = {
             ...data,
             isRead: data.isRead ?? false,

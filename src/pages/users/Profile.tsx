@@ -183,14 +183,12 @@ const ProfilePage = () => {
   const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
   const processFile = (file: File) => {
     if (!allowedTypes.includes(file.type)) {
-      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG", { duration: 1500 });
+      toast.error("รองรับเฉพาะไฟล์ PNG, JPEG และ JPG");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("ขนาดไฟล์ต้องไม่เกิน 5 MB", {
-        duration: 1500,
-      });
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 5 MB");
       return;
     }
     const reader = new FileReader();
@@ -255,7 +253,7 @@ const ProfilePage = () => {
         await dispatch(updateProfile(formData) as any).unwrap();
         await dispatch(getProfile() as any).unwrap();
 
-        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
 
         setIsImageModalOpen(false);
         setRawImageSrc(null);
@@ -267,9 +265,6 @@ const ProfilePage = () => {
         typeof error === "string"
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง",
-        {
-          duration: 1500,
-        },
       );
     }
   };
@@ -286,15 +281,13 @@ const ProfilePage = () => {
       if (activeModal === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(tempData.email)) {
-          toast.error("กรุณากรอกอีเมลให้ถูกต้อง", { duration: 1500 });
+          toast.error("กรุณากรอกอีเมลให้ถูกต้อง");
           return;
         }
       }
 
       if (tempData.phone && !/^0\d{9}$/.test(tempData.phone)) {
-        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก", {
-          duration: 1500,
-        });
+        toast.error("เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก");
         return;
       }
 
@@ -314,19 +307,19 @@ const ProfilePage = () => {
       await dispatch(updateProfile(formData) as any).unwrap();
 
       if (tempData.email !== user.email) {
-        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
+        toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
         setActiveModal(null);
 
         setTimeout(() => {
           dispatch(logout());
           window.location.href = "/login";
-        }, 2000);
+        });
         return;
       }
 
       await dispatch(getProfile() as any).unwrap();
 
-      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ", { duration: 1500 });
+      toast.success("แก้ไขข้อมูลโปรไฟล์สำเร็จ");
       setActiveModal(null);
       setImageFileForUpload(null);
     } catch (error: any) {
@@ -336,7 +329,7 @@ const ProfilePage = () => {
           ? error
           : "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง";
 
-      toast.error(errorMessage, { duration: 1500 });
+      toast.error(errorMessage);
     }
   };
 

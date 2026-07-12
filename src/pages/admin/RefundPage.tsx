@@ -37,6 +37,17 @@ const RefundPage = () => {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [targetRefundNo, setTargetRefundNo] = useState<string | null>(null);
   const [alertError, setAlertError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const statusOptions = [
+    { value: "ALL", label: "สถานะทั้งหมด" },
+    { value: "APPROVED", label: "อนุมัติ" },
+    { value: "PENDING", label: "รอดำเนินการ" },
+    { value: "REJECTED", label: "ปฏิเสธ" },
+  ];
+  const selectedStatus =
+    statusOptions.find((item) => item.value === statusFilter) ??
+    statusOptions[0];
 
   useEffect(() => {
     setKeywordInput(keywordParam);
@@ -112,7 +123,7 @@ const RefundPage = () => {
       }
 
       toast.dismiss();
-      toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว", { duration: 1500 });
+      toast.success("อัปเดตสถานะคำขอคืนเงินเรียบร้อยแล้ว");
       handleCloseModal();
 
       // ดึงข้อมูลใหม่ด้วย page ปัจจุบัน เพื่อให้อยู่ที่เดิม
@@ -127,7 +138,7 @@ const RefundPage = () => {
     } catch (err: any) {
       const errorMessage = err || "เกิดข้อผิดพลาดในการส่งข้อมูลระบบ";
       setAlertError(errorMessage);
-      toast.error(errorMessage, { duration: 1500 });
+      toast.error(errorMessage);
     }
   };
 
@@ -241,36 +252,59 @@ const RefundPage = () => {
                 </div>
 
                 {/* Filter */}
-                <div className="relative">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => {
-                      const params = new URLSearchParams(
-                        searchParams.toString(),
-                      );
-
-                      params.set("status", e.target.value);
-
-                      if (keywordParam) {
-                        params.set("keyword", keywordParam);
-                      }
-
-                      setCurrentPage(1);
-                      setSearchParams(params);
-                    }}
-                    className="min-w-[180px] bg-white border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
-                    data-test="refund-status-filter"
+                <div className="relative w-[190px]">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(!open)}
+                    className="w-full flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2.5 shadow-sm hover:border-blue-400 transition"
                   >
-                    <option value="ALL">สถานะทั้งหมด</option>
-                    <option value="APPROVED">อนุมัติ</option>
-                    <option value="PENDING">รอดำเนินการ</option>
-                    <option value="REJECTED">ปฏิเสธ</option>
-                  </select>
+                    <span>{selectedStatus.label}</span>
 
-                  <Icon
-                    icon="lucide:chevron-down"
-                    className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                  />
+                    <Icon
+                      icon="lucide:chevron-down"
+                      className={`transition-transform duration-300 ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <div
+                    className={`absolute z-50 mt-2 w-full origin-top rounded-lg bg-white shadow-xl border transition-all duration-300 overflow-hidden ${
+                      open
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "pointer-events-none opacity-0 scale-95 -translate-y-2"
+                    }`}
+                  >
+                    {statusOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+
+                          const params = new URLSearchParams(
+                            searchParams.toString(),
+                          );
+
+                          params.set("status", option.value);
+
+                          if (keywordParam) {
+                            params.set("keyword", keywordParam);
+                          }
+
+                          setCurrentPage(1);
+                          setSearchParams(params);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left transition-colors hover:bg-blue-50 ${
+                          statusFilter === option.value
+                            ? "text-blue-600 font-semibold"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
