@@ -60,13 +60,12 @@ export interface Order {
   id: number;
   orderNo: string;
   status: OrderStatus;
-  // totalPrice: number;
   statusDelivery?: string;
   checkoutType: PaymentMethod;
 
-  orderAddress: OrderAddress[];
   orderItems: OrderItem[];
-  orderRecipient?: OrderRecipient | null;
+  orderAddress: OrderAddress[]; //ใช้กับorderDetail
+  orderRecipient?: OrderRecipient | null; //ใช้กับorderDetail
 
   total: number;
   createdAt: string;

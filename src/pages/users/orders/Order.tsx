@@ -219,18 +219,6 @@ const Order = () => {
                       actionButtons={
                         <>
 
-                        {/* <div className="flex justify-center md:justify-between items-center gap-4 rounded-lg bg-[#F9FAFB] px-4 py-3">
-                          <div className="flex items-center gap-3 md:w-full md:justify-between">
-                            <span className="text-black font-bold text-[15px] sm:text-[18px]">
-                             ช่องทางชำระเงิน
-                            </span>
-                            <span className="font-bold text-[#3B82F6] text-[16px] sm:text-[16px]">
-                                {PAYMENT_METHOD_LABELS[order.checkoutType] ||
-                            order.checkoutType}
-                            </span>
-                          </div>
-                          
-                        </div> */}
 
                         {order.status === "COMPLETED" ? (
                           <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">

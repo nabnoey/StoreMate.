@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { FiChevronRight } from "react-icons/fi";
-import type { Order } from "../../types/orders";
+import type { Order,OrderItem } from "../../types/orders";
 import { statusConfig, getOrderLabel } from "../../types/orders";
 
 interface OrderCardProps {
@@ -58,7 +58,14 @@ const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
       </div>
 
       <div className="flex flex-col gap-2 py-3 border-b border-gray-100 w-full">
-        {visibleItems.map((item: any, idx: number) => (
+         <Link
+                to={`/orders/${order.orderNo}`}
+                className="text-right text-[#3B82F6] text-sm font-bold sm:text-sm flex-shrink-0 self-end inline-flex items-center gap-1"
+              >
+                ดูรายละเอียดสินค้า
+                 <FiChevronRight className="w-4 h-4" />
+              </Link>
+        {visibleItems.map((item: OrderItem, idx: number) => (
           <div key={item.id || idx} className="flex gap-3 py-1">
             <img
               src={item.imageUrl || ""}
@@ -75,13 +82,6 @@ const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
               <div className="text-black text-[12px] sm:text-[14px]">
                 จำนวน x {item.quantity}
               </div>
-              <Link
-                to={`/orders/${order.orderNo}`}
-                className="text-blue-600 text-sm font-bold mt-2 inline-flex items-center gap-1 hover:underline"
-              >
-                ดูรายละเอียดสินค้า
-                 <FiChevronRight className="w-4 h-4" />
-              </Link>
             </div>
             <div className="text-right text-[#3B82F6] font-bold text-[15px] sm:text-lg flex-shrink-0 self-center pl-2">
               ฿ {(item.price * item.quantity).toLocaleString()}
