@@ -6,31 +6,14 @@ import OrderCard from "../../../components/user/orderCard";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchOrders,
-  fetchOrderDetails,
-} from "../../../redux/orders/orderReducer";
+import { fetchOrders } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
 import { statusConfig } from "../../../types/orders";
-// import type { PaymentMethod } from "../../../types/payment";
-
-// import { statusConfig, getOrderLabel } from "../../../types/orders";
-// >>>>>>> develop
-import type { CreateReviewPayload } from "../../../types/review";
-import {
-  fetchProductReviews,
-  submitProductReview,
-  updateProductReview,
-  deleteProductReview,
-} from "../../../redux/reviews/reviewsReducer";
 import { toast } from "react-hot-toast";
 import type { Order } from "../../../types/orders";
-
 import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
-
-import WriteReviewModal from "../../../components/user/review/WriteReviewModal";
-import ViewReviewModal from "../../../components/user/review/ViewReviewModal";
-import EditReviewModal from "../../../components/user/review/EditReviewModal";
+import { useReview } from "../../../hooks/useReview";
+import ReviewManager from "../../../components/user/review/ReviewManager";
 
 const Order = () => {
   const navigate = useNavigate();
@@ -48,35 +31,11 @@ const Order = () => {
   //   };
   const dispatch = useDispatch<AppDispatch>();
 
-  // เพิ่มรีวิว
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [reviewScore, setReviewScore] = useState<number>(0);
-  const [message, setMessage] = useState<string>("");
+  const review = useReview({
+    onRefresh: () => dispatch(fetchOrders(status)),
+  });
 
-  const [isSelectModalOpen, setIsSelectModalOpen] = useState<boolean>(false);
-  const [orderForReview, setOrderForReview] = useState<any>(null);
-  const [localSelectedItemId, setLocalSelectedItemId] = useState<number | null>(
-    null,
-  );
-  const [selectModalMode, setSelectModalMode] = useState<"WRITE" | "VIEW">(
-    "WRITE",
-  );
-  const [isViewReviewModalOpen, setIsViewReviewModalOpen] =
-    useState<boolean>(false);
-  const [isEditReviewModalOpen, setIsEditReviewModalOpen] =
-    useState<boolean>(false);
-  const [activeReviewData, setActiveReviewData] = useState<any>(null);
-
-  const formatOrderDate = (dateString: string) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    });
-  };
+  
 
   useEffect(() => {
     dispatch(fetchOrders(status));
@@ -124,223 +83,6 @@ const Order = () => {
       });
     } catch {
       toast.error("ไม่สามารถสั่งซื้อสินค้าอีกครั้งได้");
-    }
-  };
-
-  const launchReviewModalForItem = async (order: any, itemFromList: any) => {
-    try {
-      setIsSelectModalOpen(false);
-
-      const orderNo = order.orderNo || `ORD-${order.id}`;
-      const orderDetailData = await dispatch(
-        fetchOrderDetails(orderNo),
-      ).unwrap();
-
-      const matchedItemDetail = orderDetailData?.orderItems?.find(
-        (detailItem: any) =>
-          detailItem.productId === itemFromList.id ||
-          detailItem.id === itemFromList.id ||
-          detailItem.productName === itemFromList.productName,
-      );
-
-      const actualProductId =
-        matchedItemDetail?.productId ||
-        matchedItemDetail?.id ||
-        itemFromList.id;
-      const actualOrderItemId = matchedItemDetail?.id || itemFromList.id;
-
-      if (actualProductId) {
-        setSelectedItem({
-          ...itemFromList,
-          productId: actualProductId,
-          orderItemId: actualOrderItemId,
-        });
-        setIsReviewModalOpen(true);
-      } else {
-        toast.error("ไม่พบข้อมูลรหัสคำสั่งซื้อสำหรับรายการนี้");
-      }
-    } catch (error) {
-      console.error("Fetch order details error:", error);
-      toast.error("ไม่สามารถดึงข้อมูลสินค้าได้ กรุณาลองใหม่อีกครั้ง");
-    }
-  };
-
-  const handleReviewSubmit = async () => {
-    if (!selectedItem?.productId) return;
-
-    if (reviewScore === 0) {
-      toast.error("กรุณากรอกคะแนนความพึงพอใจ");
-      return;
-    }
-
-    const payload: CreateReviewPayload = {
-      reviewScore: reviewScore,
-      message: message,
-    };
-
-    try {
-      await dispatch(
-        submitProductReview({ orderItemId: selectedItem.orderItemId, payload }),
-      ).unwrap();
-
-      toast.dismiss();
-      toast.success("ขอบคุณสำหรับรีวิว");
-
-      setIsReviewModalOpen(false);
-
-      setReviewScore(0);
-      setMessage("");
-      setSelectedItem(null);
-
-      dispatch(fetchOrders(status as any));
-    } catch (err) {
-      console.error("Review error:", err);
-      toast.dismiss();
-      toast.error("ไม่สามารถส่งรีวิวได้ กรุณาลองใหม่อีกครั้ง");
-    }
-  };
-
-  const handleSwitchToEditReview = () => {
-    if (!activeReviewData) return;
-    setReviewScore(activeReviewData.reviewScore);
-    setMessage(activeReviewData.message);
-
-    setIsViewReviewModalOpen(false);
-    setIsEditReviewModalOpen(true);
-  };
-
-  const handleEditReviewSubmit = async () => {
-    if (!activeReviewData?.id) return;
-
-    if (reviewScore === 0) {
-      toast.error("กรุณากรอกคะแนนความพึงพอใจ");
-      return;
-    }
-
-    const payload: CreateReviewPayload = {
-      reviewScore: reviewScore,
-      message: message,
-    };
-
-    try {
-      await dispatch(
-        updateProductReview({ id: activeReviewData.id, payload }),
-      ).unwrap();
-
-      toast.dismiss();
-      toast.success("แก้ไขรีวิวสำเร็จ");
-
-      setIsEditReviewModalOpen(false);
-      setReviewScore(0);
-      setMessage("");
-
-      dispatch(fetchOrders(status as any));
-    } catch (err) {
-      console.error("Edit review error:", err);
-      toast.dismiss();
-      toast.error("ไม่สามารถแก้ไขรีวิวได้ กรุณาลองใหม่อีกครั้ง");
-    }
-  };
-
-  // ฟังก์ชันแยกย่อยสำหรับดึงรีวิว
-  const fetchAndShowReview = async (order: any, itemFromList: any) => {
-    try {
-      const orderItemId = itemFromList.id;
-      const reviewData = await dispatch(
-        fetchProductReviews(orderItemId),
-      ).unwrap();
-
-      // console.log("ตรวจสอบข้อมูล reviews ที่ดึงมาได้จริง:", reviewData);
-
-      if (reviewData && reviewData.id) {
-        setOrderForReview(order);
-        setSelectedItem(itemFromList);
-
-        setActiveReviewData({
-          id: reviewData.id,
-          reviewerName: reviewData.reviewer?.name || "ผู้ใช้งานระบบ",
-          reviewerImage: reviewData.reviewer?.imageUrl || "",
-          createdAt: formatOrderDate(reviewData.createdAt || order.createdAt),
-          reviewScore: reviewData.reviewScore,
-          message: reviewData.message,
-          productName: itemFromList.productName,
-          imageUrl: itemFromList.imageUrl,
-        });
-
-        setIsViewReviewModalOpen(true);
-      } else {
-        toast.error("ไม่พบข้อมูลรีวิวสำหรับสินค้านี้");
-      }
-    } catch (error) {
-      console.error("Error fetching review by orderItemId:", error);
-      toast.error("เกิดข้อผิดพลาดในการดึงข้อมูลรีวิว");
-    }
-  };
-
-  const handleOpenViewReview = async (order: any, itemFromList?: any) => {
-    if (itemFromList) {
-      await fetchAndShowReview(order, itemFromList);
-      return;
-    }
-
-    const reviewedItems =
-      order.orderItems?.filter((item: any) => item.is_review) || [];
-
-    if (reviewedItems.length === 0) {
-      toast.error("คำสั่งซื้อนี้ยังไม่มีรายการสินค้าที่ถูกรีวิว");
-      return;
-    }
-
-    if (reviewedItems.length === 1) {
-      // สินค้าที่รีวิวชิ้นเดียว -> ให้เปิดดูรีวิวได้เลย
-      await fetchAndShowReview(order, reviewedItems[0]);
-    } else {
-      // มีสินค้าที่รีวิวมากกว่า 1 ชิ้น -> ให้เลือกรายการสินค้าก่อน
-      setOrderForReview(order);
-      setSelectModalMode("VIEW");
-      setIsSelectModalOpen(true);
-    }
-  };
-
-  // ฟังก์ชันกดยืนยันเลือกสินค้า
-  const handleConfirmProductSelection = async () => {
-    if (!orderForReview || !localSelectedItemId) return;
-
-    const selectedItemFromList = orderForReview.orderItems?.find(
-      (item: any) => item.id === localSelectedItemId,
-    );
-
-    if (!selectedItemFromList) return;
-
-    setIsSelectModalOpen(false);
-
-    // ตรวจว่าจะ "ดูรีวิว" หรือ "เขียนรีวิว"
-    if (selectModalMode === "VIEW") {
-      await fetchAndShowReview(orderForReview, selectedItemFromList);
-    } else {
-      await launchReviewModalForItem(orderForReview, selectedItemFromList);
-    }
-
-    setLocalSelectedItemId(null);
-  };
-
-  // ลบรีวิว
-  const handleDeleteReview = async () => {
-    if (!activeReviewData?.id) return;
-
-    try {
-      await dispatch(deleteProductReview({ id: activeReviewData.id })).unwrap();
-
-      toast.dismiss();
-      toast.success("คุณลบรีวิวเรียบร้อยแล้ว");
-
-      setIsViewReviewModalOpen(false);
-
-      dispatch(fetchOrders(status as any));
-    } catch (err) {
-      console.error("Delete review error:", err);
-      toast.dismiss();
-      toast.error("ไม่สามารถลบรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
   };
 
@@ -511,17 +253,17 @@ const Order = () => {
                                   e.stopPropagation();
 
                                   if (unreviewedItems.length === 1) {
-                                    await launchReviewModalForItem(
+                                    await review.launchReviewModalForItem(
                                       order,
                                       unreviewedItems[0],
                                     );
                                   } else {
-                                    setOrderForReview(order);
-                                    setSelectModalMode("WRITE");
-                                    setLocalSelectedItemId(
+                                    review.setOrderForReview(order);
+                                    review.setSelectModalMode("WRITE");
+                                    review.setLocalSelectedItemId(
                                       unreviewedItems[0]?.id || null,
                                     );
-                                    setIsSelectModalOpen(true);
+                                    review.setIsSelectModalOpen(true);
                                   }
                                 }}
                                 className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
@@ -537,17 +279,17 @@ const Order = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (reviewedItems.length === 1) {
-                                    handleOpenViewReview(
+                                    review.handleOpenViewReview(
                                       order,
                                       reviewedItems[0],
                                     );
                                   } else {
-                                    setOrderForReview(order);
-                                    setSelectModalMode("VIEW");
-                                    setLocalSelectedItemId(
+                                    review.setOrderForReview(order);
+                                    review.setSelectModalMode("VIEW");
+                                    review.setLocalSelectedItemId(
                                       reviewedItems[0]?.id || null,
                                     );
-                                    setIsSelectModalOpen(true);
+                                    review.setIsSelectModalOpen(true);
                                   }
                                 }}
                                 className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
@@ -616,30 +358,30 @@ const Order = () => {
         </div>
       </div>
 
-      {isSelectModalOpen && orderForReview && (
+      {review.isSelectModalOpen && review.orderForReview && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 backdrop-blur-xs transition-all animate-fade-in">
           <div className="w-full max-h-[90vh] max-w-[95%] sm:max-w-[550px] md:max-w-[650px] bg-white rounded-xl shadow-xl overflow-hidden flex flex-col border border-gray-100">
             <div className="flex items-center p-4 md:p-5 border-b border-gray-100 bg-white flex-shrink-0">
               <h2 className="text-[18px] md:text-[20px] font-bold text-gray-900">
-                {selectModalMode === "VIEW"
+                {review.selectModalMode === "VIEW"
                   ? "เลือกรีวิว"
                   : "เลือกสินค้าเพื่อเขียนรีวิว"}
               </h2>
             </div>
 
             <div className="p-0 overflow-y-auto flex flex-col flex-1 bg-white divide-y divide-gray-100">
-              {orderForReview.orderItems
+              {review.orderForReview.orderItems
                 ?.filter((item: any) => {
-                  return selectModalMode === "VIEW"
+                  return review.selectModalMode === "VIEW"
                     ? item.is_review
                     : !item.is_review;
                 })
                 ?.map((item: any) => {
-                  const isSelected = localSelectedItemId === item.id;
+                  const isSelected = review.localSelectedItemId === item.id;
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setLocalSelectedItemId(item.id)}
+                      onClick={() => review.setLocalSelectedItemId(item.id)}
                       className={`flex items-start gap-4 p-4 md:p-5 transition-all cursor-pointer relative ${
                         isSelected
                           ? "bg-blue-50/30"
@@ -678,7 +420,7 @@ const Order = () => {
               <button
                 data-test="btn-open-model-review"
                 type="button"
-                onClick={handleConfirmProductSelection}
+                onClick={review.handleConfirmProductSelection}
                 className="cursor-pointer px-5 py-2 bg-[#1E40AF] text-white rounded-lg font-medium text-[14px] transition cursor-pointer shadow-xs min-w-[80px] text-center"
               >
                 เลือก
@@ -686,7 +428,7 @@ const Order = () => {
               <button
                 data-test="btn-cancel-model-review"
                 type="button"
-                onClick={() => setIsSelectModalOpen(false)}
+                onClick={() => review.setIsSelectModalOpen(false)}
                 className="cursor-pointer px-5 py-2 border border-gray-200 text-gray-600 rounded-lg font-medium text-[14px] transition cursor-pointer min-w-[80px] text-center"
               >
                 ยกเลิก
@@ -695,36 +437,7 @@ const Order = () => {
           </div>
         </div>
       )}
-
-      <WriteReviewModal
-        open={isReviewModalOpen}
-        selectedItem={selectedItem}
-        reviewScore={reviewScore}
-        message={message}
-        onScoreChange={setReviewScore}
-        onMessageChange={setMessage}
-        onSubmit={handleReviewSubmit}
-        onClose={() => setIsReviewModalOpen(false)}
-      />
-
-      <ViewReviewModal
-        open={isViewReviewModalOpen}
-        review={activeReviewData}
-        onClose={() => setIsViewReviewModalOpen(false)}
-        onEdit={handleSwitchToEditReview}
-        onDelete={handleDeleteReview}
-      />
-
-      <EditReviewModal
-        open={isEditReviewModalOpen}
-        review={activeReviewData}
-        reviewScore={reviewScore}
-        message={message}
-        onScoreChange={setReviewScore}
-        onMessageChange={setMessage}
-        onSubmit={handleEditReviewSubmit}
-        onClose={() => setIsEditReviewModalOpen(false)}
-      />
+      <ReviewManager review={review} />
     </div>
   );
 };

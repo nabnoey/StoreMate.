@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { FiChevronRight } from "react-icons/fi";
 import type { Order } from "../../types/orders";
 import { statusConfig, getOrderLabel } from "../../types/orders";
 
@@ -76,9 +77,10 @@ const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
               </div>
               <Link
                 to={`/orders/${order.orderNo}`}
-                className="text-blue-600 text-sm mt-2 inline-flex items-center gap-1 hover:underline"
+                className="text-blue-600 text-sm font-bold mt-2 inline-flex items-center gap-1 hover:underline"
               >
                 ดูรายละเอียดสินค้า
+                 <FiChevronRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="text-right text-[#3B82F6] font-bold text-[15px] sm:text-lg flex-shrink-0 self-center pl-2">
