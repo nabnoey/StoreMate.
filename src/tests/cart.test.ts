@@ -10,7 +10,7 @@ const initialState: CartState= {
   items: [],
   selectedItems: [],
   status: "idle",
-  error: null,
+  // error: null,
 };
 
 describe ('Cart', () => {

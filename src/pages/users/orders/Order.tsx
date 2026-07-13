@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../../redux/store";
 import ProfileSidebar from "../../../components/user/ProfileSidebar";
+import OrderCard from "../../../components/user/orderCard";
 import { Icon } from "@iconify/react";
 import StatusOrderTabs from "../../../components/user/StatusOrderTabs";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../../../redux/orders/orderReducer";
 import type { OrderStatus } from "../../../types/orders";
-import { statusConfig, getOrderLabel } from "../../../types/orders";
+import { statusConfig } from "../../../types/orders";
 import { toast } from "react-hot-toast";
 import type { Order } from "../../../types/orders";
 import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
@@ -23,36 +24,18 @@ const Order = () => {
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders } = useSelector((state: RootState) => state.orders);
+  //  const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  //     DESTINATION: "เก็บเงินปลายทาง (COD)",
+  //     PROMPTPAY: "พร้อมเพย์ (PromptPay)",
+  //     CARD: "บัตรเครดิต / เดบิต",
+  //   };
   const dispatch = useDispatch<AppDispatch>();
 
   const review = useReview({
     onRefresh: () => dispatch(fetchOrders(status)),
   });
 
-  const [expandedOrders, setExpandedOrders] = useState<
-    Record<string | number, boolean>
-  >({});
-
-  const toggleOrderExpand = (
-    orderId: string | number,
-    e: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    e.stopPropagation();
-    setExpandedOrders((prev) => ({
-      ...prev,
-      [orderId]: !prev[orderId],
-    }));
-  };
-
-  const formatOrderDate = (dateString: string) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    });
-  };
+  
 
   useEffect(() => {
     dispatch(fetchOrders(status));
@@ -205,18 +188,12 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const color =
-                    statusConfig[order?.status]?.color || "text-black";
-                  const label = getOrderLabel(order?.status);
+                  const orderTotal = (order?.orderItems || []).reduce(
+                    (sum, item) =>
+                      sum + (item?.price || 0) * (item?.quantity || 0),
+                    0,
+                  );
 
-                  const orderTotal =
-                    order?.totalPrice ||
-                    order?.total ||
-                    (order?.orderItems || []).reduce(
-                      (sum, item) =>
-                        sum + (item?.price || 0) * (item?.quantity || 0),
-                      0,
-                    );
 
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
@@ -233,114 +210,15 @@ const Order = () => {
 
                   const hasReviewed = reviewedItems.length > 0;
                   const hasUnreviewed = unreviewedItems.length > 0;
-                  const isExpanded = !!expandedOrders[order.id];
-
-                  const visibleItems =
-                    window.innerWidth >= 768
-                      ? order.orderItems || []
-                      : isExpanded
-                        ? order.orderItems || []
-                        : (order.orderItems || []).slice(0, 1);
+                  
                   return (
-                    <div
+                    <OrderCard
                       key={order.id}
-                      data-test={`order-card-${order.id}`}
-                      className="w-full cursor-pointer hover:shadow-md transition-shadow rounded-xl p-4 bg-white border border-gray-200/80 shadow-sm"
-                      onClick={() => {
-                        const orderNo = order.orderNo || `ORD-${order.id}`;
-                        navigate(`/orders/${orderNo}`);
-                      }}
-                    >
-                      <div className="grid grid-cols-3 sm:flex sm:justify-between gap-2 pb-4 border-b border-gray-100">
-                        <div>
-                          <p className="text-[11px] sm:text-sm text-gray-500 mb-1">
-                            เลขที่คำสั่งซื้อ
-                          </p>
-                          <p className="font-semibold text-black text-[13px] sm:text-[16px] break-all leading-tight">
-                            {order.orderNo || `ORD-${order.id}`}
-                          </p>
-                        </div>
-                        <div className="px-1">
-                          <p className="text-[11px] sm:text-sm text-gray-500 mb-1">
-                            วันที่สั่งซื้อ
-                          </p>
-                          <p className="font-medium text-black text-[13px] sm:text-[16px] leading-tight">
-                            {formatOrderDate(order.createdAt)}
-                          </p>
-                        </div>
-                        <div className="text-right sm:text-left">
-                          <p className="text-[11px] sm:text-sm text-gray-500 mb-1">
-                            สถานะ
-                          </p>
-                          <p
-                            className={`font-semibold ${color} text-[13px] sm:text-[16px] leading-tight`}
-                          >
-                            {label}
-                          </p>
-                        </div>
-                      </div>
+                      order={order}
+                      orderTotal={orderTotal}
+                      actionButtons={
+                        <>
 
-                      <div className="flex flex-col gap-2 py-3 border-b border-gray-100 w-full">
-                        {visibleItems.map((item: any, idx: number) => (
-                          <div key={item.id || idx} className="flex gap-3 py-1">
-                            <img
-                              src={item.imageUrl || ""}
-                              alt=""
-                              className="w-16 h-16 sm:w-28 sm:h-28 object-contain rounded-lg flex-shrink-0 bg-gray-50 border border-gray-100"
-                            />
-
-                            <div className="flex flex-col flex-1 gap-0.5 min-w-0">
-                              <div className="font-bold text-[14px] sm:text-[16px] text-black line-clamp-2 leading-snug">
-                                {item.productName}
-                              </div>
-                              <div className="text-black text-[12px] sm:text-[14px]">
-                                ราคาต่อหน่วย ฿ {item.price.toLocaleString()}
-                              </div>
-                              <div className="text-black text-[12px] sm:text-[14px]">
-                                จำนวน x {item.quantity}
-                              </div>
-                            </div>
-
-                            <div className="text-right text-[#3B82F6] font-bold text-[15px] sm:text-lg flex-shrink-0 self-center pl-2">
-                              ฿ {(item.price * item.quantity).toLocaleString()}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {order.orderItems && order.orderItems.length > 1 && (
-                        <div className="md:hidden w-full pt-2">
-                          <button
-                            type="button"
-                            onClick={(e) => toggleOrderExpand(order.id, e)}
-                            className="w-full h-[44px] bg-[#F9FAFB] hover:bg-gray-100 active:bg-gray-200 transition-colors rounded-xl flex items-center justify-center gap-2 text-black font-medium text-[14px] border border-gray-100 shadow-sm cursor-pointer"
-                          >
-                            <span>
-                              {expandedOrders[order.id]
-                                ? "ซ่อนรายการสินค้า"
-                                : `มีอีก ${order.orderItems.length - 1} รายการ`}
-                            </span>
-                            <Icon
-                              icon="material-symbols:keyboard-arrow-down-rounded"
-                              className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
-                                expandedOrders[order.id] ? "rotate-180" : ""
-                              }`}
-                            />
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="mt-3">
-                        <div className="flex justify-center md:justify-between items-center gap-4 rounded-lg bg-[#F9FAFB] px-4 py-3">
-                          <div className="flex items-center gap-3 md:w-full md:justify-between">
-                            <span className="text-black font-bold text-[15px] sm:text-[18px]">
-                              ยอดรวมสุทธิ
-                            </span>
-                            <span className="font-bold text-[#3B82F6] text-[16px] sm:text-[20px]">
-                              ฿ {orderTotal.toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
 
                         {order.status === "COMPLETED" ? (
                           <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">
@@ -457,8 +335,9 @@ const Order = () => {
                             </button>
                           </div>
                         ) : null}
-                      </div>
-                    </div>
+                        </>
+                      }
+                    />
                   );
                 })
               )}

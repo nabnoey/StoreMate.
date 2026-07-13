@@ -147,7 +147,7 @@ const ownerSlice = createSlice({
         }
       })
 
-      // ACTIVE USER
+  // ACTIVE USER
       .addCase(activeUser.fulfilled, (state, action) => {
         const { userId, response } = action.payload;
         const user = state.users.find((u) => u.id === userId);
