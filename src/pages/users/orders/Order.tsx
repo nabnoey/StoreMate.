@@ -446,17 +446,12 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-// <<<<<<< HEAD
-//                   const orderTotal = (order?.orderItems || []).reduce(
-//                     (sum, item) =>
-//                       sum + (item?.price || 0) * (item?.quantity || 0),
-//                     0,
-//                   );
-// =======
-//                   const color =
-//                     statusConfig[order?.status]?.color || "text-black";
-//                   const label = getOrderLabel(order?.status);
-// >>>>>>> develop
+                  const orderTotal = (order?.orderItems || []).reduce(
+                    (sum, item) =>
+                      sum + (item?.price || 0) * (item?.quantity || 0),
+                    0,
+                  );
+
 
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
