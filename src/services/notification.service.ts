@@ -12,6 +12,7 @@ const getNotifyUser = async (
   const res = await api.get<Notification[]>("/notify", {
     params: { type },
   });
+  console.log(type, res.data);
   return res.data;
 };
 
