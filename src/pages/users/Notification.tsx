@@ -7,6 +7,7 @@ import type { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchUserNotify,
   markAsReadInStore,
+  markAllAsReadInStore,
   type ClientNotification,
   fetchNotificationCounts,
 } from "../../redux/notification/notificationReducer";
@@ -116,6 +117,11 @@ const NotificationPage = () => {
     dispatch(fetchNotificationCounts());
   };
 
+  const handleMarkAllAsRead = () => {
+    dispatch(markAllAsReadInStore());
+    dispatch(fetchNotificationCounts());
+  };
+
   return (
     <div className="min-h-screen bg-white font-anuphan text-gray-900 pt-5 sm:pt-5 pb-20">
       <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
@@ -166,11 +172,34 @@ const NotificationPage = () => {
             </div>
 
             <div className="hidden md:block w-full mb-6">
-              <h1 className="text-[22px] font-bold text-black">การแจ้งเตือน</h1>
-              <p className="text-[15px] mt-1 text-gray-600">
-                ดูการแจ้งเตือนทั้งหมดของคุณ
-              </p>
-              <div className="w-full border-t border-gray-300 mt-5" />
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-[22px] font-bold text-black">
+                    การแจ้งเตือน
+                  </h1>
+                  <p className="text-[15px] mt-1 text-gray-600">
+                    ดูการแจ้งเตือนทั้งหมดของคุณ
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleMarkAllAsRead}
+                  disabled={notifications.every((n) => n.isRead)}
+                  className={`mt-7 flex items-center gap-2 rounded-xl px-4 py-2 text-base font-medium transition ${
+                    notifications.every((n) => n.isRead)
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-[#DCEAFE] text-[#3B82F6] hover:bg-[#cfe0fb]"
+                  }`}
+                >
+                  <Icon
+                    icon="material-symbols:done-all-rounded"
+                    className="w-5 h-5"
+                  />
+                  <span className="text-sm font-medium">อ่านทั้งหมด</span>
+                </button>
+              </div>
+
+              <div className="border-t border-black mt-5" />
             </div>
 
             <div className="flex flex-col md:flex-row gap-6 lg:gap-10 w-full">

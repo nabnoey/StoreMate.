@@ -111,6 +111,29 @@ const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
+    markAllAsReadInStore: (state) => {
+      state.items = state.items.map((item) => ({
+        ...item,
+        isRead: true,
+        isNew: false,
+      }));
+
+      try {
+        const oldReadIds = getSafeReadIds().map(String);
+
+        const currentReadIds = state.items.map((item) => String(item.id));
+
+        const mergedReadIds = [...new Set([...oldReadIds, ...currentReadIds])];
+
+        localStorage.setItem(
+          "read_notifications",
+          JSON.stringify(mergedReadIds),
+        );
+      } catch (e) {
+        console.error("Failed to save read status", e);
+      }
+    },
+
     clearNewNotifications: (state) => {
       state.items = state.items.map((item) => ({
         ...item,
@@ -158,6 +181,7 @@ const notificationSlice = createSlice({
 
       .addCase(fetchNotificationCounts.fulfilled, (state, action) => {
         const readIds = getSafeReadIds().map(String);
+        console.log(getSafeReadIds());
 
         const countUnread = (list: Notification[]) =>
           list.filter((item) => !readIds.includes(String(item.id))).length;
@@ -242,5 +266,6 @@ export const {
   addNotificationFromSocket,
   clearNewNotifications,
   markAsReadInStore,
+  markAllAsReadInStore,
 } = notificationSlice.actions;
 export default notificationSlice.reducer;
