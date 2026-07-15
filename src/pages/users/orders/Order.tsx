@@ -20,7 +20,7 @@ const Order = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [error] = useState<string | null>(null);
 
-  const rawStatus = searchParams.get("status") as OrderStatus | null;
+  const rawStatus = searchParams.get("status") as OrderStatus ;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders } = useSelector((state: RootState) => state.orders);
@@ -41,8 +41,8 @@ const Order = () => {
     dispatch(fetchOrders(status));
   }, [dispatch, status]);
 
+  //กรองออเดอร์ทั้งหมดที่มี ให้เหลือเฉพาะออเดอร์ที่ตรงกับแท็บที่กดดู
   const filteredOrders = useMemo(() => {
-    if (!orders) return [];
     return orders
       .filter((order) => {
         if (status === "ALL") return true;
@@ -58,6 +58,7 @@ const Order = () => {
         // 4. สถานะอื่นๆ (PENDING, PROCESSING, RECEIVED, COMPLETED)
         return order.status === status;
       })
+      //เรียงลำดับจาก "ใหม่สุด" ไปหา "เก่าสุด"
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -188,13 +189,6 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-                  const orderTotal = (order?.orderItems || []).reduce(
-                    (sum, item) =>
-                      sum + (item?.price || 0) * (item?.quantity || 0),
-                    0,
-                  );
-
-
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
                     (order.checkoutType === "PROMPTPAY" ||
@@ -215,7 +209,6 @@ const Order = () => {
                     <OrderCard
                       key={order.id}
                       order={order}
-                      orderTotal={orderTotal}
                       actionButtons={
                         <>
 
@@ -306,7 +299,7 @@ const Order = () => {
                                 type="button"
                                 data-test="btn-retry-payment"
                                 onClick={(e) =>
-                                  handleRetryPayment(e, order, orderTotal)
+                                  handleRetryPayment(e, order, order.totalPrice)
                                 }
                                 className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-[#152e7c] shadow-sm"
                               >

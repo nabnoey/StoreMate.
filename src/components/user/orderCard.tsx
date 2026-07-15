@@ -8,11 +8,11 @@ import { statusConfig, getOrderLabel } from "../../types/orders";
 
 interface OrderCardProps {
   order: Order;
-  orderTotal: number;
   actionButtons: React.ReactNode;
 }
 
-const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
+const OrderCard = ({ order, actionButtons }: OrderCardProps) => {
+  //ขยายเพื่อดูสินค้าทั้งหมด
   const [isExpanded, setIsExpanded] = useState(false);
 
   const color = statusConfig[order?.status]?.color || "text-black";
@@ -23,7 +23,6 @@ const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
     : (order.orderItems || []).slice(0, 1);
 
   const formatOrderDate = (dateString: string) => {
-    if (!dateString) return "-";
     const date = new Date(dateString);
     return date.toLocaleDateString("th-TH", {
       year: "numeric",
@@ -147,7 +146,7 @@ const OrderCard = ({ order, orderTotal, actionButtons }: OrderCardProps) => {
               ยอดรวมสุทธิ
             </span>
             <span className="font-bold text-[#3B82F6] text-[16px] sm:text-[20px]">
-              ฿ {orderTotal.toLocaleString()}
+              ฿ {order.total}
             </span>
           </div>
         </div>
