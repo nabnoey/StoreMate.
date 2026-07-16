@@ -394,7 +394,10 @@ const PaymentContent = () => {
 
           <hr className="border-t border-[#D1D5DB] mb-6" />
           <div className="flex flex-col lg:flex-row items-start gap-[60px]">
-            <div className="space-y-4 w-full lg:w-auto">
+            <div
+              data-test="payment-method"
+              className="space-y-4 w-full lg:w-auto"
+            >
               <h2 className="font-anuphan text-[20px] font-semibold text-black leading-[32px] break-words">
                 เลือกช่องทางการชำระเงิน
               </h2>
