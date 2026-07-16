@@ -336,7 +336,7 @@ const PaymentContent = () => {
                     <strong className="text-black font-normal">
                       {defaultAddress.receiverName}
                     </strong>
-                    <span data-test="shipping-address">
+                    <span data-test="address">
                       {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
                     </span>
                   </span>
