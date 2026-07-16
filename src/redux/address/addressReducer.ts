@@ -13,14 +13,10 @@ const initialState: AddressState = {
 
 export const addAddress = createAsyncThunk(
   "address/addAddress",
-  async (data: Partial<Address> ) => {
+  async (data: Partial<Address>) => {
     const response = await UserService.addAddress(data);
     return response;
-
-    
   },
-
-  
 );
 
 export const fetchAllAddresses = createAsyncThunk(
@@ -90,9 +86,7 @@ export const addressDropdown = createAsyncThunk(
       subdistrictId,
     );
     return response;
-    
   },
-  
 );
 
 const addressSlice = createSlice({
@@ -107,7 +101,6 @@ const addressSlice = createSlice({
         (addr: Address) => addr.isDefault,
       );
     });
-
 
     builder.addCase(updateAddress.fulfilled, (state, action) => {
       const updated = action.payload;
@@ -133,9 +126,9 @@ const addressSlice = createSlice({
         (addr) => addr.id !== action.meta.arg,
       );
       if (state.defaultAddress?.id === action.meta.arg) {
-        state.defaultAddress = state.addresses[0] 
+        state.defaultAddress = state.addresses[0];
 
-        if (state.defaultAddress){
+        if (state.defaultAddress) {
           state.defaultAddress.isDefault = true;
         }
       }
@@ -155,34 +148,32 @@ const addressSlice = createSlice({
       state.defaultAddress = action.payload;
     });
 
-   builder.addCase(addressDropdown.fulfilled, (state, action) => {
-    
-  const raw = action.payload;
-  console.log("API Response:", raw);
-  const data = Array.isArray(raw) ? raw : raw.data;
+    builder.addCase(addressDropdown.fulfilled, (state, action) => {
+      const raw = action.payload;
+      console.log("API Response:", raw);
+      const data = Array.isArray(raw) ? raw : raw.data;
 
-  const { provinceId, districtId, subdistrictId } = action.meta.arg;
+      const { provinceId, districtId, subdistrictId } = action.meta.arg;
 
-  if (!Array.isArray(data)) return;
+      if (!Array.isArray(data)) return;
 
-if (!provinceId) {
-  state.provinces = data;
-  state.districts = [];
-  state.subdistricts = [];
-  state.zipcodeId = [];
-} else if (provinceId && !districtId) {
-  state.districts = data;
-  state.subdistricts = [];
-  state.zipcodeId = [];
-} else if (provinceId && districtId && !subdistrictId) {
-  state.subdistricts = data;
-  state.zipcodeId = [];
-} else if (provinceId && districtId && subdistrictId) {
-  state.zipcodeId = data;
-}
-});
+      if (!provinceId) {
+        state.provinces = data;
+        state.districts = [];
+        state.subdistricts = [];
+        state.zipcodeId = [];
+      } else if (provinceId && !districtId) {
+        state.districts = data;
+        state.subdistricts = [];
+        state.zipcodeId = [];
+      } else if (provinceId && districtId && !subdistrictId) {
+        state.subdistricts = data;
+        state.zipcodeId = [];
+      } else if (provinceId && districtId && subdistrictId) {
+        state.zipcodeId = data;
+      }
+    });
   },
 });
-
 
 export default addressSlice.reducer;
