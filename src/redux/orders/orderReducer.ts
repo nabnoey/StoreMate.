@@ -5,13 +5,15 @@ import type { Order, OrderStatus } from "../../types/orders";
 interface OrdersState {
   orders: Order[];
   orderDetail: Order | null;
-
+  loading: boolean;
  
 }
 
 const initialState: OrdersState = {
   orders: [],
   orderDetail: null,
+  loading: false,
+ 
 };
 
 export const fetchOrders = createAsyncThunk(
@@ -37,9 +39,13 @@ const ordersSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-  
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
+      })
+    
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.orders = action.payload;
+        state.loading = false;
       })
      
 

@@ -169,8 +169,7 @@ function StoreEdit() {
                 .then(() => {
                   toast.success("บันทึกการตั้งค่าร้านค้าเรียบร้อยแล้ว");
                 })
-                .catch((error) => {
-                  console.error("Update store failed:", error);
+                .catch(() => {
                   toast.error("บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
                 });
             }}

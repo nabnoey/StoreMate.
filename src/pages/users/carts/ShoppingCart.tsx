@@ -340,7 +340,7 @@ const ShoppingCart = () => {
                             )
                           }
                           disabled={!item.isAvailable}
-                          className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50"
+                            className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
                         </button>

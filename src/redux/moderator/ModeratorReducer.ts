@@ -5,7 +5,7 @@ import type { ProductMod } from "../../types/moderator/productMod";
 
 interface ModeratorState {
   orders: OrderMod[];
-  orderToPrint: OrderMod[];
+  orderDetail: OrderMod[];
   products: ProductMod[];
   // loading: boolean;
   totalPages: number;
@@ -13,7 +13,7 @@ interface ModeratorState {
 
 const initialState: ModeratorState = {
   orders: [],
-  orderToPrint: [],
+  orderDetail: [],
   products: [],
   // loading: false,
   totalPages: 0,
@@ -131,7 +131,7 @@ const moderatorSlice = createSlice({
       })
 
       .addCase(getOrderByOrderNo.fulfilled, (state, action) => {
-        state.orderToPrint = [action.payload];
+        state.orderDetail = [action.payload];
       })
       .addCase(changeStatus.fulfilled, (state, action) => {
         state.orders = state.orders.map((order) =>
