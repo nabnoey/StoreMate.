@@ -331,18 +331,18 @@ const PaymentContent = () => {
               className="flex justify-between items-center py-3 border-b border-gray-200"
             >
               <div className="font-anuphan text-[16px] font-normal text-[#7E7E7E] leading-[24px] break-words">
-                {/* {defaultAddress ? ( */}
-                <span className="flex items-center gap-2">
-                  <strong className="text-black font-normal">
-                    {defaultAddress.receiverName}
-                  </strong>
-                  <span data-test="shipping-address">
-                    {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
+                {defaultAddress ? (
+                  <span className="flex items-center gap-2">
+                    <strong className="text-black font-normal">
+                      {defaultAddress.receiverName}
+                    </strong>
+                    <span data-test="shipping-address">
+                      {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
+                    </span>
                   </span>
-                </span>
-                {/* ) : (
+                ) : (
                   <span className="text-red-500">ยังไม่มีข้อมูลที่อยู่</span>
-                )} */}
+                )}
               </div>
               <button
                 data-test="btn-change-address"
