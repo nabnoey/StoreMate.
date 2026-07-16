@@ -5,8 +5,16 @@ import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { Pagination } from "../../components/admin/Pagination";
 import { format } from "date-fns";
 import type { AppDispatch, RootState } from "../../redux/store";
-import {fetchAllOrders,shippingOrder,} from "../../redux/moderator/ModeratorReducer";
-import {STATUS_LABELS,STATUS_STYLES,TIME_FILTER_MAP,type OrderMod,} from "../../types/moderator/ordersMod";
+import {
+  fetchAllOrders,
+  shippingOrder,
+} from "../../redux/moderator/ModeratorReducer";
+import {
+  STATUS_LABELS,
+  STATUS_STYLES,
+  TIME_FILTER_MAP,
+  type OrderMod,
+} from "../../types/moderator/ordersMod";
 import { InvoicePrint } from "../../components/admin/InvoicePrint";
 import { toast } from "react-hot-toast";
 import { CiCalendar } from "react-icons/ci";
@@ -16,11 +24,11 @@ import { useReactToPrint } from "react-to-print";
 
 const formatDateTime = (isoString: string) => {
   if (!isoString) return { dateStr: "-", timeStr: "-" };
-  const dateObj = new Date(isoString);
-  const dateStr = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear() + 543}`;
-  const hours = String(dateObj.getHours()).padStart(2, "0");
-  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-  return { dateStr, timeStr: `${hours}.${minutes} น.` };
+  const date = new Date(isoString);
+  // ใช้ date-fns จัดรูปแบบวัน/เดือน และชั่วโมง.นาที
+  const dateStr = `${format(date, "d/M/")}${date.getFullYear() + 543}`;
+  const timeStr = `${format(date, "HH.mm")} น.`;
+  return { dateStr, timeStr };
 };
 
 function Orders() {
@@ -36,30 +44,34 @@ function Orders() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [filterStartDate, setFilterStartDate] = useState<Date | null>(null);
+  const [filterEndDate, setFilterEndDate] = useState<Date | null>(null);
 
   const [timeFilter, setTimeFilter] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
   const [printData, setPrintData] = useState<OrderMod[]>([]);
-  const [isPrinting, setIsPrinting] = useState(false);
 
-  // 🛡️ ดึงข้อมูลจาก URL (ถ้า URL เป็น 0 ให้ UI มองเป็น 1)
+  //ดึงข้อมูลจาก URL (ถ้า URL เป็น 0 ให้ UI มองเป็น 1)
   const pageParam = searchParams.get("page");
   const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
+  // เก็บสถานะหน้าปัจจุบัน
   const [currentPage, setCurrentPage] = useState(initialPage);
 
-  const rawOrders = useSelector((state: RootState) => state.moderator.orders);
+  const { orders: rawOrders, totalPages } = useSelector(
+    (state: RootState) => state.moderator,
+  );
   const orders = Array.isArray(rawOrders) ? rawOrders : [];
-  const totalPages =
-    useSelector((state: RootState) => state.moderator.totalPages) || 0;
-
   const PAGE_SIZE = 10;
 
   const periodValue =
     TIME_FILTER_MAP[timeFilter as keyof typeof TIME_FILTER_MAP];
-  const formattedStartDate = startDate
-    ? format(startDate, "yyyy-MM-dd")
+  const formattedStartDate = filterStartDate
+    ? format(filterStartDate, "yyyy-MM-dd")
     : undefined;
-  const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : undefined;
+
+  const formattedEndDate = filterEndDate
+    ? format(filterEndDate, "yyyy-MM-dd")
+    : undefined;
 
   useEffect(() => {
     dispatch(
@@ -108,23 +120,23 @@ function Orders() {
   });
 
   useEffect(() => {
-    if (isPrinting && printData.length > 0) {
+    if (printData.length > 0) {
       const timer = setTimeout(() => {
         reactToPrintFn();
-        setIsPrinting(false);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isPrinting, printData, reactToPrintFn]);
+  }, [printData, reactToPrintFn]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
   const handleSelectOrder = (orderNo: string) => {
-    const key = String(orderNo);
-    setSelectedOrders((prev) =>
-      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key],
+    setSelectedOrders((prevSelectedOrders) =>
+      prevSelectedOrders.includes(orderNo)
+        ? prevSelectedOrders.filter((id) => id !== orderNo)
+        : [...prevSelectedOrders, orderNo],
     );
   };
 
@@ -139,12 +151,15 @@ function Orders() {
   };
 
   const handleConfirmPrint = async () => {
-    const selectedData = orders.filter((o) =>
-      selectedOrders.includes(String(o.orderNo)),
+    //selectedData รายการคำสั่งซื้อที่ผู้ใช้เลือกไว้
+    const selectedData = orders.filter((order) =>
+      selectedOrders.includes(order.orderNo),
     );
     if (selectedData.length === 0) return;
 
-    const invalidOrders = selectedData.filter((o) => o.status !== "PROCESSING");
+    const invalidOrders = selectedData.filter(
+      (order) => order.status !== "PROCESSING",
+    );
     if (invalidOrders.length > 0) {
       toast.error(
         "สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น",
@@ -153,18 +168,12 @@ function Orders() {
     }
 
     try {
-      if (selectedData.length > 0) {
-        const orderIds = selectedData.map((order) => Number(order.id));
+      // if (selectedData.length > 0)
+      {
+        const orderIds = selectedData.map((order) => order.id);
         const printedLabels = await dispatch(shippingOrder(orderIds)).unwrap();
-        // 🛠️ ตอนรีเฟรชข้อมูลก็ต้อง -1 ให้ API เหมือนกัน
-        dispatch(fetchAllOrders({ page: currentPage - 1, size: PAGE_SIZE }));
-
-        // ใช้ข้อมูลที่ได้จาก API (ซึ่งมีรายการสินค้าและที่อยู่ครบ) ส่งไปปริ้นท์
         setPrintData(printedLabels);
-      } else {
-        setPrintData([]);
       }
-      setIsPrinting(true);
     } catch {
       toast.error("ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้");
     }
@@ -317,6 +326,9 @@ function Orders() {
                           <button
                             type="button"
                             onClick={() => {
+                              setFilterStartDate(startDate);
+                              setFilterEndDate(endDate);
+
                               setIsDatePickerOpen(false);
                               setCurrentPage(1); // ค้นหาปุ๊บ เริ่มที่หน้าแรกเสมอ
                             }}
@@ -386,7 +398,7 @@ function Orders() {
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {orders.length > 0 ? (
-                    orders.map((order: OrderMod) => {
+                    orders.map((order) => {
                       const { dateStr, timeStr } = formatDateTime(
                         order.createdAt || "",
                       );
@@ -407,7 +419,7 @@ function Orders() {
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    handleSelectOrder(String(order.orderNo))
+                                    handleSelectOrder(order.orderNo)
                                   }
                                   className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
                                     isSelected
@@ -469,13 +481,9 @@ function Orders() {
                             {isPrintMode ? (
                               <button
                                 type="button"
-                                onClick={() =>
-                                  handleSelectOrder(String(order.orderNo))
-                                }
+                                onClick={() => handleSelectOrder(order.orderNo)}
                                 className="text-blue-600 hover:underline font-medium cursor-pointer"
-                              >
-                                {/* {isSelected ? "ยกเลิก" : "เลือก"} */}
-                              </button>
+                              ></button>
                             ) : (
                               <button
                                 type="button"
