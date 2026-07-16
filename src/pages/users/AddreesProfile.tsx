@@ -429,13 +429,15 @@ const AddressProfile = () => {
                     {/* แถวที่ 1: ข้อมูลผู้รับ & ปุ่มควบคุมหลัก */}
                     <div className="flex justify-between items-center w-full">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-base">
-                        <span className="font-bold text-gray-900">
+                        <span className="font-bold text-gray-900"
+                        data-test="receiver-name">
                           {address.receiverName}
                         </span>
                         <span className="text-gray-300 hidden sm:inline">
                           |
                         </span>
-                        <span className="text-gray-500 font-medium">
+                        <span className="text-gray-500 font-medium"
+                        data-test="receiver-phone">
                           {address.receiverPhone}
                         </span>
                       </div>
@@ -459,7 +461,8 @@ const AddressProfile = () => {
                     </div>
 
                     {/* แถวที่ 2: รายละเอียดที่อยู่ตัวเต็ม */}
-                    <div className="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                    <div className="text-sm text-gray-600 leading-relaxed max-w-3xl"
+                    data-test="address-detail">
                       {address.streetAddress} ต.{address.subdistrict} อ.
                       {address.district} จ.{address.province} {address.zipcode}
                     </div>
@@ -472,7 +475,9 @@ const AddressProfile = () => {
                             ค่าเริ่มต้น
                           </span>
                         )}
-                        <span className="px-2 py-0.5 text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded">
+                        <span className="px-2 py-0.5 text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded"
+                        data-test="receiver-address"
+                        >
                           ที่อยู่ในการรับสินค้า
                         </span>
                       </div>
