@@ -337,7 +337,7 @@ const PaymentContent = () => {
                       {defaultAddress.receiverName}
                     </strong>
                     <span data-test="address">
-                      {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
+                      {`${defaultAddress.streetAddress} ต.${defaultAddress.subdistrict} อ.${defaultAddress.district} จ.${defaultAddress.province} ${defaultAddress.zipcode}`}
                     </span>
                   </span>
                 ) : (
