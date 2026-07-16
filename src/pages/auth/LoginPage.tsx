@@ -132,16 +132,21 @@ function LoginPage() {
                   อีเมล
                 </span>
               </label>
-              <input
-                id="email"
-                data-test="email"
-                disabled={loading}
-                type="email"
-                placeholder="example@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563] pr-10 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-              />
+              <div className="relative">
+                {!email && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center">
+                    <span className="text-[#9CA3AF]">example@gmail.com</span>
+                    <span className="text-red-500 ml-1">*</span>
+                  </div>
+                )}
+
+                <input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input input-bordered w-full bg-white text-[#4B5563] border-[#4B5563]"
+                />
+              </div>
             </div>
 
             <div className="mb-4">

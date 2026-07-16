@@ -26,7 +26,7 @@ const useNotificationSocket = () => {
   useEffect(() => {
     if (!token || userRoles.length === 0) {
       if (globalNotifyClient) {
-        console.log("[NOTIFY STOMP] Disconnecting due to logout...");
+        // console.log("[NOTIFY STOMP] Disconnecting due to logout...");
         globalNotifyClient.deactivate();
         globalNotifyClient = null;
         currentNotifyToken = null;
@@ -51,10 +51,10 @@ const useNotificationSocket = () => {
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-      debug: (str) => console.log("[NOTIFY STOMP]", str),
+      // debug: (str) => console.log("[NOTIFY STOMP]", str),
 
       onConnect: () => {
-        console.log("NOTIFY SOCKET CONNECTED");
+        // console.log("NOTIFY SOCKET CONNECTED");
 
         const handleIncomingNotification = (message: any) => {
           if (!message.body) return;
@@ -86,13 +86,13 @@ const useNotificationSocket = () => {
         }
       },
       onWebSocketClose: () => {
-        console.log("NOTIFY SOCKET CLOSED");
+        // console.log("NOTIFY SOCKET CLOSED");
         globalNotifyClient = null;
         currentNotifyToken = null;
       },
-      onStompError: (frame) => {
-        console.error("NOTIFY STOMP ERROR:", frame.headers["message"]);
-      },
+      // onStompError: (frame) => {
+      //   console.error("NOTIFY STOMP ERROR:", frame.headers["message"]);
+      // },
     });
 
     globalNotifyClient = client;

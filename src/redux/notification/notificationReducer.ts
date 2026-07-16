@@ -74,7 +74,7 @@ interface NotificationCount {
 interface NotificationState {
   items: ClientNotification[];
 
-  counts: NotificationCount; // <-- เพิ่ม
+  counts: NotificationCount;
 
   isLoading: boolean;
   isSubmitting: boolean;
@@ -107,6 +107,24 @@ const getSafeReadIds = (): number[] => {
   }
 };
 
+const getNotificationType = (
+  title: string,
+  message: string,
+): NotificationType => {
+  const text = `${title} ${message}`;
+
+  if (text.includes("คืนเงิน")) {
+    return "REFUNDED";
+  }
+
+  if (text.includes("สถานะคำสั่งซื้อ")) {
+    return "ORDERED";
+  }
+
+  // กรณีไม่รู้จัก ให้ถือเป็น STORE หรือ ORDERED ตามที่ทีมตกลงกัน
+  return "STORE";
+};
+
 const notificationSlice = createSlice({
   name: "notification",
   initialState,
@@ -117,6 +135,13 @@ const notificationSlice = createSlice({
         isRead: true,
         isNew: false,
       }));
+
+      state.counts = {
+        ALL: 0,
+        ORDERED: 0,
+        REFUNDED: 0,
+        STORE: 0,
+      };
 
       try {
         const oldReadIds = getSafeReadIds().map(String);
@@ -151,21 +176,43 @@ const notificationSlice = createSlice({
           isNew: true,
           isRead: readIds.includes(action.payload.id),
         });
+
+        state.counts.ALL++;
+
+        if (action.payload.type !== "ALL") {
+          state.counts[action.payload.type]++;
+        }
       }
     },
 
     markAsReadInStore: (state, action: PayloadAction<number | string>) => {
       const targetId = String(action.payload);
-      state.items = state.items.map((item) => {
-        if (String(item.id) === targetId) {
-          return { ...item, isRead: true, isNew: false };
-        }
-        return item;
-      });
 
-      // บันทึกลง LocalStorage
+      const notification = state.items.find(
+        (item) => String(item.id) === targetId,
+      );
+
+      if (!notification || notification.isRead) return;
+
+      notification.isRead = true;
+      notification.isNew = false;
+
+      state.counts.ALL = Math.max(0, state.counts.ALL - 1);
+
+      if (
+        notification.type === "ORDERED" ||
+        notification.type === "REFUNDED" ||
+        notification.type === "STORE"
+      ) {
+        state.counts[notification.type] = Math.max(
+          0,
+          state.counts[notification.type] - 1,
+        );
+      }
+
       try {
-        const readIds = getSafeReadIds().map(String); // แปลงของเก่าในเครื่องเป็น String ให้หมด
+        const readIds = getSafeReadIds().map(String);
+
         if (!readIds.includes(targetId)) {
           readIds.push(targetId);
           localStorage.setItem("read_notifications", JSON.stringify(readIds));
@@ -181,18 +228,14 @@ const notificationSlice = createSlice({
 
       .addCase(fetchNotificationCounts.fulfilled, (state, action) => {
         const readIds = getSafeReadIds().map(String);
-        console.log(getSafeReadIds());
 
         const countUnread = (list: Notification[]) =>
           list.filter((item) => !readIds.includes(String(item.id))).length;
 
         state.counts = {
           ALL: countUnread(action.payload.all),
-
           ORDERED: countUnread(action.payload.ordered),
-
           REFUNDED: countUnread(action.payload.refunded),
-
           STORE: countUnread(action.payload.store),
         };
       })
@@ -229,6 +272,7 @@ const notificationSlice = createSlice({
 
         state.items = (action.payload || []).map((item: Notification) => ({
           ...item,
+          type: getNotificationType(item.title, item.message),
           isNew: false,
           isRead: readIds.includes(String(item.id)),
         }));

@@ -28,6 +28,7 @@ const NotificationPage = () => {
   const rawNotifications = useSelector(
     (state: RootState) => state.notification.items,
   );
+  console.log(rawNotifications);
   const isLoading = useSelector(
     (state: RootState) => state.notification.isLoading,
   );
@@ -114,12 +115,12 @@ const NotificationPage = () => {
 
   const handleNotificationClick = (item: ClientNotification) => {
     dispatch(markAsReadInStore(item.id));
-    dispatch(fetchNotificationCounts());
+    // dispatch(fetchNotificationCounts());
   };
 
   const handleMarkAllAsRead = () => {
     dispatch(markAllAsReadInStore());
-    dispatch(fetchNotificationCounts());
+    // dispatch(fetchNotificationCounts());
   };
 
   return (
