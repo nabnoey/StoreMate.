@@ -336,7 +336,9 @@ const PaymentContent = () => {
                     <strong className="text-black font-normal">
                       {defaultAddress.receiverName}
                     </strong>
-                    {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
+                    <span data-test="shipping-address">
+                      {`${defaultAddress.streetAddress} ${defaultAddress.subdistrict} ${defaultAddress.district} ${defaultAddress.province} ${defaultAddress.zipcode}`}
+                    </span>
                   </span>
                 ) : (
                   <span className="text-red-500">ยังไม่มีข้อมูลที่อยู่</span>
