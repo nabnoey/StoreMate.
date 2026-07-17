@@ -12,13 +12,12 @@ import {
 
 import { Icon } from "@iconify/react";
 import { type Toast, toast } from "react-hot-toast";
-import type { CartItem } from "../../../types/cartItem";
 
 interface ConfirmToastProps {
   t: Toast;
   message: string;
-  onResolve: (value: boolean) => void;
-  setIsBlocking: (value: boolean) => void;
+  onResolve: (value: boolean) => void; // "ส่งคำตอบกลับ" หลังจากผู้ใช้กดปุ่ม "ยืนยัน" หรือ "ยกเลิก"
+  setIsBlocking: (value: boolean) => void; // เปิด/ปิดพื้นหลังสีดำ (Overlay)
 }
 
 const ConfirmToastUI = ({
@@ -75,30 +74,13 @@ const ShoppingCart = () => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
 
-  const enrichedCartItems = useMemo(() => {
-    return cartItems.map((item: CartItem) => {
-      const isAvailable = item.productStatus === "ACTIVE";
-      return {
-        ...item,
-        isAvailable,
-        product: {
-          id: item.productId,
-          productName: item.productName,
-          price: item.price,
-          imageUrl: item.imageUrl,
-          stockQuantity: item.stockQuantity,
-          productStatus: item.productStatus,
-        },
-      };
-    });
-  }, [cartItems]);
-
   // เอาไว้กรองสินค้าที่มีสถานะ พร้อมจำหน่าย
-  const availableItems = useMemo(
-    () => enrichedCartItems.filter((item) => item.isAvailable),
-    [enrichedCartItems],
-  );
+const availableItems = useMemo(
+  () => cartItems.filter((item) => item.productStatus === "ACTIVE"),
+  [cartItems],
+);
 
+ //เลือกสินค้าที่ พร้อมจำหน่าย 
   const isAllSelected = useMemo(() => {
     return (
       availableItems.length > 0 &&
@@ -106,15 +88,15 @@ const ShoppingCart = () => {
     );
   }, [availableItems.length, selectedItems.length]);
 
-  const selectedCartItems = useMemo(() => {
-    return enrichedCartItems
-      .filter((item) => selectedItems.includes(item.productId))
-      .map((item) => ({ ...item, cartItemId: item.cartItemId }));
-  }, [enrichedCartItems, selectedItems]);
+const selectedCartItems = useMemo(() => {
+  return cartItems.filter((item) =>
+    selectedItems.includes(item.productId)
+  );
+}, [cartItems, selectedItems]);
 
   const subtotal = useMemo(() => {
     return selectedCartItems.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
+      (sum, item) => sum + item.price * item.quantity,
       0,
     );
   }, [selectedCartItems]);
@@ -258,7 +240,7 @@ const ShoppingCart = () => {
             <div className="hidden md:block w-full border-b border-black mt-4" />
           </div>
 
-          {enrichedCartItems.length > 0 ? (
+          {cartItems.length > 0 ? (
             <div className="space-y-6">
               <div className="flex justify-between items-center pb-4 border-b border-gray-100">
                 <span className="text-md sm:text-xl font-bold text-gray-700">
@@ -272,7 +254,7 @@ const ShoppingCart = () => {
                 </button>
               </div>
               <div className="max-h-[250px] overflow-y-auto mb-10 pr-2 ">
-                {enrichedCartItems.map((item) => (
+                {cartItems.map((item) => (
                   <div
                     key={item.productId}
                     className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 py-4 border-b border-gray-50 last:border-0"
@@ -282,7 +264,7 @@ const ShoppingCart = () => {
                       <div className="flex items-center pt-2 md:pt-0">
                         <input
                           type="checkbox"
-                          disabled={!item.isAvailable}
+                          disabled={!item.productStatus}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
                           data-test={`checkbox-product-${item.productId}`}
@@ -292,7 +274,7 @@ const ShoppingCart = () => {
 
                       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden not-last:p-1 flex-shrink-0">
                         <img
-                          src={item.product.imageUrl || ""}
+                          src={item.imageUrl || ""}
                           alt=""
                           className="w-full h-full object-contain"
                         />
@@ -300,17 +282,17 @@ const ShoppingCart = () => {
 
                       <div className="flex-1 min-w-0 px-2">
                         <h3 className="text-[16px] font-medium text-gray-800 leading-snug mb-2 line-clamp-2">
-                          {item.product.productName}
+                          {item.productName}
                         </h3>
 
                         <span
                           className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
-                            item.isAvailable
+                            item.productStatus
                               ? "bg-green-50 text-green-500"
                               : "bg-red-50 text-red-500"
                           }`}
                         >
-                          {item.isAvailable
+                          {item.productStatus
                             ? "พร้อมจำหน่าย"
                             : "ไม่พร้อมจำหน่าย"}
                         </span>
@@ -327,7 +309,7 @@ const ShoppingCart = () => {
 
                     <div className="flex items-center justify-between md:justify-end w-full md:w-auto pl-8 md:pl-0 gap-4">
                       <div className="hidden md:block text-md font-medium text-black w-20 text-center">
-                        ฿ {item.product.price}
+                        ฿ {item.price}
                       </div>
 
                       <div className="flex items-center border border-gray-200 rounded-md h-9 bg-white overflow-hidden flex-shrink-0">
@@ -339,7 +321,7 @@ const ShoppingCart = () => {
                               item.quantity,
                             )
                           }
-                          disabled={!item.isAvailable}
+                          disabled={!item.productStatus}
                             className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
@@ -356,10 +338,10 @@ const ShoppingCart = () => {
     handleIncreaseQuantity(
       item.productId,
       item.quantity,
-      item.product.stockQuantity,
+      item.stockQuantity,
     )
   }
-  disabled={!item.isAvailable}
+  disabled={!item.productStatus}
   className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed"
 >
   <Icon icon="lucide:plus" width="14" height="14" />
@@ -368,7 +350,7 @@ const ShoppingCart = () => {
 
                       <div className="text-blue-500 font-md w-20 md:w-24 text-right md:text-center"
                       data-test="subtotal-product">
-                        ฿{(item.product.price * item.quantity).toLocaleString()}
+                        ฿{(item.subTotal.toLocaleString())}
                       </div>
 
                       {/* ปุ่มลบสำหรับ Desktop */}
