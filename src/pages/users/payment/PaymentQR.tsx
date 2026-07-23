@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
-import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -22,7 +22,6 @@ const PaymentQRInner = () => {
   const stripe = useStripe();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams();
   const location = useLocation();
 
   // ลบข้อมูลออกจาก local
@@ -34,53 +33,63 @@ const PaymentQRInner = () => {
     localStorage.removeItem("payment_total_price");
     localStorage.removeItem("payment_client_secret");
   };
+  const getRemainingSeconds = () =>
+    Math.max(Math.floor((getExpiryTimestamp() - Date.now()) / 1000), 0);
 
-  const [clientSecret] = useState<string>(() => {
+  const getExpiryTimestamp = () => {
     const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
-    const isStillValid = savedExpiry && Number(savedExpiry) > Date.now();
+    return savedExpiry ? new Date(savedExpiry).getTime() : 0;
+  };
+
+  const isPaymentSessionValid = () => {
+    return getExpiryTimestamp() > Date.now();
+  };
+
+  const [clientSecret] = useState(() => {
     const savedSecret = localStorage.getItem("payment_client_secret");
 
-    if (isStillValid && savedSecret) {
+    if (isPaymentSessionValid() && savedSecret) {
       return savedSecret;
     }
 
     const stateSecret = location.state?.clientSecret;
+
     if (stateSecret) {
       localStorage.setItem("payment_client_secret", stateSecret);
       return stateSecret;
     }
+
     return savedSecret || "";
   });
 
   const [totalPrice] = useState<number>(() => {
-    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
-    const isStillValid = savedExpiry && Number(savedExpiry) > Date.now();
     const savedPrice = localStorage.getItem("payment_total_price");
 
-    if (isStillValid && savedPrice) {
+    if (isPaymentSessionValid() && savedPrice) {
       return Number(savedPrice);
     }
 
     const statePrice = location.state?.totalPrice;
+
     if (statePrice !== undefined) {
       localStorage.setItem("payment_total_price", String(statePrice));
+
       return statePrice;
     }
+
     return Number(savedPrice) || 0;
   });
 
-  const showQR = true;
-
   // ถ้ารีหน้า เวลาต้องนับต่อห้ามนับใหม่
   const [timeLeft, setTimeLeft] = useState(() => {
-    const savedTimestamp = localStorage.getItem("payment_expiry_timestamp");
-    if (savedTimestamp) {
-      const remaining = Math.floor(
-        (Number(savedTimestamp) - Date.now()) / 1000,
-      );
+    const expiryTimestampMs = getExpiryTimestamp();
+
+    if (expiryTimestampMs) {
+      const remaining = Math.floor((expiryTimestampMs - Date.now()) / 1000);
+
       return remaining > 0 ? remaining : 0;
     }
-    // อันนี้คือตอนเข้ามาหน้า qr
+
     return 15 * 60;
   });
 
@@ -92,22 +101,24 @@ const PaymentQRInner = () => {
   );
 
   const [isGenerating, setIsGenerating] = useState(() => {
-    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
     const savedQR = localStorage.getItem("payment_qr_image");
-    if (savedQR && savedExpiry) {
-      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+
+    if (savedQR) {
+      const remaining = Math.floor((getExpiryTimestamp() - Date.now()) / 1000);
+
       return remaining <= 0;
     }
+
     return true;
   });
 
   const initialHasRequested = (() => {
-    const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
     const savedQR = localStorage.getItem("payment_qr_image");
-    if (savedExpiry && savedQR) {
-      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
-      return remaining > 0;
+
+    if (savedQR) {
+      return getExpiryTimestamp() > Date.now();
     }
+
     return false;
   })();
 
@@ -161,7 +172,6 @@ const PaymentQRInner = () => {
     // เงื่อนไขตรงนี้จ่ายตังได้ -> ล้าง local เลย
     if (paymentStatus === "PAYMENT_SUCCESS") {
       clearPaymentSession();
-      localStorage.removeItem("orderNo");
       dispatch(resetPaymentStatus());
       navigate("/orders", { replace: true });
     } else if (paymentStatus === "PAYMENT_FAILS") {
@@ -178,10 +188,10 @@ const PaymentQRInner = () => {
     const savedQR = localStorage.getItem("payment_qr_image");
 
     if (savedExpiry && savedQR) {
-      const remaining = Math.floor((Number(savedExpiry) - Date.now()) / 1000);
+      const remaining = Math.floor((getExpiryTimestamp() - Date.now()) / 1000);
+
       if (remaining > 0) {
         setIsGenerating(false);
-        // ห้ามปิ้วๆ qr ซ้ำหลังจากรีหน้าจัง
         hasRequestedQR.current = true;
         return;
       }
@@ -226,25 +236,16 @@ const PaymentQRInner = () => {
           const qrData =
             nextAction?.promptpay_display_qr_code?.image_url_svg ||
             nextAction?.promptpay_display_qr_code?.image_url_png;
+          const expiryTimestamp = getExpiryTimestamp();
 
-          const stripeExpiresAt =
-            nextAction?.promptpay_display_qr_code?.expires_at;
-
-          let expiryTimestampMs: number;
-
-          if (stripeExpiresAt) {
-            expiryTimestampMs = stripeExpiresAt * 1000;
-          } else {
-            expiryTimestampMs = Date.now() + 15 * 60 * 1000;
+          if (!expiryTimestamp) {
+            toast.error("ไม่พบข้อมูลเวลาหมดอายุ");
+            return;
           }
 
-          localStorage.setItem(
-            "payment_expiry_timestamp",
-            String(expiryTimestampMs),
-          );
+          const remaining = Math.floor((expiryTimestamp - Date.now()) / 1000);
 
-          const remaining = Math.floor((expiryTimestampMs - Date.now()) / 1000);
-          setTimeLeft(remaining > 0 ? remaining : 0);
+          setTimeLeft(Math.max(remaining, 0));
 
           if (qrData) {
             setQrImage(qrData);
@@ -269,49 +270,33 @@ const PaymentQRInner = () => {
     if (!clientSecret || !totalPrice) {
       toast.error("ข้อมูลการชำระเงินไม่ครบถ้วน");
       clearPaymentSession();
-      navigate("/shopping-cart");
+      navigate("/shopping-cart", { replace: true });
       return;
     }
 
-    if (showQR) {
-      if (timeLeft <= 0) {
+    if (timeLeft <= 0) {
+      toast.error("QR Code หมดอายุการใช้งาน");
+      clearPaymentSession();
+      navigate("/orders", { replace: true });
+      return;
+    }
+
+    const timerId = setInterval(() => {
+      const remaining = getRemainingSeconds();
+
+      if (remaining === 0) {
+        clearInterval(timerId);
         toast.error("QR Code หมดอายุการใช้งาน");
         clearPaymentSession();
-
-        navigate(`/orders`);
+        navigate("/orders", { replace: true });
         return;
       }
 
-      const timerId = setInterval(() => {
-        const savedExpiry = localStorage.getItem("payment_expiry_timestamp");
-        if (savedExpiry) {
-          const remaining = Math.floor(
-            (Number(savedExpiry) - Date.now()) / 1000,
-          );
-          if (remaining <= 0) {
-            clearInterval(timerId);
-            toast.error("QR Code หมดอายุการใช้งาน");
-            clearPaymentSession();
-            navigate(`/orders`);
-          } else {
-            setTimeLeft(remaining);
-          }
-        } else {
-          setTimeLeft((prev) => {
-            if (prev <= 1) {
-              clearInterval(timerId);
-              toast.error("QR Code หมดอายุการใช้งาน");
-              clearPaymentSession();
-              navigate(`/orders`);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }
-      }, 1000);
-      return () => clearInterval(timerId);
-    }
-  }, [navigate, id, totalPrice, showQR, clientSecret, timeLeft]);
+      setTimeLeft(remaining);
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [clientSecret, totalPrice, timeLeft, navigate]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60)

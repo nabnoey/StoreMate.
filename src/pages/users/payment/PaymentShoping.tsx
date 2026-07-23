@@ -26,16 +26,21 @@ import {
 } from "../../../redux/carts/CartReducer";
 
 import { fetchOrderDetails } from "../../../redux/orders/orderReducer";
-
+// โหลด stripe ครั้วเดียว แล้วสงเข้า Element
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const PaymentContent = () => {
+  // ใช้ส่ง Action
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  // เป็นตัวรับข้อมูลจากหน้าก่อนมา
   const location = useLocation();
+
   const stripe = useStripe();
 
+  // state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+  // เก๋บ card ที่ผู้ใช้เลือก
   const [selectedCardId, setSelectedCardId] = useState<string>("");
 
   const newlyAddedCard = location.state?.newlyAddedCard;
@@ -45,13 +50,16 @@ const PaymentContent = () => {
     (state: RootState) => state.carts.selectedItems,
   );
 
+  // เช็คว่าปุ่ม สั่งซื้อสินค้า ไหม
   const isBuyNow = location.state?.isBuyNow || false;
-
+  // เช็คว่ามาจาก สั่งซื้ออีกครั้งหรือป่าว
   const isReOrder = location.state?.isReOrder === true;
+  // ใช้ดึง order เดิมถ้ามาจาก สั่งซื้ออีกครั้ง
   const orderDetail = useSelector(
     (state: RootState) => state.orders.orderDetail,
   );
 
+  // เลือกว่าจะใช้รายการสินค้าที่ไหน
   const selectedItems = isBuyNow
     ? location.state?.items || []
     : isReOrder
@@ -75,9 +83,10 @@ const PaymentContent = () => {
   useEffect(() => {
     dispatch(fetchAddressDefault());
 
+    // newlyAddedCard มาจาก หน้า AddCreditCard.tsx
     if (newlyAddedCard) {
       const cardName = newlyAddedCard.billing_details?.name || "Card";
-
+      // เป็นการอัปเดต state
       setCurrentCard({
         id: newlyAddedCard.id,
         brand: newlyAddedCard.card?.brand ?? "unknown",
@@ -113,6 +122,7 @@ const PaymentContent = () => {
       return false;
     }
 
+    // ไม่มีที่อยู่ผู้รับในหน้านี้
     if (!defaultAddress) {
       toast.error("กรุณาเลือกที่อยู่ในการรับสินค้า");
       return false;
@@ -123,6 +133,7 @@ const PaymentContent = () => {
       return false;
     }
 
+    // เพิ่มบัตรเครดิตมาแล้วแต่ไม่กดเลือกบัตรเครดิต
     if (paymentMethod === "CARD" && !selectedCardId) {
       toast.error("กรุณาเลือกบัตรเครดิต");
       return false;
@@ -130,10 +141,16 @@ const PaymentContent = () => {
     return true;
   };
 
+  // เป็นเหมือนตัวตัดสินใจว่าจะใช้ api ในการจัดการคำสั่งซื้อหรือชำระเงิน
   const executePaymentApi = async (checkoutType: PaymentMethod) => {
+    // ซื้ออีกครั้ง จะช้เลขออเดอร์เดิม แล้วเรียก api/v1/reOrder
     if (isReOrder) {
       return await dispatch(
+        // ทั้งก้อนนี้เรียกว่า object ข้างใน คือ properties : value
         reOrderPaymentThunk({
+          // ก้อน 3 ตัวหลังคือเปิดกระเป๋า (location) → หยิบช่อง state → หยิบข้อมูล orderNo
+          // location เป็น Object ที่ได้จาก useLocation() ของ React Router
+          // state เป็น Property ที่เก็บข้อมูลที่ส่งมาจาก navigate() และ orderNo เป็น Property
           orderNo: location.state.orderNo,
           checkoutType,
         }),
@@ -161,11 +178,34 @@ const PaymentContent = () => {
     return await dispatch(createPaymentIntentThunk(payload)).unwrap();
   };
 
+  const handleConfirmOrder = async () => {
+    if (!validateOrder()) return;
+
+    let loadingToastId: string | undefined;
+
+    try {
+      const currentCheckoutType = paymentMethod as PaymentMethod;
+
+      const response = await executePaymentApi(currentCheckoutType);
+      await handlePaymentSuccess(
+        currentCheckoutType,
+        response.clientSecret,
+        response,
+      );
+    } catch (error: any) {
+      handlePaymentError(error);
+    } finally {
+      if (loadingToastId) toast.dismiss(loadingToastId);
+    }
+  };
+
+  // ชำระเงินสำเร็จ
   const handlePaymentSuccess = async (
     checkoutType: PaymentMethod,
     clientSecret: string,
     response: any,
   ) => {
+    // เลือก เครดิต แล้วกดปุ่ม ยืนยันการชำระ
     if (checkoutType === "CARD") {
       if (!stripe) {
         toast.error("ขออภัย ไม่สามารถติดต่อผู้ให้บริการชำระเงินได้ในขณะนี้");
@@ -204,20 +244,29 @@ const PaymentContent = () => {
       return;
     }
 
+    // เลือก พร้อมเพย์ แล้วกดปุ่มยืนยันการชำระเงิน -> หน้า QR  โดย BE จะเป็นคนสร้าง QR เอง
     if (checkoutType === "PROMPTPAY") {
       await dispatch(fetchCartThunk());
       dispatch(setSelectedItems([]));
+
+      localStorage.setItem("payment_expiry_timestamp", response.paymentExpired);
+      localStorage.setItem("payment_client_secret", clientSecret);
+      localStorage.setItem("payment_total_price", String(subtotal));
+      localStorage.setItem("orderNo", response.orderNo);
 
       navigate("/payment-qr", {
         state: {
           clientSecret,
           totalPrice: subtotal,
           orderNo: response.orderNo,
+          paymentExpired: response.paymentExpired,
         },
       });
+
       return;
     }
 
+    // ปลายทาง ไม่ต้องผ่าน stripe คือ กดยืนยัน แล้วสร้างออเดอร์ได้เลย
     if (checkoutType === "DESTINATION") {
       await dispatch(fetchCartThunk());
       dispatch(setSelectedItems([]));
@@ -235,6 +284,7 @@ const PaymentContent = () => {
   };
 
   const handlePaymentError = (error: any) => {
+    // สินค้าหมดสต็อก
     const isOutOfStock =
       error?.response?.status === 400 &&
       error?.response?.data?.message === "OUT_OF_STOCK";
@@ -246,31 +296,6 @@ const PaymentContent = () => {
     }
 
     toast.error("เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
-  };
-
-  const handleConfirmOrder = async () => {
-    if (!validateOrder()) return;
-
-    let loadingToastId: string | undefined;
-
-    try {
-      const currentCheckoutType = paymentMethod as PaymentMethod;
-
-      const response = await executePaymentApi(currentCheckoutType);
-      console.log(response);
-
-      // if (!isBuyNow) dispatch(fetchCartThunk());
-
-      await handlePaymentSuccess(
-        currentCheckoutType,
-        response.clientSecret,
-        response,
-      );
-    } catch (error: any) {
-      handlePaymentError(error);
-    } finally {
-      if (loadingToastId) toast.dismiss(loadingToastId);
-    }
   };
 
   return (

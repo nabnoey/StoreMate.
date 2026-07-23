@@ -11,12 +11,13 @@ import { sendRefundThunk } from "../../../redux/payment/paymentReducer";
 
 const reasonOptions = [
   { value: "change_payment_method", label: "เปลี่ยนวิธีการชำระเงิน" },
+  { value: "no_longer_want", label: "ไม่ต้องการสินค้านี้แล้ว" },
   {
     value: "change_shipping_address",
     label: "ต้องการเปลี่ยนที่อยู่ในการจัดส่ง",
   },
-  { value: "edit_order_details", label: "ต้องการแก้ไขรายละเอียดคำสั่งซื้อ" },
-  { value: "no_longer_want", label: "ไม่ต้องการซื้อสินค้านี้แล้ว" },
+  { value: "edit_order_details", label: "สั่งซื้อสินค้าผิด" },
+  { value: "no_longer_want", label: "ไม่ต้องการสินค้านี้แล้ว" },
 ];
 
 const CancelOrderPage = () => {

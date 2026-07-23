@@ -88,7 +88,6 @@ const Order = () => {
 
     try {
       clearPaymentSession();
-
       const response = await dispatch(
         retryPaymentThunk({
           orderNo: order.orderNo,
@@ -96,12 +95,16 @@ const Order = () => {
       ).unwrap();
 
       localStorage.setItem("orderNo", order.orderNo);
+      localStorage.setItem("payment_client_secret", response.clientSecret);
+      localStorage.setItem("payment_total_price", String(orderTotal));
+      localStorage.setItem("payment_expiry_timestamp", response.paymentExpired);
 
       navigate("/payment-qr", {
         state: {
           orderNo: order.orderNo,
           totalPrice: orderTotal,
           clientSecret: response.clientSecret,
+          paymentExpired: response.paymentExpired,
         },
       });
     } catch {
@@ -175,6 +178,13 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
+
+                  const orderTotal = (order?.orderItems || []).reduce(
+                    (sum, item) =>
+                      sum + (item?.price || 0) * (item?.quantity || 0),
+                    0,
+                  );
+
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
                     (order.checkoutType === "PROMPTPAY" ||
@@ -190,7 +200,7 @@ const Order = () => {
 
                   const hasReviewed = reviewedItems.length > 0;
                   const hasUnreviewed = unreviewedItems.length > 0;
-                  
+
                   return (
                     <OrderCard
                       key={order.id}
@@ -205,7 +215,7 @@ const Order = () => {
                                 onClick={(e) => {
                                   handleBuyAgain(e, order);
                                 }}
-                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 shadow-sm"
+                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                               >
                                 ซื้ออีกครั้ง
                               </button>
@@ -231,7 +241,7 @@ const Order = () => {
                                       review.setIsSelectModalOpen(true);
                                     }
                                   }}
-                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] shadow-sm"
+                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                                 >
                                   เขียนรีวิว
                                 </button>
@@ -257,7 +267,7 @@ const Order = () => {
                                       review.setIsSelectModalOpen(true);
                                     }
                                   }}
-                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] shadow-sm"
+                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
                                 >
                                   ดูรีวิว
                                 </button>
@@ -283,7 +293,7 @@ const Order = () => {
                                   type="button"
                                   data-test="btn-retry-payment"
                                   onClick={(e) =>
-                                    handleRetryPayment(e, order, order.total)
+                                    handleRetryPayment(e, order, orderTotal)
                                   }
                                   className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-[#152e7c] shadow-sm"
                                 >
