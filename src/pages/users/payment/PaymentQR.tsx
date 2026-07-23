@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
-import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { useStripe, Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
