@@ -38,8 +38,8 @@ export interface OwnerState {
   loading: boolean;
   error: string | null;
   store: Store | null;
-  dashData: string;
-  salesData: string;
+  dashData: any;
+  salesData: any;
 }
 
 export interface GetUserManagementParams {
