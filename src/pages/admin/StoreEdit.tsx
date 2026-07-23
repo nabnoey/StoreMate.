@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import type { AppDispatch, RootState } from "../../redux/store";
 import type { Store } from "../../types/owner";
 import { FiUpload } from "react-icons/fi";
+import type { DropdownItem } from "../../types/address";
 
 const StoreEditSchema = Yup.object().shape({
   storeName: Yup.string().required("กรุณากรอกชื่อร้านค้า"),
@@ -25,7 +26,7 @@ const StoreEditSchema = Yup.object().shape({
 
 function StoreEdit() {
   const dispatch = useDispatch<AppDispatch>();
-  const { store, loading } = useSelector((state: RootState) => state.owner);
+  const { store } = useSelector((state: RootState) => state.owner);
   const { provinces, districts, subdistricts } = useSelector(
     (state: RootState) => state.address,
   );
@@ -38,10 +39,68 @@ function StoreEdit() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  
+useEffect(() => {
+  if (!store) return;
 
+  const loadZipcode = async () => {
+    // หา provinceId
+    const provinceRes = await dispatch(
+      addressDropdown({
+        provinceId: 0,
+        districtId: 0,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const provinceId = provinceRes.find(
+      (p:DropdownItem) => p.name === store.province
+    )?.id;
+
+    // หา district
+    const districtRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId: 0,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const districtId = districtRes.find(
+      (d:DropdownItem) => d.name === store.district
+    )?.id;
+
+    // หา subdistrict
+    const subdistrictRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const subdistrictId = subdistrictRes.find(
+      (s:DropdownItem) => s.name === store.subdistrict
+    )?.id;
+
+    // โหลด zipcode
+    const zipcodeRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId,
+        subdistrictId,
+      })
+    ).unwrap();
+
+    setZipcodes(zipcodeRes);
+  };
+
+  loadZipcode();
+}, [store]);
   useEffect(() => {
     dispatch(getStore());
   }, [dispatch]);
+  
 
   // ปรับ inputClass ให้ Responsive มากขึ้น และป้องกัน iOS Zoom (text-base บนมือถือ, text-sm บน PC)
   const inputClass =
@@ -72,11 +131,6 @@ function StoreEdit() {
 
       <div className="p-4 sm:p-6 text-[#374151]">
         <div className="bg-[#F8F9FA] rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 max-w-4xl mx-auto">
-          {loading && (
-            <div className="text-center text-gray-500 mb-4 animate-pulse">
-              กำลังโหลดข้อมูลร้านค้า...
-            </div>
-          )}
 
           <Formik
             enableReinitialize={true}
@@ -88,9 +142,9 @@ function StoreEdit() {
               );
 
              const dataToSend: Store = {
-  ...values,
-  zipcode: selectedZip ? String(selectedZip.id) : values.zipcode,
-};
+              ...values,
+              zipcode: selectedZip ? String(selectedZip.id) : values.zipcode,
+              };
               dispatch(updateStore(dataToSend))
                 .unwrap()
                 .then(() => {
@@ -106,7 +160,7 @@ function StoreEdit() {
               values,
               isSubmitting,
               handleBlur,
-              // handleChange,
+              handleChange,
               touched,
               errors,
             }) => {
@@ -407,7 +461,7 @@ function StoreEdit() {
                           name="zipcode"
                           value={values.zipcode}
                           disabled={!zipcodes.length}
-                          // onChange={handleChange}
+                          onChange={handleChange}
                           onBlur={handleBlur}
                           className={`${getSelectClass("zipcode")}  disabled:bg-white disabled:text-gray-800`}
                         >
