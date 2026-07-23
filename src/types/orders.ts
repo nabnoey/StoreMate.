@@ -47,13 +47,13 @@ export interface OrderItem {
 }
 
 export interface OrderRecipient {
-  recipientName?: string;
-  phone?: string;
-  streetAddress?: string;
-  subdistrict?: string;
-  district?: string;
-  province?: string;
-  zipcode?: string;
+  recipientName: string;
+  phone: string;
+  streetAddress: string;
+  subdistrict: string;
+  district: string;
+  province: string;
+  zipcode: string;
 }
 
 export interface Order {
@@ -65,7 +65,7 @@ export interface Order {
 
   orderItems: OrderItem[];
   orderAddress: OrderAddress[]; //ใช้กับorderDetail
-  orderRecipient?: OrderRecipient | null; //ใช้กับorderDetail
+  orderRecipient: OrderRecipient; //ใช้กับorderDetail
 
   total: number;
   createdAt: string;

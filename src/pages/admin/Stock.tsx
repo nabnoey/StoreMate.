@@ -68,12 +68,6 @@ function Stock() {
   }, [currentPage, totalPages]);
 
   const currentItems = products;
-
-  // const handlePageChange = (pageNumber: number) => {
-  //   if (pageNumber >= 1 && pageNumber <= totalPages) {
-  //     setCurrentPage(pageNumber);
-  //   }
-  // };
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };

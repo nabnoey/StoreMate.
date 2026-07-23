@@ -1,6 +1,7 @@
 import React from "react";
 import type { StatusOrderTabsProps } from "../../types/orders";
 import { statusConfig } from "../../utils/order";
+
 const StatusOrderTabs: React.FC<StatusOrderTabsProps> = ({
   activeTab,
   onTabChange,

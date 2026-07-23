@@ -91,10 +91,7 @@ function OrderItemRow({
       </div>
       <div className="text-right ml-4 flex-shrink-0">
         <p className="font-bold text-gray-800 text-sm sm:text-base">
-          ฿ {price?.toLocaleString()}
-        </p>
-        <p className="text-[10px] text-gray-400 font-medium mt-0.5">
-          UNIT PRICE
+          ฿ {price}
         </p>
       </div>
     </div>
@@ -106,28 +103,15 @@ function OrderDetail() {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { orderToPrint } = useSelector(
-    (state: RootState) => state.moderator,
-  );
-  const order =
-    orderToPrint && orderToPrint.length > 0 ? orderToPrint[0] : null;
+  const { orderDetail } = useSelector((state: RootState) => state.moderator);
+  const order = orderDetail && orderDetail.length > 0 ? orderDetail[0] : null;
   const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
-    if (orderNo && orderNo !== "undefined") {
+    if (orderNo && orderNo) {
       dispatch(getOrderByOrderNo(orderNo));
     }
   }, [orderNo, dispatch]);
-
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">กำลังโหลด...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (!order) {
     return (
@@ -167,30 +151,18 @@ function OrderDetail() {
         navigate("/orders-management");
       }, 1500);
     } catch {
-      toast.error("ไม่สามารถอัปเดตสถานะได้ (อาจเกิดจากสิทธิ์ 401)");
+      toast.error("ไม่สามารถเปลี่ยนสถานะคำสั่งซื้อได้");
     }
   };
 
   const currentIndex = STATUS_ORDER.indexOf(order.status);
-
-  const recipientName = order.orderRecipient?.recipientName;
-  const recipientPhone = order.orderRecipient?.phone;
-
   const recipient = order.orderRecipient || {};
-
-  const deliveryAddress = {
-    streetAddress: recipient.streetAddress || "ไม่ระบุที่อยู่สำหรับการจัดส่ง",
-    subdistrict: recipient.subdistrict || "",
-    district: recipient.district || "",
-    province: recipient.province || "",
-    zipcode: recipient.zipcode || "",
-  };
 
   const steps = [
     { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
-    { icon: <FiClipboard />, label: "ที่ต้องจัดส่ง", status: "PROCESSING" },
-    { icon: <FiTruck />, label: "ที่ต้องได้รับ", status: "RECEIVED" },
-    { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
+    { icon: <FiClipboard />, label: "กำลังเตรียมสินค้า", status: "PROCESSING" },
+    { icon: <FiTruck />, label: "จัดส่งแล้ว", status: "RECEIVED" },
+    { icon: <FiCheckCircle />, label: "สำเร็จแล้ว", status: "COMPLETED" },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
@@ -289,12 +261,15 @@ function OrderDetail() {
                           className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8"
                         >
                           {Object.entries(STATUS_LABELS)
-  .filter(([key]) => STATUS_ORDER.indexOf(key) >= currentIndex)
-  .map(([key, label]) => (
-    <option key={key} value={key}>
-      {label}
-    </option>
-  ))}
+                            .filter(
+                              ([key]) =>
+                                STATUS_ORDER.indexOf(key) >= currentIndex,
+                            )
+                            .map(([key, label]) => (
+                              <option key={key} value={key}>
+                                {label}
+                              </option>
+                            ))}
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                           <svg
@@ -340,6 +315,7 @@ function OrderDetail() {
                     name={item.productName || "ไม่ระบุชื่อสินค้า"}
                     quantity={item.quantity}
                     price={item.price}
+                   
                   />
                 ))}
               </div>
@@ -351,7 +327,7 @@ function OrderDetail() {
                   </span>
                   <div className="text-right">
                     <p className="text-lg sm:text-xl text-blue-500 font-bold">
-                      ฿ {order.total?.toLocaleString()}
+                      ฿ {order.total.toLocaleString()}
                     </p>
                     <p className="text-[10px] text-gray-400 font-bold">THB</p>
                   </div>
@@ -427,7 +403,7 @@ function OrderDetail() {
                       <FiUser />
                     </div>
                     <p className="font-bold text-sm text-gray-900 break-words">
-                      {recipientName}
+                      {recipient.recipientName}
                     </p>
                   </div>
                 </div>
@@ -441,7 +417,7 @@ function OrderDetail() {
                       <FiPhone />
                     </div>
                     <p className="font-bold text-sm text-gray-900 break-words">
-                      {recipientPhone}
+                      {recipient.phone}
                     </p>
                   </div>
                 </div>
@@ -455,18 +431,17 @@ function OrderDetail() {
                       <FiMapPin />
                     </div>
                     <div className="font-sans text-sm text-black leading-relaxed break-words">
-                      {deliveryAddress.streetAddress}
-                      {deliveryAddress.subdistrict && (
+                      {recipient.streetAddress}
+                      {recipient.subdistrict && (
                         <>
                           <br />
-                          {deliveryAddress.subdistrict}{" "}
-                          {deliveryAddress.district}
+                          {recipient.subdistrict} {recipient.district}
                         </>
                       )}
-                      {deliveryAddress.province && (
+                      {recipient.province && (
                         <>
                           <br />
-                          {deliveryAddress.province} {deliveryAddress.zipcode}
+                          {recipient.province} {recipient.zipcode}
                         </>
                       )}
                     </div>

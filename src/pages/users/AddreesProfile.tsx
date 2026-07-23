@@ -15,6 +15,7 @@ import {
 import type { Address, DropdownItem } from "../../types/address";
 import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
+import ConfirmToast from "../../components/ConfirmToast";
 
 const AddressProfile = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const AddressProfile = () => {
     const districtName = address.district;
     const subDistrictName = address.subdistrict;
 
-     setFormData((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       streetAddress: streetAddress,
       // เราอาจจะเซ็ตพวกไอดีให้เป็น 0 ไว้ก่อนระหว่างรอโหลด
@@ -67,7 +68,6 @@ const AddressProfile = () => {
       subDistrict: 0,
     }));
 
-    
     // จังหวัด
     const provinceRes: DropdownItem[] = await dispatch(
       addressDropdown({}),
@@ -137,7 +137,7 @@ const AddressProfile = () => {
   const openEditModal = async (address: Address) => {
     setIsEditMode(true);
     setTargetAddressId(String(address.id));
-     await fillAddressData(address);
+    await fillAddressData(address);
     setIsModalOpen(true);
   };
 
@@ -282,55 +282,42 @@ const AddressProfile = () => {
   };
 
   //ลบที่อยู่
-  const handleDeleteAddress = (addressId: number) => {
+  const handleDeleteAddress = async (addressId: number) => {
     if (addresses.length === 1) {
       toast.error(
-        "ไม่สามารถลบได้ เนื่องจากต้องมีที่อยู่เริ่มต้นอย่างน้อย 1 รายการ"
-       
+        "ไม่สามารถลบได้ เนื่องจากต้องมีที่อยู่เริ่มต้นอย่างน้อย 1 รายการ",
       );
       return;
     }
 
-    setIsBlocking(true);
+    const confirmed = await confirmAction("คุณต้องการลบที่อยู่นี้ใช่หรือไม่?");
 
-    const confirmDelete = async (toastId: string) => {
-      toast.dismiss(toastId);
-      await dispatch(deleteAddress(addressId));
+    if (!confirmed) return;
 
-      toast.success("ลบที่อยู่สำเร็จ");
+    await dispatch(deleteAddress(addressId));
 
-      setIsBlocking(false);
-    };
+    toast.success("ลบที่อยู่สำเร็จ");
+  };
 
-    const cancelDelete = (toastId: string) => {
-      toast.dismiss(toastId);
-      setIsBlocking(false);
-    };
+  const confirmAction = (message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setIsBlocking(true);
 
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-3 items-center p-3">
-          <span className="text-gray-800 font-medium text-base">
-            คุณต้องการลบที่อยู่นี้ใช่หรือไม่?
-          </span>
-          <div className="flex gap-3 mt-2">
-            <button
-              onClick={() => confirmDelete(t.id)}
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              ยืนยัน
-            </button>
-            <button
-              onClick={() => cancelDelete(t.id)}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              ยกเลิก
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: Infinity, position: "top-center" },
-    );
+      toast(
+        (t) => (
+          <ConfirmToast
+            t={t}
+            message={message}
+            onResolve={resolve}
+            setIsBlocking={setIsBlocking}
+          />
+        ),
+        {
+          duration: Infinity,
+          position: "top-center",
+        },
+      );
+    });
   };
   return (
     <div className="min-h-screen bg-gray-50 md:bg-white font-anuphan text-gray-950 pt-0 md:pt-10 pb-24 md:pb-10">
@@ -429,13 +416,19 @@ const AddressProfile = () => {
                     {/* แถวที่ 1: ข้อมูลผู้รับ & ปุ่มควบคุมหลัก */}
                     <div className="flex justify-between items-center w-full">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-base">
-                        <span className="font-bold text-gray-900">
+                        <span
+                          className="font-bold text-gray-900"
+                          data-test="receiver-name"
+                        >
                           {address.receiverName}
                         </span>
                         <span className="text-gray-300 hidden sm:inline">
                           |
                         </span>
-                        <span className="text-gray-500 font-medium">
+                        <span
+                          className="text-gray-500 font-medium"
+                          data-test="receiver-phone"
+                        >
                           {address.receiverPhone}
                         </span>
                       </div>
@@ -459,7 +452,10 @@ const AddressProfile = () => {
                     </div>
 
                     {/* แถวที่ 2: รายละเอียดที่อยู่ตัวเต็ม */}
-                    <div className="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                    <div
+                      className="text-sm text-gray-600 leading-relaxed max-w-3xl"
+                      data-test="address-detail"
+                    >
                       {address.streetAddress} ต.{address.subdistrict} อ.
                       {address.district} จ.{address.province} {address.zipcode}
                     </div>
@@ -472,7 +468,10 @@ const AddressProfile = () => {
                             ค่าเริ่มต้น
                           </span>
                         )}
-                        <span className="px-2 py-0.5 text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded">
+                        <span
+                          className="px-2 py-0.5 text-[11px] font-medium bg-gray-50 text-gray-500 border border-gray-200 rounded"
+                          data-test="receiver-address"
+                        >
                           ที่อยู่ในการรับสินค้า
                         </span>
                       </div>
