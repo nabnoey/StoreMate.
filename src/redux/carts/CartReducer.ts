@@ -6,18 +6,15 @@ import {
 import type { CartItem, CartItemRequestDTO } from "../../types/cartItem";
 import { CartItemService } from "../../services/cartitem.service";
 
-export interface CartState {
+type CartState = {
   items: CartItem[];
   selectedItems: CartItem[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  // error: string | null;
+
 }
 
 const initialState: CartState = {
   items: [],
   selectedItems: [],
-  status: "idle",
-  // error: null,
 };
 
 export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
@@ -28,19 +25,11 @@ export const fetchCartThunk = createAsyncThunk("cart/fetchCart", async () => {
 export const addToCartThunk = createAsyncThunk(
   "cart/addToCart",
   async (itemData: CartItemRequestDTO, { dispatch }) => {
-    // try {
       const response = await CartItemService.addToCart(itemData);
       dispatch(fetchCartThunk());
       return response;
-    // } catch (error: any) {
-    //   const errorMessage =
-    //     error.response?.data?.message ||
-    //     error.response?.data ||
-    //     error.message ||
-    //     "เกิดข้อผิดพลาดในการเพิ่มสินค้า";
-    //   return rejectWithValue({ message: errorMessage });
     }
-  // },
+,
 );
 
 export const incrementCartItemThunk = createAsyncThunk(
@@ -49,33 +38,15 @@ export const incrementCartItemThunk = createAsyncThunk(
     
       const response = await CartItemService.incrementCartItem(productId);
       return response;
-    // } catch (error: any) {
-    //   const errorMessage =
-    //     error.response?.data?.message ||
-    //     error.response?.data ||
-    //     error.message ||
-    //     "เกิดข้อผิดพลาดในการเพิ่มจำนวนสินค้า";
-
-    //   return rejectWithValue({ message: errorMessage });
-    // }
   },
 );
 
 export const decrementCartItemThunk = createAsyncThunk(
   "cart/decrementCartItem",
   async (productId: number) => {
-    // try {
+
       const response = await CartItemService.decrementCartItem(productId);
       return response;
-    // } catch (error: any) {
-    //   const errorMessage =
-    //     error.response?.data?.message ||
-    //     error.response?.data ||
-    //     error.message ||
-    //     "เกิดข้อผิดพลาดในการลดจำนวนสินค้า";
-
-    //   return rejectWithValue({ message: errorMessage });
-    // }
   },
 );
 
@@ -93,11 +64,11 @@ const cartSlice = createSlice({
   reducers: {
     removeFromCart: (state, action: PayloadAction<number | string>) => {
       state.items = state.items.filter(
-        (item) => String(item.productId) !== String(action.payload),
+        (item) => (item.productId) !== (action.payload),
       );
 
       state.selectedItems = state.selectedItems.filter(
-        (item) => String(item.productId) !== String(action.payload),
+        (item) => (item.productId) !== (action.payload),
       );
     },
 
@@ -108,14 +79,10 @@ const cartSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(addToCartThunk.pending, (state) => {
-        state.status = "loading";
-      })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
         const requestData = action.meta.arg;
         const existingItem = state.items.find(
-          (i) => String(i.productId) === String(requestData.productId),
+          (i) => (i.productId) === (requestData.productId),
         );
 
         if (existingItem) {
@@ -127,17 +94,12 @@ const cartSlice = createSlice({
           state.items.push(action.payload);
         }
       })
-      .addCase(addToCartThunk.rejected, (state) => {
-        state.status = "failed";
-
-        // const payload = action.payload as { message?: string } | undefined;
-        // state.error = payload?.message || "เกิดข้อผิดพลาด";
-      })
+  
       .addCase(incrementCartItemThunk.fulfilled, (state, action) => {
         const productId = action.meta.arg;
 
         const item = state.items.find(
-          (i) => String(i.productId) === String(productId),
+          (i) => (i.productId) === (productId),
         );
         if (item) {
           item.quantity += 1;
@@ -148,7 +110,7 @@ const cartSlice = createSlice({
         const productId = action.meta.arg;
 
         const item = state.items.find(
-          (i) => String(i.productId) === String(productId),
+          (i) => (i.productId) === (productId),
         );
         if (item) {
           item.quantity -= 1;
@@ -165,17 +127,10 @@ const cartSlice = createSlice({
           (item) => item.productId !== productId,
         );
       })
-      .addCase(fetchCartThunk.pending, (state) => {
-        state.status = "loading";
-      })
+ 
       .addCase(fetchCartThunk.fulfilled, (state, action) => {
-        state.status = "succeeded";
         state.items = action.payload;
       })
-      .addCase(fetchCartThunk.rejected, (state) => {
-        state.status = "failed";
-       
-      });
   },
 });
 

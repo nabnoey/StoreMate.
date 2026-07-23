@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import type { AppDispatch, RootState } from "../../redux/store";
 import type { Store } from "../../types/owner";
 import { FiUpload } from "react-icons/fi";
+import type { DropdownItem } from "../../types/address";
 
 const StoreEditSchema = Yup.object().shape({
   storeName: Yup.string().required("กรุณากรอกชื่อร้านค้า"),
@@ -25,28 +26,7 @@ const StoreEditSchema = Yup.object().shape({
 
 function StoreEdit() {
   const dispatch = useDispatch<AppDispatch>();
-  const { store, loading } = useSelector((state: RootState) => state.owner);
-
-  const parseDropdownResponse = (response: any) => {
-    if (Array.isArray(response)) return response;
-    return response?.data || [];
-  };
-
-  const fetchAddressDropdown = async (
-    provinceId = 0,
-    districtId = 0,
-    subdistrictId = 0,
-  ) => {
-    const resRaw = await dispatch(
-      addressDropdown({
-        provinceId,
-        districtId,
-        subdistrictId,
-      }),
-    ).unwrap();
-
-    return parseDropdownResponse(resRaw);
-  };
+  const { store } = useSelector((state: RootState) => state.owner);
   const { provinces, districts, subdistricts } = useSelector(
     (state: RootState) => state.address,
   );
@@ -59,60 +39,68 @@ function StoreEdit() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  
+useEffect(() => {
+  if (!store) return;
 
+  const loadZipcode = async () => {
+    // หา provinceId
+    const provinceRes = await dispatch(
+      addressDropdown({
+        provinceId: 0,
+        districtId: 0,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const provinceId = provinceRes.find(
+      (p:DropdownItem) => p.name === store.province
+    )?.id;
+
+    // หา district
+    const districtRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId: 0,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const districtId = districtRes.find(
+      (d:DropdownItem) => d.name === store.district
+    )?.id;
+
+    // หา subdistrict
+    const subdistrictRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId,
+        subdistrictId: 0,
+      })
+    ).unwrap();
+
+    const subdistrictId = subdistrictRes.find(
+      (s:DropdownItem) => s.name === store.subdistrict
+    )?.id;
+
+    // โหลด zipcode
+    const zipcodeRes = await dispatch(
+      addressDropdown({
+        provinceId,
+        districtId,
+        subdistrictId,
+      })
+    ).unwrap();
+
+    setZipcodes(zipcodeRes);
+  };
+
+  loadZipcode();
+}, [store]);
   useEffect(() => {
     dispatch(getStore());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (!store) return;
-
-    const initAddress = async () => {
-      // จังหวัด
-      const provinceRes = await fetchAddressDropdown();
-
-      const provinceId =
-        provinceRes.find(
-          (p: { id: number; name: string }) =>
-            p.name.trim() === store.province.trim(),
-        )?.id || 0;
-
-      // อำเภอ
-      const districtRes = await fetchAddressDropdown(provinceId);
-
-      const districtId =
-        districtRes.find(
-          (d: { id: number; name: string }) =>
-            d.name.trim() === store.district.trim(),
-        )?.id || 0;
-
-      // ตำบล
-      const subRes = await fetchAddressDropdown(provinceId, districtId);
-
-      const subdistrictId =
-        subRes.find(
-          (s: { id: number; name: string }) =>
-            s.name.trim() === store.subdistrict.trim(),
-        )?.id || 0;
-
-      // zipcode
-      const zipRes = await fetchAddressDropdown(
-        provinceId,
-        districtId,
-        subdistrictId,
-      );
-
-      setZipcodes(zipRes);
-
-      setSelectedAddressIds({
-        provinceId,
-        districtId,
-        subdistrictId,
-      });
-    };
-
-    initAddress();
-  }, [store]);
+  
 
   // ปรับ inputClass ให้ Responsive มากขึ้น และป้องกัน iOS Zoom (text-base บนมือถือ, text-sm บน PC)
   const inputClass =
@@ -143,11 +131,6 @@ function StoreEdit() {
 
       <div className="p-4 sm:p-6 text-[#374151]">
         <div className="bg-[#F8F9FA] rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 max-w-4xl mx-auto">
-          {loading && (
-            <div className="text-center text-gray-500 mb-4 animate-pulse">
-              กำลังโหลดข้อมูลร้านค้า...
-            </div>
-          )}
 
           <Formik
             enableReinitialize={true}
@@ -158,12 +141,10 @@ function StoreEdit() {
                 (z) => z.name === values.zipcode,
               );
 
-              const dataToSend: Store = {
-                ...values,
-                zipcode: selectedZip ? String(selectedZip.id) : values.zipcode,
-                imageFile: values.promotionImage,
+             const dataToSend: Store = {
+              ...values,
+              zipcode: selectedZip ? String(selectedZip.id) : values.zipcode,
               };
-
               dispatch(updateStore(dataToSend))
                 .unwrap()
                 .then(() => {
@@ -230,7 +211,9 @@ function StoreEdit() {
                           />
                         </div>
                         <div>
-                          <label className={labelClass}>เบอร์โทรศัพท์ร้านค้า</label>
+                          <label className={labelClass}>
+                            เบอร์โทรศัพท์ร้านค้า
+                          </label>
                           <Field
                             type="text"
                             data-test="store-phone-input"
@@ -278,6 +261,17 @@ function StoreEdit() {
                         <select
                           name="province"
                           data-test="province-select"
+                          onFocus={() => {
+                            if (provinces.length === 0) {
+                              dispatch(
+                                addressDropdown({
+                                  provinceId: 0,
+                                  districtId: 0,
+                                  subdistrictId: 0,
+                                }),
+                              );
+                            }
+                          }}
                           value={values.province}
                           onChange={async (e) => {
                             const selectedName = e.target.value;
@@ -313,6 +307,14 @@ function StoreEdit() {
                           <option value="" hidden>
                             กรุณาเลือกจังหวัด
                           </option>
+
+                          {/* เพิ่มบรรทัดนี้ลงไป เพื่อแสดงค่าปัจจุบัน */}
+                          {provinces.length === 0 && store?.province && (
+                            <option value={store.province}>
+                              {store.province}
+                            </option>
+                          )}
+
                           {provinces.map((p: { id: number; name: string }) => (
                             <option key={p.id} value={p.name}>
                               {p.name}
@@ -363,11 +365,16 @@ function StoreEdit() {
                             }
                           }}
                           onBlur={handleBlur}
-                          className={`${getSelectClass("district")} disabled:bg-gray-100 disabled:text-gray-400`}
+                          className={`${getSelectClass("district")} disabled:bg-white disabled:text-gray-800`}
                         >
                           <option value="" hidden>
                             กรุณาเลือกอำเภอ
                           </option>
+                          {districts.length === 0 && store?.district && (
+                            <option value={store.district}>
+                              {store.district}
+                            </option>
+                          )}
                           {districts.map((d: { id: number; name: string }) => (
                             <option key={d.id} value={d.name}>
                               {d.name}
@@ -423,11 +430,16 @@ function StoreEdit() {
                             }
                           }}
                           onBlur={handleBlur}
-                          className={`${getSelectClass("subdistrict")} disabled:bg-gray-100 disabled:text-gray-400`}
+                          className={`${getSelectClass("subdistrict")}  disabled:bg-white disabled:text-gray-800`}
                         >
                           <option value="" hidden>
                             กรุณาเลือกตำบล
                           </option>
+                          {subdistricts.length === 0 && store?.subdistrict && (
+                            <option value={store.subdistrict}>
+                              {store.subdistrict}
+                            </option>
+                          )}
                           {subdistricts.map(
                             (s: { id: number; name: string }) => (
                               <option key={s.id} value={s.name}>
@@ -451,11 +463,17 @@ function StoreEdit() {
                           disabled={!zipcodes.length}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          className={`${getSelectClass("zipcode")} disabled:bg-gray-100 disabled:text-gray-400`}
+                          className={`${getSelectClass("zipcode")}  disabled:bg-white disabled:text-gray-800`}
                         >
                           <option value="" hidden>
                             กรุณาเลือกรหัสไปรษณีย์
                           </option>
+
+                          {zipcodes.length === 0 && store?.zipcode && (
+                            <option value={store.zipcode}>
+                              {store.zipcode}
+                            </option>
+                          )}
                           {zipcodes.map((z: { id: number; name: string }) => {
                             return (
                               <option key={z.id} value={z.name}>
@@ -561,7 +579,7 @@ function StoreEdit() {
                       disabled={isSubmitting}
                       className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-[#003399] hover:bg-blue-800 text-white rounded-lg font-medium transition-colors disabled:bg-gray-400 shadow-sm order-1 sm:order-2 cursor-pointer"
                     >
-                     {"บันทึกการตั้งค่า"}
+                      {"บันทึกการตั้งค่า"}
                     </button>
                   </div>
                 </Form>

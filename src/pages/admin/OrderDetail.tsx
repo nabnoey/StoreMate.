@@ -160,9 +160,9 @@ function OrderDetail() {
 
   const steps = [
     { icon: <FiClock />, label: "รอดำเนินการ", status: "PENDING" },
-    { icon: <FiClipboard />, label: "ที่ต้องจัดส่ง", status: "PROCESSING" },
-    { icon: <FiTruck />, label: "ที่ต้องได้รับ", status: "RECEIVED" },
-    { icon: <FiCheckCircle />, label: "คำสั่งซื้อสำเร็จ", status: "COMPLETED" },
+    { icon: <FiClipboard />, label: "กำลังเตรียมสินค้า", status: "PROCESSING" },
+    { icon: <FiTruck />, label: "จัดส่งแล้ว", status: "RECEIVED" },
+    { icon: <FiCheckCircle />, label: "สำเร็จแล้ว", status: "COMPLETED" },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.status === order.status);
