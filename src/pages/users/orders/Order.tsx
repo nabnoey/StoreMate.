@@ -35,8 +35,6 @@ const Order = () => {
     onRefresh: () => dispatch(fetchOrders(status)),
   });
 
-  
-
   useEffect(() => {
     dispatch(fetchOrders(status));
   }, [dispatch, status]);
@@ -106,7 +104,6 @@ const Order = () => {
     try {
       // ล้าง Session เก่าก่อน
       clearPaymentSession();
-
       const response = await dispatch(
         retryPaymentThunk({
           orderNo: order.orderNo,
@@ -114,12 +111,16 @@ const Order = () => {
       ).unwrap();
 
       localStorage.setItem("orderNo", order.orderNo);
+      localStorage.setItem("payment_client_secret", response.clientSecret);
+      localStorage.setItem("payment_total_price", String(orderTotal));
+      localStorage.setItem("payment_expiry_timestamp", response.paymentExpired);
 
       navigate("/payment-qr", {
         state: {
           orderNo: order.orderNo,
           totalPrice: orderTotal,
           clientSecret: response.clientSecret,
+          paymentExpired: response.paymentExpired,
         },
       });
     } catch {
@@ -194,7 +195,6 @@ const Order = () => {
                     0,
                   );
 
-
                   const isRefundRequested =
                     order.status === "PROCESSING" &&
                     (order.checkoutType === "PROMPTPAY" ||
@@ -210,7 +210,7 @@ const Order = () => {
 
                   const hasReviewed = reviewedItems.length > 0;
                   const hasUnreviewed = unreviewedItems.length > 0;
-                  
+
                   return (
                     <OrderCard
                       key={order.id}
@@ -218,123 +218,121 @@ const Order = () => {
                       orderTotal={orderTotal}
                       actionButtons={
                         <>
-
-
-                        {order.status === "COMPLETED" ? (
-                          <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">
-                            <button
-                              type="button"
-                              data-test="btn-retry-orders"
-                              onClick={(e) => {
-                                handleBuyAgain(e, order);
-                              }}
-                              className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
-                            >
-                              ซื้ออีกครั้ง
-                            </button>
-
-                            {hasUnreviewed && (
+                          {order.status === "COMPLETED" ? (
+                            <div className="mt-3 flex flex-wrap gap-3 sm:justify-end sm:items-center w-full">
                               <button
-                                data-test="btn-add-review"
                                 type="button"
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-
-                                  if (unreviewedItems.length === 1) {
-                                    await review.launchReviewModalForItem(
-                                      order,
-                                      unreviewedItems[0],
-                                    );
-                                  } else {
-                                    review.setOrderForReview(order);
-                                    review.setSelectModalMode("WRITE");
-                                    review.setLocalSelectedItemId(
-                                      unreviewedItems[0]?.id || null,
-                                    );
-                                    review.setIsSelectModalOpen(true);
-                                  }
+                                data-test="btn-retry-orders"
+                                onClick={(e) => {
+                                  handleBuyAgain(e, order);
                                 }}
-                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#3B82F6] text-[#FCFCFC] font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-blue-600 cursor-pointer shadow-sm"
                               >
-                                เขียนรีวิว
+                                ซื้ออีกครั้ง
                               </button>
-                            )}
 
-                            {hasReviewed && (
+                              {hasUnreviewed && (
+                                <button
+                                  data-test="btn-add-review"
+                                  type="button"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+
+                                    if (unreviewedItems.length === 1) {
+                                      await review.launchReviewModalForItem(
+                                        order,
+                                        unreviewedItems[0],
+                                      );
+                                    } else {
+                                      review.setOrderForReview(order);
+                                      review.setSelectModalMode("WRITE");
+                                      review.setLocalSelectedItemId(
+                                        unreviewedItems[0]?.id || null,
+                                      );
+                                      review.setIsSelectModalOpen(true);
+                                    }
+                                  }}
+                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                >
+                                  เขียนรีวิว
+                                </button>
+                              )}
+
+                              {hasReviewed && (
+                                <button
+                                  data-test="btn-see-review"
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (reviewedItems.length === 1) {
+                                      review.handleOpenViewReview(
+                                        order,
+                                        reviewedItems[0],
+                                      );
+                                    } else {
+                                      review.setOrderForReview(order);
+                                      review.setSelectModalMode("VIEW");
+                                      review.setLocalSelectedItemId(
+                                        reviewedItems[0]?.id || null,
+                                      );
+                                      review.setIsSelectModalOpen(true);
+                                    }
+                                  }}
+                                  className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                >
+                                  ดูรีวิว
+                                </button>
+                              )}
+                            </div>
+                          ) : order.status === "CANCELLED" ||
+                            order.status === "REFUNDED" ||
+                            isRefundRequested ? (
+                            <div className="mt-3 flex flex-col items-start w-full px-1">
+                              <p className="text-gray-600 text-[14px] sm:text-[16px]">
+                                <span className="font-medium text-black">
+                                  เหตุผล :
+                                </span>
+                                {order.reason || "ไม่ได้ระบุเหตุผล"}
+                              </p>
+                            </div>
+                          ) : order.status === "PENDING" ||
+                            (order.status === "PROCESSING" &&
+                              !isRefundRequested) ? (
+                            <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
+                              {order.status === "PENDING" && (
+                                <button
+                                  type="button"
+                                  data-test="btn-retry-payment"
+                                  onClick={(e) =>
+                                    handleRetryPayment(e, order, orderTotal)
+                                  }
+                                  className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-[#152e7c] shadow-sm"
+                                >
+                                  ชำระเงิน
+                                </button>
+                              )}
                               <button
-                                data-test="btn-see-review"
+                                data-test="btn-cancel-order"
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (reviewedItems.length === 1) {
-                                    review.handleOpenViewReview(
-                                      order,
-                                      reviewedItems[0],
-                                    );
-                                  } else {
-                                    review.setOrderForReview(order);
-                                    review.setSelectModalMode("VIEW");
-                                    review.setLocalSelectedItemId(
-                                      reviewedItems[0]?.id || null,
-                                    );
-                                    review.setIsSelectModalOpen(true);
-                                  }
+                                  navigate(`/cancel-orders/${order.orderNo}`, {
+                                    state: {
+                                      status: order.status,
+                                      paymentMethod: order.checkoutType,
+                                    },
+                                  });
                                 }}
-                                className="cursor-pointer flex-1 sm:flex-initial sm:w-[170px] h-[44px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] flex justify-center items-center transition hover:bg-[#152e7c] cursor-pointer shadow-sm"
+                                className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-blue-600 shadow-sm"
                               >
-                                ดูรีวิว
-                              </button>
-                            )}
-                          </div>
-                        ) : order.status === "CANCELLED" ||
-                          order.status === "REFUNDED" ||
-                          isRefundRequested ? (
-                          <div className="mt-3 flex flex-col items-start w-full px-1">
-                            <p className="text-gray-600 text-[14px] sm:text-[16px]">
-                              <span className="font-medium text-black">
-                                เหตุผล :
-                              </span>
-                              {order.reason || "ไม่ได้ระบุเหตุผล"}
-                            </p>
-                          </div>
-                        ) : order.status === "PENDING" ||
-                          (order.status === "PROCESSING" &&
-                            !isRefundRequested) ? (
-                          <div className="mt-3 grid grid-cols-2 gap-3 sm:flex sm:justify-end sm:items-center w-full">
-                            {order.status === "PENDING" && (
-                              <button
-                                type="button"
-                                data-test="btn-retry-payment"
-                                onClick={(e) =>
-                                  handleRetryPayment(e, order, orderTotal)
-                                }
-                                className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#1E40AF] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-[#152e7c] shadow-sm"
-                              >
-                                ชำระเงิน
-                              </button>
-                            )}
-                            <button
-                              data-test="btn-cancel-order"
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/cancel-orders/${order.orderNo}`, {
-                                  state: {
-                                    status: order.status,
-                                    paymentMethod: order.checkoutType,
-                                  },
-                                });
-                              }}
-                              className="cursor-pointer w-full h-[44px] sm:w-[170px] rounded-lg bg-[#3B82F6] text-white font-medium text-[14px] sm:text-[16px] transition hover:bg-blue-600 shadow-sm"
-                            >
-                              {order.status === "PENDING"
-                                ? "ยกเลิกคำสั่งซื้อ"
-                                : order.checkoutType === "DESTINATION"
+                                {order.status === "PENDING"
                                   ? "ยกเลิกคำสั่งซื้อ"
-                                  : "ขอคืนเงิน"}
-                            </button>
-                          </div>
-                        ) : null}
+                                  : order.checkoutType === "DESTINATION"
+                                    ? "ยกเลิกคำสั่งซื้อ"
+                                    : "ขอคืนเงิน"}
+                              </button>
+                            </div>
+                          ) : null}
                         </>
                       }
                     />

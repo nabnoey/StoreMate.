@@ -29,3 +29,10 @@ export interface ReOrderPayment {
   orderNo: Order["orderNo"];
   checkoutType: PaymentMethod;
 }
+
+export interface PaymentIntentResponse {
+  paymentIntentId: string;
+  paymentExpired: string;
+  orderNo: string;
+  clientSecret: string;
+}

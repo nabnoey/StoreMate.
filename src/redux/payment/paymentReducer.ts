@@ -130,7 +130,7 @@ const paymentSlice = createSlice({
 
       .addCase(paymentNowThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.orderId = action.payload.orderId;
+        state.orderId = action.payload.orderNo;
       })
 
       .addCase(paymentNowThunk.rejected, (state, action) => {

@@ -75,13 +75,13 @@ const useNotificationSocket = () => {
 
         // เช็กทั้งคำว่า CUSTOMER และ USER เพื่อผิด
         if (userRoles.includes("CUSTOMER") || userRoles.includes("USER")) {
-          console.log("[STOMP] Subscribing to /topic/customer");
+          // console.log("[STOMP] Subscribing to /topic/customer");
           client.subscribe("/topic/customer", handleIncomingNotification);
         } else if (userRoles.includes("MODERATOR")) {
-          console.log("[STOMP] Subscribing to /topic/moderator");
+          // console.log("[STOMP] Subscribing to /topic/moderator");
           client.subscribe("/topic/moderator", handleIncomingNotification);
         } else if (userRoles.includes("OWNER") || userRoles.includes("ADMIN")) {
-          console.log("[STOMP] Subscribing to /topic/owner");
+          // console.log("[STOMP] Subscribing to /topic/owner");
           client.subscribe("/topic/owner", handleIncomingNotification);
         }
       },
