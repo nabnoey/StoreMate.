@@ -11,59 +11,15 @@ import {
 } from "../../../redux/carts/CartReducer";
 
 import { Icon } from "@iconify/react";
-import { type Toast, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
+import ConfirmToast from "../../../components/ConfirmToast";
 
-interface ConfirmToastProps {
-  t: Toast;
-  message: string;
-  onResolve: (value: boolean) => void; // "ส่งคำตอบกลับ" หลังจากผู้ใช้กดปุ่ม "ยืนยัน" หรือ "ยกเลิก"
-  setIsBlocking: (value: boolean) => void; // เปิด/ปิดพื้นหลังสีดำ (Overlay)
-}
-
-const ConfirmToastUI = ({
-  t,
-  message,
-  onResolve,
-  setIsBlocking,
-}: ConfirmToastProps) => {
-  const handleConfirm = () => {
-    toast.dismiss(t.id);
-    setIsBlocking(false);
-    onResolve(true);
-  };
-
-  const handleCancel = () => {
-    toast.dismiss(t.id);
-    setIsBlocking(false);
-    onResolve(false);
-  };
-
-  return (
-    <div className="flex flex-col gap-3 items-center p-2">
-      <span className="text-gray-800 font-medium text-base">{message}</span>
-      <div className="flex gap-3 mt-2">
-        <button
-          onClick={handleConfirm}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-        >
-          ยืนยัน
-        </button>
-        <button
-          onClick={handleCancel}
-          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-        >
-          ยกเลิก
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { items: cartItems = [], status: cartStatus } = useSelector(
+  const { items: cartItems = []} = useSelector(
     (state: RootState) => state.carts,
   );
 
@@ -73,6 +29,8 @@ const ShoppingCart = () => {
   useEffect(() => {
     dispatch(fetchCartThunk());
   }, [dispatch]);
+
+
 
   // เอาไว้กรองสินค้าที่มีสถานะ พร้อมจำหน่าย
 const availableItems = useMemo(
@@ -88,6 +46,7 @@ const availableItems = useMemo(
     );
   }, [availableItems.length, selectedItems.length]);
 
+  //รายการสินค้าในรถเข็นที่ผู้ใช้เลือกไว้
 const selectedCartItems = useMemo(() => {
   return cartItems.filter((item) =>
     selectedItems.includes(item.productId)
@@ -106,22 +65,24 @@ const selectedCartItems = useMemo(() => {
       setIsBlocking(true);
       toast(
         (t) => (
-          <ConfirmToastUI
-            t={t}
-            message={message}
-            onResolve={resolve}
-            setIsBlocking={setIsBlocking}
-          />
+         <ConfirmToast
+          t={t}
+          message={message}
+          onResolve={resolve}
+          setIsBlocking={setIsBlocking}
+        />
         ),
         { duration: Infinity, position: "top-center" },
       );
     });
   }, []);
 
+
+  //เลือกสินค้า
   const toggleSelect = (productId: number) => {
     setSelectedItems((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
+      prev.includes(productId) 
+        ? prev.filter((id) => id !== productId) 
         : [...prev, productId],
     );
   };
@@ -196,13 +157,7 @@ const selectedCartItems = useMemo(() => {
     dispatch(decrementCartItemThunk(productId));
   };
 
-  if (cartStatus === "loading") {
-    // return (
-    //   <div className="min-h-screen flex items-center justify-center">
-    //     <Loading />
-    //   </div>
-    // );
-  }
+
 
   return (
     <div className="min-h-screen bg-white py-6 sm:py-12 px-4 font-anuphan">

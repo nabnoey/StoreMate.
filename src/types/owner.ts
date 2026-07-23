@@ -26,7 +26,7 @@ export interface Store {
   zipcode: string;
   email: string;
   promotionImage: string;
-  imageFile: string | File
+  // imageFile: string | File
 }
 
 export interface OwnerState {
@@ -38,8 +38,8 @@ export interface OwnerState {
   loading: boolean;
   error: string | null;
   store: Store | null;
-  dashData: any;
-  salesData: any;
+  dashData: string;
+  salesData: string;
 }
 
 export interface GetUserManagementParams {
