@@ -80,7 +80,7 @@ export interface OrdersState {
 
 export interface StatusOrderTabsProps {
   activeTab: string;
-  onTabChange: (tabName: string) => void;
+   onTabChange: (tabName: OrderStatus) => void;
 }
 
 export interface RefundRequest {

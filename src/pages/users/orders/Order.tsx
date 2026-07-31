@@ -51,7 +51,7 @@ const Order = () => {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }, [orders, status]);
 
-  const handleTabChange = (nextStatus: string) => {
+  const handleTabChange = (nextStatus: OrderStatus) => {
     if (nextStatus !== status) {
       setSearchParams({ status: nextStatus });
     }

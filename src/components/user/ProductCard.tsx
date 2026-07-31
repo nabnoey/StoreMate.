@@ -7,7 +7,7 @@ type Props = { product: Product };
 
 function ProductCard({ product }: Readonly<Props>) {
 const isOutOfStock =
-  product.productStatus !== "ACTIVE" 
+  product.productStatus === "INACTIVE" 
 
   return (
     
