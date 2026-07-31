@@ -19,9 +19,9 @@ const ShoppingCart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { items: cartItems = []} = useSelector(
-    (state: RootState) => state.carts,
-  );
+  const cartItems = useSelector(
+  (state: RootState) => state.carts.items,
+);
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [isBlocking, setIsBlocking] = useState(false);
@@ -46,7 +46,7 @@ const availableItems = useMemo(
     );
   }, [availableItems.length, selectedItems.length]);
 
-  //รายการสินค้าในรถเข็นที่ผู้ใช้เลือกไว้
+ //สินค้าในรถเข็นที่ผู้ใช้เลือกไว้ 
 const selectedCartItems = useMemo(() => {
   return cartItems.filter((item) =>
     selectedItems.includes(item.productId)
@@ -59,6 +59,7 @@ const selectedCartItems = useMemo(() => {
       0,
     );
   }, [selectedCartItems]);
+
 
   const confirmAction = useCallback((message: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -87,6 +88,7 @@ const selectedCartItems = useMemo(() => {
     );
   };
 
+  //เลือกสินค้าทั้งหมด หรือ ยกเลิกการเลือกทั้งหมด
   const toggleSelectAll = () => {
     setSelectedItems(
       isAllSelected ? [] : availableItems.map((item) => item.productId),
@@ -122,23 +124,25 @@ const selectedCartItems = useMemo(() => {
     toast.success("ลบสินค้าสำเร็จ");
   };
 
+
   const handleIncreaseQuantity = (
     productId: number,
-    currentQuantity: number,
+    quantity: number,
     stockQuantity: number,
   ) => {
-    if (currentQuantity >= stockQuantity) {
+    if (quantity >= stockQuantity) {
       toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้");
       return;
     }
     dispatch(incrementCartItemThunk(productId));
   };
 
+  //ทำไมถึงไม่ใช้ parameter เหมือน Increment
   const handleDecreaseQuantity = async (
     productId: number,
-    currentQuantity: number,
+    quantity: number,
   ) => {
-    if (currentQuantity === 1) {
+    if (quantity === 1) {
       const isConfirmed = await confirmAction(
         "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
       );
