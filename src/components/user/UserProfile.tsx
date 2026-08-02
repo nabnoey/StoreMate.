@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
@@ -7,6 +8,7 @@ import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 //เพิ่มเพื่อลอง
 import { fetchOrders } from "../../redux/orders/orderReducer";
+import ConfirmToast from "../ConfirmToast";
 
 interface UserProfileProps {
   variant?: "desktop" | "mobile";
@@ -26,11 +28,11 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   //เพิ่มเพื่อลอง
   const { orders, loading } = useSelector((state: RootState) => state.orders);
 
-
   const isAdmin = roles.includes("ADMIN");
   const isModerator = roles.includes("MODERATOR");
 
   const canAccessBackoffice = isAdmin || isModerator;
+  const [isBlocking, setIsBlocking] = useState(false);
 
   const handleAdminNavigation = () => {
     closeMenu();
@@ -61,6 +63,23 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
     closeMenu();
     navigate(path);
   };
+
+  const confirmAction = useCallback((message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setIsBlocking(true);
+      toast(
+        (t) => (
+          <ConfirmToast
+            t={t}
+            message={message}
+            onResolve={resolve}
+            setIsBlocking={setIsBlocking}
+          />
+        ),
+        { duration: Infinity, position: "top-center" },
+      );
+    });
+  }, []);
 
   const handleLogout = () => {
     closeMenu();
@@ -231,13 +250,13 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-orders"
               type="button"
-               onMouseEnter={() => {
+              onMouseEnter={() => {
                 //เพิ่มเพื่อลอง
-    // 🛑 ต้องใส่ if ตรงนี้ครับ! เพื่อห้ามไม่ให้มันยิงซ้ำถ้ากำลังโหลด หรือมีข้อมูลแล้ว
-    if (orders.length === 0 && !loading) {
-      dispatch(fetchOrders("ALL"));
-    }
-  }}
+                // 🛑 ต้องใส่ if ตรงนี้ครับ! เพื่อห้ามไม่ให้มันยิงซ้ำถ้ากำลังโหลด หรือมีข้อมูลแล้ว
+                if (orders.length === 0 && !loading) {
+                  dispatch(fetchOrders("ALL"));
+                }
+              }}
               onClick={() => handleNavigation("/orders?status=ALL")}
               className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
                 isActive("/orders?status=ALL") ? "bg-gray-100" : ""
