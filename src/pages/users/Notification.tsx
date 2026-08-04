@@ -6,14 +6,16 @@ import { Pagination } from "../../components/admin/Pagination";
 import type { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchUserNotify,
-  markAsReadInStore,
-  markAllAsReadInStore,
-  type ClientNotification,
+  markAsReadNotify,
+  markAllAsReadNotify,
   fetchNotificationCounts,
 } from "../../redux/notification/notificationReducer";
 import { Icon } from "@iconify/react";
 import ProfileSidebar from "../../components/user/ProfileSidebar";
-import type { NotificationType } from "../../types/notification";
+import type {
+  NotificationType,
+  ClientNotification,
+} from "../../types/notification";
 
 const NotificationPage = () => {
   const navigate = useNavigate();
@@ -113,14 +115,30 @@ const NotificationPage = () => {
   const activeFilterData =
     filters.find((f) => f.id === activeFilter) || filters[0];
 
-  const handleNotificationClick = (item: ClientNotification) => {
-    dispatch(markAsReadInStore(item.id));
-    // dispatch(fetchNotificationCounts());
+ const extractOrderNo = (message: string) => {
+  const match = message.match(/ออร์เดอร์เลขที่\s([A-Z0-9-]+)/);
+  return match ? match[1] : null;
+};
+
+  const handleNotificationClick = async (item: ClientNotification) => {
+    // ถ้ายังไม่อ่าน ค่อย mark as read
+    if (!item.read) {
+      await dispatch(markAsReadNotify(item.id));
+      dispatch(fetchNotificationCounts());
+    }
+
+    // ดึง orderNo จากข้อความ
+    const orderNo = extractOrderNo(item.message);
+
+    // ถ้ามี orderNo ให้ไปหน้ารายละเอียดคำสั่งซื้อ
+    if (orderNo) {
+      navigate(`/orders/${orderNo}`);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    dispatch(markAllAsReadInStore());
-    // dispatch(fetchNotificationCounts());
+  const handleMarkAllAsRead = async () => {
+    await dispatch(markAllAsReadNotify());
+    dispatch(fetchNotificationCounts());
   };
 
   return (
@@ -185,9 +203,9 @@ const NotificationPage = () => {
 
                 <button
                   onClick={handleMarkAllAsRead}
-                  disabled={notifications.every((n) => n.isRead)}
+                  disabled={counts.ALL === 0}
                   className={`mt-7 flex items-center gap-2 rounded-xl px-4 py-2 text-base font-medium transition ${
-                    notifications.every((n) => n.isRead)
+                    counts.ALL === 0
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-[#DCEAFE] text-[#3B82F6] hover:bg-[#cfe0fb]"
                   }`}
@@ -298,16 +316,16 @@ const NotificationPage = () => {
                       <button
                         key={item.id}
                         onClick={() => handleNotificationClick(item)}
-                        data-test="notification-item"
+                        data-test="notification-ดitem"
                         className={`w-full text-start p-4 rounded-lg flex flex-col gap-1 border transition-all ${
-                          !item.isRead
+                          !item.read
                             ? "bg-[#EBF2FE] border-blue-100"
                             : "bg-white border-gray-100 hover:bg-gray-50"
                         }`}
                       >
                         <h3
                           className={`text-[15px] md:text-[16px] ${
-                            !item.isRead
+                            !item.read
                               ? "font-bold text-gray-900"
                               : "font-medium text-gray-700"
                           }`}
@@ -317,7 +335,7 @@ const NotificationPage = () => {
 
                         <p
                           className={`text-[14px] mt-0.5 leading-relaxed ${
-                            !item.isRead ? "text-gray-700" : "text-gray-500"
+                            !item.read ? "text-gray-700" : "text-gray-500"
                           }`}
                         >
                           {item.message}

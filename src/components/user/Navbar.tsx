@@ -14,8 +14,8 @@ import { Icon } from "@iconify/react";
 import { getProfile } from "../../redux/auth/authReducer";
 import {
   fetchUserNotify,
-  clearNewNotifications,
   fetchNotificationCounts,
+  markAsReadNotify,
 } from "../../redux/notification/notificationReducer";
 
 const Navbar: React.FC = () => {
@@ -41,8 +41,7 @@ const Navbar: React.FC = () => {
   const unreadCount = useSelector(
     (state: RootState) => state.notification.counts.ALL,
   );
-  const newCount = notifications.filter((n) => n.isNew).length;
-  const previewNotifications = notifications.slice(0, 5);
+  const previewNotifications = notifications.slice(0, 3);
 
   useEffect(() => {
     if (isAuthentication) {
@@ -68,7 +67,6 @@ const Navbar: React.FC = () => {
 
   const handleBellClick = () => {
     if (window.innerWidth >= 1024) {
-      dispatch(clearNewNotifications());
       setOpenNotifyDropdown(!openNotifyDropdown);
     } else {
       navigate("/notify");
@@ -264,11 +262,11 @@ const Navbar: React.FC = () => {
                     </span>
                   )}
 
-                  {newCount > 0 && (
+                  {/* {newCount > 0 && (
                     <span className="absolute top-0 left-0 bg-blue-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
                       {newCount}
                     </span>
-                  )}
+                  )} */}
                 </button>
 
                 {openNotifyDropdown && (
@@ -288,7 +286,7 @@ const Navbar: React.FC = () => {
                                 type="button"
                                 className="flex w-full items-start gap-3 p-3 text-left transition-colors border-b border-gray-50 hover:bg-gray-50 bg-white"
                                 onClick={() => {
-                                  dispatch(clearNewNotifications());
+                                  dispatch(markAsReadNotify(item.id));
                                   setOpenNotifyDropdown(false);
                                   navigate("/notify");
                                 }}

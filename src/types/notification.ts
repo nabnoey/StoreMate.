@@ -2,10 +2,9 @@ export interface Notification {
   id: number;
   title: string;
   message: string;
-  sendTo: "MODERATOR" | "CUSTOMER" | "ALL";
   createdAt: string;
-
-  type: NotificationType;
+  sendTo: "ALL" | "CUSTOMER" | "MODERATOR";
+  read: boolean;
 }
 
 export interface NotificationRequest {
@@ -20,11 +19,19 @@ export interface FetchNotifyParams {
   size: number;
 }
 
-export interface PageableNotificationResponse {
-  content: Notification[];
-  totalPages: number;
-  number: number; // currentPage
-  totalElements: number;
+export interface UnreadByCategory {
+  notifyType: NotificationType;
+  unread: number;
+}
+
+export interface NotificationResponse {
+  notifyList: Notification[];
+  totalUnread: number;
+  unreadByCategory: UnreadByCategory[];
 }
 
 export type NotificationType = "ALL" | "STORE" | "ORDERED" | "REFUNDED";
+
+export interface ClientNotification extends Notification {
+  type: NotificationType;
+}

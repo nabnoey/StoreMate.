@@ -1,4 +1,3 @@
-import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "@iconify/react";
@@ -8,7 +7,6 @@ import { TokenService } from "../../services/token.service";
 import { toast } from "react-hot-toast";
 //เพิ่มเพื่อลอง
 import { fetchOrders } from "../../redux/orders/orderReducer";
-import ConfirmToast from "../ConfirmToast";
 
 interface UserProfileProps {
   variant?: "desktop" | "mobile";
@@ -32,7 +30,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   const isModerator = roles.includes("MODERATOR");
 
   const canAccessBackoffice = isAdmin || isModerator;
-  const [isBlocking, setIsBlocking] = useState(false);
 
   const handleAdminNavigation = () => {
     closeMenu();
@@ -63,23 +60,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
     closeMenu();
     navigate(path);
   };
-
-  const confirmAction = useCallback((message: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      setIsBlocking(true);
-      toast(
-        (t) => (
-          <ConfirmToast
-            t={t}
-            message={message}
-            onResolve={resolve}
-            setIsBlocking={setIsBlocking}
-          />
-        ),
-        { duration: Infinity, position: "top-center" },
-      );
-    });
-  }, []);
 
   const handleLogout = () => {
     closeMenu();
