@@ -13,19 +13,19 @@ import { toast } from "react-hot-toast";
 import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
 import { useReview } from "../../../hooks/useReview";
 import ReviewManager from "../../../components/user/review/ReviewManager";
-import  OrderSkeleton  from "../../../components/loading/OrderSkeleton";
+import OrderSkeleton from "../../../components/loading/OrderSkeleton";
 
 const Order = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  // แก้ไข: เพิ่ม setError เพื่อหลีกเลี่ยง Dead Code 
+  // แก้ไข: เพิ่ม setError เพื่อหลีกเลี่ยง Dead Code
   const [error] = useState<string | null>(null);
 
   const rawStatus = searchParams.get("status") as OrderStatus;
   const status = rawStatus && statusConfig[rawStatus] ? rawStatus : "ALL";
 
   const { orders, loading } = useSelector((state: RootState) => state.orders);
-  
+
   const dispatch = useDispatch<AppDispatch>();
 
   const review = useReview({
@@ -113,7 +113,10 @@ const Order = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-anuphan text-gray-950 pb-20 pt-5 w-full overflow-x-hidden break-all">
+    <div className="relative min-h-screen bg-white font-anuphan text-gray-950 pb-20 pt-5 w-full overflow-x-hidden break-all">
+      {review.isBlocking && (
+        <div className="fixed inset-0 bg-black/40 z-[999] pointer-events-auto" />
+      )}
       <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
         <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
           <Link
@@ -155,10 +158,10 @@ const Order = () => {
             <StatusOrderTabs activeTab={status} onTabChange={handleTabChange} />
 
             <div className="flex flex-col gap-4 py-4 w-full bg-white">
-             {(loading && orders.length === 0) ? (
-  Array.from({ length: 5 }).map((_, index) => (
-    <OrderSkeleton key={index} />
-  ))
+              {loading && orders.length === 0 ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <OrderSkeleton key={index} />
+                ))
               ) : error ? (
                 <div className="flex flex-col items-center justify-center py-16 sm:py-28">
                   <p className="text-[20px] sm:text-[24px] font-medium text-red-500 mb-4 sm:mb-6">
@@ -178,7 +181,6 @@ const Order = () => {
                 </div>
               ) : (
                 filteredOrders.map((order) => {
-
                   const orderTotal = (order?.orderItems || []).reduce(
                     (sum, item) =>
                       sum + (item?.price || 0) * (item?.quantity || 0),
@@ -397,7 +399,7 @@ const Order = () => {
                 type="button"
                 onClick={review.handleConfirmProductSelection}
                 className="cursor-pointer px-5 py-2 bg-[#1E40AF] text-white rounded-lg font-medium text-[14px] transition shadow-xs min-w-[80px] text-center"
-              >ด
+              >
                 เลือก
               </button>
               <button

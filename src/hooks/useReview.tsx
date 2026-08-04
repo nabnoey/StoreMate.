@@ -13,6 +13,7 @@ import {
 } from "../redux/reviews/reviewsReducer";
 
 import { fetchOrderDetails } from "../redux/orders/orderReducer";
+import ConfirmToast from "../components/ConfirmToast";
 
 interface UseReviewProps {
   onRefresh: () => void;
@@ -43,6 +44,30 @@ export const useReview = ({ onRefresh }: UseReviewProps) => {
   const [selectModalMode, setSelectModalMode] = useState<"WRITE" | "VIEW">(
     "WRITE",
   );
+  const [isBlocking, setIsBlocking] = useState(false);
+
+  const confirmAction = (message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setIsBlocking(true);
+
+      toast(
+        (t) => (
+          <div className="relative z-[10000]">
+            <ConfirmToast
+              t={t}
+              message={message}
+              onResolve={resolve}
+              setIsBlocking={setIsBlocking}
+            />
+          </div>
+        ),
+        {
+          duration: Infinity,
+          position: "top-center",
+        },
+      );
+    });
+  };
 
   const formatOrderDate = (dateString: string) => {
     if (!dateString) return "-";
@@ -246,14 +271,16 @@ export const useReview = ({ onRefresh }: UseReviewProps) => {
     setLocalSelectedItemId(null);
   };
 
-  // ลบรีวิว
   const handleDeleteReview = async () => {
     if (!activeReviewData?.id) return;
+
+    const confirmed = await confirmAction("คุณต้องการลบรีวิวนี้ใช่หรือไม่?");
+
+    if (!confirmed) return;
 
     try {
       await dispatch(deleteProductReview({ id: activeReviewData.id })).unwrap();
 
-      toast.dismiss();
       toast.success("คุณลบรีวิวเรียบร้อยแล้ว");
 
       setIsViewReviewModalOpen(false);
@@ -261,7 +288,6 @@ export const useReview = ({ onRefresh }: UseReviewProps) => {
       onRefresh();
     } catch (err) {
       console.error("Delete review error:", err);
-      toast.dismiss();
       toast.error("ไม่สามารถลบรีวิวได้ กรุณาลองใหม่อีกครั้ง");
     }
   };
@@ -297,6 +323,7 @@ export const useReview = ({ onRefresh }: UseReviewProps) => {
     isViewReviewModalOpen,
     isEditReviewModalOpen,
     isSelectModalOpen,
+    isBlocking,
 
     reviewScore,
     message,

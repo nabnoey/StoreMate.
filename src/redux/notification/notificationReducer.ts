@@ -9,6 +9,7 @@ import type {
   NotificationRequest,
   FetchNotifyParams,
   NotificationType,
+  ClientNotification,
 } from "../../types/notification";
 
 export const fetchOwnerNotify = createAsyncThunk(
@@ -43,26 +44,27 @@ export const deleteNotify = createAsyncThunk(
 export const fetchNotificationCounts = createAsyncThunk(
   "notification/counts",
   async () => {
-    const [all, ordered, refunded, store] = await Promise.all([
-      NotificationService.getNotifyUser("ALL"),
-      NotificationService.getNotifyUser("ORDERED"),
-      NotificationService.getNotifyUser("REFUNDED"),
-      NotificationService.getNotifyUser("STORE"),
-    ]);
+    const data = await NotificationService.getNotifyUser("ALL");
 
-    return {
-      all,
-      ordered,
-      refunded,
-      store,
-    };
+    return data;
   },
 );
 
-export interface ClientNotification extends Notification {
-  isNew?: boolean;
-  isRead?: boolean;
-}
+export const markAsReadNotify = createAsyncThunk(
+  "notification/markAsRead",
+  async (notifyId: number) => {
+    await NotificationService.markAsReadNotify(notifyId);
+    return notifyId;
+  },
+);
+
+export const markAllAsReadNotify = createAsyncThunk(
+  "notification/markAllAsRead",
+  async () => {
+    await NotificationService.markAllAsReadNotify();
+    return true;
+  },
+);
 
 interface NotificationCount {
   ALL: number;
@@ -98,15 +100,6 @@ const initialState: NotificationState = {
   currentPage: 0,
 };
 
-const getSafeReadIds = (): number[] => {
-  try {
-    return JSON.parse(localStorage.getItem("read_notifications") || "[]");
-  } catch (e) {
-    console.error("Failed to parse read_notifications from localStorage", e);
-    return [];
-  }
-};
-
 const getNotificationType = (
   title: string,
   message: string,
@@ -129,96 +122,26 @@ const notificationSlice = createSlice({
   name: "notification",
   initialState,
   reducers: {
-    markAllAsReadInStore: (state) => {
-      state.items = state.items.map((item) => ({
-        ...item,
-        isRead: true,
-        isNew: false,
-      }));
-
-      state.counts = {
-        ALL: 0,
-        ORDERED: 0,
-        REFUNDED: 0,
-        STORE: 0,
-      };
-
-      try {
-        const oldReadIds = getSafeReadIds().map(String);
-
-        const currentReadIds = state.items.map((item) => String(item.id));
-
-        const mergedReadIds = [...new Set([...oldReadIds, ...currentReadIds])];
-
-        localStorage.setItem(
-          "read_notifications",
-          JSON.stringify(mergedReadIds),
-        );
-      } catch (e) {
-        console.error("Failed to save read status", e);
-      }
-    },
-
-    clearNewNotifications: (state) => {
-      state.items = state.items.map((item) => ({
-        ...item,
-        isNew: false,
-      }));
-    },
     // รับข้อมูลจาก WebSocket
     addNotificationFromSocket: (state, action: PayloadAction<Notification>) => {
       const exists = state.items.some((item) => item.id === action.payload.id);
+
       if (!exists) {
-        // ดึงจาก local มาเช็กซ้ำ
-        const readIds = getSafeReadIds();
+        const type = getNotificationType(
+          action.payload.title,
+          action.payload.message,
+        );
+
         state.items.unshift({
           ...action.payload,
-          isNew: true,
-          isRead: readIds.includes(action.payload.id),
+          type,
         });
 
         state.counts.ALL++;
 
-        if (action.payload.type !== "ALL") {
-          state.counts[action.payload.type]++;
+        if (type !== "ALL") {
+          state.counts[type]++;
         }
-      }
-    },
-
-    markAsReadInStore: (state, action: PayloadAction<number | string>) => {
-      const targetId = String(action.payload);
-
-      const notification = state.items.find(
-        (item) => String(item.id) === targetId,
-      );
-
-      if (!notification || notification.isRead) return;
-
-      notification.isRead = true;
-      notification.isNew = false;
-
-      state.counts.ALL = Math.max(0, state.counts.ALL - 1);
-
-      if (
-        notification.type === "ORDERED" ||
-        notification.type === "REFUNDED" ||
-        notification.type === "STORE"
-      ) {
-        state.counts[notification.type] = Math.max(
-          0,
-          state.counts[notification.type] - 1,
-        );
-      }
-
-      try {
-        const readIds = getSafeReadIds().map(String);
-
-        if (!readIds.includes(targetId)) {
-          readIds.push(targetId);
-          localStorage.setItem("read_notifications", JSON.stringify(readIds));
-        }
-      } catch (e) {
-        console.error("Failed to save read status", e);
       }
     },
   },
@@ -227,17 +150,15 @@ const notificationSlice = createSlice({
     builder
 
       .addCase(fetchNotificationCounts.fulfilled, (state, action) => {
-        const readIds = getSafeReadIds().map(String);
+        state.counts.ALL = action.payload.totalUnread;
 
-        const countUnread = (list: Notification[]) =>
-          list.filter((item) => !readIds.includes(String(item.id))).length;
+        state.counts.ORDERED = 0;
+        state.counts.REFUNDED = 0;
+        state.counts.STORE = 0;
 
-        state.counts = {
-          ALL: countUnread(action.payload.all),
-          ORDERED: countUnread(action.payload.ordered),
-          REFUNDED: countUnread(action.payload.refunded),
-          STORE: countUnread(action.payload.store),
-        };
+        action.payload.unreadByCategory.forEach((item) => {
+          state.counts[item.notifyType] = item.unread;
+        });
       })
 
       // --- Fetch Owner Notify ---
@@ -246,13 +167,10 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchOwnerNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        const readIds = getSafeReadIds();
 
         state.items = (action.payload.content || []).map(
           (item: Notification) => ({
             ...item,
-            isNew: false,
-            isRead: readIds.includes(item.id),
           }),
         );
         state.totalPages = action.payload.totalPages || 0;
@@ -268,15 +186,13 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchUserNotify.fulfilled, (state, action) => {
         state.isLoading = false;
-        const readIds = getSafeReadIds().map(String);
 
-        state.items = (action.payload || []).map((item: Notification) => ({
+        state.items = action.payload.notifyList.map((item) => ({
           ...item,
           type: getNotificationType(item.title, item.message),
-          isNew: false,
-          isRead: readIds.includes(String(item.id)),
         }));
       })
+
       .addCase(fetchUserNotify.rejected, (state) => {
         state.isLoading = false;
       })
@@ -302,14 +218,34 @@ const notificationSlice = createSlice({
       })
       .addCase(deleteNotify.rejected, (state) => {
         state.isSubmitting = false;
+      })
+
+      // ---markAsReadNotify---
+      .addCase(markAsReadNotify.fulfilled, (state, action) => {
+        const notify = state.items.find((item) => item.id === action.payload);
+
+        if (notify) {
+          notify.read = true;
+        }
+      })
+
+      // ---markAllAsReadNotify---
+      .addCase(markAllAsReadNotify.pending, () => {
+        // state.isLoading = true;
+      })
+      .addCase(markAllAsReadNotify.fulfilled, (state) => {
+        state.items.forEach((item) => {
+          item.read = true;
+        });
+      })
+      .addCase(markAllAsReadNotify.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(markAsReadNotify.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
 
-export const {
-  addNotificationFromSocket,
-  clearNewNotifications,
-  markAsReadInStore,
-  markAllAsReadInStore,
-} = notificationSlice.actions;
+export const { addNotificationFromSocket } = notificationSlice.actions;
 export default notificationSlice.reducer;

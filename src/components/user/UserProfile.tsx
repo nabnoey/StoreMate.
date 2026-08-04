@@ -26,7 +26,6 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
   //เพิ่มเพื่อลอง
   const { orders, loading } = useSelector((state: RootState) => state.orders);
 
-
   const isAdmin = roles.includes("ADMIN");
   const isModerator = roles.includes("MODERATOR");
 
@@ -231,13 +230,13 @@ const UserProfile: React.FC<Readonly<UserProfileProps>> = ({
             <button
               data-test="btn-orders"
               type="button"
-               onMouseEnter={() => {
+              onMouseEnter={() => {
                 //เพิ่มเพื่อลอง
-    // 🛑 ต้องใส่ if ตรงนี้ครับ! เพื่อห้ามไม่ให้มันยิงซ้ำถ้ากำลังโหลด หรือมีข้อมูลแล้ว
-    if (orders.length === 0 && !loading) {
-      dispatch(fetchOrders("ALL"));
-    }
-  }}
+                // 🛑 ต้องใส่ if ตรงนี้ครับ! เพื่อห้ามไม่ให้มันยิงซ้ำถ้ากำลังโหลด หรือมีข้อมูลแล้ว
+                if (orders.length === 0 && !loading) {
+                  dispatch(fetchOrders("ALL"));
+                }
+              }}
               onClick={() => handleNavigation("/orders?status=ALL")}
               className={`flex w-full cursor-pointer items-center justify-start gap-[10px] p-[10px] transition-colors rounded-md text-left hover:bg-gray-100 ${
                 isActive("/orders?status=ALL") ? "bg-gray-100" : ""
