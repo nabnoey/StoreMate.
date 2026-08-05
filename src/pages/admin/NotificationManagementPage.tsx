@@ -157,6 +157,11 @@ const NotificationManagementPage: React.FC = () => {
       return;
     }
 
+    if (message.length > 250) {
+      toast.error("รายละเอียดต้องไม่เกิน 250 ตัวอักษร");
+      return;
+    }
+
     try {
       const mappedSendTo =
         TOPIC_MAP[recipients as keyof typeof TOPIC_MAP] || "ALL";
@@ -519,11 +524,16 @@ const NotificationManagementPage: React.FC = () => {
                 <textarea
                   data-test="input-message"
                   name="message"
+                  maxLength={250}
                   className="w-full px-4 py-3 bg-white border border-gray-300 rounded-md outline-none text-sm transition-all h-28 resize-none text-[#BDBDBD]"
                   placeholder="เช่น ลดราคา"
                   value={formData.message}
                   onChange={handleChange}
                 />
+
+                <p className="text-xs text-gray-400 mt-1 text-right">
+                  {formData.message.length}/250 ตัวอักษร
+                </p>
               </div>
 
               <div className="flex items-center justify-between pt-4">
