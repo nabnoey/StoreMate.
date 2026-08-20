@@ -28,7 +28,8 @@ export const addToCartThunk = createAsyncThunk(
       const response = await CartItemService.addToCart(itemData);
       dispatch(fetchCartThunk());
       return response;
-    },
+    }
+,
 );
 
 export const incrementCartItemThunk = createAsyncThunk(
@@ -101,7 +102,7 @@ const cartSlice = createSlice({
         const item = state.items.find(
           (i) => (i.productId) === (productId),
         );
-        if (item) {
+        if (item && item.quantity > 1) {
           item.quantity -= 1;
         }
       })

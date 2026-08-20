@@ -319,35 +319,31 @@ const AddressProfile = () => {
     });
   };
   return (
-    <div className="min-h-screen bg-gray-50 md:bg-white font-anuphan text-gray-950 pt-0 md:pt-10 pb-24 md:pb-10">
-      <div className="max-w-[1200px] mx-auto px-0 md:px-4">
+ <div className="min-h-screen bg-white font-anuphan text-gray-950 pt-10 sm:pt-5 pb-20">
+      <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-5 pt-5 md:pt-6">
         {/* 1. Breadcrumbs Nav (Desktop Only) */}
         <div className="hidden md:block">
-          <nav className="flex flex-wrap items-center text-sm text-black mb-6 font-medium">
-            <Link
-              data-test="click-home"
-              to="/"
-              className="transition-colors cursor-pointer hover:text-blue-600"
-            >
-              หน้าหลัก
-            </Link>
-            <Icon
-              icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-black"
-            />
-            <Link
-              to="/profile"
-              data-test="click-profile"
-              className="transition-colors cursor-pointer hover:text-blue-600"
-            >
-              โปรไฟล์
-            </Link>
-            <Icon
-              icon="material-symbols:chevron-right-rounded"
-              className="w-5 h-5 mx-1 text-black"
-            />
-            <span className="text-black">จัดการที่อยู่</span>
-          </nav>
+           <nav className="hidden md:hidden lg:flex flex-wrap items-center text-md text-black mb-4 md:mb-8 font-medium">
+                   <Link
+                     data-test="click-home"
+                     to="/"
+                     className="transition-colors cursor-pointer"
+                   >
+                     หน้าหลัก
+                   </Link>
+                   <Icon
+                     icon="material-symbols:chevron-right-rounded"
+                     className="w-5 h-5 mx-1 text-black"
+                   />
+                   <Link to="/profile" className="transition-colors cursor-pointer">
+                     โปรไฟล์
+                   </Link>
+                   <Icon
+                     icon="material-symbols:chevron-right-rounded"
+                     className="w-5 h-5 mx-1 text-black"
+                   />
+                   <span className="text-black">แก้ไขโปรไฟล์</span>
+                 </nav>
         </div>
 
         {/* 2. Mobile Header Bar (Sticky Top) */}
@@ -376,14 +372,14 @@ const AddressProfile = () => {
         </div>
 
         {/* Main Content Layout */}
-        <div className="flex flex-col md:flex-row gap-6 items-start px-4 md:px-0 mt-4 md:mt-0">
+<div className="flex flex-col md:flex-row gap-6 items-start">
           {/* Sidebar (Desktop Only) */}
           <div className="hidden md:block shrink-0">
             <ProfileSidebar />
           </div>
 
           {/* Address List Container */}
-          <main className="flex flex-col flex-1 w-full bg-white rounded-xl md:shadow-sm border border-transparent md:border-gray-200 overflow-hidden min-h-[500px]">
+<main className="flex flex-col flex-1 w-full lg:min-w-[800px] min-h-[427px] bg-[#F9FAFB] md:bg-white rounded-[4px] shadow-[0_0_10px_rgba(0,0,0,0.05)] border-b md:border border-gray-200 px-4 py-3 md:py-6 relative overflow-hidden">
             <div className="hidden md:flex justify-between items-center p-5 border-b border-gray-100">
               <h1 className="text-xl font-bold text-gray-900">ที่อยู่ของฉัน</h1>
               <button
