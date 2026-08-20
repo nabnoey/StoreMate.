@@ -28,8 +28,7 @@ export const addToCartThunk = createAsyncThunk(
       const response = await CartItemService.addToCart(itemData);
       dispatch(fetchCartThunk());
       return response;
-    }
-,
+    },
 );
 
 export const incrementCartItemThunk = createAsyncThunk(
@@ -62,16 +61,6 @@ const cartSlice = createSlice({
   name: "carts",
   initialState,
   reducers: {
-    removeFromCart: (state, action: PayloadAction<number | string>) => {
-      state.items = state.items.filter(
-        (item) => (item.productId) !== (action.payload),
-      );
-
-      state.selectedItems = state.selectedItems.filter(
-        (item) => (item.productId) !== (action.payload),
-      );
-    },
-
     setSelectedItems: (state, action: PayloadAction<CartItem[]>) => {
       state.selectedItems = action.payload;
     },
@@ -134,6 +123,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { removeFromCart, setSelectedItems } = cartSlice.actions;
-
+export const { setSelectedItems } = cartSlice.actions;
 export default cartSlice.reducer;
