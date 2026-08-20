@@ -46,10 +46,9 @@ const AddressProfile = () => {
   }, [dispatch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      streetAddress: e.target.value,
     }));
   };
 
@@ -353,7 +352,7 @@ const AddressProfile = () => {
 
         {/* 2. Mobile Header Bar (Sticky Top) */}
         <div
-          className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm cursor-ponitor"
+          className="md:hidden bg-white sticky mt-8 z-40 px-4 py-3.5 border-b border-gray-200 flex items-center gap-3 shadow-sm cursor-pointer"
           data-test="mobile-header-bar"
         >
           <button

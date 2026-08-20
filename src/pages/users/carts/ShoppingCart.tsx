@@ -246,12 +246,13 @@ const selectedCartItems = useMemo(() => {
 
                         <span
                           className={`text-[10px] px-2 py-1 rounded-md font-md inline-block ${
-                            item.productStatus
+                            item.productStatus === "ACTIVE"
+
                               ? "bg-green-50 text-green-500"
                               : "bg-red-50 text-red-500"
                           }`}
                         >
-                          {item.productStatus
+                          {item.productStatus  === "ACTIVE"
                             ? "พร้อมจำหน่าย"
                             : "ไม่พร้อมจำหน่าย"}
                         </span>
