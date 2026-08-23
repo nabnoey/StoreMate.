@@ -24,6 +24,8 @@ const ShoppingCart = () => {
 );
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  //ล็อคสินค้าที่กำลังอัพเดทจำนวนสินค้า เพื่อไม่ให้กดซ้ำ
+  const [updatingItems, setUpdatingItems] = useState<number[]>([]);
   const [isBlocking, setIsBlocking] = useState(false);
 
   useEffect(() => {
@@ -125,41 +127,92 @@ const selectedCartItems = useMemo(() => {
   };
 
 
-  const handleIncreaseQuantity = (
-    productId: number,
-    quantity: number,
-    stockQuantity: number,
-  ) => {
-    if (quantity >= stockQuantity) {
-      toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้");
-      return;
-    }
-    dispatch(incrementCartItemThunk(productId));
-  };
+  // const handleIncreaseQuantity = (
+  //   productId: number,
+  //   quantity: number,
+  //   stockQuantity: number,
+  // ) => {
+  //   if (quantity >= stockQuantity) {
+  //     toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้");
+  //     return;
+  //   }
+  //   dispatch(incrementCartItemThunk(productId));
+  // };
 
-  //ทำไมถึงไม่ใช้ parameter เหมือน Increment
+  const handleIncreaseQuantity = async (
+  productId: number,
+  quantity: number,
+  stockQuantity: number,
+) => {
+  // ถ้ากำลังยิง API อยู่ ห้ามกดซ้ำ
+  if (updatingItems.includes(productId)) return;
+
+  // ถึงจำนวนสูงสุดแล้ว
+  if (quantity >= stockQuantity) {
+    toast.error(
+      "ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้",
+    );
+    return;
+  }
+
+  setUpdatingItems((prev) => [...prev, productId]);
+
+  try {
+    await dispatch(
+      incrementCartItemThunk(productId),
+    ).unwrap();
+  } finally {
+    setUpdatingItems((prev) =>
+      prev.filter((id) => id !== productId),
+    );
+  }
+};
+
   const handleDecreaseQuantity = async (
-    productId: number,
-    quantity: number,
-  ) => {
-    if (quantity === 1) {
-      const isConfirmed = await confirmAction(
-        "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
+  productId: number,
+  quantity: number,
+) => {
+  // ถ้าสินค้านี้กำลังยิง API อยู่ ห้ามยิงซ้ำ
+  if (updatingItems.includes(productId)) return;
+
+  // quantity = 1 → ลบสินค้า
+  if (quantity === 1) {
+    const isConfirmed = await confirmAction(
+      "คุณต้องการลบสินค้านี้ใช่หรือไม่?",
+    );
+
+    if (!isConfirmed) return;
+
+    setUpdatingItems((prev) => [...prev, productId]);
+
+    try {
+      await dispatch(deleteCartItemThunk(productId)).unwrap();
+
+      setSelectedItems((prev) =>
+        prev.filter((id) => id !== productId),
       );
 
-      if (!isConfirmed) return;
-
-      dispatch(deleteCartItemThunk(productId));
-
-      setSelectedItems((prev) => prev.filter((id) => id !== productId));
-
       toast.success("ลบสินค้าแล้ว");
-
-      return;
+    } finally {
+      setUpdatingItems((prev) =>
+        prev.filter((id) => id !== productId),
+      );
     }
 
-    dispatch(decrementCartItemThunk(productId));
-  };
+    return;
+  }
+
+  // quantity > 1 → decrement
+  setUpdatingItems((prev) => [...prev, productId]);
+
+  try {
+    await dispatch(decrementCartItemThunk(productId)).unwrap();
+  } finally {
+    setUpdatingItems((prev) =>
+      prev.filter((id) => id !== productId),
+    );
+  }
+};
 
 
 
@@ -281,7 +334,7 @@ const selectedCartItems = useMemo(() => {
                               item.quantity,
                             )
                           }
-                          disabled={!item.productStatus}
+                          disabled={!item.productStatus || updatingItems.includes(item.productId)}
                             className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
@@ -301,7 +354,7 @@ const selectedCartItems = useMemo(() => {
       item.stockQuantity,
     )
   }
-  disabled={!item.productStatus}
+  disabled={!item.productStatus || updatingItems.includes(item.productId)}
   className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed"
 >
   <Icon icon="lucide:plus" width="14" height="14" />
