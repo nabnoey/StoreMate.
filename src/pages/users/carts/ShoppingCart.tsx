@@ -276,7 +276,7 @@ const selectedCartItems = useMemo(() => {
                       <div className="flex items-center pt-2 md:pt-0">
                         <input
                           type="checkbox"
-                          disabled={!item.productStatus}
+                          disabled={item.productStatus !== "ACTIVE"}
                           checked={selectedItems.includes(item.productId)}
                           onChange={() => toggleSelect(item.productId)}
                           data-test={`checkbox-product-${item.productId}`}
@@ -334,7 +334,7 @@ const selectedCartItems = useMemo(() => {
                               item.quantity,
                             )
                           }
-                          disabled={!item.productStatus || updatingItems.includes(item.productId)}
+                          disabled={item.productStatus !== "ACTIVE" || updatingItems.includes(item.productId)}
                             className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         >
                           <Icon icon="lucide:minus" width="14" height="14" />
@@ -354,7 +354,7 @@ const selectedCartItems = useMemo(() => {
       item.stockQuantity,
     )
   }
-  disabled={!item.productStatus || updatingItems.includes(item.productId)}
+  disabled={item.productStatus !== "ACTIVE" || updatingItems.includes(item.productId)}
   className="px-2 text-black flex items-center justify-center h-full cursor-pointer hover:bg-gray-50 disabled:cursor-not-allowed"
 >
   <Icon icon="lucide:plus" width="14" height="14" />
