@@ -30,6 +30,7 @@ const formatDateTime = (isoString: string) => {
   const timeStr = `${format(date, "HH.mm")} น.`;
   return { dateStr, timeStr };
 };
+  const PAGE_SIZE = 10;
 
 function Orders() {
   const dispatch = useDispatch<AppDispatch>();
@@ -56,12 +57,9 @@ function Orders() {
   const initialPage = pageParam !== null ? Number(pageParam) + 1 : 1;
   // เก็บสถานะหน้าปัจจุบัน
   const [currentPage, setCurrentPage] = useState(initialPage);
-
-  const { orders: rawOrders, totalPages } = useSelector(
-    (state: RootState) => state.moderator,
-  );
-  const orders = Array.isArray(rawOrders) ? rawOrders : [];
-  const PAGE_SIZE = 10;
+  const { orders, totalPages } = useSelector(
+  (state: RootState) => state.moderator
+);
 
   const periodValue =
     TIME_FILTER_MAP[timeFilter as keyof typeof TIME_FILTER_MAP];
@@ -128,10 +126,6 @@ function Orders() {
     }
   }, [printData, reactToPrintFn]);
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
   const handleSelectOrder = (orderNo: string) => {
     setSelectedOrders((prevSelectedOrders) =>
       prevSelectedOrders.includes(orderNo)
@@ -157,23 +151,17 @@ function Orders() {
     );
     if (selectedData.length === 0) return;
 
-    const invalidOrders = selectedData.filter(
-      (order) => order.status !== "PROCESSING",
-    );
-    if (invalidOrders.length > 0) {
-      toast.error(
-        "สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น",
-      );
-      return;
-    }
+    if (selectedData.some((order) => order.status !== "PROCESSING")) {
+  toast.error(
+    "สามารถพิมพ์ใบปะหน้าได้เฉพาะคำสั่งซื้อสถานะ 'ที่ต้องจัดส่ง' เท่านั้น",
+  );
+  return;
+}
 
     try {
-      // if (selectedData.length > 0)
-      {
-        const orderIds = selectedData.map((order) => order.id);
-        const printedLabels = await dispatch(shippingOrder(orderIds)).unwrap();
-        setPrintData(printedLabels);
-      }
+  const orderIds = selectedData.map((order) => order.id);
+  const printedLabels = await dispatch(shippingOrder(orderIds)).unwrap();
+  setPrintData(printedLabels);
     } catch {
       toast.error("ไม่สามารถอัปเดตสถานะการพิมพ์ใบปะหน้าได้");
     }
@@ -520,7 +508,7 @@ function Orders() {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={handlePageChange}
+              onPageChange={setCurrentPage}
             />
           </div>
         </div>

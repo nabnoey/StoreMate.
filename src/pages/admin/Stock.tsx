@@ -52,7 +52,7 @@ function Stock() {
 
   useEffect(() => {
     const params: Record<string, string> = {
-      page: String(currentPage > 0 ? currentPage - 1 : 0),
+    page: String(currentPage - 1),
       size: String(PAGE_SIZE),
     };
     if (submittedSearchTerm) {
@@ -60,17 +60,6 @@ function Stock() {
     }
     setSearchParams(params);
   }, [currentPage, setSearchParams, submittedSearchTerm]);
-
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      // setCurrentPage(localTotalPages);
-    }
-  }, [currentPage, totalPages]);
-
-  const currentItems = products;
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
   
   const handleAddProduct = () => {
     setSelectedProduct(null);
@@ -81,6 +70,23 @@ function Stock() {
     setSelectedProduct(product);
     setIsAddModalOpen(true);
   };
+  const handleCloseModal = () => {
+  setIsAddModalOpen(false);
+  setSelectedProduct(null);
+};
+
+const handleProductSuccess = () => {
+  setIsAddModalOpen(false);
+  setSelectedProduct(null);
+
+  dispatch(
+    getproducts({
+      page: currentPage - 1,
+      size: PAGE_SIZE,
+      keyword: submittedSearchTerm,
+    }),
+  );
+};
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col w-full p-0 overflow-y-auto">
@@ -142,15 +148,15 @@ function Stock() {
                   จำนวนคงเหลือ
                 </th>
                 <th className="pb-4 font-normal whitespace-nowrap  -translate-x-8">
-                  สถานะคำสั่งซื้อ
+                  สถานะสินค้า
                 </th>
                 <th className="pb-4 font-normal whitespace-nowrap"></th>
               </tr>
             </thead>
 
             <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((product) => (
+              {products.length > 0 ? (
+                products.map((product) => (
                   <tr
                     key={product.id}
                     className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
@@ -188,7 +194,7 @@ function Stock() {
                       <button
                         type="button"
                         data-test={`menagemate-product-${product.id}`}
-                        onClick={() => handleEditProduct(product as ProductMod)}
+                        onClick={() => handleEditProduct(product)}
                         className="text-blue-500 hover:text-blue-700 hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
                       >
                         จัดการ
@@ -208,22 +214,15 @@ function Stock() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={handlePageChange}
+            onPageChange={setCurrentPage}
           />
         </div>
-
         <AddProductModal
-          isOpen={isAddModalOpen}
-          onClose={() => {
-            setIsAddModalOpen(false);
-            setSelectedProduct(null);
-          }}
-          onSuccess={() => {
-            setIsAddModalOpen(false);
-            setSelectedProduct(null);
-          }}
-          product={selectedProduct}
-        />
+  isOpen={isAddModalOpen}
+  onClose={handleCloseModal}
+  onSuccess={handleProductSuccess}
+  product={selectedProduct}
+/>
       </div>
     </div>
   );

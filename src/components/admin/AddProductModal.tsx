@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
@@ -6,15 +6,12 @@ import type { AppDispatch } from "../../redux/store";
 import {
   addProduct,
   editProduct,
-  getproducts,
   deleteProduct,
 } from "../../redux/moderator/ModeratorReducer";
 import {fetchProductById} from "../../redux/products/productReducer"
 import type {  AddProductModalProps,ProductFormValues} from "../../types/moderator/productMod";
-import type { Product } from "../../types/product";
+import type { Product, ProductImage } from "../../types/product";
 import { toast } from "react-hot-toast";
-
-
 
 const CATEGORY_MAP: Record<string, number> = {
   โปรโมชั่น: 1,
@@ -32,29 +29,18 @@ const normalizeCategory = (category: string | number | undefined): string => {
   if (!category) return "";
   const catStr = String(category).toLowerCase().trim();
 
-  if (["1", "promotion", "โปรโมชั่น"].includes(catStr))
-    return "โปรโมชั่น";
-  if (["2", "soap", "สบู่"].includes(catStr)) return "สบู่";
-  if (["3", "drinks", "เครื่องดื่ม"].includes(catStr))
-    return "เครื่องดื่ม";
-  if (["4","shampoo", "แชมพูสมุนไพร"].includes(catStr))
-    return "แชมพูสมุนไพร";
+   if (["1", "promotion"].includes(catStr)) return "โปรโมชั่น";
+  if (["2", "soap"].includes(catStr)) return "สบู่";
+  if (["3", "drinks"].includes(catStr)) return "เครื่องดื่ม";
+  if (["4", "shampoo"].includes(catStr)) return "แชมพู";
 
   return String(category);
 };
 
-
 const normalizeStatus = (
-  status?: string 
+  status?: string,
 ): "ACTIVE" | "INACTIVE" => {
-
-  const inactive = [
-    "INACTIVE",
-  ];
-
-  return inactive.includes(status ?? "")
-    ? "INACTIVE"
-    : "ACTIVE";
+  return status === "INACTIVE" ? "INACTIVE" : "ACTIVE";
 };
 
 
@@ -73,6 +59,8 @@ const ProductSchema = Yup.object().shape({
   description: Yup.string().required("กรอกข้อมูลสินค้าไม่ครบถ้วน"),
 });
 
+
+
 export const AddProductModal: React.FC<AddProductModalProps> = ({
   isOpen,
   onClose,
@@ -82,9 +70,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State สำหรับจัดการรูปภาพหลายรูป
-  const [existingImages, setExistingImages] = useState<
-    { id: number; url: string }[]
-  >([]);
+const [existingImages, setExistingImages] = useState<
+  { id: number; url: string; imageName: string }[]
+>([]);
+
   const [newImages, setNewImages] = useState<{ file: File; preview: string }[]>(
     [],
   );
@@ -110,9 +99,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
       if (detail.productImages?.length > 0) {
         setExistingImages(
-          detail.productImages.map((img:Product ) => ({
+          detail.productImages.map((img: ProductImage) => ({
             id: img.id,
             url: img.imageUrl,
+            imageName: img.imageName,
           })),
         );
       }
@@ -127,6 +117,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     };
     fetchDetail();
 
+    
+
     return () => {
       isMounted = false;
     };
@@ -139,9 +131,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     else onClose();
   };
 
-  const refreshProductList = () => {
-    dispatch(getproducts({ page: 0, size: 1000, keyword: "" }));
-  };
+const handleUploadClick = () => {
+  const totalImages = existingImages.length + newImages.length;
+
+  if (totalImages >= 5) {
+    toast.error("สามารถเพิ่มรูปสินค้าได้สูงสุด 5 รูป");
+    return;
+  }
+
+  fileInputRef.current?.click();
+};
 
   const showConfirmToast = (
     message: string,
@@ -194,7 +193,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     try {
       await dispatch(deleteProduct(product.id)).unwrap();
       toast.success("ลบสินค้าเรียบร้อยแล้ว");
-      refreshProductList();
       handleCloseModal();
     } catch{
       toast.error("ไม่สามารถลบสินค้าที่มีประวัติการสั่งซื้อได้");
@@ -216,24 +214,63 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     if (isConfirmed) onClose();
   };
 
-  const handleFileChange = (files: FileList | null) => {
-    if (!files) return;
-    const validFiles: { file: File; preview: string }[] = [];
+const handleFileChange = (files: FileList | null) => {
+  if (!files) return;
 
-    Array.from(files).forEach((file) => {
-      if (
-        ["image/png", "image/jpeg", "image/jpg"].includes(file.type) &&
-        file.size <= 5 * 1024 * 1024
-      ) {
-        validFiles.push({ file, preview: URL.createObjectURL(file) });
-      } else {
-        toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
-      }
+  const validFiles: { file: File; preview: string }[] = [];
+
+  Array.from(files).forEach((file) => {
+    // ตรวจสอบประเภทและขนาดไฟล์
+    if (
+      !["image/png", "image/jpeg", "image/jpg"].includes(file.type) ||
+      file.size > 5 * 1024 * 1024
+    ) {
+      toast.error(`ไฟล์ ${file.name} ไม่รองรับ หรือขนาดใหญ่เกิน 5MB`);
+      return;
+    }
+
+    // ตรวจสอบว่ารูปซ้ำกับรูปใหม่ที่เลือกไว้แล้วหรือไม่
+    const isDuplicate = newImages.some(
+      (img) =>
+        img.file.name === file.name &&
+        img.file.size === file.size &&
+        img.file.lastModified === file.lastModified,
+    );
+
+    if (isDuplicate) {
+      toast.error(`รูป ${file.name} ถูกเพิ่มไปแล้ว`);
+      return;
+    }
+
+    validFiles.push({
+      file,
+      preview: URL.createObjectURL(file),
     });
+  });
 
-    setNewImages((prev) => [...prev, ...validFiles].slice(0, 5));
-  };
+  // จำนวนรูปทั้งหมดหลังจากเพิ่มรูปใหม่
+  const totalImages = existingImages.length + newImages.length;
+  const remainingSlots = 5 - totalImages;
 
+  // ถ้าไม่มีพื้นที่เหลือ
+  if (remainingSlots <= 0) {
+    toast.error("สามารถเพิ่มรูปสินค้าได้สูงสุด 5 รูป");
+    return;
+  }
+
+  // ถ้าเลือกเกินจำนวนที่เหลือ
+  if (validFiles.length > remainingSlots) {
+    toast.error(
+      `สามารถเพิ่มรูปได้อีก ${remainingSlots} รูปเท่านั้น (สูงสุด 5 รูป)`,
+    );
+  }
+
+  // เพิ่มเฉพาะรูปที่ยังอยู่ในจำนวนที่กำหนด
+  setNewImages((prev) => [
+    ...prev,
+    ...validFiles.slice(0, remainingSlots),
+  ]);
+};
   const handleRemoveExistingImage = (id: number) => {
   setRemovedImageIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   setExistingImages((prev) => prev.filter((img) => img.id !== id));
@@ -333,10 +370,8 @@ newImages.forEach((img) => {
                   toast.success("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว");
                 } else {
                   await dispatch(addProduct(formData)).unwrap();
-                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว");
+                  toast.success("เพิ่มสินค้าเรียบร้อยแล้ว", {duration: 3000});
                 }
-
-                refreshProductList();
                 handleCloseModal();
               } catch {
                 toast.error(
@@ -556,7 +591,7 @@ newImages.forEach((img) => {
                   {/* พื้นที่อัปโหลดรูปภาพ (Drag & Drop Zone) */}
                   <div
                     className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors mt-2"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={handleUploadClick}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
@@ -566,7 +601,7 @@ newImages.forEach((img) => {
                     <input
                       type="file"
                       multiple
-                      accept="image/png, image/jpeg, image/jpg"
+                      accept="image/png, image/jpg"
                       className="hidden"
                       ref={fileInputRef}
                       onChange={(e) => handleFileChange(e.target.files)}
