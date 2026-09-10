@@ -101,7 +101,64 @@ useEffect(() => {
     dispatch(getStore());
   }, [dispatch]);
   
+   const showConfirmToast = (
+      message: string,
+      isDanger = false,
+    ): Promise<boolean> => {
+      return new Promise((resolve) => {
+        toast(
+          (t) => (
+            <div className="flex flex-col items-center justify-center text-center p-1 w-full min-w-[250px]">
+              <p className="mb-4 text-gray-800 font-medium">{message}</p>
+              <div className="flex justify-center gap-3 w-full">
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    resolve(true);
+                  }}
+                  className={`px-5 py-1.5 text-white rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    isDanger
+                      ? "bg-[#EF4444] hover:bg-red-600"
+                      : "bg-[#003399] hover:bg-blue-800"
+                  }`}
+                >
+                  ยืนยัน
+                </button>
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    resolve(false);
+                  }}
+                  className="px-5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md text-sm font-medium transition-colors cursor-pointer"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </div>
+          ),
+          { duration: Infinity },
+        );
+      });
+    };
 
+   const handleCancel = async (
+  isDirty: boolean,
+  resetForm: () => void,
+) => {
+  if (!isDirty) {
+    return;
+  }
+
+  const isConfirmed = await showConfirmToast(
+    "คุณต้องการละทิ้งการเปลี่ยนแปลงหรือไม่?",
+  );
+
+  if (isConfirmed) {
+    resetForm();
+    setPreview(null);
+    setZipcodes([]);
+  }
+};
   // ปรับ inputClass ให้ Responsive มากขึ้น และป้องกัน iOS Zoom (text-base บนมือถือ, text-sm บน PC)
   const inputClass =
     "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 text-gray-800 text-base md:text-sm placeholder-gray-400 bg-white transition-all duration-200";
@@ -155,14 +212,16 @@ useEffect(() => {
                 });
             }}
           >
-            {({
-              setFieldValue,
-              values,
-              isSubmitting,
-              handleBlur,
-              handleChange,
-              touched,
-              errors,
+              {({
+  setFieldValue,
+  values,
+  isSubmitting,
+  handleBlur,
+  handleChange,
+  touched,
+  errors,
+  dirty,
+  resetForm,
             }) => {
               const getSelectClass = (
                 fieldName: keyof typeof initialValues,
@@ -570,6 +629,7 @@ useEffect(() => {
                       type="button"
                       data-test="store-cancel-button"
                       className="w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors shadow-sm order-2 sm:order-1 cursor-pointer"
+                      onClick={() => handleCancel(dirty, resetForm)}
                     >
                       ยกเลิก
                     </button>
