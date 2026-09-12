@@ -16,12 +16,14 @@ import type { Address, DropdownItem } from "../../types/address";
 import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
 import ConfirmToast from "../../components/ConfirmToast";
+import Skeletons from "../../components/loading/Skeletons";
+// import Skeletons from "../../components/loading/Skeletons";
 
 const AddressProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const addresses = useSelector((state: RootState) => state.address.addresses);
-  const { provinces, districts, subdistricts } = useSelector(
+  const { provinces, districts, subdistricts,loading } = useSelector(
     (state: RootState) => state.address,
   );
   const [zipcodes, setZipcodes] = useState<{ id: number; name: string }[]>([]);
@@ -392,22 +394,26 @@ const AddressProfile = () => {
             </div>
 
             <div className="flex flex-col flex-1 divide-y divide-gray-100">
-              {addresses.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[350px]">
-                  <Icon
-                    icon="basil:location-outline"
-                    className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300 mb-4"
-                  />
-                  <p className="text-lg sm:text-xl font-medium text-gray-500">
-                    ไม่มีข้อมูลที่อยู่ของคุณ
-                  </p>
-                </div>
-              ) : (
-                addresses.map((address: Address) => (
-                  <div
-                    key={address.id}
-                    className="p-4 sm:p-5 flex flex-col gap-3 transition-colors hover:bg-gray-50/50"
-                  >
+  {loading ? (
+    <Skeletons />
+  ) : addresses.length === 0 ? (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[350px]">
+      <Icon
+        icon="basil:location-outline"
+        className="w-16 h-16 sm:w-24 sm:h-24 text-gray-300 mb-4"
+      />
+
+      <p className="text-lg sm:text-xl font-medium text-gray-500">
+        ไม่มีข้อมูลที่อยู่ของคุณ
+      </p>
+    </div>
+  ) : (
+    addresses.map((address: Address) => (
+      <div
+        key={address.id}
+        className="p-4 sm:p-5 flex flex-col gap-3 transition-colors hover:bg-gray-50/50"
+      >
+        
                     {/* แถวที่ 1: ข้อมูลผู้รับ & ปุ่มควบคุมหลัก */}
                     <div className="flex justify-between items-center w-full">
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-base">

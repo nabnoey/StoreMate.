@@ -13,7 +13,8 @@ import { toast } from "react-hot-toast";
 import { retryPaymentThunk } from "../../../redux/payment/paymentReducer";
 import { useReview } from "../../../hooks/useReview";
 import ReviewManager from "../../../components/user/review/ReviewManager";
-import OrderSkeleton from "../../../components/loading/OrderSkeleton";
+import Skeleton from "../../../components/loading/Skeletons";
+
 
 const Order = () => {
   const navigate = useNavigate();
@@ -160,7 +161,7 @@ const Order = () => {
             <div className="flex flex-col gap-4 py-4 w-full bg-white">
               {loading && orders.length === 0 ? (
                 Array.from({ length: 5 }).map((_, index) => (
-                  <OrderSkeleton key={index} />
+                  <Skeleton key={index} />
                 ))
               ) : error ? (
                 <div className="flex flex-col items-center justify-center py-16 sm:py-28">

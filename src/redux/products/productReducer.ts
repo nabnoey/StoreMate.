@@ -14,6 +14,7 @@ type ProductState = {
   searchResult: Product[];
   categories: string[];
   selectedProduct: ProductDetail | null;
+  loading: boolean;
 };
 
 const initialState: ProductState = {
@@ -23,6 +24,7 @@ const initialState: ProductState = {
   searchResult: [],
   categories: [],
   selectedProduct: null,
+  loading: false,
 };
 // 1. ส่วนดึงข้อมูล (เหมือนไปสั่งของจากโรงงาน/API)
 export const fetchProducts = createAsyncThunk("products/fetch", async () => {
@@ -108,7 +110,12 @@ const productsSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(fetchProducts.fulfilled, (state, action) => {
+    builder
+    .addCase(fetchProducts.pending, (state) => {
+      state.loading = true;
+    })
+    
+    .addCase(fetchProducts.fulfilled, (state, action) => {
       const groupedArray = Object.keys(action.payload).map((key) => ({
         categoryName: key,
         products: action.payload[key],
@@ -121,6 +128,7 @@ const productsSlice = createSlice({
     builder.addCase(search.fulfilled, (state, action) => {
       state.search = action.meta.arg.keyword; //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
       state.searchResult = action.payload.data; //รายการสินค้าที่หลังบ้านหาเจอและส่งกลับมาให้
+      state.loading = false;
     });
 
     builder.addCase(addProduct.fulfilled, (state, action) => {
