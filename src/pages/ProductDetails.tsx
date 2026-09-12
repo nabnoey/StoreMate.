@@ -11,7 +11,6 @@ import { fetchProductById } from "../redux/products/productReducer";
 import { TokenService } from "../services/token.service";
 
 import Pagination from "../components/user/Pagination";
-import Loading from "../components/loading/Loading";
 import Skeletons from "../components/loading/Skeletons";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
