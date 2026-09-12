@@ -10,6 +10,7 @@ import {
   deleteNotify,
 } from "../../redux/notification/notificationReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
+import OwnerSkeletons from "../../components/loading/OwnerSkeletons";
 
 interface NotificationFormData {
   subject: string;
@@ -344,14 +345,11 @@ const NotificationManagementPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {isLoading ? (
-                    <tr>
-                      <td
-                        colSpan={isOwner ? 4 : 3}
-                        className="py-20 text-center text-gray-400 text-sm"
-                      >
-                        กำลังโหลดข้อมูลระบบ...
-                      </td>
-                    </tr>
+                    <OwnerSkeletons
+                      type="mod-table"
+                      rows={6}
+                      columns={isOwner ? 4 : 3}
+                    />
                   ) : notifications && notifications.length > 0 ? (
                     notifications.map((noti) => {
                       const recipient = getRecipientConfig(noti.sendTo);
