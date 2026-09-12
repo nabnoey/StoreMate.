@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Skeleton from "@mui/material/Skeleton";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Icon } from "@iconify/react";
@@ -12,6 +13,7 @@ import {
 } from "../../redux/moderator/refundReducer";
 import HeaderAdmin from "../../components/admin/HeaderAdmin";
 import { toast } from "react-hot-toast";
+import OwnerSkeletons from "../../components/loading/OwnerSkeletons";
 
 // MANAGE ในนี้คือ"รายการที่ต้องเข้าไปจัดการ" เช่น กดอนุมัติคำขอ หรือปฎิเสธ
 // จริงๆใน BE ไม่มีแต่ที่เพิ่มมาเพราะเอาไว้จำกัดการแสดงข้อความในคอลัมน์ การดำเนินการ
@@ -336,14 +338,11 @@ const RefundPage = () => {
                 </thead>
                 <tbody className="text-sm divide-y divide-gray-100 text-gray-600">
                   {isLoading ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="text-center py-16 text-gray-400 font-medium"
-                      >
-                        กำลังโหลดข้อมูลระบบ...
-                      </td>
-                    </tr>
+                    <OwnerSkeletons
+                      type="mod-table"
+                      rows={pageSize}
+                      columns={8}
+                    />
                   ) : refunds.length === 0 ? (
                     <tr>
                       <td
@@ -515,8 +514,91 @@ const RefundPage = () => {
             )}
 
             {!selectedRefund ? (
-              <div className="py-12 text-center text-gray-400 text-xs font-medium">
-                กำลังโหลดรายละเอียดข้อมูล...
+              <div className="w-full flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index}>
+                      <Skeleton
+                        variant="text"
+                        animation="wave"
+                        width={90}
+                        height={18}
+                      />
+
+                      <Skeleton
+                        variant="text"
+                        animation="wave"
+                        width={140}
+                        height={24}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div>
+                  <Skeleton
+                    variant="text"
+                    animation="wave"
+                    width={100}
+                    height={18}
+                  />
+
+                  <Skeleton
+                    variant="text"
+                    animation="wave"
+                    width="100%"
+                    height={24}
+                  />
+
+                  <Skeleton
+                    variant="text"
+                    animation="wave"
+                    width="80%"
+                    height={24}
+                  />
+                </div>
+
+                <div className="flex justify-between items-end border-t border-gray-50 pt-3">
+                  <div>
+                    <Skeleton
+                      variant="text"
+                      animation="wave"
+                      width={100}
+                      height={18}
+                    />
+                    <Skeleton
+                      variant="text"
+                      animation="wave"
+                      width={100}
+                      height={24}
+                    />
+                  </div>
+
+                  <div>
+                    <Skeleton
+                      variant="rounded"
+                      animation="wave"
+                      width={80}
+                      height={28}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 justify-end mt-5">
+                  <Skeleton
+                    variant="rounded"
+                    animation="wave"
+                    width={70}
+                    height={40}
+                  />
+
+                  <Skeleton
+                    variant="rounded"
+                    animation="wave"
+                    width={70}
+                    height={40}
+                  />
+                </div>
               </div>
             ) : (
               <div className="w-full flex flex-col gap-4 text-xs">
