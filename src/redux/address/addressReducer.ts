@@ -9,6 +9,7 @@ const initialState: AddressState = {
   districts: [],
   subdistricts: [],
   zipcodeId: [],
+  loading: false,
 };
 
 export const addAddress = createAsyncThunk(
@@ -95,8 +96,14 @@ const addressSlice = createSlice({
   reducers: {},
 
   extraReducers: (builder) => {
-    builder.addCase(fetchAllAddresses.fulfilled, (state, action) => {
+    builder
+
+    .addCase(fetchAllAddresses.pending, (state) => {
+      state.loading = true;
+    })   
+    .addCase(fetchAllAddresses.fulfilled, (state, action) => {
       state.addresses = action.payload;
+      state.loading = false;
       state.defaultAddress = action.payload.find(
         (addr: Address) => addr.isDefault,
       );

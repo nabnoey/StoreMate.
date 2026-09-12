@@ -1,6 +1,6 @@
 import Skeleton from "@mui/material/Skeleton";
 
-export default function OrderSkeleton() {
+export default function Skeletons() {
   return (
     <div className="bg-white rounded-xl p-4 shadow mb-4">
       <Skeleton variant="text" width={180} height={30} />

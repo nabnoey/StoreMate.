@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../../redux/store";
@@ -13,7 +13,6 @@ import {
 import { Icon } from "@iconify/react";
 import { toast } from "react-hot-toast";
 import ConfirmToast from "../../../components/ConfirmToast";
-
 
 const ShoppingCart = () => {
   const navigate = useNavigate();
@@ -63,7 +62,7 @@ const selectedCartItems = useMemo(() => {
   }, [selectedCartItems]);
 
 
-  const confirmAction = useCallback((message: string): Promise<boolean> => {
+  const confirmAction = (message: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setIsBlocking(true);
       toast(
@@ -78,7 +77,7 @@ const selectedCartItems = useMemo(() => {
         { duration: Infinity, position: "top-center" },
       );
     });
-  }, []);
+  };
 
 
   //เลือกสินค้า
@@ -125,19 +124,6 @@ const selectedCartItems = useMemo(() => {
     setSelectedItems([]);
     toast.success("ลบสินค้าสำเร็จ");
   };
-
-
-  // const handleIncreaseQuantity = (
-  //   productId: number,
-  //   quantity: number,
-  //   stockQuantity: number,
-  // ) => {
-  //   if (quantity >= stockQuantity) {
-  //     toast.error("ขออภัย สินค้าชิ้นนี้มีจำนวนจำกัดในคลังไม่สามารถเพิ่มได้");
-  //     return;
-  //   }
-  //   dispatch(incrementCartItemThunk(productId));
-  // };
 
   const handleIncreaseQuantity = async (
   productId: number,
