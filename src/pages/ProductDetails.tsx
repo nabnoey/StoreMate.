@@ -11,7 +11,7 @@ import { fetchProductById } from "../redux/products/productReducer";
 import { TokenService } from "../services/token.service";
 
 import Pagination from "../components/user/Pagination";
-// import Loading from "../components/loading/Loading";
+import Skeletons from "../components/loading/Skeletons";
 
 import type { CartItemRequestDTO } from "../types/cartItem";
 
@@ -46,8 +46,8 @@ const ProductDetailPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // const [openMenuId, setOpenMenuId] = useState<number | string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const productDetail = useSelector(
-    (state: RootState) => state.products.selectedProduct,
+  const { selectedProduct: productDetail, loading } = useSelector(
+    (state: RootState) => state.products,
   );
   const currentStock = productDetail?.quantity || 0;
   const cartItems = useSelector((state: RootState) => state.carts.items);
@@ -235,13 +235,21 @@ const ProductDetailPage: React.FC = () => {
     setCurrentPage(page);
   };
 
-  // if (loading) return <Loading />;
-  if (!productDetail)
+  if (loading) {
+    return (
+      <div className="min-h-screen p-4">
+        <Skeletons />
+      </div>
+    );
+  }
+
+  if (!productDetail) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         ไม่พบสินค้า
       </div>
     );
+  }
 
   return (
     <main className="w-full min-h-screen bg-white flex flex-col font-anuphan">

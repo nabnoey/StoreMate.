@@ -111,19 +111,19 @@ const productsSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-    .addCase(fetchProducts.pending, (state) => {
-      state.loading = true;
-    })
-    
-    .addCase(fetchProducts.fulfilled, (state, action) => {
-      const groupedArray = Object.keys(action.payload).map((key) => ({
-        categoryName: key,
-        products: action.payload[key],
-      })); //ผลลัพธ์ [{soap:[...]},]  // {soap:[...]}
+      .addCase(fetchProducts.pending, (state) => {
+        state.loading = true;
+      })
 
-      state.groupedProducts = groupedArray;
-      state.items = groupedArray.flatMap((group) => group.products);
-    });
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        const groupedArray = Object.keys(action.payload).map((key) => ({
+          categoryName: key,
+          products: action.payload[key],
+        })); //ผลลัพธ์ [{soap:[...]},]  // {soap:[...]}
+
+        state.groupedProducts = groupedArray;
+        state.items = groupedArray.flatMap((group) => group.products);
+      });
 
     builder.addCase(search.fulfilled, (state, action) => {
       state.search = action.meta.arg.keyword; //คำค้นหาที่พิมพ์ส่งไปตั้งแต่แรก
@@ -139,9 +139,19 @@ const productsSlice = createSlice({
       state.items.unshift(newProduct);
     });
 
-    builder.addCase(fetchProductById.fulfilled, (state, action) => {
-      state.selectedProduct = action.payload;
-    });
+    builder
+      .addCase(fetchProductById.pending, (state) => {
+        state.loading = true;
+        state.selectedProduct = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedProduct = action.payload;
+      })
+      .addCase(fetchProductById.rejected, (state) => {
+        state.loading = false;
+        state.selectedProduct = null;
+      });
   },
 });
 

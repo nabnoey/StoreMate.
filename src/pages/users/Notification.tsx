@@ -16,6 +16,7 @@ import type {
   NotificationType,
   ClientNotification,
 } from "../../types/notification";
+import NotificationSkeleton from "../../components/loading/NotificationSkeleton";
 
 const NotificationPage = () => {
   const navigate = useNavigate();
@@ -115,10 +116,10 @@ const NotificationPage = () => {
   const activeFilterData =
     filters.find((f) => f.id === activeFilter) || filters[0];
 
- const extractOrderNo = (message: string) => {
-  const match = message.match(/ออร์เดอร์เลขที่\s([A-Z0-9-]+)/);
-  return match ? match[1] : null;
-};
+  const extractOrderNo = (message: string) => {
+    const match = message.match(/ออร์เดอร์เลขที่\s([A-Z0-9-]+)/);
+    return match ? match[1] : null;
+  };
 
   const handleNotificationClick = async (item: ClientNotification) => {
     // ถ้ายังไม่อ่าน ค่อย mark as read
@@ -304,12 +305,11 @@ const NotificationPage = () => {
               {/* Notifications List */}
               <div className="flex-1 flex flex-col gap-3 w-full">
                 {isLoading ? (
-                  <div
-                    className="text-center py-10 text-gray-400 text-sm"
-                    data-test="loading-state"
-                  >
-                    กำลังโหลดข้อมูลการแจ้งเตือน...
-                  </div>
+                  <>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <NotificationSkeleton key={index} />
+                    ))}
+                  </>
                 ) : notifications.length > 0 ? (
                   <>
                     {paginatedNotifications.map((item) => (
